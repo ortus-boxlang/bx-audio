@@ -14,6 +14,7 @@
  */
 package ortus.boxlang.modules.audio.util;
 
+import ortus.boxlang.modules.audio.timeline.Timeline;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
@@ -38,6 +39,19 @@ public final class Audios {
 		throw new BoxRuntimeException(
 		    "The " + name + " argument must be an audio buffer, for example from audioLoad() or audioSilence(), but was "
 		        + ( value == null ? "null" : value.getClass().getSimpleName() ) );
+	}
+
+	/**
+	 * Make sure an argument value is a timeline
+	 *
+	 * @param value The raw argument
+	 */
+	public static Timeline requireTimeline( Object value ) {
+		if ( value instanceof Timeline timeline ) {
+			return timeline;
+		}
+		throw new BoxRuntimeException(
+		    "The timeline argument must be a timeline from audioTimeline() but was " + ( value == null ? "null" : value.getClass().getSimpleName() ) );
 	}
 
 }

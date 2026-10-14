@@ -38,5 +38,24 @@ public class KeyDictionary {
 	public static final Key	fadeOut		= Key.of( "fadeOut" );
 	public static final Key	pan			= Key.of( "pan" );
 	public static final Key	targetDb	= Key.of( "targetDb" );
+	public static final Key	amountDb	= Key.of( "amountDb" );
+	public static final Key	attack		= Key.of( "attack" );
+	public static final Key	beatsPerBar	= Key.of( "beatsPerBar" );
+	public static final Key	bpm			= Key.of( "bpm" );
+	public static final Key	drive		= Key.of( "drive" );
+	public static final Key	level		= Key.of( "level" );
+	public static final Key	recovery	= Key.of( "recovery" );
+	public static final Key	release		= Key.of( "release" );
+	public static final Key	sound		= Key.of( "sound" );
+	public static final Key	tail		= Key.of( "tail" );
+	public static final Key	thresholdDb	= Key.of( "thresholdDb" );
+	public static final Key	times		= Key.of( "times" );
+	public static final Key	timeline	= Key.of( "timeline" );
+	public static final Key	track		= Key.of( "track" );
+	public static final Key	trigger		= Key.of( "trigger" );
+	public static final Key	at			= Key.of( "at" );
+	public static final Key	step		= Key.of( "step" );
+	public static final Key	start		= Key.of( "start" );
+	public static final Key	end			= Key.of( "end" );
 
 }

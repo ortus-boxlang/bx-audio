@@ -266,4 +266,23 @@ public class DspTest {
 		assertThrows( BoxRuntimeException.class, () -> Dsp.resample( in, 10_000_000 ) );
 	}
 
+	@DisplayName( "Saturate sets the peak to the level whatever the input level was, and rounds the curve" )
+	@Test
+	void testSaturate() {
+		AudioBuffer	in	= new AudioBuffer( new float[][] { { 0.01f, 0.5f, -1f, 0.25f } }, 44100 );
+		AudioBuffer	out	= Dsp.saturate( in, 2.2, 0.9 );
+		assertThat( out.getPeak() ).isWithin( 1e-6f ).of( 0.9f );
+		assertThat( out.channel( 0 )[ 2 ] ).isWithin( 1e-6f ).of( -0.9f );
+		// quiet by comparison with the peak, the curve is almost linear, mid level samples are lifted relative to the peak
+		AudioBuffer quiet = new AudioBuffer( new float[][] { { 0.001f, 0.05f, -0.1f, 0.025f } }, 44100 );
+		assertThat( Dsp.saturate( quiet, 2.2, 0.9 ).channel( 0 )[ 1 ] ).isWithin( 1e-6f ).of( out.channel( 0 )[ 1 ] );
+		assertThat( out.channel( 0 )[ 1 ] ).isGreaterThan( 0.45f );
+		// silence stays silent, and the input is untouched
+		assertThat( Dsp.saturate( AudioBuffer.silence( 1, 3, 44100 ), 2, 0.5 ).getPeak() ).isEqualTo( 0f );
+		assertThat( in.channel( 0 )[ 1 ] ).isEqualTo( 0.5f );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.saturate( in, 0, 0.9 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.saturate( in, 2, 1.5 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.saturate( in, Double.NaN, 0.5 ) );
+	}
+
 }

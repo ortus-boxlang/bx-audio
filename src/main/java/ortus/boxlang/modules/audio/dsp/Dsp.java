@@ -212,6 +212,39 @@ public final class Dsp {
 	}
 
 	/**
+	 * Warm limiting: scale the loudest sample to full scale, push the signal through a tanh curve so peaks round off instead of
+	 * clipping, and set the final peak level. A higher drive rounds off more of the signal.
+	 *
+	 * @param audio The input
+	 * @param drive How hard to push into the curve, more than 0. Around 2 is gentle, 5 is heavy.
+	 * @param level The final peak level as a linear amount from 0 to 1
+	 */
+	public static AudioBuffer saturate( AudioBuffer audio, double drive, double level ) {
+		requireFinite( drive, "drive" );
+		requireFinite( level, "level" );
+		if ( drive <= 0 ) {
+			throw new BoxRuntimeException( "Drive must be more than 0 but was " + drive );
+		}
+		if ( level < 0 || level > 1 ) {
+			throw new BoxRuntimeException( "Level must be between 0 and 1 but was " + level );
+		}
+		float peak = audio.getPeak();
+		if ( peak == 0f ) {
+			return audio.copy();
+		}
+		double		norm	= Math.tanh( drive );
+		float[][]	out		= new float[ audio.getChannels() ][];
+		for ( int ch = 0; ch < out.length; ch++ ) {
+			float[] in = audio.channel( ch );
+			out[ ch ] = new float[ in.length ];
+			for ( int i = 0; i < in.length; i++ ) {
+				out[ ch ][ i ] = ( float ) ( Math.tanh( in[ i ] / peak * drive ) / norm * level );
+			}
+		}
+		return new AudioBuffer( out, audio.getSampleRate() );
+	}
+
+	/**
 	 * Convert the channel count. Mono to any count copies the signal, any count to mono averages the channels. Other conversions are
 	 * rejected because there is no single right answer.
 	 */

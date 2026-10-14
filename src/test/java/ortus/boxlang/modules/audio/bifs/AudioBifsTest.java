@@ -156,4 +156,82 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioPan( audioSilence( 1 ), 3 )", context ) );
 	}
 
+	@DisplayName( "A timeline mixes a beat grid, ducks music under a voice and renders through BoxLang" )
+	@Test
+	void testTimelineEndToEnd( @TempDir Path dir ) {
+		// a 440 Hz tone at 0.5 amplitude, 1 second long
+		int		frames	= 22050;
+		float[]	sine	= new float[ frames ];
+		for ( int i = 0; i < frames; i++ ) {
+			sine[ i ] = ( float ) ( 0.5 * Math.sin( 2 * Math.PI * 440 * i / 22050 ) );
+		}
+		Path voice = dir.resolve( "voice.wav" );
+		WavCodec.write( new AudioBuffer( new float[][] { sine }, 22050 ), voice, 16 );
+		variables.put( Key.of( "voicePath" ), voice.toString() );
+		variables.put( Key.of( "target" ), dir.resolve( "mix.wav" ).toString() );
+
+		runtime.executeSource(
+		    """
+		    t = audioTimeline( bpm=120, beatsPerBar=4 );
+		    voice = audioLoad( voicePath );
+		    clickAt = audioBeats( t, 0, 8 );
+		    clickCount = clickAt.len();
+		    click = audioTrim( audioResample( voice, 44100 ), 0, 0.05 );
+		    for( at in clickAt ){
+		        audioAdd( timeline=t, sound=click, at=at, track="drums", db=-6, pan=0.3 );
+		    }
+		    audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
+		    audioAdd( timeline=t, sound=audioReverse( audioResample( voice, 44100 ) ), at=0, track="music", db=-12 );
+		    audioPump( t, "music", clickAt, -4, 0.1 );
+		    audioDuck( t, "music", "voice", -9 );
+		    audioTrackGain( t, "drums", -3 );
+		    mix = audioRender( timeline=t, tail=0.5 );
+		    mix = audioSaturate( audioFade( mix, 0, 0.5, "smooth" ), 2.2, 0.9 );
+		    audioSave( mix, target );
+		    result = audioInfo( target );
+		    names = t.getTrackNames();
+		    secondBeat = t.beat( 1 );
+		    """,
+		    context );
+		IStruct info = ( IStruct ) variables.get( result );
+		assertThat( variables.get( Key.of( "clickCount" ) ) ).isEqualTo( 8 );
+		assertThat( variables.get( Key.of( "secondBeat" ) ) ).isEqualTo( 0.5 );
+		assertThat( info.get( Key.of( "channels" ) ) ).isEqualTo( 2 );
+		assertThat( info.get( Key.of( "sampleRate" ) ) ).isEqualTo( 44100 );
+		// the last click starts at beat 7 (3.5 s) and the voice ends at 2 s + 1 s, so the music (1 s) and clicks end at 3.55 s, plus a 0.5 s tail
+		assertThat( ( Double ) info.get( Key.of( "seconds" ) ) ).isWithin( 1e-6 ).of( 4.05 );
+		assertThat( ( Double ) info.get( Key.of( "peak" ) ) ).isWithin( 0.01 ).of( 0.9 );
+	}
+
+	@DisplayName( "Timeline BIFs reject bad arguments with clear errors" )
+	@Test
+	void testTimelineErrors() {
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioTimeline( bpm=0 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioAdd( 'nope', audioSilence( 1 ) )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioAdd( audioTimeline(), 42 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioRender( audioSilence( 1 ) )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioBeats( audioTimeline(), 0, 8, 0 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioBeats( audioTimeline(), 0, 1000000000 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioPump( audioTimeline(), 'x', [ 0 ], 5 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioDuck( audioTimeline(), 'a', 'b' )", context ) );
+	}
+
+	@DisplayName( "audioBeats steps by the requested amount without drift" )
+	@Test
+	void testBeats() {
+		runtime.executeSource(
+		    """
+		    t = audioTimeline( bpm=120 );
+		    whole = audioBeats( t, 0, 4 );
+		    eighths = audioBeats( t, 1, 3, 0.5 );
+		    tenths = audioBeats( t, 0, 1, 0.1 );
+		    result = [ whole, eighths, tenths.len() ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( ( ( Array ) values.get( 0 ) ).toArray() ).asList().containsExactly( 0.0, 0.5, 1.0, 1.5 ).inOrder();
+		assertThat( ( ( Array ) values.get( 1 ) ).toArray() ).asList().containsExactly( 0.5, 0.75, 1.0, 1.25 ).inOrder();
+		assertThat( values.get( 2 ) ).isEqualTo( 10 );
+	}
+
 }
