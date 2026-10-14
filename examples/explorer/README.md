@@ -24,6 +24,10 @@ Open <http://localhost:8080/index.bxm>. With `miniserver.json` in the folder you
 - The same settings play instantly the second time, because results are cached.
 - **Download WAV** saves what you are hearing.
 
+## Branding
+
+The page follows the BoxLang brand: the green `#00FF75` to cyan `#00DBFF` gradient on the waveform, the play button and the selected piece, ink `#303446`, and the blue-gray neutrals the MiniServer pages use. It follows the browser's light or dark setting and swaps between the light and dark logos.
+
 ## How it works
 
 | File | Role |
@@ -32,6 +36,7 @@ Open <http://localhost:8080/index.bxm>. With `miniserver.json` in the folder you
 | `index.bxm` | The page. Reads the catalog on the server and hands it to the browser |
 | `render.bxm` | The JSON endpoint behind the button. Renders a piece and answers with the audio URL, its length and the waveform from `audioWaveform()` |
 | `Renderer.bx` | Runs one example script in its own variables scope, so the script's variables cannot overwrite the request's |
+| `assets/` | The BoxLang logos (full light, full dark and icon) from the official [ortus-artwork](https://github.com/ortus-solutions/ortus-artwork) repository |
 | `cache/` | Rendered audio and metadata, created at runtime and not committed. Keeps the newest 40 renders |
 
 `render.bxm` is deliberately strict because it turns a URL into running code. A piece must be listed in the catalog, only the settings listed for it are read, numbers are clamped to the listed range, `select` settings accept only listed options, and the script path comes from the catalog and never from the request.

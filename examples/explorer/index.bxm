@@ -8,61 +8,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BoxLang Audio Explorer</title>
+<link rel="icon" type="image/svg+xml" href="assets/boxlang-icon-full.svg">
 <style>
+	/* BoxLang brand: green #00FF75 to cyan #00DBFF, ink #303446, blue-gray neutrals from the BoxLang MiniServer pages */
 	:root {
-		--bg: #f6f7fb; --panel: #ffffff; --ink: #1b1e2c; --muted: #5b6075; --line: #dfe2ee;
-		--accent: #0a8fb0; --accent-ink: #ffffff; --wave: #9fb3d9; --wave-played: #0a8fb0; --shadow: 0 1px 3px rgba(20,24,50,.08);
+		--green: #00FF75; --cyan: #00DBFF;
+		--brand: linear-gradient(90deg, #00FF75, #00DBFF);
+		--bg: #F2F2F3; --panel: #ffffff; --ink: #303446; --muted: #494B56; --line: #dcdfe9; --soft: #EDEEF4;
+		--on-brand: #1B1E2C; --wave: #999EAF; --focus: #303446; --shadow: 0 1px 3px rgba(27,30,44,.10);
+		--logo-light: block; --logo-dark: none;
 	}
 	@media (prefers-color-scheme: dark) {
 		:root:not([data-theme="light"]) {
-			--bg: #12141d; --panel: #1b1e2c; --ink: #edeef4; --muted: #9aa0b8; --line: #2c3045;
-			--accent: #00dbff; --accent-ink: #03121a; --wave: #3b4466; --wave-played: #00dbff; --shadow: none;
+			--bg: #1B1E2C; --panel: #252839; --ink: #EDEEF4; --muted: #999EAF; --line: #3a3f55; --soft: #1B1E2C;
+			--wave: #494B56; --focus: #00DBFF; --shadow: none; --logo-light: none; --logo-dark: block;
 		}
 	}
 	:root[data-theme="dark"] {
-		--bg: #12141d; --panel: #1b1e2c; --ink: #edeef4; --muted: #9aa0b8; --line: #2c3045;
-		--accent: #00dbff; --accent-ink: #03121a; --wave: #3b4466; --wave-played: #00dbff; --shadow: none;
+		--bg: #1B1E2C; --panel: #252839; --ink: #EDEEF4; --muted: #999EAF; --line: #3a3f55; --soft: #1B1E2C;
+		--wave: #494B56; --focus: #00DBFF; --shadow: none; --logo-light: none; --logo-dark: block;
 	}
 	* { box-sizing: border-box; }
 	body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-	header { padding: 20px 16px 8px; max-width: 1040px; margin: 0 auto; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-	h1 { margin: 0; font-size: 1.4rem; }
+	header { padding: 20px 16px 12px; max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
+	.brand { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+	.brand img { height: 30px; width: auto; }
+	.brand .logo-light { display: var(--logo-light); }
+	.brand .logo-dark { display: var(--logo-dark); }
+	.brand .product { font-size: 1.15rem; font-weight: 700; padding-left: 14px; border-left: 3px solid transparent; border-image: var(--brand) 1; }
 	header p { margin: 0; color: var(--muted); font-size: .9rem; }
 	main { max-width: 1040px; margin: 0 auto; padding: 8px 16px 48px; display: grid; grid-template-columns: 260px 1fr; gap: 16px; }
 	@media (max-width: 760px) { main { grid-template-columns: 1fr; } }
 	.list { display: flex; flex-direction: column; gap: 8px; }
-	.card { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: inherit; font: inherit; cursor: pointer; box-shadow: var(--shadow); }
+	.card { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: inherit; font: inherit; cursor: pointer; box-shadow: var(--shadow); position: relative; }
 	.card strong { display: block; }
 	.card span { color: var(--muted); font-size: .85rem; }
-	.card[aria-current="true"] { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -2px; }
-	.card:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+	.card[aria-current="true"] { border-color: transparent; background: linear-gradient(var(--panel), var(--panel)) padding-box, var(--brand) border-box; border: 2px solid transparent; padding: 11px 13px; }
+	.card:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, .wave:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 	.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); min-width: 0; }
 	.panel h2 { margin: 0 0 2px; font-size: 1.2rem; }
 	.panel .blurb { margin: 0 0 14px; color: var(--muted); }
-	.wave { position: relative; height: 120px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--bg); }
+	.wave { position: relative; height: 120px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--soft); }
 	.wave canvas { width: 100%; height: 100%; display: block; }
 	.wave .hint { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: .9rem; pointer-events: none; text-align: center; padding: 8px; }
+	.hint[hidden] { display: none; }
 	.transport { display: flex; align-items: center; gap: 12px; margin: 12px 0 4px; flex-wrap: wrap; }
-	button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer; min-height: 44px; }
+	button.primary { background: var(--brand); color: var(--on-brand); border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 700; cursor: pointer; min-height: 44px; }
+	button.primary:hover { filter: brightness(1.05); }
 	button.primary:disabled { opacity: .6; cursor: progress; }
 	button.ghost, a.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font: inherit; cursor: pointer; min-height: 44px; }
-	.hint[hidden] { display: none; }
+	button.ghost:disabled { opacity: .5; cursor: default; }
 	a.ghost { text-decoration: none; display: inline-flex; align-items: center; }
 	.time { font-variant-numeric: tabular-nums; color: var(--muted); }
 	.status { color: var(--muted); font-size: .85rem; min-height: 1.4em; margin: 4px 0 0; }
-	.status.error { color: #d6336c; }
+	.status.error { color: #DF2121; }
+	:root:not([data-theme="light"]) .status.error { color: #ff6b6b; }
 	.params { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px 20px; margin-top: 16px; }
 	.param label { display: flex; justify-content: space-between; font-size: .9rem; margin-bottom: 4px; }
 	.param output { color: var(--muted); font-variant-numeric: tabular-nums; }
-	.param input[type=range] { width: 100%; accent-color: var(--accent); }
-	.param select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
-	footer { max-width: 1040px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: .85rem; }
-	code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+	.param input[type=range] { width: 100%; accent-color: #00B8D9; }
+	.param select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--soft); color: var(--ink); font: inherit; }
+	footer { max-width: 1040px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: .85rem; display: flex; align-items: flex-start; gap: 10px; }
+	footer img { height: 22px; width: 22px; flex: none; }
+	code { background: var(--soft); padding: 1px 5px; border-radius: 4px; }
 </style>
 </head>
 <body>
 <header>
-	<h1>BoxLang Audio Explorer</h1>
+	<div class="brand">
+		<img class="logo-light" src="assets/boxlang-logo-full-light.svg" alt="BoxLang">
+		<img class="logo-dark" src="assets/boxlang-logo-full-dark.svg" alt="BoxLang">
+		<h1 class="product">Audio Explorer</h1>
+	</div>
 	<p>Every piece here is synthesized by a BoxLang script when you press play.</p>
 </header>
 <main>
@@ -85,7 +102,8 @@
 	</section>
 </main>
 <footer>
-	Rendered by <code>render.bxm</code> with the module's <code>audioRender</code>, <code>audioSave</code> and <code>audioWaveform</code>. Results are cached in <code>cache/</code> by piece and settings, so the same settings play instantly.
+	<img src="assets/boxlang-icon-full.svg" alt="" width="22" height="22">
+	<span>Rendered by <code>render.bxm</code> with the module's <code>audioRender</code>, <code>audioSave</code> and <code>audioWaveform</code>. Results are cached in <code>cache/</code> by piece and settings, so the same settings play instantly.</span>
 </footer>
 <audio id="player" preload="auto"></audio>
 <bx:output><script>window.CATALOG = #catalogJson#;</script></bx:output>
@@ -204,6 +222,9 @@
 		ctx.clearRect( 0, 0, width, height );
 		if ( !peaks ) return;
 		const progress = seconds ? Math.min( 1, player.currentTime / seconds ) : 0;
+		const gradient = ctx.createLinearGradient( 0, 0, width, 0 );
+		gradient.addColorStop( 0, "#00FF75" );
+		gradient.addColorStop( 1, "#00DBFF" );
 		const bars = Math.min( peaks.length, Math.floor( width / 3 ) );
 		const gap = width / bars;
 		for ( let i = 0; i < bars; i++ ) {
@@ -211,7 +232,7 @@
 			let peak = 0;
 			for ( let k = from; k < to; k++ ) peak = Math.max( peak, peaks[ k ] );
 			const h = Math.max( 2, peak * ( height - 8 ) );
-			ctx.fillStyle = ( i / bars ) < progress ? css( "--wave-played" ) : css( "--wave" );
+			ctx.fillStyle = ( i / bars ) < progress ? gradient : css( "--wave" );
 			ctx.fillRect( i * gap, ( height - h ) / 2, Math.max( 1, gap - 1 ), h );
 		}
 		ctx.fillStyle = css( "--ink" );
