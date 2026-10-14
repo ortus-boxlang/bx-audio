@@ -1,0 +1,144 @@
+[
+	{
+		"id": "pop-drive",
+		"title": "Pop Drive",
+		"style": "Upbeat pop",
+		"script": "../01-pop-drive/pop-drive.bxs",
+		"blurb": "Voices, a beat grid, kick pump and mastering. A port of a numpy script, checked against the original.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 8, "max": 56, "step": 4, "value": 28 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 90, "max": 150, "step": 1, "value": 128 },
+			{ "name": "style", "label": "Style", "type": "select", "options": [ "pop", "drive" ], "value": "pop" }
+		]
+	},
+	{
+		"id": "lofi",
+		"title": "Lofi",
+		"style": "Lofi hip hop",
+		"script": "../02-lofi/lofi.bxs",
+		"blurb": "Swing, humanised timing, tape wobble and vinyl crackle over jazzy seventh chords.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 8, "max": 32, "step": 4, "value": 16 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 60, "max": 95, "step": 1, "value": 78 },
+			{ "name": "swing", "label": "Swing", "type": "range", "min": 0.5, "max": 0.7, "step": 0.01, "value": 0.58 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 7 }
+		]
+	},
+	{
+		"id": "house",
+		"title": "House",
+		"style": "House",
+		"script": "../03-house/house.bxs",
+		"blurb": "Four on the floor with sidechain pumping, a rolling bass, stabs, a riser and a drop.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 118, "max": 130, "step": 1, "value": 124 }
+		]
+	},
+	{
+		"id": "ambient",
+		"title": "Ambient",
+		"style": "Drone and pads",
+		"script": "../04-ambient/ambient.bxs",
+		"blurb": "Slow envelopes, inharmonic bells, noise swells and a very large reverb.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 4, "max": 24, "step": 4, "value": 12 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 36, "max": 70, "step": 1, "value": 48 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 5 }
+		]
+	},
+	{
+		"id": "techno",
+		"title": "Techno",
+		"style": "Techno",
+		"script": "../05-techno/techno.bxs",
+		"blurb": "A hypnotic groove in F sharp minor: hard kick, rumble bass, a resonant acid line and echoing stabs.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 124, "max": 145, "step": 1, "value": 132 }
+		]
+	},
+	{
+		"id": "synthwave",
+		"title": "Synthwave",
+		"style": "Synthwave",
+		"script": "../06-synthwave/synthwave.bxs",
+		"blurb": "A night drive: pulsing bass, a gated snare in a huge room, wide pads, an arpeggio and a lead melody.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 85, "max": 120, "step": 1, "value": 100 }
+		]
+	},
+	{
+		"id": "cinematic",
+		"title": "Cinematic",
+		"style": "Trailer music",
+		"script": "../07-cinematic/cinematic.bxs",
+		"blurb": "Tension, a build, one silent beat, then a huge boom, taiko drums and a theme. Ends on a ringing hit.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 40, "step": 4, "value": 24 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 70, "max": 120, "step": 1, "value": 90 }
+		]
+	},
+	{
+		"id": "chiptune",
+		"title": "Chiptune",
+		"style": "8 bit game music",
+		"script": "../08-chiptune/chiptune.bxs",
+		"blurb": "Original music for an imaginary console: two pulse channels, a triangle bass and noise drums. Five tracks, from an overworld theme to a boss fight.",
+		"params": [
+			{ "name": "track", "label": "Track", "type": "select", "options": [ "overworld", "cave", "boss", "title", "victory" ], "value": "overworld" },
+			{ "name": "loops", "label": "Loops (0 is the track's own)", "type": "range", "min": 0, "max": 4, "step": 1, "value": 0 }
+		]
+	},
+	{
+		"id": "sfx",
+		"title": "Game sound effects",
+		"style": "Sound effects",
+		"script": "../09-sfx/sfx.bxs",
+		"blurb": "A jump, a coin, a laser, an explosion and more, made from pulse waves and noise. Hear them all in the sampler or one at a time.",
+		"params": [
+			{ "name": "sound", "label": "Sound", "type": "select", "options": [ "sampler", "jump", "coin", "laser", "explosion", "powerup", "hit", "blip", "alarm", "gameover", "footstep" ], "value": "sampler" },
+			{ "name": "seed", "label": "Seed (the noise in the explosion, hit and footstep)", "type": "range", "min": 1, "max": 99, "step": 1, "value": 1 }
+		]
+	},
+	{
+		"id": "jazz",
+		"title": "Jazz",
+		"style": "Swing blues",
+		"script": "../10-jazz/jazz.bxs",
+		"blurb": "A trio on a twelve bar blues in F: walking bass, ride, piano comping and an improvised solo. Change the seed for another solo.",
+		"params": [
+			{ "name": "choruses", "label": "Choruses", "type": "range", "min": 2, "max": 6, "step": 1, "value": 3 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 100, "max": 180, "step": 1, "value": 132 },
+			{ "name": "swing", "label": "Swing", "type": "range", "min": 0.5, "max": 0.75, "step": 0.01, "value": 0.64 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 4 }
+		]
+	},
+	{
+		"id": "rock",
+		"title": "Rock",
+		"style": "Rock",
+		"script": "../11-rock/rock.bxs",
+		"blurb": "Distorted power chords, a bass guitar, drums with fills and crashes, and a pentatonic solo from a seeded generator.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 100, "max": 160, "step": 1, "value": 128 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 3 }
+		]
+	},
+	{
+		"id": "voiceover",
+		"title": "Voice-over",
+		"style": "Narration over music",
+		"script": "../12-voiceover/voiceover.bxs",
+		"needsVoice": true,
+		"blurb": "A trailer style announcement: a text to speech voice over music that ducks under it. Needs the speech engine, so it runs from the command line.",
+		"params": [
+			{ "name": "voice", "label": "Voice", "type": "text", "value": "joe" },
+			{ "name": "text", "label": "Lines, separated by |", "type": "text", "value": "" },
+			{ "name": "duck", "label": "Music ducking in dB", "type": "range", "min": -24, "max": 0, "step": 1, "value": -12 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 80, "max": 130, "step": 1, "value": 100 }
+		]
+	}
+]

@@ -1,0 +1,119 @@
+/**
+ * Game sound effects, made from nothing: a jump, a coin, a laser, an explosion, a power up, a hit, a menu blip, an alarm, a game over
+ * jingle and a footstep. Each one is a few lines of synthesis, the pulse waves and noise bursts that arcade machines used, so you can
+ * read how a sound is built and change it.
+ *
+ * Usage:
+ *   boxlang sfx.bxs [--sound=sampler] [--out=out/sfx-sampler.wav] [--seed=1]
+ *   boxlang sfx.bxs --folder=out/sfx        # every sound as its own file, ready for a game
+ *
+ * `--sound` is one of the sounds, or `sampler` to hear them all one after the other.
+ */
+
+settings = { sound : "sampler", out : "", folder : "", seed : 1 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+seed = int( settings.seed );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Building blocks
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * A tone that glides from one pitch to another in small steps of 5 ms, with the phase carried from step to step so it never clicks. The
+ * glide is exponential, which is how pitch is heard. Arcade chips did this as a stepped glide too.
+ */
+function glide( shape, fromHz, toHz, seconds, width ){
+	var segment = 0.005;
+	var count = max( 2, int( seconds / segment ) );
+	var phase = 0;
+	var parts = [];
+	for( var i = 0; i < count; i++ ){
+		var hz = fromHz * ( toHz / fromHz ) ^ ( i / ( count - 1 ) );
+		parts.append( audioOsc( shape = shape, freq = hz, seconds = segment, sampleRate = sr, width = width, phase = phase ) );
+		phase = ( phase + hz * segment ) mod 1;
+	}
+	return audioConcat( parts );
+}
+
+/**
+ * One note, shaped like the volume of an arcade tone: an instant attack and a decay
+ */
+function note( shape, hz, seconds, width, decay ){
+	return audioFade( audioEnvelope( audioOsc( shape = shape, freq = hz, seconds = seconds, sampleRate = sr, width = width ), 0.001, decay ), 0, min( 0.01, seconds / 2 ) );
+}
+
+/**
+ * Notes one after the other, each of `each` seconds
+ */
+function phrase( hzList, each, shape, width, decay ){
+	return audioConcat( hzList.map( ( hz ) => note( shape, hz, each, width, decay ) ) );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The sounds
+// ---------------------------------------------------------------------------------------------------------------------------------
+sounds = {
+	jump : () => audioEnvelope( glide( "pulse", 260, 640, 0.2, 0.25 ), 0.002, 0.18 ),
+	coin : () => audioConcat( [ note( "pulse", 988, 0.07, 0.5, 5 ), note( "pulse", 1319, 0.4, 0.5, 0.12 ) ] ),
+	laser : () => audioEnvelope( glide( "pulse", 1800, 200, 0.28, 0.125 ), 0.002, 0.2 ),
+	explosion : () => audioMix( [
+		audioEnvelope( audioFilter( audioNoise( seconds = 1.0, sampleRate = sr, seed = seed, color = "brown" ), "lowpass", 1400, 0.7071 ), 0.002, 0.28 ),
+		audioGain( audioEnvelope( audioSweep( 110, 28, 0.6, 9 ), 0.001, 0.2 ), -3 )
+	] ),
+	powerup : () => phrase( [ audioFreq( "C5" ), audioFreq( "E5" ), audioFreq( "G5" ), audioFreq( "C6" ), audioFreq( "E6" ), audioFreq( "G6" ) ], 0.06, "pulse", 0.25, 0.25 ),
+	hit : () => audioMix( [
+		audioEnvelope( audioNoise( seconds = 0.12, sampleRate = sr, seed = seed + 1, color = "white" ), 0.001, 0.02 ),
+		audioEnvelope( glide( "pulse", 180, 55, 0.12, 0.5 ), 0.001, 0.07 )
+	] ),
+	blip : () => note( "pulse", 880, 0.06, 0.5, 0.05 ),
+	alarm : () => audioConcat( [ 1, 2, 3, 4 ].map( ( i ) => note( "square", i mod 2 == 1 ? 620 : 930, 0.16, 0.5, 2 ) ) ),
+	gameover : () => audioConcat( [
+		phrase( [ audioFreq( "G4" ), audioFreq( "E4" ), audioFreq( "C4" ) ], 0.22, "triangle", 0.5, 0.5 ),
+		note( "triangle", audioFreq( "G3" ), 0.9, 0.5, 0.5 )
+	] ),
+	footstep : () => audioEnvelope( audioFilter( audioNoise( seconds = 0.12, sampleRate = sr, seed = seed + 2, color = "brown" ), "lowpass", 500, 0.7071 ), 0.002, 0.03 )
+};
+order = [ "jump", "coin", "laser", "explosion", "powerup", "hit", "blip", "alarm", "gameover", "footstep" ];
+
+/**
+ * Finished sound: a few milliseconds of fade at both ends so nothing clicks, and a common level so they sit together
+ */
+function finished( name ){
+	return audioNormalize( audioFade( sounds[ name ](), 0.003, 0.01 ), -2 );
+}
+
+what = settings.sound.lcase();
+if( what != "sampler" && !sounds.keyExists( what ) ){
+	throw( type = "bxaudio.example", message = "Unknown sound [#settings.sound#]. The sounds are: #order.toList( ', ' )#, or sampler for all of them" );
+}
+
+if( settings.folder.len() ){
+	// An effects pack: every sound as a file of its own
+	written = [];
+	for( name in order ){
+		written.append( audioSave( finished( name ), settings.folder & "/" & name & ".wav" ) );
+	}
+	println( "wrote " & written.len() & " sounds to " & settings.folder );
+} else {
+	outFile = settings.out.len() ? settings.out : "out/sfx-" & what & ".wav";
+	if( what == "sampler" ){
+		// Every sound with a short pause after it, which is also how the sounds are checked by ear
+		gap = audioSilence( 0.35, 1, sr );
+		parts = [];
+		for( name in order ){
+			parts.append( finished( name ) );
+			parts.append( gap );
+		}
+		sound = audioConcat( parts );
+	} else {
+		sound = finished( what );
+	}
+	written = audioSave( sound, outFile );
+	println( "wrote " & written & " " & numberFormat( audioInfo( sound ).seconds, "0.00" ) & " s, " & what );
+}

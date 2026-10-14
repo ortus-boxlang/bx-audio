@@ -77,13 +77,12 @@ java {
 	withSourcesJar()
 }
 
-// Exclude main resources from IDE classpath to avoid class loading conflicts
-// Resources are still included in the JAR/build outputs
+// The module's own resources: the voice and engine catalogs (voices.json and engine.json), which end up in the module jar.
+// Tests read them straight from src/main/resources, see the test task below.
 sourceSets {
 	main {
 		resources {
-			// Empty the resources to exclude from IDE classpath
-			srcDirs = []
+			srcDirs = [ 'src/main/resources' ]
 		}
 	}
 }
@@ -211,6 +210,11 @@ task createModuleStructure(type: Copy) {
     from( 'licenses' ) {
         into 'licenses'
     }
+    // The example scripts and the explorer, which the bx-audio render and explorer commands use
+    from( 'examples' ) {
+        exclude 'explorer/cache/**'
+        into 'examples'
+    }
     from( '.' ) {
         include 'box.json'
 		include 'readme.md'
@@ -222,6 +226,10 @@ task createModuleStructure(type: Copy) {
 		} else {
 			filter{ line -> line.replaceAll( '@build.number@', project.buildID ) }
 		}
+    }
+    // Shell tab completion, installed by install-bx-module from the completions setting in box.json
+    from( 'completions' ) {
+        into 'completions'
     }
     from( 'docs' ) {
         include '**/*.md'
@@ -245,6 +253,8 @@ shadowJar.finalizedBy( createModuleStructure )
 
 test {
     useJUnitPlatform()
+    // Rendering a full arrangement holds a dozen stereo stems at once, more than the 512 MB Gradle default
+    maxHeapSize = "2g"
     testLogging {
 		showStandardStreams = true
 		events "passed", "skipped", "failed"
@@ -253,6 +263,8 @@ test {
         showCauses true
 	}
 	classpath = classpath.filter { !it.path.contains( "build${File.separator}resources" ) }
+	// The catalogs (voices.json, engine.json) are plain resources the unit tests read directly, the filter above only keeps the generated service files out
+	classpath += files( 'src/main/resources' )
 }
 
 /**

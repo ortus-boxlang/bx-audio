@@ -32,20 +32,7 @@ import ortus.boxlang.runtime.types.Struct;
 /**
  * Renders the scripts in the examples folder with short settings, so the catalog cannot silently break
  */
-public class ExamplesTest extends BaseIntegrationTest {
-
-	private static final Path EXAMPLES = Path.of( "examples" );
-
-	/**
-	 * Run an example script with settings preset, and return audioInfo() of what it wrote
-	 */
-	private IStruct render( String script, IStruct overrides ) throws Exception {
-		variables.put( Key.of( "overrides" ), overrides );
-		runtime.executeSource( Files.readString( EXAMPLES.resolve( script ) ), context );
-		variables.put( Key.of( "writtenTo" ), overrides.get( Key.of( "out" ) ) );
-		runtime.executeSource( "result = audioInfo( writtenTo )", context );
-		return ( IStruct ) variables.get( Key.of( "result" ) );
-	}
+public class ExamplesTest extends ExamplesTestBase {
 
 	@DisplayName( "Pop Drive renders both styles with the right length, level and format" )
 	@Test
@@ -79,16 +66,6 @@ public class ExamplesTest extends BaseIntegrationTest {
 		IStruct info = render( "01-pop-drive/pop-drive.bxs", Struct.of( "out", dir.resolve( "fast.wav" ).toString(), "bars", 4, "bpm", 240, "style", "pop" ) );
 		// 4 bars at 240 bpm is 4 s, plus 2.5 s
 		assertThat( ( Double ) info.get( Key.of( "seconds" ) ) ).isWithin( 0.01 ).of( 6.5 );
-	}
-
-	/**
-	 * Render an example to a file with the given settings and read it back
-	 */
-	private AudioBuffer renderAudio( Path dir, String name, String script, IStruct settings ) throws Exception {
-		Path out = dir.resolve( name + ".wav" );
-		settings.put( "out", out.toString() );
-		render( script, settings );
-		return WavCodec.read( out );
 	}
 
 	@DisplayName( "Lofi is dark, soft, swung and has no beat on every pulse" )

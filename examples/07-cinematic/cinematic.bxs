@@ -1,0 +1,230 @@
+/**
+ * Cinematic: epic trailer music at 90 BPM in D minor (Dm, Bb, Gm, A). A low drone and a ticking clock open the tension, strings and a
+ * driving ostinato build it, a silent beat and a huge boom open the climax with taiko drums and a soaring theme, and the piece ends on a
+ * final hit that rings out into a long tail.
+ *
+ * The arrangement is tension, build, climax and ending, each a whole number of 4 bar phrases that scale with the length. The minimum is
+ * 16 bars.
+ *
+ * Usage:
+ *   boxlang cinematic.bxs [--out=out/cinematic.wav] [--bars=24] [--bpm=90]
+ */
+
+settings = { out : "out/cinematic.wav", bars : 24, bpm : 90 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+phrases = max( 4, int( int( settings.bars ) / 4 ) );
+bars = phrases * 4;
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+step = beat / 4;
+
+// Where each part starts, in bars. Each is at least one phrase of 4 bars long.
+tensionEnd = max( 1, round( phrases * 0.3 ) ) * 4;
+buildEnd = tensionEnd + max( 1, round( phrases * 0.2 ) ) * 4;
+endStart = bars - max( 1, round( phrases * 0.15 ) ) * 4;
+function sectionOf( b ){
+	if( b < tensionEnd ){ return "tension"; }
+	if( b < buildEnd ){ return "build"; }
+	if( b < endStart ){ return "climax"; }
+	return "ending";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: Dm, Bb, Gm, A. Roots, string notes, and the theme, a rising line over each chord, one note per beat.
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ name : "Dm", root : 38, notes : [ 50, 53, 57, 62 ], theme : [ 74, 77, 81, 77 ] },
+	{ name : "Bb", root : 34, notes : [ 46, 53, 58, 62 ], theme : [ 74, 77, 82, 77 ] },
+	{ name : "Gm", root : 43, notes : [ 50, 55, 58, 62 ], theme : [ 74, 79, 82, 79 ] },
+	{ name : "A", root : 45, notes : [ 52, 57, 61, 64 ], theme : [ 76, 81, 85, 81 ] }
+];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------------------------
+boom = audioMix( [
+	audioDrum( type="kick", pitch=0.45, decay=4, level=1.0 ),
+	audioGain( audioEnvelope( audioOsc( "sine", audioFreq( 26 ), 3.5 ), 0.01, 1.2 ), -2 )
+] );
+crash = audioDrum( type="crash", seed=61, decay=2.5, level=0.7 );
+taiko = audioDrum( type="tom", pitch=0.55, decay=1.6, level=0.9 );
+tick = audioDrum( type="hat", seed=62, pitch=1.5, level=0.3 );
+
+droneLength = bar * 4 + 2;
+drone = audioGain( audioFilter( audioEnvelope( audioMix( [
+	audioOsc( "sine", audioFreq( 26 ), droneLength ),
+	audioGain( audioFilter( audioOsc( "saw", audioFreq( 38 ), droneLength, sr, 16 ), "lowpass", 260, 1.0 ), -4 ),
+	audioGain( audioFilter( audioOsc( "saw", audioFreq( 38.15 ), droneLength, sr, 16 ), "lowpass", 260, 1.0 ), -4 )
+] ), 2.5, 9 ), "lowpass", 400, 0.7 ), -8 );
+
+stringCache = {};
+function strings( chordIndex, up ){
+	var id = chordIndex & "-" & up;
+	if( !stringCache.keyExists( id ) ){
+		var saws = [];
+		for( var note in chords[ chordIndex ].notes ){
+			saws.append( audioOsc( "saw", audioFreq( note + up - 0.2 ), bar + 1.5, sr, 10 ) );
+			saws.append( audioOsc( "saw", audioFreq( note + up + 0.2 ), bar + 1.5, sr, 10 ) );
+		}
+		stringCache[ id ] = audioGain( audioFilter( audioEnvelope( audioMix( saws ), 0.9, 5 ), "lowpass", 1700, 0.8 ), -15 );
+	}
+	return stringCache[ id ];
+}
+
+ostinatoCache = {};
+function ostinato( note ){
+	if( !ostinatoCache.keyExists( note ) ){
+		ostinatoCache[ note ] = audioEnvelope( audioFilter( audioOsc( "saw", audioFreq( note ), 0.3, sr, 20 ), "lowpass", 800, 1.8 ), 0.004, 0.08 );
+	}
+	return ostinatoCache[ note ];
+}
+
+themeCache = {};
+function themeNote( note ){
+	if( !themeCache.keyExists( note ) ){
+		var tone = audioMix( [ audioOsc( "saw", audioFreq( note - 0.15 ), beat + 0.6, sr, 18 ), audioOsc( "saw", audioFreq( note + 0.15 ), beat + 0.6, sr, 18 ) ] );
+		themeCache[ note ] = audioGain( audioFilter( audioEnvelope( tone, 0.06, beat * 0.9 ), "lowpass", 3400, 0.9 ), -13 );
+	}
+	return themeCache[ note ];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Arrangement. Each part has its own timeline so it can have its own effects.
+// ---------------------------------------------------------------------------------------------------------------------------------
+function newStem(){
+	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline=stem, sound=sound, at=at, track="main", db=db, pan=pan );
+}
+
+droneStem = newStem();
+tickStem = newStem();
+stringStem = newStem();
+ostinatoStem = newStem();
+drumStem = newStem();
+themeStem = newStem();
+fxStem = newStem();
+hitStem = newStem();
+
+// The drone is renewed every 4 bars so it never has to be longer than one phrase
+for( b = 0; b < bars; b += 4 ){
+	if( b < endStart ){
+		put( droneStem, drone, b * bar, 0, b >= buildEnd ? -3 : 0 );
+	}
+}
+
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	section = sectionOf( b );
+	chordIndex = ( b mod 4 ) + 1;
+	chord = chords[ chordIndex ];
+	lastBuildBar = ( section == "build" && b == buildEnd - 1 );
+
+	// The clock: a tick on every beat in the tension, on every eighth in the build, and it stops for the silent beat before the climax
+	if( section == "tension" || section == "build" ){
+		stepEvery = ( section == "tension" ) ? 4 : 2;
+		for( s = 0; s < 16; s += stepEvery ){
+			if( !( lastBuildBar && s >= 12 ) ){
+				put( tickStem, tick, t0 + s * step, s mod 8 == 0 ? -0.4 : 0.4, s mod 4 == 0 ? -10 : -16 );
+			}
+		}
+	}
+
+	// Strings from the second phrase of the tension on, an octave higher in the climax
+	if( ( section == "tension" && b >= 4 ) || section == "build" || section == "climax" ){
+		put( stringStem, strings( chordIndex, section == "climax" ? 12 : 0 ), t0, 0, section == "climax" ? -1 : -5 );
+	}
+
+	// The ostinato: eighth notes on the root, building from the second half of the build
+	if( ( section == "build" && b >= tensionEnd + 2 ) || section == "climax" ){
+		for( s = 0; s < 16; s += 2 ){
+			if( !( lastBuildBar && s >= 12 ) ){
+				put( ostinatoStem, ostinato( chord.root + ( s == 6 || s == 14 ? 12 : 0 ) ), t0 + s * step, 0, s mod 4 == 0 ? -4 : -8 );
+			}
+		}
+	}
+
+	// Taiko: a hit on one and three in the build, a driving figure in the climax
+	if( section == "build" && b >= tensionEnd + 2 ){
+		for( k in [ 0, 2 ] ){
+			put( drumStem, taiko, t0 + k * beat, 0, -4 );
+		}
+	}
+	if( section == "climax" ){
+		for( s in [ 0, 3, 6, 8, 11, 14 ] ){
+			put( drumStem, taiko, t0 + s * step, s mod 2 == 0 ? -0.2 : 0.2, s == 0 ? -1 : -6 );
+		}
+	}
+
+	// The theme: one note per beat, in the climax only
+	if( section == "climax" ){
+		for( k = 0; k < 4; k++ ){
+			put( themeStem, themeNote( chord.theme[ k + 1 ] ), t0 + k * beat, 0, -1 );
+		}
+	}
+
+	// Risers: across the last two bars of the build, and a smaller one into the ending
+	if( section == "build" && b == buildEnd - 2 ){
+		put( fxStem, audioDrum( type="riser", seconds=bar * 2 - beat, seed=63, level=0.85 ), t0, 0, -6 );
+	}
+	if( section == "climax" && b == endStart - 1 ){
+		put( fxStem, audioDrum( type="riser", seconds=bar, seed=64, level=0.7 ), t0, 0, -8 );
+	}
+	// The boom and crash that open the climax, after the silent beat of the last build bar, and the final hit
+	if( section == "climax" && b == buildEnd ){
+		put( hitStem, boom, t0, 0, 0 );
+		put( hitStem, crash, t0, 0, -3 );
+	}
+	if( section == "ending" && b == endStart ){
+		put( hitStem, boom, t0, 0, 0 );
+		put( hitStem, crash, t0, 0, -3 );
+		put( drumStem, taiko, t0, 0, -1 );
+		put( stringStem, strings( 1, 0 ), t0, 0, -2 );
+		put( themeStem, themeNote( 74 ), t0, 0, -2 );
+	}
+}
+
+drumsOut = audioReverb( audio=audioRender( timeline=drumStem, tail=2 ), room=0.7, damp=0.4, mix=0.25 );
+droneOut = audioRender( timeline=droneStem, tail=4 );
+tickOut = audioReverb( audio=audioRender( timeline=tickStem, tail=1 ), room=0.5, damp=0.5, mix=0.2 );
+stringsOut = audioReverb( audio=audioRender( timeline=stringStem, tail=4 ), room=0.9, damp=0.4, mix=0.4 );
+ostinatoOut = audioRender( timeline=ostinatoStem, tail=0.5 );
+ostinatoOut = audioReverb( audio=ostinatoOut, room=0.4, damp=0.6, mix=0.12 );
+themeOut = audioReverb( audio=audioRender( timeline=themeStem, tail=4 ), room=0.85, damp=0.4, mix=0.4 );
+fxOut = audioReverb( audio=audioRender( timeline=fxStem, tail=6 ), room=0.95, damp=0.3, mix=0.45 );
+hitsOut = audioReverb( audio=audioRender( timeline=hitStem, tail=8 ), room=0.95, damp=0.3, mix=0.45 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Mix and master: no fade, the piece ends on the ringing final hit
+// ---------------------------------------------------------------------------------------------------------------------------------
+mix = audioMix( [
+	audioGain( drumsOut, -1 ),
+	audioGain( droneOut, 0 ),
+	audioGain( tickOut, -3 ),
+	audioGain( stringsOut, 0 ),
+	audioGain( ostinatoOut, -2 ),
+	audioGain( themeOut, -2 ),
+	audioGain( fxOut, -1 )
+] );
+mix = audioFilter( mix, "highpass", 24, 0.7071 );
+
+// The silent beat: everything, including the ringing reverb tails, stops one beat before the boom that opens the climax
+gapStart = buildEnd * bar - beat;
+gapEnd = buildEnd * bar;
+before = audioFade( audioTrim( mix, 0, gapStart ), 0, 0.05 );
+gap = audioSilence( gapEnd - gapStart, 2, sr );
+after = audioFade( audioTrim( mix, gapEnd, audioInfo( mix ).seconds ), 0.005, 0 );
+mix = audioConcat( [ before, gap, after ] );
+mix = audioMix( [ mix, audioGain( hitsOut, -1 ) ] );
+mix = audioFade( mix, 0.5, 3, "smooth" );
+mix = audioSaturate( mix, 1.6, 0.9 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

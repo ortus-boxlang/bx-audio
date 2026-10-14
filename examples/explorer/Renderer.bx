@@ -1,0 +1,12 @@
+/**
+ * Runs one example script in its own variables scope. The examples assign plain variables such as `settings`, `bars` and `beat`, and
+ * define helper functions that read them, so they must run in a scope of their own. Creating this class renders the job that the caller
+ * left in `request.audioJob`, as a struct with the `script` path and the `overrides` struct (including `out`, the file to write).
+ * A new instance per render means the scripts can never overwrite what the page is holding.
+ */
+class {
+
+	overrides = request.audioJob.overrides;
+	include request.audioJob.script;
+
+}

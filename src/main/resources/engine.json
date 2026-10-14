@@ -1,0 +1,93 @@
+{
+	"engine": "voices-0.0.9",
+	"artifacts": [
+		{
+			"group": "org.pitest.voices",
+			"artifact": "core",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/core/0.0.9/core-0.0.9.jar",
+			"sha1": "2e3f7e5ee233e02f1f80943bf693b116436d6752",
+			"size": 26122
+		},
+		{
+			"group": "org.pitest.voices",
+			"artifact": "chorus",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/chorus/0.0.9/chorus-0.0.9.jar",
+			"sha1": "e8cec2a4e582aa63d8bc212ea99858cec762a9b2",
+			"size": 105979
+		},
+		{
+			"group": "org.pitest.voices",
+			"artifact": "g2p",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/g2p/0.0.9/g2p-0.0.9.jar",
+			"sha1": "01e981c9c42b10227ef56c752e20872c2ee7e25b",
+			"size": 5749230
+		},
+		{
+			"group": "org.pitest.voices",
+			"artifact": "piper-runtime",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/piper-runtime/0.0.9/piper-runtime-0.0.9.jar",
+			"sha1": "5980d8f5a0f7b346d3d2d06cd15c8bf66c98df9c",
+			"size": 6604
+		},
+		{
+			"group": "org.pitest.voices",
+			"artifact": "model-downloader",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/model-downloader/0.0.9/model-downloader-0.0.9.jar",
+			"sha1": "84a4d61df5392599a11a0c475701acdc995af020",
+			"size": 12248
+		},
+		{
+			"group": "org.pitest.voices",
+			"artifact": "en_us",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/en_us/0.0.9/en_us-0.0.9.jar",
+			"sha1": "72a50b14d434e2ab4efcece2c89c7c515b491d09",
+			"size": 817977
+		},
+		{
+			"group": "com.microsoft.onnxruntime",
+			"artifact": "onnxruntime",
+			"version": "1.22.0",
+			"url": "https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime/1.22.0/onnxruntime-1.22.0.jar",
+			"sha1": "ecc998cae9ad45989e2c9b4860c6e877c3680afa",
+			"size": 139129141
+		},
+		{
+			"group": "org.apache.opennlp",
+			"artifact": "opennlp-tools",
+			"version": "2.5.5",
+			"url": "https://repo1.maven.org/maven2/org/apache/opennlp/opennlp-tools/2.5.5/opennlp-tools-2.5.5.jar",
+			"sha1": "79947ea3a4248771cf2a992adae8819b54d44bb3",
+			"size": 1389979
+		},
+		{
+			"group": "com.google.code.gson",
+			"artifact": "gson",
+			"version": "2.13.2",
+			"url": "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar",
+			"sha1": "48b8230771e573b54ce6e867a9001e75977fe78e",
+			"size": 289901
+		},
+		{
+			"group": "org.slf4j",
+			"artifact": "slf4j-api",
+			"version": "2.0.17",
+			"url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar",
+			"sha1": "d9e58ac9c7779ba3bf8142aff6c830617a7fe60f",
+			"size": 69908
+		},
+		{
+			"group": "org.slf4j",
+			"artifact": "slf4j-nop",
+			"version": "2.0.17",
+			"url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-nop/2.0.17/slf4j-nop-2.0.17.jar",
+			"sha1": "b41773047e10359aa409e7197c7624aeabfd377c",
+			"size": 4982
+		}
+	]
+}

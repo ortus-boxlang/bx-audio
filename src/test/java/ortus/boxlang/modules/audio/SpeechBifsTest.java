@@ -1,0 +1,166 @@
+/**
+ * [BoxLang]
+ *
+ * Copyright [2026] [Ortus Solutions, Corp]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+package ortus.boxlang.modules.audio;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.io.TempDir;
+
+import ortus.boxlang.modules.audio.tts.VoiceCatalog;
+import ortus.boxlang.modules.audio.tts.VoiceInfo;
+import ortus.boxlang.runtime.scopes.Key;
+import ortus.boxlang.runtime.types.Array;
+import ortus.boxlang.runtime.types.IStruct;
+import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+
+/**
+ * The text to speech BIFs. Nothing here downloads anything except the one test that is switched on with BX_AUDIO_ONLINE_TESTS=1.
+ */
+public class SpeechBifsTest extends BaseIntegrationTest {
+
+	private Object run( String source ) {
+		runtime.executeSource( source, context );
+		return variables.get( Key.of( "result" ) );
+	}
+
+	private String message( String source ) {
+		return assertThrows( BoxRuntimeException.class, () -> run( source ) ).getMessage();
+	}
+
+	@DisplayName( "audioVoices lists the catalog with licenses, filters by language and shows what is installed" )
+	@Test
+	void testVoices( @TempDir Path home ) {
+		useSpeechHome( home );
+		Array all = ( Array ) run( "result = audioVoices()" );
+		assertThat( all.size() ).isEqualTo( VoiceCatalog.load().all().size() );
+		IStruct joe = ( IStruct ) ( ( Array ) run( "result = audioVoices( language='en_US' ).filter( ( v ) => v.name == 'joe' )" ) ).get( 0 );
+		assertThat( joe.get( Key.of( "id" ) ) ).isEqualTo( "en_US-joe-medium" );
+		assertThat( joe.get( Key.of( "license" ) ) ).isEqualTo( "CC0-1.0" );
+		assertThat( joe.get( Key.of( "installed" ) ) ).isEqualTo( false );
+		assertThat( ( ( Number ) joe.get( Key.of( "sizeMB" ) ) ).doubleValue() ).isWithin( 1.0 ).of( 63.2 );
+		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 0 );
+		assertThat( run( "result = audioVoices( language='en_US' ).every( ( v ) => v.language == 'en_US' )" ) ).isEqualTo( true );
+		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
+	}
+
+	@DisplayName( "audioSpeechStatus says where everything lives and that nothing is installed yet" )
+	@Test
+	void testStatus( @TempDir Path home ) {
+		useSpeechHome( home );
+		IStruct status = ( IStruct ) run( "result = audioSpeechStatus()" );
+		assertThat( status.get( Key.of( "home" ) ) ).isEqualTo( home.toAbsolutePath().toString() );
+		assertThat( status.get( Key.of( "engineInstalled" ) ) ).isEqualTo( false );
+		assertThat( ( ( Number ) status.get( Key.of( "engineSizeMB" ) ) ).doubleValue() ).isGreaterThan( 100.0 );
+		assertThat( ( ( Array ) status.get( Key.of( "voices" ) ) ).size() ).isEqualTo( 0 );
+	}
+
+	@DisplayName( "audioSpeak explains what is missing and how to install it when downloads are not allowed" )
+	@Test
+	void testSpeakWithoutInstall( @TempDir Path home ) {
+		useSpeechHome( home );
+		String message = message( "audioSpeak( text='Hello', voice='joe', autoInstall=false )" );
+		assertThat( message ).contains( "engine is not installed" );
+		assertThat( message ).contains( "bx-audio install engine" );
+		assertThat( message( "audioSpeak( text='Hello', voice='nope', autoInstall=false )" ) ).contains( "Unknown voice [nope]" );
+		assertThat( message( "audioSpeak( text='  ', voice='joe', autoInstall=false )" ) ).contains( "nothing to say" );
+		// a restricted voice is not in the catalog, so it cannot be asked for
+		assertThat( message( "audioSpeak( text='Hello', voice='lessac', autoInstall=false )" ) ).contains( "Unknown voice [lessac]" );
+	}
+
+	@DisplayName( "A setting can turn automatic downloads off for every call" )
+	@Test
+	void testAutoInstallSetting( @TempDir Path home ) {
+		useSpeechHome( home );
+		moduleRecord.settings.put( Key.of( "autoInstall" ), false );
+		try {
+			assertThat( message( "audioSpeak( text='Hello', voice='joe' )" ) ).contains( "engine is not installed" );
+		} finally {
+			moduleRecord.settings.put( Key.of( "autoInstall" ), true );
+		}
+	}
+
+	@DisplayName( "audioVoiceInstall and audioVoiceRemove reject voices that are not in the catalog, and removing what is not installed says so" )
+	@Test
+	void testInstallRemoveErrors( @TempDir Path home ) {
+		useSpeechHome( home );
+		assertThat( message( "audioVoiceInstall( 'nope' )" ) ).contains( "Unknown voice [nope]" );
+		assertThat( message( "audioVoiceRemove( 'nope' )" ) ).contains( "Unknown voice [nope]" );
+		assertThat( run( "result = audioVoiceRemove( 'joe' )" ) ).isEqualTo( false );
+		assertThat( run( "result = audioVoiceRemove( 'engine' )" ) ).isEqualTo( false );
+	}
+
+	@DisplayName( "A voice on disk at the size the catalog says shows as installed, and audioVoiceRemove deletes it" )
+	@Test
+	void testInstalledVoice( @TempDir Path home ) throws Exception {
+		useSpeechHome( home );
+		VoiceInfo	joe	= VoiceCatalog.load().find( "joe" );
+		Path		dir	= home.resolve( "voices" ).resolve( joe.id() );
+		Files.createDirectories( dir );
+		// sparse files of the right size, so no 63 MB is written
+		try ( RandomAccessFile model = new RandomAccessFile( dir.resolve( joe.id() + ".onnx" ).toFile(), "rw" );
+		    RandomAccessFile config = new RandomAccessFile( dir.resolve( joe.id() + ".onnx.json" ).toFile(), "rw" ) ) {
+			model.setLength( joe.model().size() );
+			config.setLength( joe.config().size() );
+		}
+		Array installed = ( Array ) run( "result = audioVoices( installed=true )" );
+		assertThat( installed.size() ).isEqualTo( 1 );
+		assertThat( ( ( IStruct ) installed.get( 0 ) ).get( Key.of( "id" ) ) ).isEqualTo( "en_US-joe-medium" );
+		assertThat( ( ( Array ) ( ( IStruct ) run( "result = audioSpeechStatus()" ) ).get( Key.of( "voices" ) ) ).get( 0 ) ).isEqualTo( "en_US-joe-medium" );
+
+		assertThat( run( "result = audioVoiceRemove( 'joe' )" ) ).isEqualTo( true );
+		assertThat( Files.exists( dir ) ).isFalse();
+		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
+	}
+
+	@DisplayName( "Online: the engine and a voice are downloaded, and speech comes out" )
+	@EnabledIfEnvironmentVariable( named = "BX_AUDIO_ONLINE_TESTS", matches = "1" )
+	@Test
+	void testSpeakOnline( @TempDir Path home ) {
+		useSpeechHome( home );
+		variables.put( Key.of( "events" ), new Array() );
+		runtime.executeSource(
+		    """
+		    audio = audioSpeak( text="Meet BoxLang. Four hundred and twenty eight tests passed.", voice="joe", onProgress=( name, done, total ) => {
+		    	events.append( name );
+		    } );
+		    result = [ audio.getChannels(), audio.getSampleRate(), audio.getDurationSeconds(), audio.getRms(), audio.getPeak() ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( values.get( 0 ) ).isEqualTo( 1 );
+		assertThat( values.get( 1 ) ).isEqualTo( 22050 );
+		// about four seconds of speech for that sentence
+		assertThat( ( ( Number ) values.get( 2 ) ).doubleValue() ).isWithin( 1.5 ).of( 4.0 );
+		assertThat( ( ( Number ) values.get( 3 ) ).doubleValue() ).isGreaterThan( 0.02 );
+		assertThat( ( ( Number ) values.get( 4 ) ).doubleValue() ).isLessThan( 1.0 );
+		// it downloaded the engine jars and the voice, and told the callback about both
+		Array events = ( Array ) variables.get( Key.of( "events" ) );
+		assertThat( events.stream().anyMatch( e -> e.toString().startsWith( "onnxruntime" ) ) ).isTrue();
+		assertThat( events.contains( "en_US-joe-medium" ) ).isTrue();
+		// the second call needs no download
+		variables.put( Key.of( "events" ), new Array() );
+		runtime.executeSource( "audioSpeak( text='Again.', voice='joe', autoInstall=false, onProgress=( n, d, t ) => events.append( n ) )", context );
+		assertThat( ( ( Array ) variables.get( Key.of( "events" ) ) ).size() ).isEqualTo( 0 );
+	}
+
+}

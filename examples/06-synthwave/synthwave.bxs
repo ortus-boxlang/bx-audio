@@ -1,0 +1,238 @@
+/**
+ * Synthwave: a night drive at 100 BPM in A minor (Am, F, C, G). Pulsing eighth note bass, a gated snare with a huge reverb, wide detuned
+ * saw pads, a bright arpeggio, and a lead melody with chorus and echo. Everything from the bass to the pads leans on the kick a little.
+ *
+ * The arrangement is intro, verse, build, chorus with the lead, and an outro. It scales to any length that is a multiple of 4 bars by
+ * putting each section at the same fraction of the track.
+ *
+ * Usage:
+ *   boxlang synthwave.bxs [--out=out/synthwave.wav] [--bars=32] [--bpm=100]
+ */
+
+settings = { out : "out/synthwave.wav", bars : 32, bpm : 100 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+phrases = max( 4, int( int( settings.bars ) / 4 ) );
+bars = phrases * 4;
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+step = beat / 4;
+
+// Which part of the arrangement a bar belongs to, by its position in the track
+function sectionOf( b ){
+	var f = int( b / 4 ) / phrases;
+	if( f < 0.125 ){ return "intro"; }
+	if( f < 0.375 ){ return "verse"; }
+	if( f < 0.5 ){ return "build"; }
+	if( f < 0.875 ){ return "chorus"; }
+	return "outro";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: Am, F, C, G. Bass roots, chord notes, and the melody as scale degrees of the chord (1 to 4 are its notes, 5 is the root up).
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ name : "Am", bass : 33, notes : [ 57, 60, 64, 69 ] },
+	{ name : "F", bass : 29, notes : [ 53, 57, 60, 65 ] },
+	{ name : "C", bass : 36, notes : [ 55, 60, 64, 67 ] },
+	{ name : "G", bass : 31, notes : [ 55, 59, 62, 67 ] }
+];
+// The lead plays two bars of melody over the four chords: [ step, chord note, length in steps ]
+lead = [
+	[ 0, 4, 6 ], [ 6, 3, 2 ], [ 8, 2, 4 ], [ 12, 3, 4 ],
+	[ 16, 4, 6 ], [ 22, 3, 2 ], [ 24, 2, 4 ], [ 28, 1, 4 ],
+	[ 32, 3, 6 ], [ 38, 2, 2 ], [ 40, 1, 4 ], [ 44, 2, 4 ],
+	[ 48, 4, 8 ], [ 56, 3, 4 ], [ 60, 2, 4 ]
+];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------------------------
+kick = audioDrum( type="kick", pitch=0.9, decay=1.0, level=0.95 );
+snare = audioDrum( type="snare", seed=51, decay=1.0, level=0.85 );
+hat = audioDrum( type="hat", seed=52, level=0.4 );
+openHat = audioDrum( type="openhat", seed=53, decay=0.5, level=0.45 );
+tom = audioDrum( type="tom", pitch=0.9, level=0.75 );
+crash = audioDrum( type="crash", seed=54, decay=1.4, level=0.55 );
+
+bassCache = {};
+function bassNote( note ){
+	if( !bassCache.keyExists( note ) ){
+		var tone = audioFilter( audioOsc( "saw", audioFreq( note ), 0.35, sr, 24 ), "lowpass", 700, 1.8 );
+		bassCache[ note ] = audioEnvelope( audioMix( [ tone, audioGain( audioOsc( "sine", audioFreq( note ), 0.35 ), -5 ) ] ), 0.004, 0.2 );
+	}
+	return bassCache[ note ];
+}
+
+padCache = {};
+function pad( chordIndex ){
+	if( !padCache.keyExists( chordIndex ) ){
+		var saws = [];
+		for( var note in chords[ chordIndex ].notes ){
+			saws.append( audioOsc( "saw", audioFreq( note - 0.18 ), bar + 1.5, sr, 12 ) );
+			saws.append( audioOsc( "saw", audioFreq( note + 0.18 ), bar + 1.5, sr, 12 ) );
+		}
+		padCache[ chordIndex ] = audioGain( audioFilter( audioEnvelope( audioMix( saws ), 0.5, 4 ), "lowpass", 2200, 0.8 ), -15 );
+	}
+	return padCache[ chordIndex ];
+}
+
+pluckCache = {};
+function pluck( note ){
+	if( !pluckCache.keyExists( note ) ){
+		pluckCache[ note ] = audioFilter( audioEnvelope( audioOsc( "square", audioFreq( note ), 0.25, sr, 14 ), 0.002, 0.09 ), "lowpass", 5200, 1.0 );
+	}
+	return pluckCache[ note ];
+}
+
+// The lead: two detuned saws and a square, so it sounds big and slightly out of tune in the right way
+leadCache = {};
+function leadNote( note, length ){
+	var id = note & "-" & length;
+	if( !leadCache.keyExists( id ) ){
+		var seconds = length * step + 0.25;
+		var tone = audioMix( [
+			audioOsc( "saw", audioFreq( note - 0.12 ), seconds, sr, 20 ),
+			audioOsc( "saw", audioFreq( note + 0.12 ), seconds, sr, 20 ),
+			audioGain( audioOsc( "square", audioFreq( note ), seconds, sr, 16 ), -4 )
+		] );
+		leadCache[ id ] = audioGain( audioFilter( audioEnvelope( tone, 0.01, length * step * 0.8 ), "lowpass", 4600, 1.2 ), -14 );
+	}
+	return leadCache[ id ];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Arrangement. Each part has its own timeline so it can have its own effects.
+// ---------------------------------------------------------------------------------------------------------------------------------
+function newStem(){
+	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline=stem, sound=sound, at=at, track="main", db=db, pan=pan );
+}
+
+drumStem = newStem();
+snareStem = newStem();
+bassStem = newStem();
+padStem = newStem();
+arpStem = newStem();
+leadStem = newStem();
+fxStem = newStem();
+kickTimes = [];
+arpPattern = [ 1, 2, 3, 4, 3, 2, 3, 4, 1, 2, 3, 4, 3, 2, 3, 4 ];
+
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	section = sectionOf( b );
+	chordIndex = ( b mod 4 ) + 1;
+	chord = chords[ chordIndex ];
+	nextSection = ( b + 1 < bars ) ? sectionOf( b + 1 ) : "";
+
+	// Kick on one and three with a pickup, from the verse on; the intro only has a soft heartbeat on one
+	if( section == "intro" ){
+		put( drumStem, kick, t0, 0, -6 );
+	} else {
+		for( k in [ 0, 2 ] ){
+			put( drumStem, kick, t0 + k * beat, 0, -1 );
+			kickTimes.append( t0 + k * beat );
+		}
+		put( drumStem, kick, t0 + 2.5 * beat, 0, -6 );
+		kickTimes.append( t0 + 2.5 * beat );
+		// Hats on every eighth, an open hat in the offbeats of the chorus
+		for( s = 0; s < 8; s++ ){
+			put( drumStem, hat, t0 + s * beat / 2, s mod 2 == 0 ? -0.2 : 0.2, s mod 2 == 0 ? -14 : -18 );
+		}
+		if( section == "chorus" ){
+			put( drumStem, openHat, t0 + 1.5 * beat, 0.2, -10 );
+			put( drumStem, openHat, t0 + 3.5 * beat, 0.2, -10 );
+		}
+		// The snare is gated: it goes to its own stem, which gets a very large reverb
+		put( snareStem, snare, t0 + beat, 0, -2 );
+		put( snareStem, snare, t0 + 3 * beat, 0, -2 );
+	}
+	// A tom fill in the last bar of the build
+	if( section == "build" && nextSection == "chorus" ){
+		for( k = 0; k < 4; k++ ){
+			put( drumStem, tom, t0 + 3 * beat + k * step, k mod 2 == 0 ? -0.3 : 0.3, -4 - k );
+		}
+	}
+
+	// Pulsing eighth note bass, a bit harder in the chorus
+	if( section != "intro" ){
+		for( s = 0; s < 8; s++ ){
+			put( bassStem, bassNote( chord.bass ), t0 + s * beat / 2, 0, s mod 2 == 0 ? -2 : -5 );
+		}
+	}
+
+	// Pad on every chord, from the very start
+	put( padStem, pad( chordIndex ), t0, 0, section == "chorus" ? -2 : -4 );
+
+	// Arpeggio from the verse on
+	if( section == "verse" || section == "build" || section == "chorus" ){
+		for( s = 0; s < 16; s++ ){
+			put( arpStem, pluck( chord.notes[ arpPattern[ s + 1 ] ] + 12 ), t0 + s * step, s mod 2 == 0 ? -0.35 : 0.35, s mod 4 == 0 ? -8 : -13 );
+		}
+	}
+
+	// The lead in the chorus, two bars of melody twice per phrase of four bars
+	if( section == "chorus" ){
+		pos = ( b mod 4 ) * 16;
+		for( n in lead ){
+			if( n[ 1 ] >= pos && n[ 1 ] < pos + 16 ){
+				put( leadStem, leadNote( chords[ ( int( n[ 1 ] / 16 ) mod 4 ) + 1 ].notes[ n[ 2 ] ] + 12, n[ 3 ] ), t0 + ( n[ 1 ] - pos ) * step, 0, -1 );
+			}
+		}
+	}
+
+	// A riser in the last bar of the build and a crash on the first bar of the chorus
+	if( section == "build" && nextSection == "chorus" ){
+		put( fxStem, audioDrum( type="riser", seconds=bar, seed=55, level=0.7 ), t0, 0, -8 );
+	}
+	if( section == "chorus" && ( b == 0 || sectionOf( b - 1 ) != "chorus" ) ){
+		put( fxStem, crash, t0, 0, -4 );
+	}
+}
+
+// The bass and arpeggio lean on the kick a little, enough to breathe but not to pump like house
+if( kickTimes.len() ){
+	audioPump( bassStem, "main", kickTimes, -4, 0.2 );
+	audioPump( padStem, "main", kickTimes, -3, 0.25 );
+}
+
+drums = audioRender( timeline=drumStem, tail=0.5 );
+snares = audioReverb( audio=audioRender( timeline=snareStem, tail=3 ), room=0.9, damp=0.35, mix=0.5 );
+bass = audioRender( timeline=bassStem, tail=0.3 );
+pads = audioChorus( audio=audioRender( timeline=padStem, tail=2 ), rate=0.5, depth=0.004, mix=0.5 );
+pads = audioReverb( audio=pads, room=0.8, damp=0.5, mix=0.3 );
+arp = audioRender( timeline=arpStem, tail=1 );
+arp = audioDelay( audio=arp, time=beat * 0.75, feedback=0.4, mix=0.3, pingPong=true );
+arp = audioReverb( audio=arp, room=0.4, damp=0.6, mix=0.15 );
+leadLine = audioRender( timeline=leadStem, tail=2 );
+leadLine = audioChorus( audio=leadLine, rate=0.7, depth=0.003, mix=0.4 );
+leadLine = audioDelay( audio=leadLine, time=beat * 0.75, feedback=0.35, mix=0.28, pingPong=true );
+leadLine = audioReverb( audio=leadLine, room=0.6, damp=0.5, mix=0.22 );
+fx = audioReverb( audio=audioRender( timeline=fxStem, tail=1 ), room=0.6, damp=0.4, mix=0.2 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Mix and master
+// ---------------------------------------------------------------------------------------------------------------------------------
+mix = audioMix( [
+	audioGain( drums, 0 ),
+	audioGain( snares, -1 ),
+	audioGain( bass, -1 ),
+	audioGain( pads, -1 ),
+	audioGain( arp, -3 ),
+	audioGain( leadLine, -1 ),
+	audioGain( fx, -2 )
+] );
+mix = audioFilter( mix, "highpass", 28, 0.7071 );
+mix = audioFade( mix, 0, beat * 4, "smooth" );
+mix = audioSaturate( mix, 1.8, 0.9 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

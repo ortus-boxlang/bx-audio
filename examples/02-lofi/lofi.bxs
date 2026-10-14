@@ -13,10 +13,11 @@
  */
 
 settings = { out : "out/lofi.wav", bars : 16, bpm : 78, swing : 0.58, seed : 7 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
 if( isDefined( "overrides" ) ){
 	settings.append( overrides );
 }
-settings.append( cliGetArgs().options );
 
 sr = 44100;
 bars = max( 6, int( settings.bars ) );

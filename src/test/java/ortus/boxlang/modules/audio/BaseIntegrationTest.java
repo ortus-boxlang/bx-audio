@@ -17,6 +17,7 @@ package ortus.boxlang.modules.audio;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -57,6 +58,18 @@ public abstract class BaseIntegrationTest {
 		// Create the mock contexts
 		context		= new ScriptingRequestBoxContext();
 		variables	= context.getScopeNearby( VariablesScope.name );
+	}
+
+	/**
+	 * Point the module's text to speech home at a folder, so a test never touches the real engine or voices
+	 */
+	protected void useSpeechHome( Path home ) {
+		moduleRecord.settings.put( Key.of( "home" ), home.toString() );
+	}
+
+	@AfterEach
+	public void resetSpeechHome() {
+		moduleRecord.settings.put( Key.of( "home" ), "" );
 	}
 
 	protected static void loadModule( IBoxContext context ) {

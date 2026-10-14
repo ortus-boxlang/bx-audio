@@ -16,24 +16,84 @@
 
 <p>&nbsp;</p>
 
-Audio synthesis, mixing, analysis, text-to-speech and playback for BoxLang, written for the JVM with no native tools to install.
+## Introduction
 
-> This module is under active development. What works today is listed below, the rest of the roadmap follows it.
+BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix tracks with ducking, add effects and save the result as WAV or MP3. It runs entirely on the JVM, so there is no ffmpeg, Python or native tool to install, and a track made on your laptop renders the same on a server.
 
-## Installation
+**Key Features:**
 
-```bash
-install-bx-module bx-audio
+- 🎹 Synthesis: band-limited oscillators, noise, envelopes, sweeps and a set of drums
+- 🎚️ Timeline mixer with a tempo grid, named tracks, automatic sample rate and channel conversion
+- 🔊 Kick-style pump and voice-over ducking for trailers and videos
+- 🎛️ Filters, delay (with ping pong), Freeverb reverb and chorus
+- ✂️ Edit: gain, pan, fade, normalize, trim, concat, reverse, resample
+- 💾 Read and write WAV (16/24 bit PCM, 32 bit float) and MP3
+- 🎼 A catalog of complete, original example songs with no samples to license
+- 🗣️ Text to speech with open license voices that download on first use, no API key or cloud service
+- 🔁 Repeatable: the same seed gives the same sound on any machine
+- 🌐 A [catalog explorer](examples/explorer/) web app on the BoxLang MiniServer that plays every piece in the browser
+- 🧩 100% Java, no native dependencies, works from the CLI, web apps and Lambda
+
+## Why BoxLang Audio?
+
+Audio scripts are usually Python and numpy glued to ffmpeg. Here the whole pipeline is BoxLang functions that take a buffer and return a new one, so a song reads like a recipe:
+
+```javascript
+t = audioTimeline( bpm=128 );
+kick = audioDrum( "kick" );
+bass = audioFilter( audioEnvelope( audioOsc( "saw", audioFreq( "A1" ), 0.4 ), 0.003, 0.12 ), "lowpass", 900, 2 );
+
+for( at in audioBeats( t, 0, 16 ) ){
+    audioAdd( timeline=t, sound=kick, at=at, track="drums" );
+}
+audioAdd( timeline=t, sound=bass, at=t.bar( 1 ), track="bass", db=-6 );
+audioPump( t, "bass", audioBeats( t, 0, 16 ), -5, 0.18 );
+
+audioSave( audioSaturate( audioRender( t ) ), "groove.mp3" );
 ```
 
-## What works today
+## Quick Start
+
+### Requirements
+
+- **BoxLang Runtime** 1.0.0 or higher
+- **MP3 only:** the optional codec jars that ship in the module's `libs/` folder (see [Licensing](#licensing))
+
+### Installation
+
+```bash
+# Install into your BoxLang home
+install-bx-module bx-audio
+
+# Or in a CommandBox project
+box install bx-audio
+```
+
+### Basic Usage
+
+```javascript
+// Make a one second A440 tone, fade it and save it
+tone = audioOsc( "sine", 440, 1 );
+tone = audioFade( audio=tone, fadeIn=0.01, fadeOut=0.2, curve="smooth" );
+audioSave( tone, "tone.wav" );
+
+// Read it back and inspect it
+println( audioInfo( "tone.wav" ) );
+```
+
+## Quick Reference
+
+Every function returns a new buffer and leaves its input untouched. BoxLang does not allow mixing positional and named arguments in one call, so use all of one style.
+
+### Load, save and edit
 
 | Function | Purpose |
 |---|---|
 | `audioSilence( seconds, channels=2, sampleRate=44100 )` | Create a blank audio buffer |
 | `audioLoad( path )` | Read a WAV (PCM 8/16/24/32 bit and 32/64 bit float) or MP3 file, detected by content |
-| `audioSave( audio, path, bitDepth=16, bitrate=192 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, mono or stereo) |
+| `audioSave( audio, path, bitDepth=16, bitrate=0 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, default 192 or 128 below 32 kHz, mono or stereo) |
 | `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
+| `audioWaveform( audio, points=800 )` | The loudest level in each of `points` equal slices, as an array for drawing a waveform |
 | `audioGain( audio, db )` | Change the volume in decibels |
 | `audioPan( audio, pan )` | Place a sound from -1 (left) to 1 (right) with a constant power law. Mono becomes stereo, stereo acts as a balance |
 | `audioFade( audio, fadeIn=0, fadeOut=0, curve="linear" )` | Fade in and out, `curve` is `linear` or `smooth` |
@@ -44,8 +104,6 @@ install-bx-module bx-audio
 | `audioMix( audios )` | Add buffers together so they play at the same time, as long as the longest |
 | `audioChannels( audio, channels )` | Convert between mono and stereo |
 | `audioResample( audio, sampleRate )` | Change the sample rate with a windowed sinc filter, with anti-aliasing when lowering it |
-
-Every function returns a new buffer and leaves its input untouched.
 
 ### Synthesis
 
@@ -140,28 +198,91 @@ audioSave( voice, "out/voice-stereo.wav", 24 );
 println( audioInfo( "out/voice-stereo.wav" ) );
 ```
 
+### Text to speech
+
+`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into the `bx-audio` folder of your BoxLang home.
+
+| Function | Purpose |
+|---|---|
+| `audioSpeak( text, voice, autoInstall, onProgress )` | Speak a text. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
+| `audioVoices( language="", installed=false )` | The voices you can use: id, name, language, quality, license, size and whether it is installed |
+| `audioVoiceInstall( voice, onProgress )` | Download a voice ahead of time, or `"engine"` for the speech engine every voice needs |
+| `audioVoiceRemove( voice )` | Delete a voice, or `"engine"`, from disk |
+| `audioSpeechStatus()` | Where it all lives, whether the engine is installed, and which voices are |
+
+```js
+// A voice-over, ducking music underneath it
+voice = audioSpeak( text="Meet BoxLang. Fast, friendly and made for the JVM.", voice="joe" );
+
+t = audioTimeline( bpm=100 );
+audioAdd( timeline=t, sound=music, at=0, track="music", db=-10 );
+audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
+audioDuck( t, "music", "voice", -9 );
+audioSave( audioSaturate( audioRender( timeline=t, tail=1 ) ), "promo.mp3" );
+```
+
+Only voices whose model card states an open license are on offer, each with its license shown, and you choose which to use. The full list, and the voices that were left out and why, is in [docs/voices.md](docs/voices.md). Only US English voices are available for now.
+
+Two module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine and the voices are downloaded to, empty for the `bx-audio` folder of the BoxLang home, and `autoInstall` is `true` unless you want `audioSpeak` to refuse to download anything. The environment variable `BX_AUDIO_HOME` also sets the folder.
+
 ## Examples
 
-The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/) and [Ambient](examples/04-ambient/).
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/) [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/), [Rock](examples/11-rock/) and a [Voice-over](examples/12-voiceover/) with music that ducks under a spoken voice.
 
 ```bash
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 ```
+
+To listen in a browser, start the [explorer](examples/explorer/) with the MiniServer: `cd examples/explorer && boxlang-miniserver --webroot .`.
+
+## Command Line
+
+Installing the module with `install-bx-module` also installs a `bx-audio` command and its bash tab completion, so you can work with audio from a shell without writing a script. Without the installer, the same commands run as `boxlang module:bxaudio <command>`.
+
+```bash
+bx-audio render techno --bars=16 --out=techno.mp3   # synthesize an example piece
+bx-audio info techno.mp3                            # format, length, peak and RMS
+bx-audio convert song.wav song.mp3 --bitrate=160    # WAV to MP3, with --sampleRate and --channels
+bx-audio normalize voice.wav loud.wav --db=-3
+bx-audio trim song.wav intro.wav --start=0 --end=12
+bx-audio waveform song.wav                          # one line of loudness, add --unicode for blocks
+bx-audio voices                                     # the open license voices you can use
+bx-audio speak "Hello there" --voice=joe --out=hi.mp3   # installs the engine and voice the first time
+bx-audio explorer                                   # the web explorer, on the BoxLang MiniServer
+bx-audio doctor                                     # checks MP3, the examples and the MiniServer
+```
+
+| Command | Purpose |
+|---|---|
+| `info <file>` | Format, channels, sample rate, length, peak and RMS of a WAV or MP3 file |
+| `convert <in> <out>` | Convert between WAV and MP3. Options: `--bitrate`, `--bitDepth`, `--sampleRate`, `--channels` |
+| `normalize <in> <out>` | Scale the peak to `--db` (default -1) |
+| `trim <in> <out>` | Keep the section from `--start` to `--end`, in seconds |
+| `waveform <file>` | Draw the loudness on one line, `--width` characters wide |
+| `speak <text>` | Say a text with `--voice`, into `--out` (default `speech.wav`). Installs what is missing, unless `--no-install`. `--file` reads the text from a file |
+| `voices` | List the voices, with `--lang` and `--installed` to narrow it |
+| `install <voice>` / `remove <voice>` | Download or delete a voice, or `engine` for the speech engine |
+| `pieces` | List the example pieces |
+| `render <piece>` | Synthesize an example piece. Takes `--out` and the settings of that piece, such as `--bars` and `--bpm` |
+| `explorer` | Start the web explorer on `--port` (default 8080). Needs the BoxLang MiniServer on your PATH |
+| `doctor` | Check that MP3, the examples and the explorer will work on this machine |
+
+Paths are relative to the folder you run the command in. Run `bx-audio help <command>` for the options of one command.
 
 ## Roadmap
 
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
-4. A catalog of example music scripts (pop, lofi, house and ambient done; techno, synthwave, cinematic, chiptune and more to follow, all original compositions)
-5. Text-to-speech through a pluggable provider, with a content-hash cache
-6. Analysis: loudness, silence detection, waveform data, FFT
+4. ~~A catalog of example music scripts~~ done: pop, lofi, house, ambient, techno, synthwave, cinematic, chiptune, game sound effects, jazz, rock and a voice-over with ducked music, all original
+5. ~~Text-to-speech~~ done (US English, more languages and multi-speaker voices to follow), a content-hash cache of what was spoken still to come
+6. Analysis: ~~waveform data~~ done, loudness, silence detection, FFT
 7. Realtime playback
 8. ~~MP3 read and write as optional codec jars~~ done (see below)
 
 ## Licensing
 
-The module is Apache 2.0. MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
+The module is Apache 2.0. Text to speech downloads the Voices engine (Apache 2 and MIT) and the voices you choose, each with its own license, see [docs/voices.md](docs/voices.md). MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
 
 ## Development
 
@@ -172,4 +293,8 @@ The module is Apache 2.0. MP3 uses JLayer and jump3r (both LGPL), shipped as sep
 
 ## Ortus Sponsors
 
-BoxLang is a professional open source project and it is completely funded by the [community](https://patreon.com/ortussolutions) and [Ortus Solutions, Corp](https://www.ortussolutions.com).
+BoxLang is a professional open-source project and it is completely funded by the [community](https://patreon.com/ortussolutions) and [Ortus Solutions, Corp](https://www.ortussolutions.com). Ortus Patreons get many benefits like a cfcasts account, a FORGEBOX Pro account and so much more. If you are interested in becoming a sponsor, please visit our patronage page: [https://patreon.com/ortussolutions](https://patreon.com/ortussolutions)
+
+### THE DAILY BREAD
+
+ > "I am the way, and the truth, and the life; no one comes to the Father, but by me (JESUS)" Jn 14:1-12

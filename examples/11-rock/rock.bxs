@@ -1,0 +1,259 @@
+/**
+ * Rock: a driving rock song at 128 BPM in E. Distorted power chords (palm muted chugging in the verse, open and ringing in the chorus), a
+ * bass guitar locked to the roots, a live sounding drum kit with fills and crashes, and a pentatonic guitar solo improvised by a seeded
+ * random number generator.
+ *
+ * The arrangement is intro, verse, chorus, solo and an ending on one big chord. It scales to any length that is a multiple of 4 bars by
+ * putting each section at the same fraction of the track. The same seed always gives the same solo.
+ *
+ * Usage:
+ *   boxlang rock.bxs [--out=out/rock.wav] [--bars=32] [--bpm=128] [--seed=3]
+ */
+
+settings = { out : "out/rock.wav", bars : 32, bpm : 128, seed : 3 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+phrases = max( 4, int( int( settings.bars ) / 4 ) );
+bars = phrases * 4;
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+step = beat / 4;
+
+// Park Miller random numbers, scaled 0 to 1. Seeded, so every run is identical
+rngState = int( settings.seed ) + 1;
+function rnd(){
+	rngState = ( rngState * 48271 ) mod 2147483647;
+	return rngState / 2147483647;
+}
+
+// Which part of the arrangement a bar belongs to, by its position in the track
+function sectionOf( b ){
+	var f = int( b / 4 ) / phrases;
+	if( f < 0.125 ){ return "intro"; }
+	if( f < 0.375 ){ return "verse"; }
+	if( f < 0.625 ){ return "chorus"; }
+	if( f < 0.875 ){ return "solo"; }
+	return "outro";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: the root of each bar as a pitch class, four bars to a phrase
+// ---------------------------------------------------------------------------------------------------------------------------------
+E = 4; G = 7; A = 9; B = 11;
+progressions = {
+	intro : [ E, E, E, E ],
+	verse : [ E, E, G, A ],
+	chorus : [ A, B, E, E ],
+	solo : [ E, E, G, A ],
+	outro : [ A, B, E, E ]
+};
+pentatonic = [ 0, 3, 5, 7, 10 ]; // E minor pentatonic, as semitones above E
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------------------------
+guitarCache = {};
+/**
+ * A power chord: the root, the fifth and the octave, each as two slightly detuned saws. Heavy distortion is added to the whole guitar
+ * track later, which is where the roughness between the notes comes from.
+ */
+function powerChord( rootMidi, seconds, decay ){
+	var id = rootMidi & "|" & seconds & "|" & decay;
+	if( !guitarCache.keyExists( id ) ){
+		var saws = [];
+		for( var interval in [ 0, 7, 12 ] ){
+			saws.append( audioOsc( shape = "saw", freq = audioFreq( rootMidi + interval - 0.07 ), seconds = seconds, sampleRate = sr, harmonics = 10 ) );
+			saws.append( audioOsc( shape = "saw", freq = audioFreq( rootMidi + interval + 0.07 ), seconds = seconds, sampleRate = sr, harmonics = 10 ) );
+		}
+		guitarCache[ id ] = audioFade( audioEnvelope( audioMix( saws ), 0.003, decay ), 0, min( 0.02, seconds / 2 ) );
+	}
+	return guitarCache[ id ];
+}
+
+leadCache = {};
+function leadNote( midi, seconds ){
+	var id = midi & "|" & seconds;
+	if( !leadCache.keyExists( id ) ){
+		var tone = audioMix( [
+			audioOsc( shape = "saw", freq = audioFreq( midi - 0.1 ), seconds = seconds, sampleRate = sr, harmonics = 12 ),
+			audioOsc( shape = "saw", freq = audioFreq( midi + 0.1 ), seconds = seconds, sampleRate = sr, harmonics = 12 ),
+			audioGain( audioOsc( shape = "square", freq = audioFreq( midi ), seconds = seconds, sampleRate = sr, harmonics = 8 ), -6 )
+		] );
+		leadCache[ id ] = audioFade( audioEnvelope( tone, 0.01, seconds * 1.5 ), 0, min( 0.03, seconds / 2 ) );
+	}
+	return leadCache[ id ];
+}
+
+bassCache = {};
+function bassNote( midi, seconds ){
+	var id = midi & "|" & seconds;
+	if( !bassCache.keyExists( id ) ){
+		var tone = audioMix( [
+			audioFilter( audioOsc( shape = "saw", freq = audioFreq( midi ), seconds = seconds, sampleRate = sr, harmonics = 12 ), "lowpass", 700, 1.0 ),
+			audioGain( audioOsc( shape = "sine", freq = audioFreq( midi ), seconds = seconds, sampleRate = sr ), -2 )
+		] );
+		bassCache[ id ] = audioFade( audioEnvelope( tone, 0.004, 0.5 ), 0, min( 0.03, seconds / 2 ) );
+	}
+	return bassCache[ id ];
+}
+
+kick = audioDrum( type = "kick", pitch = 1.0, decay = 0.8, level = 1.0 );
+snare = audioDrum( type = "snare", seed = 11, decay = 1.0, level = 0.95 );
+hat = audioDrum( type = "hat", seed = 12, level = 0.45 );
+openHat = audioDrum( type = "openhat", seed = 13, decay = 0.7, level = 0.5 );
+crash = audioDrum( type = "crash", seed = 14, decay = 1.6, level = 0.7 );
+toms = [ audioDrum( type = "tom", pitch = 1.5, level = 0.85 ), audioDrum( type = "tom", pitch = 1.15, level = 0.85 ), audioDrum( type = "tom", pitch = 0.85, level = 0.9 ) ];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Arrangement
+// ---------------------------------------------------------------------------------------------------------------------------------
+function newStem(){
+	return audioTimeline( bpm = bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline = stem, sound = sound, at = at, track = "main", db = db, pan = pan );
+}
+
+drumStem = newStem();
+guitarL = newStem();
+guitarR = newStem();
+bassStem = newStem();
+leadStem = newStem();
+
+lastLead = 76;
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	section = sectionOf( b );
+	nextSection = ( b + 1 < bars ) ? sectionOf( b + 1 ) : "";
+	root = progressions[ section ][ ( b mod 4 ) + 1 ];
+	// guitar power chords on E2 to D#3, the bass an octave below that
+	guitarRoot = 40 + ( ( root - 4 + 12 ) mod 12 );
+	bassRoot = guitarRoot - 12;
+	isLast = ( b == bars - 1 );
+	startOfSection = ( b == 0 || sectionOf( b - 1 ) != section );
+
+	// Guitars: palm muted chugging in the intro and verse, open ringing chords in the chorus and outro, riffing in the solo. Two takes, one in each ear.
+	if( isLast ){
+		put( guitarL, powerChord( guitarRoot, bar * 2, 1.6 ), t0, -0.6, 0 );
+		put( guitarR, powerChord( guitarRoot, bar * 2, 1.6 ), t0, 0.6, 0 );
+	} else if( section == "chorus" || section == "outro" ){
+		for( k in [ 0, 2 ] ){
+			put( guitarL, powerChord( guitarRoot, beat * 2, 1.1 ), t0 + k * beat, -0.6, 0 );
+			put( guitarR, powerChord( guitarRoot, beat * 2, 1.1 ), t0 + k * beat, 0.6, 0 );
+		}
+	} else {
+		for( s = 0; s < 8; s++ ){
+			accent = ( s == 0 || s == 3 || s == 6 );
+			put( guitarL, powerChord( guitarRoot, step * 2 * 0.85, 0.06 ), t0 + s * step * 2, -0.6, accent ? 0 : -3 );
+			put( guitarR, powerChord( guitarRoot, step * 2 * 0.85, 0.06 ), t0 + s * step * 2 + 0.004, 0.6, accent ? 0 : -3 );
+		}
+	}
+
+	// Bass: eighth notes on the root, whole notes in the chorus
+	if( !( section == "intro" && b < 2 ) ){
+		if( isLast ){
+			put( bassStem, bassNote( bassRoot, bar * 2 ), t0, 0, -1 );
+		} else if( section == "chorus" || section == "outro" ){
+			put( bassStem, bassNote( bassRoot, beat * 2 ), t0, 0, -1 );
+			put( bassStem, bassNote( bassRoot, beat * 2 ), t0 + beat * 2, 0, -1 );
+		} else {
+			for( s = 0; s < 8; s++ ){
+				put( bassStem, bassNote( bassRoot, step * 2 * 0.9 ), t0 + s * step * 2, 0, s mod 2 == 0 ? -1 : -3 );
+			}
+		}
+	}
+
+	// Drums
+	if( isLast ){
+		put( drumStem, kick, t0, 0, 0 );
+		put( drumStem, crash, t0, 0.2, -2 );
+	} else if( !( section == "intro" && b < 2 ) ){
+		// kick on one, the "and" of two and three, snare on two and four, hats on every eighth (open on the last in the chorus)
+		for( s in [ 0, 6, 8, 10 ] ){
+			put( drumStem, kick, t0 + s * step, 0, s == 0 ? 0 : -2 );
+		}
+		put( drumStem, snare, t0 + beat, 0, -1 );
+		put( drumStem, snare, t0 + 3 * beat, 0, -1 );
+		for( s = 0; s < 8; s++ ){
+			if( section == "chorus" || section == "outro" ){
+				put( drumStem, s == 7 ? openHat : hat, t0 + s * step * 2, 0.25, s mod 2 == 0 ? -9 : -12 );
+			} else {
+				put( drumStem, hat, t0 + s * step * 2, 0.25, s mod 2 == 0 ? -10 : -14 );
+			}
+		}
+	} else {
+		// the first two bars of the intro: the riff alone, with a snare on the last beat
+		put( drumStem, snare, t0 + 3 * beat, 0, -4 );
+	}
+	// a crash on the first bar of a new section, and a tom fill in the last bar before one
+	if( startOfSection && b > 0 ){
+		put( drumStem, crash, t0, 0.2, -3 );
+	}
+	if( !isLast && nextSection != "" && nextSection != section ){
+		for( k = 0; k < 4; k++ ){
+			put( drumStem, toms[ ( k mod 3 ) + 1 ], t0 + 3 * beat + k * step, -0.2 + k * 0.15, -3 );
+		}
+	}
+
+	// The solo: pentatonic eighth notes, landing on the root or fifth on every first and third beat, a breath at the end of every second bar
+	if( section == "solo" ){
+		eighth = 0;
+		while( eighth < 8 ){
+			soloRoot = 64 + ( ( root - 4 + 12 ) mod 12 ); // E4 and up
+			strong = ( eighth == 0 || eighth == 4 );
+			if( strong ){
+				lastLead = soloRoot + ( rnd() < 0.5 ? 0 : 7 ) + ( rnd() < 0.4 ? 12 : 0 );
+			} else {
+				// move by one or two steps of the pentatonic scale, up or down
+				degree = 1;
+				for( i = 1; i <= 5; i++ ){
+					if( ( ( lastLead - soloRoot ) mod 12 + 12 ) mod 12 == pentatonic[ i ] ){
+						degree = i;
+					}
+				}
+				move = ( rnd() < 0.5 ? -1 : 1 ) * ( rnd() < 0.7 ? 1 : 2 );
+				octaveShift = floor( ( lastLead - soloRoot ) / 12 );
+				newDegree = degree + move;
+				while( newDegree < 1 ){ newDegree += 5; octaveShift--; }
+				while( newDegree > 5 ){ newDegree -= 5; octaveShift++; }
+				lastLead = max( 64, min( 88, soloRoot + octaveShift * 12 + pentatonic[ newDegree ] ) );
+			}
+			length = ( strong && rnd() < 0.5 ) ? 2 : 1;
+			if( !( b mod 2 == 1 && eighth >= 6 ) ){
+				put( leadStem, leadNote( lastLead, length * beat * 0.5 ), t0 + eighth * beat * 0.5, 0.1, strong ? -1 : -3 );
+			}
+			eighth += length;
+		}
+	}
+}
+
+// Distortion: the guitars are saturated hard, then cut like a speaker cabinet: no deep lows, no fizz
+function distort( audio, drive, level ){
+	return audioFilter( audioFilter( audioSaturate( audio, drive, level ), "lowpass", 4200, 0.7071 ), "highpass", 90, 0.7071 );
+}
+guitars = audioMix( [
+	distort( audioRender( timeline = guitarL, tail = 1.5 ), 9, 0.9 ),
+	distort( audioRender( timeline = guitarR, tail = 1.5 ), 9, 0.9 )
+] );
+leadLine = distort( audioRender( timeline = leadStem, tail = 1.5 ), 6, 0.9 );
+leadLine = audioDelay( audio = leadLine, time = beat * 0.75, feedback = 0.3, mix = 0.22, pingPong = true );
+leadLine = audioReverb( audio = leadLine, room = 0.35, damp = 0.5, mix = 0.12 );
+bassOut = audioFilter( audioSaturate( audioRender( timeline = bassStem, tail = 1 ), 2.5, 0.9 ), "lowpass", 1800, 0.7071 );
+drums = audioReverb( audio = audioRender( timeline = drumStem, tail = 2 ), room = 0.25, damp = 0.5, mix = 0.1 );
+
+mix = audioMix( [
+	audioGain( drums, 0 ),
+	audioGain( guitars, -4 ),
+	audioGain( leadLine, -5 ),
+	audioGain( bassOut, -2 )
+] );
+mix = audioFilter( mix, "highpass", 35, 0.7071 );
+mix = audioSaturate( mix, 1.6, 0.9 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

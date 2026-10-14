@@ -1,0 +1,374 @@
+/**
+ * The bx-audio command line. Run it with `bx-audio <command>` once the module is installed with install-bx-module, or with
+ * `boxlang module:bxaudio <command>`.
+ *
+ * Every command is a method named `cmd<Name>` taking the parsed positionals and options, and returning nothing. Output goes through
+ * out() so tests can read it, and failures are thrown as exceptions with a message meant for the person at the terminal.
+ */
+class {
+
+	/**
+	 * The module folder, where the examples live
+	 */
+	property name="root" type="string";
+
+	/**
+	 * Everything the CLI printed, for tests
+	 */
+	property name="output" type="string" default="";
+
+	/**
+	 * Command names and one line of help each, in the order help lists them
+	 */
+	variables.commands = [
+		{ name : "info", usage : "info <file>", help : "Show the format, length and level of a WAV or MP3 file" },
+		{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV and MP3, and change the sample rate or channels" },
+		{ name : "normalize", usage : "normalize <in> <out> [--db=-1]", help : "Scale the peak of a file to a level in decibels" },
+		{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
+		{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
+		{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time" },
+		{ name : "voices", usage : "voices [--lang=en_US] [--installed]", help : "List the voices you can install, with their licenses" },
+		{ name : "install", usage : "install <voice|engine> [...]", help : "Download a voice, or the speech engine every voice needs" },
+		{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
+		{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
+		{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
+		{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
+		{ name : "doctor", usage : "doctor", help : "Check that MP3, the examples and the explorer will work here" },
+		{ name : "version", usage : "version", help : "Show the module version" },
+		{ name : "help", usage : "help [command]", help : "Show this help" }
+	];
+
+	function init( required string root ){
+		variables.root = arguments.root;
+		return this;
+	}
+
+	/**
+	 * Run a command line
+	 *
+	 * @args The arguments after the program name, for example [ "info", "song.wav" ]
+	 */
+	function run( required array args ){
+		var parsed = createObject( "java", "ortus.boxlang.runtime.cli.CLIUtil" ).parseArguments( arguments.args );
+		var positionals = parsed.positionals;
+		var options = parsed.options;
+		if( !positionals.len() ){
+			return cmdHelp( [], options );
+		}
+		var name = positionals.first().lcase();
+		var rest = positionals.slice( 2 );
+		if( name == "--help" || name == "-h" ){
+			name = "help";
+		}
+		if( !commands.some( ( c ) => c.name == name ) ){
+			throw( type = "bxaudio.cli", message = "Unknown command [#name#]. Run `bx-audio help` to see the commands." );
+		}
+		if( options.keyExists( "help" ) ){
+			return cmdHelp( [ name ], options );
+		}
+		return invoke( this, "cmd" & name.ucFirst(), [ rest, options ] );
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// Commands
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	function cmdHelp( required array args, required struct options ){
+		if( args.len() ){
+			var found = commands.filter( ( c ) => c.name == args.first() );
+			if( !found.len() ){
+				throw( type = "bxaudio.cli", message = "Unknown command [#args.first()#]." );
+			}
+			out( "bx-audio " & found.first().usage );
+			out( "  " & found.first().help );
+			return;
+		}
+		out( "bx-audio: make, mix and convert audio from the command line" );
+		out( "" );
+		out( "Usage: bx-audio <command> [options]" );
+		out( "" );
+		commands.each( ( c ) => out( "  " & pad( c.name, 11 ) & c.help ) );
+		out( "" );
+		out( "Run `bx-audio help <command>` for the options of one command." );
+	}
+
+	function cmdVersion( required array args, required struct options ){
+		out( "bx-audio " & createObject( "java", "java.lang.String" ).valueOf( getModuleInfo( "bxaudio" ).version ) );
+	}
+
+	function cmdInfo( required array args, required struct options ){
+		var file = needFile( args, 1, "info <file>" );
+		var info = audioInfo( file );
+		var dbfs = ( v ) => v > 0 ? numberFormat( 20 * log10( v ), "0.0" ) & " dBFS" : "silence";
+		out( file );
+		out( "  format    " & ( file.lcase().endsWith( ".mp3" ) ? "MP3" : "WAV" ) );
+		out( "  channels  " & info.channels );
+		out( "  rate      " & info.sampleRate & " Hz" );
+		out( "  length    " & numberFormat( info.seconds, "0.000" ) & " s (" & info.frames & " frames)" );
+		out( "  peak      " & numberFormat( info.peak, "0.000" ) & " (" & dbfs( info.peak ) & ")" );
+		out( "  rms       " & numberFormat( info.rms, "0.0000" ) & " (" & dbfs( info.rms ) & ")" );
+	}
+
+	function cmdConvert( required array args, required struct options ){
+		var source = needFile( args, 1, "convert <in> <out>" );
+		var target = absolute( needArg( args, 2, "convert <in> <out>" ) );
+		var audio = audioLoad( source );
+		if( options.keyExists( "sampleRate" ) ){
+			audio = audioResample( audio, int( options.sampleRate ) );
+		}
+		if( options.keyExists( "channels" ) ){
+			audio = audioChannels( audio, int( options.channels ) );
+		}
+		var written = audioSave(
+			audio = audio,
+			path = target,
+			bitDepth = int( options.bitDepth ?: 16 ),
+			bitrate = int( options.bitrate ?: 0 )
+		);
+		out( "wrote " & written );
+	}
+
+	function cmdNormalize( required array args, required struct options ){
+		var source = needFile( args, 1, "normalize <in> <out>" );
+		var target = absolute( needArg( args, 2, "normalize <in> <out>" ) );
+		var written = audioSave( audioNormalize( audioLoad( source ), options.db ?: -1 ), target );
+		out( "wrote " & written );
+	}
+
+	function cmdTrim( required array args, required struct options ){
+		var source = needFile( args, 1, "trim <in> <out>" );
+		var target = absolute( needArg( args, 2, "trim <in> <out>" ) );
+		var audio = audioLoad( source );
+		var written = audioSave( audioTrim( audio, options.start ?: 0, options.end ?: audio.getDurationSeconds() ), target );
+		out( "wrote " & written );
+	}
+
+	function cmdWaveform( required array args, required struct options ){
+		var file = needFile( args, 1, "waveform <file>" );
+		var width = int( options.width ?: 60 );
+		// Plain characters work in every terminal. The block characters look better where the console speaks UTF-8.
+		var unicode = options.keyExists( "unicode" ) && options.unicode != false;
+		var glyphs = unicode ? [ " ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" ] : [ " ", ".", ":", "-", "=", "+", "*", "##", "@" ];
+		var peaks = audioWaveform( audioLoad( file ), width );
+		var top = max( 0.0001, peaks.max() );
+		out( peaks.map( ( p ) => glyphs[ 1 + min( 8, int( round( p / top * 8 ) ) ) ] ).toList( "" ) );
+	}
+
+	function cmdVoices( required array args, required struct options ){
+		var voices = audioVoices( language = options.lang ?: "", installed = options.keyExists( "installed" ) && options.installed != false );
+		if( !voices.len() ){
+			out( "No voices match." );
+			return;
+		}
+		out( pad( "VOICE", 38 ) & pad( "LICENSE", 15 ) & pad( "SIZE", 9 ) & "INSTALLED" );
+		voices.each( ( v ) => out( pad( v.id, 38 ) & pad( v.license, 15 ) & pad( numberFormat( v.sizeMB, "0.0" ) & " MB", 9 ) & ( v.installed ? "yes" : "" ) ) );
+		out( "" );
+		out( "Only voices whose model card states an open license are listed, and the license is the one the card gives. Check it fits your use." );
+		if( voices.some( ( v ) => v.shareAlike ) ){
+			out( "CC-BY-SA voices ask that you share what you make from them under the same terms." );
+		}
+		out( "Install one with `bx-audio install <voice>`, or just use it: `bx-audio speak ""Hello"" --voice=<voice>`." );
+	}
+
+	function cmdInstall( required array args, required struct options ){
+		if( !args.len() ){
+			throw( type = "bxaudio.cli", message = "Missing argument. Usage: bx-audio install <voice|engine> [...]" );
+		}
+		for( var name in args ){
+			var info = audioVoiceInstall( name, progressPrinter() );
+			out( ( info.name == "engine" ? "installed the speech engine in " : "installed " & info.name & " at " ) & info.path );
+		}
+	}
+
+	function cmdRemove( required array args, required struct options ){
+		if( !args.len() ){
+			throw( type = "bxaudio.cli", message = "Missing argument. Usage: bx-audio remove <voice|engine> [...]" );
+		}
+		for( var name in args ){
+			out( audioVoiceRemove( name ) ? "removed " & name : name & " was not installed" );
+		}
+	}
+
+	function cmdSpeak( required array args, required struct options ){
+		var text = args.toList( " " );
+		if( options.keyExists( "file" ) ){
+			var path = absolute( options.file );
+			if( !fileExists( path ) ){
+				throw( type = "bxaudio.cli", message = "File not found: #path#" );
+			}
+			text = fileRead( path );
+		}
+		if( !text.trim().len() ){
+			throw( type = "bxaudio.cli", message = "Missing text. Usage: bx-audio speak <text> --voice=NAME" );
+		}
+		if( !options.keyExists( "voice" ) ){
+			throw( type = "bxaudio.cli", message = "Choose a voice with --voice=NAME. See them with `bx-audio voices`." );
+		}
+		var target = absolute( options.out ?: "speech.wav" );
+		var audio = audioSpeak( text = text, voice = options.voice, autoInstall = ( options.install ?: true ) != false, onProgress = progressPrinter() );
+		var written = audioSave( audio, target );
+		out( "wrote " & written & " (" & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s)" );
+	}
+
+	function cmdPieces( required array args, required struct options ){
+		catalog().each( ( p ) => out( pad( p.id, 11 ) & pad( p.style, 22 ) & p.blurb ) );
+		out( "" );
+		out( "Render one with `bx-audio render <piece>`, or open them all with `bx-audio explorer`." );
+	}
+
+	function cmdRender( required array args, required struct options ){
+		var id = needArg( args, 1, "render <piece>" ).lcase();
+		var found = catalog().filter( ( p ) => p.id == id );
+		if( !found.len() ){
+			throw( type = "bxaudio.cli", message = "Unknown piece [#id#]. Run `bx-audio pieces` to see them." );
+		}
+		var piece = found.first();
+		var target = absolute( options.out ?: ( piece.id & ".wav" ) );
+		var settings = { "out" : target };
+		var known = piece.params.map( ( p ) => p.name );
+		options.each( ( key, value ) => {
+			if( key == "out" ){
+				return;
+			}
+			if( !known.contains( key ) ){
+				throw( type = "bxaudio.cli", message = "[#piece.id#] has no setting [#key#]. Its settings are: #known.toList( ', ' )#." );
+			}
+			settings[ key ] = value;
+		} );
+		// The example scripts read their settings from `overrides`, in their own scope
+		request.audioJob = { "script" : root & "/examples/" & piece.script.replace( "../", "" ), "overrides" : settings };
+		new bxModules.bxaudio.cli.Job();
+		out( "" );
+		out( "wrote " & target );
+	}
+
+	function cmdExplorer( required array args, required struct options ){
+		var port = int( options.port ?: 8080 );
+		var webroot = root & "/examples/explorer";
+		if( !directoryExists( webroot ) ){
+			throw( type = "bxaudio.cli", message = "The explorer was not found at [#webroot#]." );
+		}
+		var program = findOnPath( "boxlang-miniserver" );
+		if( !program.len() ){
+			throw( type = "bxaudio.cli", message = "The explorer needs the BoxLang MiniServer, which is not on your PATH. Install it from https://boxlang.ortusbooks.com/getting-started/installation, then run this again. Or start it yourself: boxlang-miniserver --webroot #webroot# --port #port#" );
+		}
+		out( "Starting the explorer at http://localhost:#port#/index.bxm (Ctrl+C to stop)" );
+		var builder = createObject( "java", "java.lang.ProcessBuilder" ).init( [ program, "--webroot", webroot, "--port", port & "" ] );
+		builder.inheritIO().start().waitFor();
+	}
+
+	function cmdDoctor( required array args, required struct options ){
+		var problems = 0;
+		var check = ( ok, label, fix = "" ) => {
+			out( ( ok ? "  ok    " : "  FAIL  " ) & label );
+			if( !ok ){
+				problems++;
+				if( fix.len() ){
+					out( "        " & fix );
+				}
+			}
+		};
+		out( "bx-audio doctor" );
+		check( true, "Java " & server.java.version );
+		var desktop = createObject( "java", "java.lang.ModuleLayer" ).boot().findModule( "java.desktop" ).isPresent();
+		check( desktop, "java.desktop module (needed to write MP3)", "Use a full JDK or a JRE that includes java.desktop." );
+		var mp3 = false;
+		try {
+			var probe = getTempDirectory() & "/bx-audio-doctor-" & createUUID() & ".mp3";
+			audioSave( audioOsc( "sine", 440, 0.2 ), probe );
+			mp3 = audioInfo( probe ).frames > 0;
+			fileDelete( probe );
+		} catch( any e ){
+			mp3 = false;
+		}
+		check( mp3, "MP3 write and read", "Check that jlayer and jump3r are in the module's libs folder. See licenses/THIRD-PARTY.md." );
+		check( directoryExists( root & "/examples" ), "Examples folder", "Reinstall the module." );
+		check( findOnPath( "boxlang-miniserver" ).len() > 0, "MiniServer on PATH (needed for the explorer)", "Install it from https://boxlang.ortusbooks.com/getting-started/installation" );
+		var speech = audioSpeechStatus();
+		out( "  info  speech engine " & ( speech.engineInstalled ? "installed" : "not installed (" & speech.engineSizeMB & " MB, `bx-audio install engine` or the first `speak` downloads it)" ) );
+		out( "  info  voices installed: " & ( speech.voices.len() ? speech.voices.toList( ", " ) : "none" ) & " (in " & speech.home & ")" );
+		out( problems ? "" & problems & " problem" & ( problems > 1 ? "s" : "" ) & " found." : "Everything looks good." );
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// Helpers
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Print a line, and remember it
+	 */
+	function out( required string line ){
+		variables.output &= line & createObject( "java", "java.lang.System" ).lineSeparator();
+		println( line );
+	}
+
+	function getOutput(){
+		return variables.output;
+	}
+
+	private function catalog(){
+		var path = root & "/examples/explorer/catalog.json";
+		if( !fileExists( path ) ){
+			throw( type = "bxaudio.cli", message = "The examples were not found at [#root#/examples]. Reinstall the module." );
+		}
+		return jsonDeserialize( fileRead( path ) );
+	}
+
+	/**
+	 * A download progress callback that prints a line each time a file passes another tenth
+	 */
+	private function progressPrinter(){
+		var last = {};
+		return ( name, done, total ) => {
+			var tenth = int( done * 10 / total ) * 10;
+			if( !last.keyExists( name ) || tenth > last[ name ] ){
+				last[ name ] = tenth;
+				out( "  " & name & " " & tenth & "%" );
+			}
+		};
+	}
+
+	/**
+	 * Pad text with spaces on the right, for columns
+	 */
+	private function pad( required string text, required numeric width ){
+		return text.len() >= width ? text & " " : text & repeatString( " ", width - text.len() );
+	}
+
+	private function needArg( required array args, required numeric position, required string usage ){
+		if( args.len() < position ){
+			throw( type = "bxaudio.cli", message = "Missing argument. Usage: bx-audio #usage#" );
+		}
+		return args[ position ];
+	}
+
+	/**
+	 * Paths given on the command line are relative to where the person ran the command, not to the module or the example scripts
+	 */
+	private function absolute( required string path ){
+		var Paths = createObject( "java", "java.nio.file.Paths" );
+		var given = Paths.get( path, [] );
+		return given.isAbsolute() ? path : Paths.get( createObject( "java", "java.lang.System" ).getProperty( "user.dir" ), [ path ] ).toString();
+	}
+
+	private function needFile( required array args, required numeric position, required string usage ){
+		var file = absolute( needArg( args, position, usage ) );
+		if( !fileExists( file ) ){
+			throw( type = "bxaudio.cli", message = "File not found: #file#" );
+		}
+		return file;
+	}
+
+	private function findOnPath( required string program ){
+		var names = server.os.name.lcase().contains( "windows" ) ? [ program & ".bat", program & ".exe", program ] : [ program ];
+		for( var dir in ( server.system.environment.PATH ?: "" ).listToArray( server.os.name.lcase().contains( "windows" ) ? ";" : ":" ) ){
+			for( var name in names ){
+				if( fileExists( dir & "/" & name ) ){
+					return dir & "/" & name;
+				}
+			}
+		}
+		return "";
+	}
+
+}
