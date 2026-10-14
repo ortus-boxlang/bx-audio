@@ -348,4 +348,43 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioMix( [ audioSilence( 1, 1 ), audioSilence( 1, 2 ) ] )", context ) );
 	}
 
+	@DisplayName( "Delay, reverb and chorus work from BoxLang with named arguments and lengthen the sound" )
+	@Test
+	void testEffectsFromBoxLang() {
+		runtime.executeSource(
+		    """
+		    hit = audioChannels( audioDrum( type="snare" ), 2 );
+		    echo = audioDelay( audio=hit, time=0.25, feedback=0.5, mix=0.4, pingPong=true );
+		    hall = audioReverb( audio=hit, room=0.8, damp=0.4, mix=0.35, tail=2 );
+		    wide = audioChorus( audio=audioChannels( audioOsc( "saw", 110, 1 ), 2 ), rate=0.5, depth=0.004 );
+		    short = audioDelay( hit, 0.1, 0, 1 );
+		    result = [
+		        hit.getFrames(), echo.getFrames(), hall.getFrames(), wide.getFrames(), short.getFrames(),
+		        echo.getChannels(), hall.getChannels(), audioInfo( hall ).peak > 0
+		    ];
+		    """,
+		    context );
+		Array	values	= ( Array ) variables.get( result );
+		int		snare	= ( Integer ) values.get( 0 );
+		assertThat( snare ).isEqualTo( 11025 );
+		// 0.5 feedback runs 10 repeats of 0.25 s
+		assertThat( values.get( 1 ) ).isEqualTo( snare + 110250 );
+		assertThat( values.get( 2 ) ).isEqualTo( snare + 88200 );
+		assertThat( values.get( 3 ) ).isEqualTo( 44100 );
+		assertThat( values.get( 4 ) ).isEqualTo( snare + 4410 );
+		assertThat( values.get( 5 ) ).isEqualTo( 2 );
+		assertThat( values.get( 6 ) ).isEqualTo( 2 );
+		assertThat( values.get( 7 ) ).isEqualTo( true );
+	}
+
+	@DisplayName( "Effect BIFs reject bad arguments with clear errors" )
+	@Test
+	void testEffectsErrors() {
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioDelay( 'nope' )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioDelay( audioSilence( 1 ), 0.1, 2 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioDelay( audioSilence( 1, 1 ), 0.1, 0.4, 0.5, true )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioReverb( audioSilence( 1 ), 5 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioChorus( audioSilence( 1 ), 0 )", context ) );
+	}
+
 }

@@ -77,6 +77,25 @@ audioAdd( timeline=t, sound=pluck, at=t.bar( 1 ), track="bass", db=-6 );
 audioSave( audioSaturate( audioRender( t ) ), "out/groove.wav" );
 ```
 
+### Effects
+
+Echo and reverb return a longer buffer so the tail rings out instead of being cut off. `mix` is a dry/wet crossfade from 0 to 1.
+
+| Function | Purpose |
+|---|---|
+| `audioDelay( audio, time=0.35, feedback=0.4, mix=0.35, pingPong=false, tail )` | Echo. Repeats run until 60 dB down (at most 10 s) unless `tail` is given. `pingPong` bounces them between stereo sides |
+| `audioReverb( audio, room=0.5, damp=0.5, mix=0.3, tail )` | Freeverb style reverb: 8 damped combs into 4 allpass filters, stereo spread. Large rooms build up level on sustained sounds, so lower the mix |
+| `audioChorus( audio, rate=0.8, depth=0.003, mix=0.5 )` | A slowly swinging short delay for width and thickness |
+
+```js
+// A snare with a dotted eighth ping pong echo and a hall
+t = audioTimeline( bpm=100 );
+snare = audioChannels( audioDrum( type="snare" ), 2 );
+echoed = audioDelay( audio=snare, time=t.beat( 0.75 ), feedback=0.45, mix=0.3, pingPong=true );
+hall = audioReverb( audio=echoed, room=0.7, damp=0.4, mix=0.25 );
+audioSave( hall, "out/snare-hall.wav" );
+```
+
 ### Timeline mixing
 
 A timeline holds named tracks at one sample rate and a tempo grid. Sounds are placed on tracks, ducking and track volumes are applied when it is rendered, so the stored tracks are never altered.
@@ -133,7 +152,7 @@ boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
-3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done). Effects (delay, reverb, chorus) and sequencing helpers are next
+3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
 4. A catalog of example music scripts (pop done, lofi, house, chiptune, ambient, cinematic and more to follow, all original compositions)
 5. Text-to-speech through a pluggable provider, with a content-hash cache
 6. Analysis: loudness, silence detection, waveform data, FFT

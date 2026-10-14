@@ -75,5 +75,13 @@ public class KeyDictionary {
 	public static final Key	cutoff		= Key.of( "cutoff" );
 	public static final Key	q			= Key.of( "q" );
 	public static final Key	seconds		= Key.of( "seconds" );
+	public static final Key	time		= Key.of( "time" );
+	public static final Key	feedback	= Key.of( "feedback" );
+	public static final Key	mix			= Key.of( "mix" );
+	public static final Key	pingPong	= Key.of( "pingPong" );
+	public static final Key	room		= Key.of( "room" );
+	public static final Key	damp		= Key.of( "damp" );
+	public static final Key	rate		= Key.of( "rate" );
+	public static final Key	depth		= Key.of( "depth" );
 
 }
