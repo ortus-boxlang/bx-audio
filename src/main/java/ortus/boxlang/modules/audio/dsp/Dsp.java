@@ -245,6 +245,81 @@ public final class Dsp {
 	}
 
 	/**
+	 * Filter types for {@link #filter}
+	 */
+	public static final java.util.List<String> FILTER_TYPES = java.util.List.of( "lowpass", "highpass", "bandpass", "notch" );
+
+	/**
+	 * Run the audio through a second order filter (the RBJ "audio EQ cookbook" biquads).
+	 *
+	 * @param audio  The input
+	 * @param type   lowpass, highpass, bandpass (constant peak gain) or notch
+	 * @param cutoff The corner or center frequency in Hz, above 0 and below half the sample rate
+	 * @param q      Resonance. 0.7071 is flat, higher peaks at the cutoff, for bandpass and notch it sets the narrowness.
+	 */
+	public static AudioBuffer filter( AudioBuffer audio, String type, double cutoff, double q ) {
+		String kind = type == null ? "" : type.toLowerCase( java.util.Locale.ROOT );
+		if ( !FILTER_TYPES.contains( kind ) ) {
+			throw new BoxRuntimeException( "Unknown filter type [" + type + "]. Use one of " + FILTER_TYPES );
+		}
+		requireFinite( cutoff, "cutoff" );
+		requireFinite( q, "q" );
+		if ( cutoff <= 0 || cutoff >= audio.getSampleRate() / 2.0 ) {
+			throw new BoxRuntimeException( "The cutoff must be above 0 and below " + audio.getSampleRate() / 2.0 + " Hz but was " + cutoff );
+		}
+		if ( q <= 0 || q > 100 ) {
+			throw new BoxRuntimeException( "Q must be above 0 and at most 100 but was " + q );
+		}
+		double	w0		= 2 * Math.PI * cutoff / audio.getSampleRate();
+		double	cos		= Math.cos( w0 );
+		double	alpha	= Math.sin( w0 ) / ( 2 * q );
+		double	b0, b1, b2;
+		switch ( kind ) {
+			case "lowpass" -> {
+				b0	= ( 1 - cos ) / 2;
+				b1	= 1 - cos;
+				b2	= ( 1 - cos ) / 2;
+			}
+			case "highpass" -> {
+				b0	= ( 1 + cos ) / 2;
+				b1	= - ( 1 + cos );
+				b2	= ( 1 + cos ) / 2;
+			}
+			case "bandpass" -> {
+				b0	= alpha;
+				b1	= 0;
+				b2	= -alpha;
+			}
+			default -> {
+				b0	= 1;
+				b1	= -2 * cos;
+				b2	= 1;
+			}
+		}
+		double	a0	= 1 + alpha;
+		double	a1	= -2 * cos / a0;
+		double	a2	= ( 1 - alpha ) / a0;
+		b0	/= a0;
+		b1	/= a0;
+		b2	/= a0;
+		float[][] out = new float[ audio.getChannels() ][ audio.getFrames() ];
+		for ( int ch = 0; ch < out.length; ch++ ) {
+			float[]	in	= audio.channel( ch );
+			double	x1	= 0, x2 = 0, y1 = 0, y2 = 0;
+			for ( int i = 0; i < in.length; i++ ) {
+				double	x	= in[ i ];
+				double	y	= b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+				x2				= x1;
+				x1				= x;
+				y2				= y1;
+				y1				= y;
+				out[ ch ][ i ]	= ( float ) y;
+			}
+		}
+		return new AudioBuffer( out, audio.getSampleRate() );
+	}
+
+	/**
 	 * Convert the channel count. Mono to any count copies the signal, any count to mono averages the channels. Other conversions are
 	 * rejected because there is no single right answer.
 	 */

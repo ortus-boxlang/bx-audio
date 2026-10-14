@@ -234,4 +234,99 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThat( values.get( 2 ) ).isEqualTo( 10 );
 	}
 
+	@DisplayName( "audioFreq converts note names, MIDI numbers and numeric strings" )
+	@Test
+	void testFreq() {
+		runtime.executeSource(
+		    """
+		    result = [ audioFreq( "A4" ), audioFreq( 69 ), audioFreq( "69" ), audioFreq( "C4" ), audioFreq( "Bb2" ), audioFreq( 81 ) ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( ( Double ) values.get( 0 ) ).isWithin( 1e-9 ).of( 440.0 );
+		assertThat( ( Double ) values.get( 1 ) ).isWithin( 1e-9 ).of( 440.0 );
+		assertThat( ( Double ) values.get( 2 ) ).isWithin( 1e-9 ).of( 440.0 );
+		assertThat( ( Double ) values.get( 3 ) ).isWithin( 1e-3 ).of( 261.6256 );
+		assertThat( ( Double ) values.get( 4 ) ).isWithin( 1e-3 ).of( 116.5409 );
+		assertThat( ( Double ) values.get( 5 ) ).isWithin( 1e-9 ).of( 880.0 );
+	}
+
+	@DisplayName( "The generator BIFs build sounds from BoxLang with named arguments" )
+	@Test
+	void testGenerators() {
+		runtime.executeSource(
+		    """
+		    saw = audioOsc( shape="saw", freq=audioFreq( "A3" ), seconds=0.5, harmonics=8 );
+		    pulse = audioOsc( shape="pulse", freq=440, seconds=0.25, width=0.125, sampleRate=22050 );
+		    organ = audioOsc( shape="additive", freq=200, seconds=0.1, partials=[ [ 1, 1.0 ], [ 2, 0.5 ], [ 3, 0.25 ] ] );
+		    thump = audioSweep( startHz=170, endHz=50, seconds=0.35 );
+		    hiss = audioNoise( seconds=0.1, seed=3, color="pink" );
+		    hiss2 = audioNoise( seconds=0.1, seed=3, color="pink" );
+		    result = [
+		        saw.getFrames(), pulse.getFrames(), pulse.getSampleRate(), organ.getPeak() <= 1.75, thump.getFrames(),
+		        hiss.getFrames(), audioInfo( hiss ).rms, audioInfo( hiss2 ).rms == audioInfo( hiss ).rms
+		    ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( values.get( 0 ) ).isEqualTo( 22050 );
+		// 0.25 s at 22050 Hz is 5512.5 frames, rounded up
+		assertThat( values.get( 1 ) ).isEqualTo( 5513 );
+		assertThat( values.get( 2 ) ).isEqualTo( 22050 );
+		assertThat( values.get( 3 ) ).isEqualTo( true );
+		assertThat( values.get( 4 ) ).isEqualTo( 15435 );
+		assertThat( values.get( 5 ) ).isEqualTo( 4410 );
+		assertThat( ( Double ) values.get( 6 ) ).isWithin( 1e-4 ).of( 0.25 );
+		assertThat( values.get( 7 ) ).isEqualTo( true );
+	}
+
+	@DisplayName( "Envelope, drums and filters chain with the mixer through BoxLang" )
+	@Test
+	void testSynthPipeline( @TempDir Path dir ) {
+		variables.put( Key.of( "target" ), dir.resolve( "beat.wav" ).toString() );
+		runtime.executeSource(
+		    """
+		    t = audioTimeline( bpm=120 );
+		    kick = audioDrum( type="kick", level=0.9 );
+		    hat = audioDrum( "hat", 44100, 2, 1, 1, 0.4 );
+		    pluck = audioEnvelope( audio=audioOsc( "saw", audioFreq( "C3" ), 0.5 ), attack=0.002, decay=0.15 );
+		    pluck = audioFilter( pluck, "lowpass", 1200, 2 );
+		    for( at in audioBeats( t, 0, 8 ) ){
+		        audioAdd( timeline=t, sound=kick, at=at, track="drums" );
+		        audioAdd( timeline=t, sound=hat, at=at + t.beat( 0.5 ), track="drums", pan=0.4 );
+		    }
+		    audioAdd( timeline=t, sound=pluck, at=0, track="bass", db=-6 );
+		    audioPump( t, "bass", audioBeats( t, 0, 8 ), -6, 0.2 );
+		    mix = audioSaturate( audioRender( timeline=t, tail=0.25 ) );
+		    audioSave( mix, target );
+		    result = audioInfo( target );
+		    """,
+		    context );
+		IStruct info = ( IStruct ) variables.get( result );
+		assertThat( info.get( Key.of( "channels" ) ) ).isEqualTo( 2 );
+		// the last kick starts at beat 7 = 3.5 s and lasts 0.35 s (it ends after the last hat), plus the 0.25 s tail
+		assertThat( ( Double ) info.get( Key.of( "seconds" ) ) ).isWithin( 1e-6 ).of( 4.1 );
+		assertThat( ( Double ) info.get( Key.of( "peak" ) ) ).isWithin( 0.01 ).of( 0.9 );
+	}
+
+	@DisplayName( "Synth BIFs reject bad arguments with clear errors" )
+	@Test
+	void testSynthErrors() {
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioFreq( 'H9' )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioFreq( [ 1 ] )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioOsc( 'wobble', 440, 1 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioOsc( 'sine', 30000, 1 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioOsc( 'additive', 440, 1 )", context ) );
+		assertThrows( BoxRuntimeException.class,
+		    () -> runtime.executeSource( "audioOsc( shape='additive', freq=440, seconds=1, partials=[ [ 1 ] ] )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSweep( 0, 100, 1 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioNoise( 1, 44100, 1, 'green' )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioDrum( 'cowbell' )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioDrum( 'riser' , 44100, 1, 1, 1, 1, 0 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioEnvelope( audioSilence( 1 ), -1 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioEnvelope( 'nope' )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioFilter( audioSilence( 1 ), 'comb', 100 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioFilter( audioSilence( 1 ), 'lowpass', 99999 )", context ) );
+	}
+
 }

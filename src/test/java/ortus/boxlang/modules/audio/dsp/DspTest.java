@@ -285,4 +285,57 @@ public class DspTest {
 		assertThrows( BoxRuntimeException.class, () -> Dsp.saturate( in, Double.NaN, 0.5 ) );
 	}
 
+	/**
+	 * Amplitude of a filtered sine, measured once the filter has settled
+	 */
+	private static double filteredGain( String type, double cutoff, double q, double freq ) {
+		int			rate	= 44100;
+		AudioBuffer	in		= sine( freq, 1.0, rate );
+		AudioBuffer	out		= Dsp.filter( in, type, cutoff, q );
+		return rms( out.channel( 0 ), rate / 2, rate ) / rms( in.channel( 0 ), rate / 2, rate );
+	}
+
+	@DisplayName( "A low-pass passes low tones and removes high ones, a high-pass does the opposite" )
+	@Test
+	void testLowAndHighPass() {
+		assertThat( filteredGain( "lowpass", 1000, 0.7071, 100 ) ).isWithin( 0.01 ).of( 1.0 );
+		assertThat( filteredGain( "lowpass", 1000, 0.7071, 1000 ) ).isWithin( 0.02 ).of( Math.sqrt( 0.5 ) );
+		assertThat( filteredGain( "lowpass", 1000, 0.7071, 10000 ) ).isLessThan( 0.02 );
+		assertThat( filteredGain( "highpass", 1000, 0.7071, 10000 ) ).isWithin( 0.01 ).of( 1.0 );
+		assertThat( filteredGain( "highpass", 1000, 0.7071, 1000 ) ).isWithin( 0.02 ).of( Math.sqrt( 0.5 ) );
+		assertThat( filteredGain( "highpass", 1000, 0.7071, 100 ) ).isLessThan( 0.02 );
+	}
+
+	@DisplayName( "A band-pass passes its centre, a notch removes it, and resonance lifts the cutoff" )
+	@Test
+	void testBandPassNotchResonance() {
+		assertThat( filteredGain( "bandpass", 1000, 2, 1000 ) ).isWithin( 0.02 ).of( 1.0 );
+		assertThat( filteredGain( "bandpass", 1000, 2, 100 ) ).isLessThan( 0.15 );
+		assertThat( filteredGain( "bandpass", 1000, 2, 10000 ) ).isLessThan( 0.25 );
+		assertThat( filteredGain( "notch", 1000, 2, 1000 ) ).isLessThan( 0.02 );
+		assertThat( filteredGain( "notch", 1000, 2, 100 ) ).isWithin( 0.02 ).of( 1.0 );
+		// a resonant low-pass boosts right at the cutoff
+		assertThat( filteredGain( "lowpass", 1000, 5, 1000 ) ).isGreaterThan( 3.0 );
+	}
+
+	@DisplayName( "Filtering is per channel, keeps the format and rejects bad settings" )
+	@Test
+	void testFilterEdges() {
+		AudioBuffer	stereo	= new AudioBuffer( new float[][] { sine( 100, 0.1, 44100 ).channel( 0 ), new float[ 4410 ] }, 44100 );
+		AudioBuffer	out		= Dsp.filter( stereo, "lowpass", 5000, 0.7071 );
+		assertThat( out.getChannels() ).isEqualTo( 2 );
+		assertThat( out.getSampleRate() ).isEqualTo( 44100 );
+		assertThat( out.getFrames() ).isEqualTo( 4410 );
+		assertThat( out.channel( 0 )[ 100 ] ).isNotEqualTo( 0f );
+		assertThat( out.channel( 1 )[ 100 ] ).isEqualTo( 0f );
+		assertThat( Dsp.filter( AudioBuffer.silence( 1, 0, 44100 ), "lowpass", 100, 1 ).getFrames() ).isEqualTo( 0 );
+		assertThat( Dsp.filter( stereo, "LowPass", 5000, 1 ).getChannels() ).isEqualTo( 2 );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, "comb", 100, 1 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, null, 100, 1 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, "lowpass", 0, 1 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, "lowpass", 22050, 1 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, "lowpass", 100, 0 ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, "lowpass", Double.NaN, 1 ) );
+	}
+
 }

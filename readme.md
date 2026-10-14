@@ -46,6 +46,36 @@ install-bx-module bx-audio
 
 Every function returns a new buffer and leaves its input untouched.
 
+### Synthesis
+
+Sounds are made from code, with no samples to download or license. Generators return mono buffers at a known level, so they mix predictably.
+
+| Function | Purpose |
+|---|---|
+| `audioFreq( note )` | A note name (`"C4"`, `"F#3"`, `"Bb2"`) or MIDI number to Hz, A4 = 440. `60.1` is ten cents sharp of C4 |
+| `audioOsc( shape, freq, seconds, sampleRate=44100, harmonics=16, partials, width=0.5, phase=0 )` | `sine`, `saw`, `square`, `triangle` (band limited, peak about 1), `pulse` (naive digital, `width` 0.125 / 0.25 / 0.5 / 0.75 for NES style) or `additive` from `[ multiple, amplitude ]` pairs |
+| `audioSweep( startHz, endHz, seconds, speed=28 )` | A sine that glides between pitches, the core of a kick or a laser |
+| `audioNoise( seconds, sampleRate=44100, seed=1, color="white" )` | Repeatable noise: `white`, `pink`, `brown` or `blue`, at RMS 0.25 |
+| `audioEnvelope( audio, attack=0.005, decay=0 )` | Linear attack then exponential decay, `decay` is the time constant |
+| `audioDrum( type, sampleRate=44100, seed=1, pitch=1, decay=1, level=1, seconds )` | `kick`, `snare`, `hat`, `openhat`, `clap`, `tom`, `crash`, `riser`, peak-normalized to `level` |
+| `audioFilter( audio, type, cutoff, q=0.7071 )` | `lowpass`, `highpass`, `bandpass` or `notch` |
+
+The same seed always gives the same sound on any machine. It does not match numpy's random stream, so a port of a numpy script sounds the same but is not bit identical.
+
+```js
+// A plucked bass note and a kick, mixed on a beat grid
+t = audioTimeline( bpm=128 );
+pluck = audioEnvelope( audioOsc( "saw", audioFreq( "A1" ), 0.4 ), 0.003, 0.12 );
+pluck = audioFilter( pluck, "lowpass", 900, 2 );
+kick = audioDrum( "kick" );
+
+for( at in audioBeats( t, 0, 16 ) ){
+    audioAdd( timeline=t, sound=kick, at=at, track="drums" );
+}
+audioAdd( timeline=t, sound=pluck, at=t.bar( 1 ), track="bass", db=-6 );
+audioSave( audioSaturate( audioRender( t ) ), "out/groove.wav" );
+```
+
 ### Timeline mixing
 
 A timeline holds named tracks at one sample rate and a tempo grid. Sounds are placed on tracks, ducking and track volumes are applied when it is rendered, so the stored tracks are never altered.
@@ -94,7 +124,7 @@ println( audioInfo( "out/voice-stereo.wav" ) );
 
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
-3. Synthesis: oscillators, envelopes, sequencing, drum voices
+3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done). Effects (delay, reverb, chorus) and sequencing helpers are next
 4. A catalog of example music scripts (pop, lofi, house, chiptune, ambient, cinematic and more, all original compositions)
 5. Text-to-speech through a pluggable provider, with a content-hash cache
 6. Analysis: loudness, silence detection, waveform data, FFT

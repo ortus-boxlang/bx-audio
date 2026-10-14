@@ -57,5 +57,23 @@ public class KeyDictionary {
 	public static final Key	step		= Key.of( "step" );
 	public static final Key	start		= Key.of( "start" );
 	public static final Key	end			= Key.of( "end" );
+	public static final Key	note		= Key.of( "note" );
+	public static final Key	shape		= Key.of( "shape" );
+	public static final Key	freq		= Key.of( "freq" );
+	public static final Key	partials	= Key.of( "partials" );
+	public static final Key	harmonics	= Key.of( "harmonics" );
+	public static final Key	width		= Key.of( "width" );
+	public static final Key	phase		= Key.of( "phase" );
+	public static final Key	startHz		= Key.of( "startHz" );
+	public static final Key	endHz		= Key.of( "endHz" );
+	public static final Key	speed		= Key.of( "speed" );
+	public static final Key	seed		= Key.of( "seed" );
+	public static final Key	color		= Key.of( "color" );
+	public static final Key	decay		= Key.of( "decay" );
+	public static final Key	pitch		= Key.of( "pitch" );
+	public static final Key	type		= Key.of( "type" );
+	public static final Key	cutoff		= Key.of( "cutoff" );
+	public static final Key	q			= Key.of( "q" );
+	public static final Key	seconds		= Key.of( "seconds" );
 
 }
