@@ -245,6 +245,8 @@ shadowJar.finalizedBy( createModuleStructure )
 
 test {
     useJUnitPlatform()
+    // Rendering a full arrangement holds a dozen stereo stems at once, more than the 512 MB Gradle default
+    maxHeapSize = "2g"
     testLogging {
 		showStandardStreams = true
 		events "passed", "skipped", "failed"

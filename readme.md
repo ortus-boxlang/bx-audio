@@ -199,7 +199,7 @@ println( audioInfo( "out/voice-stereo.wav" ) );
 
 ## Examples
 
-The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/) and [Ambient](examples/04-ambient/).
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/) and [Cinematic](examples/07-cinematic/).
 
 ```bash
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
@@ -212,7 +212,7 @@ To listen in a browser, start the [explorer](examples/explorer/) with the MiniSe
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
-4. A catalog of example music scripts (pop, lofi, house and ambient done; techno, synthwave, cinematic, chiptune and more to follow, all original compositions)
+4. A catalog of example music scripts (pop, lofi, house, ambient, techno, synthwave and cinematic done; chiptune, jazz, rock, game sound effects and more to follow, all original compositions)
 5. Text-to-speech through a pluggable provider, with a content-hash cache
 6. Analysis: ~~waveform data~~ done, loudness, silence detection, FFT
 7. Realtime playback

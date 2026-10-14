@@ -46,5 +46,38 @@
 			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 36, "max": 70, "step": 1, "value": 48 },
 			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 5 }
 		]
+	},
+	{
+		"id": "techno",
+		"title": "Techno",
+		"style": "Techno",
+		"script": "../05-techno/techno.bxs",
+		"blurb": "A hypnotic groove in F sharp minor: hard kick, rumble bass, a resonant acid line and echoing stabs.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 124, "max": 145, "step": 1, "value": 132 }
+		]
+	},
+	{
+		"id": "synthwave",
+		"title": "Synthwave",
+		"style": "Synthwave",
+		"script": "../06-synthwave/synthwave.bxs",
+		"blurb": "A night drive: pulsing bass, a gated snare in a huge room, wide pads, an arpeggio and a lead melody.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 85, "max": 120, "step": 1, "value": 100 }
+		]
+	},
+	{
+		"id": "cinematic",
+		"title": "Cinematic",
+		"style": "Trailer music",
+		"script": "../07-cinematic/cinematic.bxs",
+		"blurb": "Tension, a build, one silent beat, then a huge boom, taiko drums and a theme. Ends on a ringing hit.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 40, "step": 4, "value": 24 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 70, "max": 120, "step": 1, "value": 90 }
+		]
 	}
 ]

@@ -18,8 +18,11 @@ Audio is written to `out/` by default and is not committed. Each script takes `-
 | 02 | [Lofi](02-lofi/) | Lofi hip hop, 78 BPM with swing | Swing, humanising, stems with their own effects, tape wobble, vinyl crackle |
 | 03 | [House](03-house/) | House, 124 BPM | A full arrangement, sidechain pumping on four stems, filtered saw bass, stabs, riser and drop |
 | 04 | [Ambient](04-ambient/) | Drone and pads, 48 BPM | Slow envelopes, inharmonic bells, noise swells, very large reverb and echo |
+| 05 | [Techno](05-techno/) | Techno, 132 BPM | One chord for the whole track, rumble bass, an acid line from resonant filters, a kick-less breakdown |
+| 06 | [Synthwave](06-synthwave/) | Synthwave, 100 BPM | A melody as data, a gated snare in a huge room, detuned pads and leads with chorus |
+| 07 | [Cinematic](07-cinematic/) | Trailer music, 90 BPM | Dynamics from quiet to loud, a true silent beat before the boom, strings and a theme |
 
-More are planned for techno, synthwave, cinematic trailer music, rock, jazz and chiptune in the style of 8-bit console games, plus game sound effects and a voice-over with ducked music.
+More are planned for rock, jazz and chiptune in the style of 8-bit console games, plus game sound effects and a voice-over with ducked music.
 
 `examples/` is covered by a test that renders each script with short settings. It checks the length, the level, that the same settings give the same file, and what each piece sounds like by measurement: how bright it is, whether it pulses on the beat, how percussive it is, and that it fades out. So the catalog cannot silently break or drift.
 
@@ -29,5 +32,8 @@ More are planned for techno, synthwave, cinematic trailer music, rock, jazz and 
 | Lofi | −45.8 dB | −0.03 (none) | 1.8 |
 | House | −20.5 dB | 0.88 | 2.8 |
 | Ambient | −47.1 dB | not meaningful | 0.7 |
+| Techno | −21.8 dB | 0.90 | 3.5 |
+| Synthwave | −22.3 dB | 0.84 | 2.7 |
+| Cinematic | −24.5 dB | 0.43 | 4.2 |
 
 These are measured on the short renders that the tests use.
