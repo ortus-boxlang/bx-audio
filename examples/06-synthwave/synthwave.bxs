@@ -10,10 +10,11 @@
  */
 
 settings = { out : "out/synthwave.wav", bars : 32, bpm : 100 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
 if( isDefined( "overrides" ) ){
 	settings.append( overrides );
 }
-settings.append( cliGetArgs().options );
 
 sr = 44100;
 phrases = max( 4, int( int( settings.bars ) / 4 ) );

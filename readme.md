@@ -207,6 +207,35 @@ boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 
 To listen in a browser, start the [explorer](examples/explorer/) with the MiniServer: `cd examples/explorer && boxlang-miniserver --webroot .`.
 
+## Command Line
+
+Installing the module with `install-bx-module` also installs a `bx-audio` command and its bash tab completion, so you can work with audio from a shell without writing a script. Without the installer, the same commands run as `boxlang module:bxaudio <command>`.
+
+```bash
+bx-audio render techno --bars=16 --out=techno.mp3   # synthesize an example piece
+bx-audio info techno.mp3                            # format, length, peak and RMS
+bx-audio convert song.wav song.mp3 --bitrate=192    # WAV to MP3, with --sampleRate and --channels
+bx-audio normalize voice.wav loud.wav --db=-3
+bx-audio trim song.wav intro.wav --start=0 --end=12
+bx-audio waveform song.wav                          # one line of loudness, add --unicode for blocks
+bx-audio explorer                                   # the web explorer, on the BoxLang MiniServer
+bx-audio doctor                                     # checks MP3, the examples and the MiniServer
+```
+
+| Command | Purpose |
+|---|---|
+| `info <file>` | Format, channels, sample rate, length, peak and RMS of a WAV or MP3 file |
+| `convert <in> <out>` | Convert between WAV and MP3. Options: `--bitrate`, `--bitDepth`, `--sampleRate`, `--channels` |
+| `normalize <in> <out>` | Scale the peak to `--db` (default -1) |
+| `trim <in> <out>` | Keep the section from `--start` to `--end`, in seconds |
+| `waveform <file>` | Draw the loudness on one line, `--width` characters wide |
+| `pieces` | List the example pieces |
+| `render <piece>` | Synthesize an example piece. Takes `--out` and the settings of that piece, such as `--bars` and `--bpm` |
+| `explorer` | Start the web explorer on `--port` (default 8080). Needs the BoxLang MiniServer on your PATH |
+| `doctor` | Check that MP3, the examples and the explorer will work on this machine |
+
+Paths are relative to the folder you run the command in. Run `bx-audio help <command>` for the options of one command.
+
 ## Roadmap
 
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)

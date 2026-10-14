@@ -13,10 +13,11 @@
  */
 
 settings = { out : "out/ambient.wav", bars : 12, bpm : 48, seed : 5 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
 if( isDefined( "overrides" ) ){
 	settings.append( overrides );
 }
-settings.append( cliGetArgs().options );
 
 sr = 44100;
 bars = max( 4, int( settings.bars ) );

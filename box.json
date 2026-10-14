@@ -18,7 +18,9 @@
 	],
 	"boxlang": {
 		"minimumVersion": "1.0.0",
-		"moduleName": "bxaudio"
+		"moduleName": "bxaudio",
+		"executable": "bx-audio",
+		"completions": "completions/bx-audio.bash"
 	},
 	"private": false,
 	"license": [

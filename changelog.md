@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* The `bx-audio` command line: `info`, `convert`, `normalize`, `trim`, `waveform`, `pieces`, `render`, `explorer` and `doctor`. It runs as `boxlang module:bxaudio <command>`, and `install-bx-module` installs a `bx-audio` executable and bash completion from the `executable` and `completions` settings in `box.json`. The module now ships the examples and the explorer
+* The example scripts now let settings preset by code (`overrides`) win over the command line
 * Examples: `05-techno`, `06-synthwave` and `07-cinematic` (trailer music with a true silent beat before the boom), measured and covered by `ExamplesGenresTest`, and added to the explorer
 * Catalog explorer in `examples/explorer`: a BoxLang MiniServer app (`index.bxm`, `render.bxm`) that plays every catalog piece in the browser with adjustable settings, a waveform, seeking and a render cache. BoxLang branded with the official logos and palette, light and dark. Covered by `ExplorerCatalogTest`
 * `audioWaveform( audio, points )` returns per-slice peak levels for drawing a waveform

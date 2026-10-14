@@ -139,4 +139,22 @@ class {
 	 function afterModuleActivations(){
 		// do something
 	 }
+
+	/**
+	 * Entry point for the command line: `boxlang module:bxaudio <command>`, or `bx-audio <command>` when the module was installed with
+	 * install-bx-module, which creates that wrapper from the `executable` setting in box.json.
+	 *
+	 * @args The arguments after the module name
+	 */
+	function main( array args = [] ){
+		try {
+			new bxModules.bxaudio.cli.Cli( moduleRecord.path.toString() ).run( args );
+		} catch( "bxaudio.cli" e ){
+			// A mistake in the command line is not a crash: print the message and set the exit code
+			System = createObject( "java", "java.lang.System" );
+			System.err.println( "bx-audio: " & e.message );
+			System.exit( 1 );
+		}
+	}
+
 }

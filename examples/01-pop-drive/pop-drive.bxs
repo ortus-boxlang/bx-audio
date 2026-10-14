@@ -18,11 +18,11 @@
  */
 
 settings = { out : "out/pop-drive.wav", bars : 28, bpm : 128, style : "pop" };
-// Preset `overrides` (tests, embedding) first, then the command line wins
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
 if( isDefined( "overrides" ) ){
 	settings.append( overrides );
 }
-settings.append( cliGetArgs().options );
 
 sr = 44100;
 bars = int( settings.bars );

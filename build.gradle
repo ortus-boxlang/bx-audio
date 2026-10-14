@@ -211,6 +211,11 @@ task createModuleStructure(type: Copy) {
     from( 'licenses' ) {
         into 'licenses'
     }
+    // The example scripts and the explorer, which the bx-audio render and explorer commands use
+    from( 'examples' ) {
+        exclude 'explorer/cache/**'
+        into 'examples'
+    }
     from( '.' ) {
         include 'box.json'
 		include 'readme.md'
@@ -222,6 +227,10 @@ task createModuleStructure(type: Copy) {
 		} else {
 			filter{ line -> line.replaceAll( '@build.number@', project.buildID ) }
 		}
+    }
+    // Shell tab completion, installed by install-bx-module from the completions setting in box.json
+    from( 'completions' ) {
+        into 'completions'
     }
     from( 'docs' ) {
         include '**/*.md'
