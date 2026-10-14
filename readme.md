@@ -16,17 +16,74 @@
 
 <p>&nbsp;</p>
 
-Audio synthesis, mixing, analysis, text-to-speech and playback for BoxLang, written for the JVM with no native tools to install.
+## Introduction
 
-> This module is under active development. What works today is listed below, the rest of the roadmap follows it.
+BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix tracks with ducking, add effects and save the result as WAV or MP3. It runs entirely on the JVM, so there is no ffmpeg, Python or native tool to install, and a track made on your laptop renders the same on a server.
 
-## Installation
+**Key Features:**
 
-```bash
-install-bx-module bx-audio
+- 🎹 Synthesis: band-limited oscillators, noise, envelopes, sweeps and a set of drums
+- 🎚️ Timeline mixer with a tempo grid, named tracks, automatic sample rate and channel conversion
+- 🔊 Kick-style pump and voice-over ducking for trailers and videos
+- 🎛️ Filters, delay (with ping pong), Freeverb reverb and chorus
+- ✂️ Edit: gain, pan, fade, normalize, trim, concat, reverse, resample
+- 💾 Read and write WAV (16/24 bit PCM, 32 bit float) and MP3
+- 🎼 A catalog of complete, original example songs with no samples to license
+- 🔁 Repeatable: the same seed gives the same sound on any machine
+- 🧩 100% Java, no native dependencies, works from the CLI, web apps and Lambda
+
+## Why BoxLang Audio?
+
+Audio scripts are usually Python and numpy glued to ffmpeg. Here the whole pipeline is BoxLang functions that take a buffer and return a new one, so a song reads like a recipe:
+
+```javascript
+t = audioTimeline( bpm=128 );
+kick = audioDrum( "kick" );
+bass = audioFilter( audioEnvelope( audioOsc( "saw", audioFreq( "A1" ), 0.4 ), 0.003, 0.12 ), "lowpass", 900, 2 );
+
+for( at in audioBeats( t, 0, 16 ) ){
+    audioAdd( timeline=t, sound=kick, at=at, track="drums" );
+}
+audioAdd( timeline=t, sound=bass, at=t.bar( 1 ), track="bass", db=-6 );
+audioPump( t, "bass", audioBeats( t, 0, 16 ), -5, 0.18 );
+
+audioSave( audioSaturate( audioRender( t ) ), "groove.mp3" );
 ```
 
-## What works today
+## Quick Start
+
+### Requirements
+
+- **BoxLang Runtime** 1.0.0 or higher
+- **MP3 only:** the optional codec jars that ship in the module's `libs/` folder (see [Licensing](#licensing))
+
+### Installation
+
+```bash
+# Install into your BoxLang home
+install-bx-module bx-audio
+
+# Or in a CommandBox project
+box install bx-audio
+```
+
+### Basic Usage
+
+```javascript
+// Make a one second A440 tone, fade it and save it
+tone = audioOsc( "sine", 440, 1 );
+tone = audioFade( audio=tone, fadeIn=0.01, fadeOut=0.2, curve="smooth" );
+audioSave( tone, "tone.wav" );
+
+// Read it back and inspect it
+println( audioInfo( "tone.wav" ) );
+```
+
+## Quick Reference
+
+Every function returns a new buffer and leaves its input untouched. BoxLang does not allow mixing positional and named arguments in one call, so use all of one style.
+
+### Load, save and edit
 
 | Function | Purpose |
 |---|---|
@@ -44,8 +101,6 @@ install-bx-module bx-audio
 | `audioMix( audios )` | Add buffers together so they play at the same time, as long as the longest |
 | `audioChannels( audio, channels )` | Convert between mono and stereo |
 | `audioResample( audio, sampleRate )` | Change the sample rate with a windowed sinc filter, with anti-aliasing when lowering it |
-
-Every function returns a new buffer and leaves its input untouched.
 
 ### Synthesis
 
@@ -172,4 +227,8 @@ The module is Apache 2.0. MP3 uses JLayer and jump3r (both LGPL), shipped as sep
 
 ## Ortus Sponsors
 
-BoxLang is a professional open source project and it is completely funded by the [community](https://patreon.com/ortussolutions) and [Ortus Solutions, Corp](https://www.ortussolutions.com).
+BoxLang is a professional open-source project and it is completely funded by the [community](https://patreon.com/ortussolutions) and [Ortus Solutions, Corp](https://www.ortussolutions.com). Ortus Patreons get many benefits like a cfcasts account, a FORGEBOX Pro account and so much more. If you are interested in becoming a sponsor, please visit our patronage page: [https://patreon.com/ortussolutions](https://patreon.com/ortussolutions)
+
+### THE DAILY BREAD
+
+ > "I am the way, and the truth, and the life; no one comes to the Father, but by me (JESUS)" Jn 14:1-12
