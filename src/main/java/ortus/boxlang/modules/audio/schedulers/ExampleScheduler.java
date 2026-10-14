@@ -1,4 +1,4 @@
-package ortus.boxlang.moduleslug.schedulers;
+package ortus.boxlang.modules.audio.schedulers;
 
 import java.util.Optional;
 

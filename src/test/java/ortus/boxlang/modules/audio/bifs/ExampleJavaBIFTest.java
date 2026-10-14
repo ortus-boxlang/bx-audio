@@ -1,4 +1,4 @@
-package ortus.boxlang.moduleslug.bifs;
+package ortus.boxlang.modules.audio.bifs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,4 +1,4 @@
-package ortus.boxlang.moduleslug.interceptors;
+package ortus.boxlang.modules.audio.interceptors;
 
 import ortus.boxlang.runtime.events.BaseInterceptor;
 import ortus.boxlang.runtime.events.InterceptionPoint;

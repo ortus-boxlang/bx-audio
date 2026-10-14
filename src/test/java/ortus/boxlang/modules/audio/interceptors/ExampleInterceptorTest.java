@@ -1,4 +1,4 @@
-package ortus.boxlang.moduleslug.interceptors;
+package ortus.boxlang.modules.audio.interceptors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
