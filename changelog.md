@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * BIFs `audioSilence`, `audioLoad`, `audioSave` and `audioInfo`
 * Effects: `audioDelay` (with feedback, ping pong and an automatic tail), `audioReverb` (Freeverb design) and `audioChorus`
 * `audioMix` to sum buffers
+* Examples: `02-lofi`, `03-house` and `04-ambient`, original compositions checked by measurement (chord tones, brightness, beat pulse, transient strength, a silent ending) and covered by tests
 * Examples catalog started with `01-pop-drive`, a BoxLang port of a numpy script checked against the original (same length and peak, octave bands within 0.5 dB, kick and bass envelope correlation 1.000), covered by a test
 * Build: `shadowJar` now depends on `serviceLoaderBuild`, and `build/module` is cleared before it is assembled, so a jar built on its own still registers its BIFs and no removed file lingers
 * Synthesis: `audioFreq`, `audioOsc` (sine, saw, square, triangle, pulse, additive), `audioSweep`, `audioNoise` (white, pink, brown, blue), `audioEnvelope`, `audioDrum` (kick, snare, hat, openhat, clap, tom, crash, riser) and `audioFilter` (lowpass, highpass, bandpass, notch)

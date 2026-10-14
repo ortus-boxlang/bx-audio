@@ -142,7 +142,7 @@ println( audioInfo( "out/voice-stereo.wav" ) );
 
 ## Examples
 
-The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script.
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/) and [Ambient](examples/04-ambient/).
 
 ```bash
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
@@ -153,7 +153,7 @@ boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
-4. A catalog of example music scripts (pop done, lofi, house, chiptune, ambient, cinematic and more to follow, all original compositions)
+4. A catalog of example music scripts (pop, lofi, house and ambient done; techno, synthwave, cinematic, chiptune and more to follow, all original compositions)
 5. Text-to-speech through a pluggable provider, with a content-hash cache
 6. Analysis: loudness, silence detection, waveform data, FFT
 7. Realtime playback
