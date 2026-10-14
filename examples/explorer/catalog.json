@@ -101,5 +101,30 @@
 			{ "name": "sound", "label": "Sound", "type": "select", "options": [ "sampler", "jump", "coin", "laser", "explosion", "powerup", "hit", "blip", "alarm", "gameover", "footstep" ], "value": "sampler" },
 			{ "name": "seed", "label": "Seed (the noise in the explosion, hit and footstep)", "type": "range", "min": 1, "max": 99, "step": 1, "value": 1 }
 		]
+	},
+	{
+		"id": "jazz",
+		"title": "Jazz",
+		"style": "Swing blues",
+		"script": "../10-jazz/jazz.bxs",
+		"blurb": "A trio on a twelve bar blues in F: walking bass, ride, piano comping and an improvised solo. Change the seed for another solo.",
+		"params": [
+			{ "name": "choruses", "label": "Choruses", "type": "range", "min": 2, "max": 6, "step": 1, "value": 3 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 100, "max": 180, "step": 1, "value": 132 },
+			{ "name": "swing", "label": "Swing", "type": "range", "min": 0.5, "max": 0.75, "step": 0.01, "value": 0.64 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 4 }
+		]
+	},
+	{
+		"id": "rock",
+		"title": "Rock",
+		"style": "Rock",
+		"script": "../11-rock/rock.bxs",
+		"blurb": "Distorted power chords, a bass guitar, drums with fills and crashes, and a pentatonic solo from a seeded generator.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 100, "max": 160, "step": 1, "value": 128 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 3 }
+		]
 	}
 ]

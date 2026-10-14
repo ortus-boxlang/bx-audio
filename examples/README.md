@@ -23,8 +23,10 @@ Audio is written to `out/` by default and is not committed. Each script takes `-
 | 07 | [Cinematic](07-cinematic/) | Trailer music, 90 BPM | Dynamics from quiet to loud, a true silent beat before the boom, strings and a theme |
 | 08 | [Chiptune](08-chiptune/) | 8 bit game music, five tracks | Pulse, triangle and noise channels, music written as text and read by a parser, a track per setting |
 | 09 | [Game sound effects](09-sfx/) | Ten effects, as a sampler or a pack of files | Pitch glides that never click, noise shaped by envelopes, an effects pack exported as one file per sound |
+| 10 | [Jazz](10-jazz/) | A twelve bar blues, swing | Swing as one number, a walking bass, rule based improvisation that follows the chords |
+| 11 | [Rock](11-rock/) | Rock, 128 BPM | Distortion as saturation plus a cabinet filter, two guitar takes, fills and crashes, a seeded solo |
 
-More are planned for rock and jazz, and a voice-over with ducked music.
+A voice-over with ducked music is planned.
 
 `examples/` is covered by a test that renders each script with short settings. It checks the length, the level, that the same settings give the same file, and what each piece sounds like by measurement: how bright it is, whether it pulses on the beat, how percussive it is, and that it fades out. So the catalog cannot silently break or drift.
 
@@ -38,5 +40,7 @@ More are planned for rock and jazz, and a voice-over with ducked music.
 | Synthwave | −22.3 dB | 0.84 | 2.7 |
 | Cinematic | −24.5 dB | 0.43 | 4.2 |
 | Chiptune (overworld) | −14.2 dB | 0.80 | 1.3 |
+| Jazz (2 choruses) | −25.6 dB | 0.51 | 1.8 |
+| Rock | −26.0 dB | 0.72 | 1.4 |
 
 These are measured on the short renders that the tests use.

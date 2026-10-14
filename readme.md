@@ -227,7 +227,7 @@ Two module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `
 
 ## Examples
 
-The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/) [Chiptune](examples/08-chiptune/), five original 8 bit tracks, and [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack.
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/) [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/) and [Rock](examples/11-rock/).
 
 ```bash
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
@@ -274,7 +274,7 @@ Paths are relative to the folder you run the command in. Run `bx-audio help <com
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
-4. A catalog of example music scripts (pop, lofi, house, ambient, techno, synthwave, cinematic, chiptune and game sound effects done; jazz, rock and more to follow, all original compositions)
+4. A catalog of example music scripts (pop, lofi, house, ambient, techno, synthwave, cinematic, chiptune, game sound effects, jazz and rock done; a voice-over with ducked music to follow, all original compositions)
 5. ~~Text-to-speech~~ done (US English, more languages and multi-speaker voices to follow), a content-hash cache of what was spoken still to come
 6. Analysis: ~~waveform data~~ done, loudness, silence detection, FFT
 7. Realtime playback

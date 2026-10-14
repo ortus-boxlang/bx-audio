@@ -15,6 +15,7 @@
 package ortus.boxlang.modules.audio;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -297,6 +298,176 @@ public class ExamplesGenresTest extends ExamplesTestBase {
 		    .getMessage();
 		assertThat( message ).contains( "Unknown sound [nope]" );
 		assertThat( message ).contains( "explosion" );
+	}
+
+	/**
+	 * How much of a tone at one frequency there is in a stretch of the mono mix: the Goertzel algorithm, which is a single bin of a DFT
+	 */
+	private static double energyAt( AudioBuffer audio, double from, double to, double hz ) {
+		float[]	mono	= audio.channel( 0 );
+		int		start	= ( int ) ( from * audio.getSampleRate() );
+		int		end		= Math.min( mono.length, ( int ) ( to * audio.getSampleRate() ) );
+		double	w		= 2 * Math.PI * hz / audio.getSampleRate();
+		double	coeff	= 2 * Math.cos( w ), s1 = 0, s2 = 0;
+		for ( int i = start; i < end; i++ ) {
+			double s0 = mono[ i ] * ( 0.5 - 0.5 * Math.cos( 2 * Math.PI * ( i - start ) / ( end - start ) ) ) + coeff * s1 - s2;
+			s2	= s1;
+			s1	= s0;
+		}
+		return ( s1 * s1 + s2 * s2 - coeff * s1 * s2 ) / ( end - start );
+	}
+
+	@DisplayName( "The jazz walking bass starts every bar of the blues on the root of its chord" )
+	@Test
+	void testJazzBassRoots( @TempDir Path dir ) throws Exception {
+		AudioBuffer	jazz	= renderAudio( dir, "jazz", "10-jazz/jazz.bxs", Struct.of( "choruses", 2 ) );
+		double		beat	= 60.0 / 132;
+		// the root of each of the 12 bars in Hz: F2, Bb2, F, F, Bb, Bb, F, D3, G2, C3, F2, G2, as the bass register puts them
+		double		f		= 87.31, bb = 116.54, d = 146.83, g = 97.99, c = 130.81;
+		double[]	roots	= { f, bb, f, f, bb, bb, f, d, g, c, f, g };
+		double[]	all		= { f, bb, d, g, c };
+		for ( int chorus = 0; chorus < 2; chorus++ ) {
+			for ( int bar = 0; bar < 12; bar++ ) {
+				double	from		= ( chorus * 12 + bar ) * 4 * beat + 0.03;
+				double	expected	= energyAt( jazz, from, from + 0.25, roots[ bar ] );
+				for ( double other : all ) {
+					if ( other != roots[ bar ] ) {
+						assertWithMessage( "bar " + ( bar + 1 ) + " root " + roots[ bar ] + " against " + other ).that( expected )
+						    .isGreaterThan( energyAt( jazz, from, from + 0.25, other ) );
+					}
+				}
+			}
+		}
+	}
+
+	@DisplayName( "Jazz keeps a steady pulse, has the length of its choruses plus a held ending, and is mild in the highs" )
+	@Test
+	void testJazzCharacter( @TempDir Path dir ) throws Exception {
+		AudioBuffer	jazz	= renderAudio( dir, "jazz", "10-jazz/jazz.bxs", Struct.of( "choruses", 2 ) );
+		double		beat	= 60.0 / 132;
+		assertThat( jazz.getChannels() ).isEqualTo( 2 );
+		assertThat( jazz.getPeak() ).isWithin( 0.005f ).of( 0.9f );
+		// 2 choruses of 12 bars at 132 BPM is 43.6 s, then the held chord, the crash and the reverb ring on for about 3.8 s
+		assertThat( jazz.getDurationSeconds() - 2 * 12 * 4 * beat ).isWithin( 1.0 ).of( 3.8 );
+		// a walking bass puts a note on every beat, so the low end pulses at the beat
+		assertThat( AudioMetrics.lowBandAutocorrelation( jazz, beat ) ).isGreaterThan( 0.5 );
+		assertThat( AudioMetrics.brightnessDb( jazz ) ).isLessThan( -25.0 );
+		assertThat( AudioMetrics.tailRms( jazz, 0.05 ) ).isLessThan( 0.001 );
+	}
+
+	@DisplayName( "The seed changes the solo, the same seed repeats exactly, swing changes the feel but not the length, and more choruses are longer" )
+	@Test
+	void testJazzVariants( @TempDir Path dir ) throws Exception {
+		Path[]		files	= new Path[ 5 ];
+		String[]	names	= { "a", "b", "c", "d", "e" };
+		int[]		seeds	= { 4, 4, 5, 4, 4 };
+		double[]	swings	= { 0.64, 0.64, 0.64, 0.5, 0.64 };
+		int[]		chorus	= { 2, 2, 2, 2, 3 };
+		for ( int i = 0; i < files.length; i++ ) {
+			files[ i ] = dir.resolve( names[ i ] + ".wav" );
+			render( "10-jazz/jazz.bxs", Struct.of( "out", files[ i ].toString(), "seed", seeds[ i ], "swing", swings[ i ], "choruses", chorus[ i ] ) );
+		}
+		assertThat( Files.readAllBytes( files[ 1 ] ) ).isEqualTo( Files.readAllBytes( files[ 0 ] ) );
+		assertThat( Files.readAllBytes( files[ 2 ] ) ).isNotEqualTo( Files.readAllBytes( files[ 0 ] ) );
+		assertThat( Files.readAllBytes( files[ 3 ] ) ).isNotEqualTo( Files.readAllBytes( files[ 0 ] ) );
+		double two = ortus.boxlang.modules.audio.codec.WavCodec.read( files[ 0 ] ).getDurationSeconds();
+		assertThat( ortus.boxlang.modules.audio.codec.WavCodec.read( files[ 3 ] ).getDurationSeconds() ).isWithin( 0.05 ).of( two );
+		assertThat( ortus.boxlang.modules.audio.codec.WavCodec.read( files[ 4 ] ).getDurationSeconds() - two ).isWithin( 0.1 ).of( 12 * 4 * 60.0 / 132 );
+	}
+
+	/**
+	 * RMS of one bar of a piece
+	 */
+	private static double barRms( AudioBuffer audio, double barSeconds, int bar ) {
+		return rmsBetween( audio, bar * barSeconds, ( bar + 1 ) * barSeconds );
+	}
+
+	/**
+	 * How alike two stretches of the mono mix are, from 0 to 1 (cosine similarity of the samples)
+	 */
+	private static double similarity( AudioBuffer a, AudioBuffer b, double from, double to ) {
+		float[]	x		= a.channel( 0 );
+		float[]	y		= b.channel( 0 );
+		int		start	= ( int ) ( from * a.getSampleRate() );
+		int		end		= Math.min( Math.min( x.length, y.length ), ( int ) ( to * a.getSampleRate() ) );
+		double	dot		= 0, nx = 0, ny = 0;
+		for ( int i = start; i < end; i++ ) {
+			dot	+= x[ i ] * y[ i ];
+			nx	+= x[ i ] * x[ i ];
+			ny	+= y[ i ] * y[ i ];
+		}
+		return dot / Math.sqrt( nx * ny );
+	}
+
+	@DisplayName( "Rock is loud and compressed, with an arc: a quiet riff, a verse, a louder chorus, a solo and a big ending" )
+	@Test
+	void testRockArc( @TempDir Path dir ) throws Exception {
+		AudioBuffer	rock	= renderAudio( dir, "rock", "11-rock/rock.bxs", Struct.of() );
+		double		beat	= 60.0 / 128;
+		double		bar		= 4 * beat;
+		assertThat( rock.getChannels() ).isEqualTo( 2 );
+		assertThat( rock.getPeak() ).isWithin( 0.005f ).of( 0.9f );
+		// 32 bars at 128 BPM is 60 s, then the last chord and its crash ring on for about 4.5 s
+		assertThat( rock.getDurationSeconds() - 32 * bar ).isWithin( 1.0 ).of( 4.5 );
+		// bars 0 and 1: the riff alone. 4 is a verse bar, 12 a chorus bar, 20 a solo bar.
+		double	intro	= barRms( rock, bar, 0 );
+		double	verse	= barRms( rock, bar, 4 );
+		double	chorus	= barRms( rock, bar, 12 );
+		double	solo	= barRms( rock, bar, 20 );
+		assertThat( verse ).isGreaterThan( intro * 1.8 );
+		assertThat( chorus ).isGreaterThan( verse * 1.2 );
+		assertThat( solo ).isGreaterThan( intro * 1.5 );
+		assertThat( solo ).isLessThan( chorus );
+		// the whole track is loud and heavily compressed by the distortion: RMS above -14 dBFS, and a crest factor under 12 dB
+		double rms = rock.getRms();
+		assertThat( 20 * Math.log10( rms ) ).isGreaterThan( -14.0 );
+		assertThat( 20 * Math.log10( rock.getPeak() / rms ) ).isLessThan( 12.0 );
+		assertThat( AudioMetrics.lowBandAutocorrelation( rock, beat ) ).isGreaterThan( 0.6 );
+		assertThat( AudioMetrics.tailRms( rock, 0.05 ) ).isLessThan( 0.001 );
+	}
+
+	@DisplayName( "Rock bars with the same chord are identical and a chord change sounds different" )
+	@Test
+	void testRockChords( @TempDir Path dir ) throws Exception {
+		AudioBuffer	rock	= renderAudio( dir, "rock", "11-rock/rock.bxs", Struct.of() );
+		double		bar		= 4 * 60.0 / 128;
+		// bars 4 and 5 are both E in the verse, bar 6 is G, bar 7 is A
+		double		same	= cosine( rock, 4 * bar, 5 * bar );
+		double		change	= cosine( rock, 4 * bar, 6 * bar );
+		assertThat( same ).isGreaterThan( 0.99 );
+		assertThat( change ).isLessThan( 0.9 );
+	}
+
+	/**
+	 * The similarity of two bars of the same buffer, by shifting one onto the other
+	 */
+	private static double cosine( AudioBuffer audio, double barA, double barB ) {
+		float[]	x		= audio.channel( 0 );
+		int		rate	= audio.getSampleRate();
+		int		a		= ( int ) ( barA * rate );
+		int		b		= ( int ) ( barB * rate );
+		int		length	= ( int ) ( ( 4 * 60.0 / 128 ) * rate );
+		double	dot		= 0, na = 0, nb = 0;
+		for ( int i = 0; i < length; i++ ) {
+			dot	+= x[ a + i ] * x[ b + i ];
+			na	+= x[ a + i ] * x[ a + i ];
+			nb	+= x[ b + i ] * x[ b + i ];
+		}
+		return dot / Math.sqrt( na * nb );
+	}
+
+	@DisplayName( "The seed changes only the solo, the same seed repeats exactly" )
+	@Test
+	void testRockSeed( @TempDir Path dir ) throws Exception {
+		AudioBuffer	a	= renderAudio( dir, "a", "11-rock/rock.bxs", Struct.of( "seed", 3 ) );
+		AudioBuffer	b	= renderAudio( dir, "b", "11-rock/rock.bxs", Struct.of( "seed", 3 ) );
+		AudioBuffer	c	= renderAudio( dir, "c", "11-rock/rock.bxs", Struct.of( "seed", 9 ) );
+		double		bar	= 4 * 60.0 / 128;
+		assertThat( Files.readAllBytes( dir.resolve( "b.wav" ) ) ).isEqualTo( Files.readAllBytes( dir.resolve( "a.wav" ) ) );
+		// everything before the solo (bar 20) is the same music, the solo is a different line
+		assertThat( similarity( a, c, 0, 19 * bar ) ).isGreaterThan( 0.999 );
+		assertThat( similarity( a, c, 21 * bar, 27 * bar ) ).isLessThan( 0.9 );
+		assertThat( b.getFrames() ).isEqualTo( a.getFrames() );
 	}
 
 }
