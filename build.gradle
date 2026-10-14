@@ -264,6 +264,8 @@ test {
         showCauses true
 	}
 	classpath = classpath.filter { !it.path.contains( "build${File.separator}resources" ) }
+	// The catalogs (voices.json, engine.json) are plain resources the unit tests read directly, the filter above only keeps the generated service files out
+	classpath += files( 'src/main/resources' )
 }
 
 /**

@@ -1,0 +1,309 @@
+{
+  "source" : "https://huggingface.co/rhasspy/piper-voices/resolve/main/",
+  "languages" : [ "en_US", "en_GB" ],
+  "voices" : [ {
+    "language" : "en_GB",
+    "source" : "https://datashare.ed.ac.uk/handle/10283/3270",
+    "model" : {
+      "path" : "en/en_GB/alba/medium/en_GB-alba-medium.onnx",
+      "size" : 63201294,
+      "md5" : "c07f313752bb3aba8061041666251654"
+    },
+    "id" : "en_GB-alba-medium",
+    "quality" : "medium",
+    "license" : "CC-BY-4.0",
+    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
+    "name" : "alba",
+    "config" : {
+      "path" : "en/en_GB/alba/medium/en_GB-alba-medium.onnx.json",
+      "size" : 4888,
+      "md5" : "dbb6f2ede31082710665221417906e13"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_GB",
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_GB/cori/high/en_GB-cori-high.onnx",
+      "size" : 114219352,
+      "md5" : "3474a80133d9a03e6870d2ac42c18806"
+    },
+    "id" : "en_GB-cori-high",
+    "quality" : "high",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "cori",
+    "config" : {
+      "path" : "en/en_GB/cori/high/en_GB-cori-high.onnx.json",
+      "size" : 4963,
+      "md5" : "0f7d42e77a99193006aa34a34442f5e0"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_GB",
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_GB/cori/medium/en_GB-cori-medium.onnx",
+      "size" : 63531379,
+      "md5" : "f143307611eccea9d976235d0895f57c"
+    },
+    "id" : "en_GB-cori-medium",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "cori",
+    "config" : {
+      "path" : "en/en_GB/cori/medium/en_GB-cori-medium.onnx.json",
+      "size" : 4966,
+      "md5" : "12b1dc45d8919f3475cf296d5f16a4c6"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_GB",
+    "source" : "http://www.openslr.org/83/",
+    "model" : {
+      "path" : "en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx",
+      "size" : 63201294,
+      "md5" : "4c9a9735bfb76ad67c8b31b23d6840a0"
+    },
+    "id" : "en_GB-northern_english_male-medium",
+    "quality" : "medium",
+    "license" : "CC-BY-SA-4.0",
+    "licenseText" : "CC-BY-SA 4.0 International",
+    "name" : "northern_english_male",
+    "config" : {
+      "path" : "en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx.json",
+      "size" : 4847,
+      "md5" : "0ce3f61a9604616ed475c921fdeedb1a"
+    },
+    "shareAlike" : true
+  }, {
+    "language" : "en_GB",
+    "source" : "http://www.openslr.org/83/",
+    "model" : {
+      "path" : "en/en_GB/southern_english_female/low/en_GB-southern_english_female-low.onnx",
+      "size" : 63104526,
+      "md5" : "596c7ed4d8488cf64e027765dce2dad1"
+    },
+    "id" : "en_GB-southern_english_female-low",
+    "quality" : "low",
+    "license" : "CC-BY-SA-4.0",
+    "licenseText" : "CC-BY-SA 4.0 International",
+    "name" : "southern_english_female",
+    "config" : {
+      "path" : "en/en_GB/southern_english_female/low/en_GB-southern_english_female-low.onnx.json",
+      "size" : 4189,
+      "md5" : "7548456e9f2bc4c16bf818be26618ea1"
+    },
+    "shareAlike" : true
+  }, {
+    "language" : "en_US",
+    "source" : "",
+    "model" : {
+      "path" : "en/en_US/bryce/medium/en_US-bryce-medium.onnx",
+      "size" : 63531379,
+      "md5" : "a8482817c3bdc3d20121a0e31bfa9809"
+    },
+    "id" : "en_US-bryce-medium",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "bryce",
+    "config" : {
+      "path" : "en/en_US/bryce/medium/en_US-bryce-medium.onnx.json",
+      "size" : 4966,
+      "md5" : "a548d1d4ce8579f5a16926bdec77c7bf"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://github.com/OHF-Voice/voice-datasets",
+    "model" : {
+      "path" : "en/en_US/joe/medium/en_US-joe-medium.onnx",
+      "size" : 63201294,
+      "md5" : "74fd6a4dc39e0aa9dce145d7f5acd4f6"
+    },
+    "id" : "en_US-joe-medium",
+    "quality" : "medium",
+    "license" : "CC0-1.0",
+    "licenseText" : "CC0",
+    "name" : "joe",
+    "config" : {
+      "path" : "en/en_US/joe/medium/en_US-joe-medium.onnx.json",
+      "size" : 4794,
+      "md5" : "811036b9c1451545f9495fdc1baa0754"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_US/john/medium/en_US-john-medium.onnx",
+      "size" : 63531379,
+      "md5" : "70480857f21f2560f3a232722023b36d"
+    },
+    "id" : "en_US-john-medium",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "john",
+    "config" : {
+      "path" : "en/en_US/john/medium/en_US-john-medium.onnx.json",
+      "size" : 4965,
+      "md5" : "f2d04611b498e14d394385d1ec8a2d2d"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://github.com/rhasspy/dataset-voice-kathleen",
+    "model" : {
+      "path" : "en/en_US/kathleen/low/en_US-kathleen-low.onnx",
+      "size" : 63104526,
+      "md5" : "dd1ab131724b1cff76fe388252bec47b"
+    },
+    "id" : "en_US-kathleen-low",
+    "quality" : "low",
+    "license" : "CC0-1.0",
+    "licenseText" : "CC0",
+    "name" : "kathleen",
+    "config" : {
+      "path" : "en/en_US/kathleen/low/en_US-kathleen-low.onnx.json",
+      "size" : 4169,
+      "md5" : "d970eebfe8e9f8515e405659da658f9b"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_US/kristin/medium/en_US-kristin-medium.onnx",
+      "size" : 63531379,
+      "md5" : "5fed42d2296baca042e2bf74785db725"
+    },
+    "id" : "en_US-kristin-medium",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "kristin",
+    "config" : {
+      "path" : "en/en_US/kristin/medium/en_US-kristin-medium.onnx.json",
+      "size" : 4968,
+      "md5" : "70bc97d350c796c64ea5e4d08241afac"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://keithito.com/LJ-Speech-Dataset/",
+    "model" : {
+      "path" : "en/en_US/ljspeech/high/en_US-ljspeech-high.onnx",
+      "size" : 114199011,
+      "md5" : "dad093b5d2cff6a5fda99883ceda09d1"
+    },
+    "id" : "en_US-ljspeech-high",
+    "quality" : "high",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "ljspeech",
+    "config" : {
+      "path" : "en/en_US/ljspeech/high/en_US-ljspeech-high.onnx.json",
+      "size" : 4970,
+      "md5" : "de98fc398ddead60fb82d93bfafb3ad1"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://keithito.com/LJ-Speech-Dataset/",
+    "model" : {
+      "path" : "en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx",
+      "size" : 63531379,
+      "md5" : "109d552e9dd78d92d1169a7edd6de38d"
+    },
+    "id" : "en_US-ljspeech-medium",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "ljspeech",
+    "config" : {
+      "path" : "en/en_US/ljspeech/medium/en_US-ljspeech-medium.onnx.json",
+      "size" : 4972,
+      "md5" : "0668112b8b3ac5bb4b12c2b1a366776a"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://github.com/OHF-Voice/voice-datasets",
+    "model" : {
+      "path" : "en/en_US/mike/medium/en_US-mike-medium.onnx",
+      "size" : 63221984,
+      "md5" : "032952405bbd4eeae409385cde31b8c5"
+    },
+    "id" : "en_US-mike-medium",
+    "quality" : "medium",
+    "license" : "CC0-1.0",
+    "licenseText" : "CC0",
+    "name" : "mike",
+    "config" : {
+      "path" : "en/en_US/mike/medium/en_US-mike-medium.onnx.json",
+      "size" : 5439,
+      "md5" : "b4426eda10444b2bef8b447baeba84b2"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_US/norman/medium/en_US-norman-medium.onnx",
+      "size" : 63531379,
+      "md5" : "829cea515dc724d694b83b71e8083f9f"
+    },
+    "id" : "en_US-norman-medium",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "name" : "norman",
+    "config" : {
+      "path" : "en/en_US/norman/medium/en_US-norman-medium.onnx.json",
+      "size" : 4968,
+      "md5" : "975830d6f230f6eccf657d265de99eba"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://huggingface.co/datasets/mah92/Hedayatfar-Persian-Quran-Audio-Dataset",
+    "model" : {
+      "path" : "en/en_US/reza_ibrahim/medium/en_US-reza_ibrahim-medium.onnx",
+      "size" : 63511038,
+      "md5" : "b9d4059c794df8336060fb7f36264a43"
+    },
+    "id" : "en_US-reza_ibrahim-medium",
+    "quality" : "medium",
+    "license" : "CC0-1.0",
+    "licenseText" : "CC0",
+    "name" : "reza_ibrahim",
+    "config" : {
+      "path" : "en/en_US/reza_ibrahim/medium/en_US-reza_ibrahim-medium.onnx.json",
+      "size" : 4976,
+      "md5" : "94aa2ac1bcb4c64f3c4c561d5d5f5676"
+    },
+    "shareAlike" : false
+  }, {
+    "language" : "en_US",
+    "source" : "https://github.com/Sam-Accenture-Non-Binary-Voice/non-binary-voice-files",
+    "model" : {
+      "path" : "en/en_US/sam/medium/en_US-sam-medium.onnx",
+      "size" : 62950044,
+      "md5" : "57efcb38a3d0510051f9f55c517ccb76"
+    },
+    "id" : "en_US-sam-medium",
+    "quality" : "medium",
+    "license" : "Apache-2.0",
+    "licenseText" : "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "name" : "sam",
+    "config" : {
+      "path" : "en/en_US/sam/medium/en_US-sam-medium.onnx.json",
+      "size" : 5040,
+      "md5" : "a124497d09ce818f9800d16f24e1a8d1"
+    },
+    "shareAlike" : false
+  } ]
+}

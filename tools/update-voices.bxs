@@ -1,0 +1,96 @@
+/**
+ * Builds the voice catalog, src/main/resources/voices.json, from the Piper voices published on Hugging Face.
+ *
+ * Only voices whose model card states an open license are kept (see `allowed` below). The license is read from each voice's own
+ * MODEL_CARD, never guessed, and a card that says "See URL", names a custom license or does not say anything leaves the voice out.
+ * Run it again when you want newer voices, and review the diff, the excluded list it prints included.
+ *
+ * Usage:
+ *   boxlang tools/update-voices.bxs [--languages=en_US,en_GB]
+ */
+
+languages = ( cliGetArgs().options.languages ?: "en_US,en_GB" ).listToArray();
+base = "https://huggingface.co/rhasspy/piper-voices/resolve/main/";
+
+function fetchText( url ){
+	var stream = createObject( "java", "java.net.URI" ).create( url ).toURL().openStream();
+	try {
+		return createObject( "java", "java.lang.String" ).init( stream.readAllBytes(), "UTF-8" );
+	} finally {
+		stream.close();
+	}
+}
+
+/**
+ * Map the license text of a model card to an identifier we accept, or "" when it is not an open license we accept
+ */
+function normalizeLicense( text ){
+	var t = text.lcase().trim();
+	// Non commercial and custom terms are never accepted, whatever else the line says
+	if( t.contains( "-nc" ) || t.contains( " nc " ) || t.contains( "non-commercial" ) || t.contains( "noncommercial" ) || t.contains( "blizzard" ) ){
+		return "";
+	}
+	if( t.startsWith( "cc0" ) ){ return "CC0-1.0"; }
+	if( t == "public domain" ){ return "Public-Domain"; }
+	if( t.contains( "by-sa" ) || t.contains( "attribution-sharealike" ) ){ return t.contains( "4.0" ) ? "CC-BY-SA-4.0" : ""; }
+	if( t == "cc by 4.0" || t == "cc-by 4.0" || t == "cc-by-4.0" || t.contains( "licenses/by/4.0" ) ){ return "CC-BY-4.0"; }
+	if( t.contains( "licenses/by/3.0" ) ){ return "CC-BY-3.0"; }
+	if( t.contains( "apache" ) ){ return "Apache-2.0"; }
+	if( t.contains( "unlicense" ) ){ return "Unlicense"; }
+	return "";
+}
+
+println( "Reading the voice list..." );
+all = jsonDeserialize( fetchText( base & "voices.json" ) );
+kept = [];
+excluded = [];
+
+for( key in all.keyArray().sort( "text" ) ){
+	voice = all[ key ];
+	if( !languages.contains( voice.language.code ) ){
+		continue;
+	}
+	cardPath = voice.files.keyArray().filter( ( f ) => f.endsWith( "MODEL_CARD" ) );
+	card = cardPath.len() ? fetchText( base & cardPath.first() ) : "";
+	licenseMatch = card.reFind( "License:[ \t]*([^\r\n]*)", 1, true );
+	licenseText = licenseMatch.match.len() > 1 ? licenseMatch.match[ 2 ].trim() : "";
+	urlMatch = card.reFind( "URL:[ \t]*(\S+)", 1, true );
+	sourceUrl = urlMatch.match.len() > 1 ? urlMatch.match[ 2 ] : "";
+	license = normalizeLicense( licenseText );
+	if( !license.len() ){
+		excluded.append( key & "  (" & ( licenseText.len() ? licenseText.left( 60 ) : "no license stated" ) & ")" );
+		continue;
+	}
+	if( voice.num_speakers != 1 ){
+		excluded.append( key & "  (" & voice.num_speakers & " speakers, not supported yet)" );
+		continue;
+	}
+	files = {};
+	for( path in voice.files.keyArray() ){
+		if( path.endsWith( ".onnx" ) ){
+			files[ "model" ] = { path : path, size : voice.files[ path ].size_bytes, md5 : voice.files[ path ].md5_digest };
+		} else if( path.endsWith( ".onnx.json" ) ){
+			files[ "config" ] = { path : path, size : voice.files[ path ].size_bytes, md5 : voice.files[ path ].md5_digest };
+		}
+	}
+	kept.append( {
+		"id" : key,
+		"name" : voice.name,
+		"language" : voice.language.code,
+		"quality" : voice.quality,
+		"license" : license,
+		"licenseText" : licenseText,
+		"shareAlike" : license.contains( "-SA-" ),
+		"source" : sourceUrl,
+		"model" : files.model,
+		"config" : files.config
+	} );
+}
+
+output = { "source" : base, "languages" : languages, "voices" : kept };
+target = expandPath( "../src/main/resources/voices.json" );
+fileWrite( target, jsonPrettify( jsonSerialize( output ) ) );
+println( "Wrote " & kept.len() & " voices to " & target );
+println( "" );
+println( "Left out (" & excluded.len() & "):" );
+excluded.each( ( e ) => println( "  " & e ) );
