@@ -338,4 +338,21 @@ public class DspTest {
 		assertThrows( BoxRuntimeException.class, () -> Dsp.filter( stereo, "lowpass", Double.NaN, 1 ) );
 	}
 
+	@DisplayName( "Mix adds buffers from time zero and is as long as the longest" )
+	@Test
+	void testMix() {
+		AudioBuffer	a		= constant( 2, 4, 44100, 0.25f );
+		AudioBuffer	b		= constant( 2, 2, 44100, 0.5f );
+		AudioBuffer	mixed	= Dsp.mix( List.of( a, b, b ) );
+		assertThat( mixed.getFrames() ).isEqualTo( 4 );
+		assertThat( mixed.channel( 0 )[ 0 ] ).isEqualTo( 1.25f );
+		assertThat( mixed.channel( 1 )[ 1 ] ).isEqualTo( 1.25f );
+		assertThat( mixed.channel( 0 )[ 2 ] ).isEqualTo( 0.25f );
+		assertThat( Dsp.mix( List.of( a ) ).channel( 0 )[ 0 ] ).isEqualTo( 0.25f );
+		assertThat( a.channel( 0 )[ 0 ] ).isEqualTo( 0.25f );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.mix( List.of() ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.mix( List.of( a, constant( 1, 2, 44100, 0f ) ) ) );
+		assertThrows( BoxRuntimeException.class, () -> Dsp.mix( List.of( a, constant( 2, 2, 22050, 0f ) ) ) );
+	}
+
 }

@@ -141,6 +141,8 @@ jar {
     }
 }
 shadowJar {
+	// The ServiceLoader manifests are what register the BIFs, a jar built without them loads but has no functions
+	dependsOn serviceLoaderBuild
 	archiveClassifier = ''
     mergeServiceFiles()
     destinationDirectory = file( "build/libs" )
@@ -167,6 +169,10 @@ spotless {
  */
 task createModuleStructure(type: Copy) {
 	mustRunAfter shadowJar, jar
+	// Start clean so files removed from the source do not linger in the module folder
+	doFirst {
+		delete file( 'build/module' )
+	}
     from( 'build/libs' ) {
 		include "${project.name}-${version}.jar"
         into 'libs'

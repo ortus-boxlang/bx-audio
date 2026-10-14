@@ -197,6 +197,36 @@ public final class Dsp {
 	}
 
 	/**
+	 * Add buffers together sample by sample, all starting at time 0. The result is as long as the longest input. Inputs must share
+	 * channel count and sample rate.
+	 */
+	public static AudioBuffer mix( List<AudioBuffer> parts ) {
+		if ( parts == null || parts.isEmpty() ) {
+			throw new BoxRuntimeException( "Mix needs at least one audio buffer" );
+		}
+		AudioBuffer	first	= parts.get( 0 );
+		int			frames	= 0;
+		for ( AudioBuffer part : parts ) {
+			if ( part.getChannels() != first.getChannels() || part.getSampleRate() != first.getSampleRate() ) {
+				throw new BoxRuntimeException( "Cannot mix audio with different formats: " + first + " and " + part
+				    + ". Use audioChannels() and audioResample() to match them first" );
+			}
+			frames = Math.max( frames, part.getFrames() );
+		}
+		float[][] out = new float[ first.getChannels() ][ frames ];
+		for ( AudioBuffer part : parts ) {
+			for ( int ch = 0; ch < out.length; ch++ ) {
+				float[]	in	= part.channel( ch );
+				float[]	dst	= out[ ch ];
+				for ( int i = 0; i < in.length; i++ ) {
+					dst[ i ] += in[ i ];
+				}
+			}
+		}
+		return new AudioBuffer( out, first.getSampleRate() );
+	}
+
+	/**
 	 * Play the audio backwards
 	 */
 	public static AudioBuffer reverse( AudioBuffer audio ) {

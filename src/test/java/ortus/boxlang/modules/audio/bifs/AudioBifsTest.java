@@ -329,4 +329,23 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioFilter( audioSilence( 1 ), 'lowpass', 99999 )", context ) );
 	}
 
+	@DisplayName( "audioMix sums voices into one sound" )
+	@Test
+	void testMixBif() {
+		runtime.executeSource(
+		    """
+		    a = audioOsc( "sine", 440, 0.5 );
+		    b = audioOsc( "sine", 440, 0.25 );
+		    both = audioMix( [ a, b ] );
+		    result = [ both.getFrames(), both.getPeak() > a.getPeak() ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( values.get( 0 ) ).isEqualTo( 22050 );
+		assertThat( values.get( 1 ) ).isEqualTo( true );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioMix( [] )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioMix( [ audioSilence( 1 ), 5 ] )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioMix( [ audioSilence( 1, 1 ), audioSilence( 1, 2 ) ] )", context ) );
+	}
+
 }

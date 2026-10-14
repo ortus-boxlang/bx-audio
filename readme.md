@@ -41,6 +41,7 @@ install-bx-module bx-audio
 | `audioTrim( audio, start=0, end )` | Cut a section, in seconds |
 | `audioConcat( audios )` | Join buffers end to end, formats must match |
 | `audioReverse( audio )` | Play it backwards |
+| `audioMix( audios )` | Add buffers together so they play at the same time, as long as the longest |
 | `audioChannels( audio, channels )` | Convert between mono and stereo |
 | `audioResample( audio, sampleRate )` | Change the sample rate with a windowed sinc filter, with anti-aliasing when lowering it |
 
@@ -120,12 +121,20 @@ audioSave( voice, "out/voice-stereo.wav", 24 );
 println( audioInfo( "out/voice-stereo.wav" ) );
 ```
 
+## Examples
+
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script.
+
+```bash
+boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
+```
+
 ## Roadmap
 
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done). Effects (delay, reverb, chorus) and sequencing helpers are next
-4. A catalog of example music scripts (pop, lofi, house, chiptune, ambient, cinematic and more, all original compositions)
+4. A catalog of example music scripts (pop done, lofi, house, chiptune, ambient, cinematic and more to follow, all original compositions)
 5. Text-to-speech through a pluggable provider, with a content-hash cache
 6. Analysis: loudness, silence detection, waveform data, FFT
 7. Realtime playback

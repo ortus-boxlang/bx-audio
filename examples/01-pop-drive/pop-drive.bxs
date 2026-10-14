@@ -1,0 +1,229 @@
+/**
+ * Pop Drive: an upbeat soundtrack synthesized from scratch, no samples and no licensing issues.
+ *
+ * 128 BPM, a C major pop progression (C G Am F) with a four on the floor kick, offbeat hats, claps, a bass line, an arpeggio lead
+ * and a pad. Every section is a whole number of bars, so cuts in a video land on the beat. The "drive" style swaps in a darker A minor
+ * loop, a driving bass and snare style clap rolls.
+ *
+ * This is a BoxLang port of a numpy script, it is the acceptance test for the synth and mixer, and it renders in a couple of seconds.
+ *
+ * Usage:
+ *   boxlang pop-drive.bxs [--out=out/pop-drive.wav] [--bars=28] [--bpm=128] [--style=pop|drive]
+ *
+ * Notes on the port:
+ *  - Gains are the original's linear gains, converted to decibels by gainDb().
+ *  - audioOsc( "saw" ) is normalised to a peak of 1 while the original adds raw 1/h sines, so the saws get +3.92 dB (pi / 2).
+ *  - Hats, claps and the riser are noise, so they differ from the original in detail but not in level or character. They use a small
+ *    bank of seeds so no two consecutive hits are identical.
+ */
+
+settings = { out : "out/pop-drive.wav", bars : 28, bpm : 128, style : "pop" };
+// Preset `overrides` (tests, embedding) first, then the command line wins
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+settings.append( cliGetArgs().options );
+
+sr = 44100;
+bars = int( settings.bars );
+bpm = settings.bpm * 1.0;
+isDrive = ( settings.style == "drive" );
+beat = 60 / bpm;
+bar = beat * 4;
+introBars = 2;
+mainEnd = bars - 2;
+
+// Linear gain to decibels
+function gainDb( gain ){
+	return 20 * log10( gain );
+}
+
+SAW = gainDb( pi() / 2 );
+CLAP = gainDb( 1.5 );
+RISER = gainDb( 1.3 );
+
+// Chords: a bass note and a triad per bar, repeating every four bars
+if( isDrive ){
+	chords = [
+		{ bass : 45, triad : [ 57, 60, 64 ] },
+		{ bass : 41, triad : [ 57, 60, 65 ] },
+		{ bass : 48, triad : [ 55, 60, 64 ] },
+		{ bass : 43, triad : [ 55, 59, 62 ] }
+	];
+} else {
+	chords = [
+		{ bass : 36, triad : [ 60, 64, 67 ] },
+		{ bass : 43, triad : [ 59, 62, 67 ] },
+		{ bass : 45, triad : [ 60, 64, 69 ] },
+		{ bass : 41, triad : [ 60, 65, 69 ] }
+	];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices, each built once and reused
+// ---------------------------------------------------------------------------------------------------------------------------------
+kick = audioDrum( type="kick" );
+riser = audioDrum( type="riser", seconds=bar );
+hats = [];
+openHats = [];
+claps = [];
+for( i = 1; i <= 6; i++ ){
+	hats.append( audioDrum( type="hat", seed=100 + i, level=0.74 ) );
+	openHats.append( audioDrum( type="openhat", seed=200 + i, level=0.72 ) );
+	claps.append( audioDrum( type="clap", seed=300 + i ) );
+}
+counters = { hat : 0, openHat : 0, clap : 0 };
+
+// Take the next voice from a bank, wrapping around
+function nextOf( bank, name ){
+	counters[ name ] = ( counters[ name ] mod bank.len() ) + 1;
+	return bank[ counters[ name ] ];
+}
+
+bassCache = {};
+function bassNote( midiNote, decay ){
+	var key = midiNote & "_" & decay;
+	if( !bassCache.keyExists( key ) ){
+		bassCache[ key ] = audioEnvelope( audioGain( audioOsc( "saw", audioFreq( midiNote ), 0.26, sr, 5 ), SAW ), 0.004, decay );
+	}
+	return bassCache[ key ];
+}
+
+arpCache = {};
+function arpNote( midiNote ){
+	if( !arpCache.keyExists( midiNote ) ){
+		arpCache[ midiNote ] = audioEnvelope(
+			audioOsc( shape="additive", freq=audioFreq( midiNote ), seconds=0.2, partials=[ [ 1, 1.0 ], [ 2, 0.5 ], [ 3, 0.25 ], [ 4, 0.12 ] ] ),
+			0.002,
+			0.07
+		);
+	}
+	return arpCache[ midiNote ];
+}
+
+// A pad is six slightly detuned saws (each chord note +- 10 cents), cached per chord
+padCache = {};
+function padFor( chordIndex ){
+	if( !padCache.keyExists( chordIndex ) ){
+		var saws = [];
+		for( var note in chords[ chordIndex ].triad ){
+			for( var detune in [ -0.1, 0.1 ] ){
+				saws.append( audioOsc( "saw", audioFreq( note + detune ), bar + 0.4, sr, 5 ) );
+			}
+		}
+		padCache[ chordIndex ] = audioEnvelope( audioGain( audioMix( saws ), SAW + gainDb( 0.012 ) ), 0.25, 3.0 );
+	}
+	return padCache[ chordIndex ];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The arrangement: everything goes onto a single track so the kick pump below ducks the whole mix, like the original
+// ---------------------------------------------------------------------------------------------------------------------------------
+t = audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+
+function place( sound, at, pan, gain ){
+	audioAdd( timeline=t, sound=sound, at=at, track="mix", db=gainDb( gain ), pan=pan );
+}
+
+bassPattern = isDrive ? [ 0, 0, 12, 0, 0, 12, 0, 0, 0, 0, 12, 0, 0, 12, 0, 12 ] : [ 0, 0, 12, 0, 0, 0, 12, 0 ];
+bassStep = isDrive ? beat / 4 : beat / 2;
+arpOrder = [ 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 1 ];
+
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	chordIndex = ( b mod 4 ) + 1;
+	chord = chords[ chordIndex ];
+	isMain = ( b >= introBars && b < mainEnd );
+
+	// pad on every bar, quieter in the very first one
+	place( padFor( chordIndex ), t0, 0, b >= 1 ? 0.8 : 0.4 );
+
+	for( k = 0; k < 4; k++ ){
+		tt = t0 + k * beat;
+		// kick on every beat once the build starts
+		if( b >= 1 ){
+			place( kick, tt, 0, 0.9 );
+		}
+		if( isMain && isDrive ){
+			// sixteenth note hats, an open one at the end of the bar
+			for( q = 0; q < 4; q++ ){
+				isOpen = ( q == 3 && k == 3 );
+				place(
+					isOpen ? nextOf( openHats, "openHat" ) : nextOf( hats, "hat" ),
+					tt + q * beat / 4,
+					q mod 2 == 1 ? 0.3 : -0.3,
+					q mod 2 == 1 ? 0.55 : 0.8
+				);
+			}
+			if( k == 1 ){
+				place( kick, tt + beat * 0.75, 0, 0.7 );
+			}
+			// a clap roll on the last beat and a half of every fourth bar
+			if( b mod 4 == 3 && k >= 2 ){
+				for( q = 0; q < 4; q++ ){
+					place( nextOf( claps, "clap" ), tt + q * beat / 4, 0, ( 0.35 + 0.15 * q ) * 1.5 );
+				}
+			}
+		} else if( isMain ){
+			place( nextOf( hats, "hat" ), tt + beat / 2, 0.3, 0.9 );
+			if( k mod 2 == 1 ){
+				place( nextOf( claps, "clap" ), tt, 0, 0.85 * 1.5 );
+			}
+			if( k == 3 ){
+				place( nextOf( openHats, "openHat" ), tt + beat / 2, -0.3, 0.7 );
+			}
+		}
+	}
+
+	if( isMain ){
+		// bass: the root with octave pushes
+		for( k = 1; k <= bassPattern.len(); k++ ){
+			place(
+				bassNote( chord.bass + bassPattern[ k ], isDrive ? 0.09 : 0.13 ),
+				t0 + ( k - 1 ) * bassStep,
+				0,
+				isDrive ? 0.24 : 0.2
+			);
+		}
+		// arpeggio lead in sixteenths, an octave brighter from bar 10
+		for( k = 0; k < 16; k++ ){
+			note = chord.triad[ arpOrder[ k + 1 ] + 1 ] + ( b >= 10 ? 12 : 0 ) + ( k mod 8 == 4 ? 12 : 0 );
+			place( arpNote( note ), t0 + k * beat / 4, k mod 2 == 1 ? -0.4 : 0.4, 0.075 );
+		}
+	}
+
+	// the riser leads into the main section
+	if( b == introBars - 1 ){
+		place( riser, t0, 0, 1.0 * 1.3 );
+	}
+}
+
+// The final hit (kick and clap) and a held chord
+finalHit = audioGain( audioMix( [ kick, audioGain( claps[ 1 ], gainDb( 0.7 * 1.5 ) ) ] ), gainDb( 1.2 ) );
+place( finalHit, mainEnd * bar, 0, 1.0 );
+for( note in chords[ 1 ].triad.append( 72 ) ){
+	place(
+		audioEnvelope( audioOsc( shape="additive", freq=audioFreq( note ), seconds=2.2, partials=[ [ 1, 1.0 ], [ 2, 0.4 ], [ 3, 0.2 ] ] ), 0.005, 0.8 ),
+		mainEnd * bar,
+		0,
+		0.07
+	);
+}
+
+// A soft sidechain: a 3 dB dip on every kick that recovers over 0.18 s. The original does
+// mix * ( 0.35 + 0.65 * duck ) with duck dipping to 0.55, which is exactly a dip to 0.7075 with a linear return.
+kickTimes = [];
+for( b = 1; b < bars; b++ ){
+	for( k = 0; k < 4; k++ ){
+		kickTimes.append( b * bar + k * beat );
+	}
+}
+audioPump( t, "mix", kickTimes, gainDb( 0.35 + 0.65 * 0.55 ), 0.18 );
+
+// Render to 2.5 seconds past the last bar, fade out over the last 1.2 s and finish with the tanh limiter
+total = bars * bar + 2.5;
+mix = audioRender( timeline=t, tail=max( 0, total - t.getDurationSeconds() ) );
+mix = audioFade( mix, 0, 1.2 );
+mix = audioSaturate( mix, 2.2, 0.9 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( total, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );
