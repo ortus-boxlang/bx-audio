@@ -76,8 +76,10 @@ class {
 		 * Every module has a settings configuration object
 		 */
 		settings = {
-			loadedOn : now(),
-			loadedBy : "Luis Majano"
+			// Where the speech engine and the voices are downloaded to. Empty means a bx-audio folder inside the BoxLang home.
+			home : "",
+			// May audioSpeak() download the engine and the voice it needs, the first time they are used
+			autoInstall : true
 		};
 
 		/**
@@ -149,8 +151,12 @@ class {
 	function main( array args = [] ){
 		try {
 			new bxModules.bxaudio.cli.Cli( moduleRecord.path.toString() ).run( args );
-		} catch( "bxaudio.cli" e ){
-			// A mistake in the command line is not a crash: print the message and set the exit code
+		} catch( any e ){
+			// A mistake in the command line, a missing file or a failed download is not a crash: print the message and set the exit code.
+			// Set BX_AUDIO_DEBUG=1 to get the full stack trace instead.
+			if( ( server.system.environment.BX_AUDIO_DEBUG ?: "" ) == "1" ){
+				rethrow;
+			}
 			System = createObject( "java", "java.lang.System" );
 			System.err.println( "bx-audio: " & e.message );
 			System.exit( 1 );

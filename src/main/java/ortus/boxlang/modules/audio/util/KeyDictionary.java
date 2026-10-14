@@ -21,7 +21,7 @@ import ortus.boxlang.runtime.scopes.Key;
  */
 public class KeyDictionary {
 
-	public static final Key	moduleName	= new Key( "bx-audio" );
+	public static final Key	moduleName	= new Key( "bxaudio" );
 
 	public static final Key	audio		= Key.of( "audio" );
 	public static final Key	bitDepth	= Key.of( "bitDepth" );
@@ -85,5 +85,11 @@ public class KeyDictionary {
 	public static final Key	rate		= Key.of( "rate" );
 	public static final Key	depth		= Key.of( "depth" );
 	public static final Key	bitrate		= Key.of( "bitrate" );
+	public static final Key	text		= Key.of( "text" );
+	public static final Key	voice		= Key.of( "voice" );
+	public static final Key	autoInstall	= Key.of( "autoInstall" );
+	public static final Key	language	= Key.of( "language" );
+	public static final Key	installed	= Key.of( "installed" );
+	public static final Key	onProgress	= Key.of( "onProgress" );
 
 }

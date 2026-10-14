@@ -66,13 +66,19 @@ public class VoiceCatalogTest {
 		assertThat( ids.stream().anyMatch( id -> id.contains( "hfc_" ) ) ).isFalse();
 	}
 
+	@DisplayName( "Only US English voices are offered, because the British dictionary of the engine is licensed GPL 3" )
+	@Test
+	void testOnlyUsEnglish() {
+		assertThat( VoiceCatalog.load().all().stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_US" );
+	}
+
 	@DisplayName( "A voice is found by its id or by its short name, and a name that fits several voices is refused" )
 	@Test
 	void testFind() {
 		VoiceCatalog catalog = VoiceCatalog.load();
 		assertThat( catalog.find( "en_US-joe-medium" ).name() ).isEqualTo( "joe" );
 		assertThat( catalog.find( "JOE" ).id() ).isEqualTo( "en_US-joe-medium" );
-		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "cori" ) ).getMessage() ).contains( "en_GB-cori-high" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "ljspeech" ) ).getMessage() ).contains( "en_US-ljspeech-high" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "lessac" ) ).getMessage() ).contains( "Unknown voice [lessac]" );
 	}
 

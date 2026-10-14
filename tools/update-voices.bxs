@@ -9,7 +9,8 @@
  *   boxlang tools/update-voices.bxs [--languages=en_US,en_GB]
  */
 
-languages = ( cliGetArgs().options.languages ?: "en_US,en_GB" ).listToArray();
+// en_GB voices need the en_uk dictionary of the Voices library, which is licensed GPL 3, so they are left out until that is decided
+languages = ( cliGetArgs().options.languages ?: "en_US" ).listToArray();
 base = "https://huggingface.co/rhasspy/piper-voices/resolve/main/";
 
 function fetchText( url ){
@@ -40,6 +41,18 @@ function normalizeLicense( text ){
 	return "";
 }
 
+/**
+ * Say in a few words why a model card's license was not accepted
+ */
+function reasonFor( text ){
+	var t = text.lcase();
+	if( !text.len() ){ return "The model card states no license"; }
+	if( t.contains( "-nc" ) || t.contains( "non-commercial" ) ){ return "Non-commercial license"; }
+	if( t.contains( "blizzard" ) ){ return "Custom license (Blizzard 2013 data), not an open license"; }
+	if( t.startsWith( "see" ) ){ return "The model card only says '" & text & "', so the license is not clear"; }
+	return "Not an open license we accept: " & text.left( 50 );
+}
+
 println( "Reading the voice list..." );
 all = jsonDeserialize( fetchText( base & "voices.json" ) );
 kept = [];
@@ -58,7 +71,7 @@ for( key in all.keyArray().sort( "text" ) ){
 	sourceUrl = urlMatch.match.len() > 1 ? urlMatch.match[ 2 ] : "";
 	license = normalizeLicense( licenseText );
 	if( !license.len() ){
-		excluded.append( key & "  (" & ( licenseText.len() ? licenseText.left( 60 ) : "no license stated" ) & ")" );
+		excluded.append( key & "  (" & reasonFor( licenseText ) & ")" );
 		continue;
 	}
 	if( voice.num_speakers != 1 ){
@@ -94,3 +107,55 @@ println( "Wrote " & kept.len() & " voices to " & target );
 println( "" );
 println( "Left out (" & excluded.len() & "):" );
 excluded.each( ( e ) => println( "  " & e ) );
+
+// The same list as a page for the docs
+function mb( bytes ){
+	return numberFormat( bytes / 1000000, "0" ) & " MB";
+}
+doc = [];
+doc.append( "## Voices" );
+doc.append( "" );
+doc.append( "These are the voices `audioSpeak()` can use. They are [Piper](https://github.com/rhasspy/piper) voices from the [rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices) collection, and none of them is bundled with the module: each is downloaded the first time you use it, into the `voices` folder of the module's speech home." );
+doc.append( "" );
+doc.append( "```bash" );
+doc.append( "bx-audio voices                       ## this list, from the command line" );
+doc.append( "bx-audio install joe                  ## download a voice ahead of time" );
+doc.append( "bx-audio speak ""Hello"" --voice=joe     ## or just use it, it installs itself" );
+doc.append( "```" );
+doc.append( "" );
+doc.append( "```js" );
+doc.append( "audio = audioSpeak( text=""Hello from BoxLang"", voice=""joe"" );" );
+doc.append( "audioSave( audio, ""hello.mp3"" );" );
+doc.append( "```" );
+doc.append( "" );
+doc.append( "#### Licenses" );
+doc.append( "" );
+doc.append( "Only voices whose model card states an open license are listed: CC0, public domain, CC BY, CC BY-SA, Apache 2.0 or the Unlicense. The license column is the identifier we map the card's wording to, and the card itself stays the authority, so read it when it matters (the link in the last column leads to the training data). A voice licensed CC BY asks for credit, and CC BY-SA also asks that what you make from it is shared under the same terms. Voices whose card says non-commercial, names a custom license, says only ""See URL"", or says nothing are not listed." );
+doc.append( "" );
+doc.append( "#### Available voices" );
+doc.append( "" );
+doc.append( "| Voice | Language | Quality | License | Download | Training data |" );
+doc.append( "|---|---|---|---|---|---|" );
+for( v in kept ){
+	doc.append( "| `" & v.id & "` | " & v.language & " | " & v.quality & " | " & v.license & " | " & mb( v.model.size + v.config.size ) & " | " & ( v.source.len() ? "[source](" & v.source & ")" : "not stated" ) & " |" );
+}
+doc.append( "" );
+doc.append( "Use a voice by its full id, or by its short name when only one voice has that name (`joe`, but not `ljspeech`, which comes in two qualities)." );
+doc.append( "" );
+doc.append( "#### Left out" );
+doc.append( "" );
+doc.append( "| Voice | Why |" );
+doc.append( "|---|---|" );
+for( e in excluded ){
+	parts = e.reFind( "^(\S+)\s+\((.*)\)$", 1, true );
+	doc.append( "| `" & parts.match[ 2 ] & "` | " & parts.match[ 3 ].replace( "|", "/", "all" ) & " |" );
+}
+doc.append( "" );
+doc.append( "British English voices (`en_GB`) are not offered because the British dictionary of the Voices engine is licensed GPL 3." );
+doc.append( "" );
+doc.append( "#### Updating this list" );
+doc.append( "" );
+doc.append( "This page and `voices.json` are generated. Run `boxlang tools/update-voices.bxs` in the module repository to read the current voices and their model cards again, and review the difference." );
+newline = createObject( "java", "java.lang.System" ).lineSeparator();
+fileWrite( expandPath( "../docs/voices.md" ), doc.toList( newline ) & newline );
+println( "Wrote the docs page docs/voices.md" );

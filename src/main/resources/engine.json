@@ -50,14 +50,6 @@
 			"size": 817977
 		},
 		{
-			"group": "org.pitest.voices",
-			"artifact": "en_uk",
-			"version": "0.0.9",
-			"url": "https://repo1.maven.org/maven2/org/pitest/voices/en_uk/0.0.9/en_uk-0.0.9.jar",
-			"sha1": "675529ce35408b89c01e8f2c872d5f599a2835e0",
-			"size": 959698
-		},
-		{
 			"group": "com.microsoft.onnxruntime",
 			"artifact": "onnxruntime",
 			"version": "1.22.0",
@@ -88,6 +80,14 @@
 			"url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar",
 			"sha1": "d9e58ac9c7779ba3bf8142aff6c830617a7fe60f",
 			"size": 69908
+		},
+		{
+			"group": "org.slf4j",
+			"artifact": "slf4j-nop",
+			"version": "2.0.17",
+			"url": "https://repo1.maven.org/maven2/org/slf4j/slf4j-nop/2.0.17/slf4j-nop-2.0.17.jar",
+			"sha1": "b41773047e10359aa409e7197c7624aeabfd377c",
+			"size": 4982
 		}
 	]
 }

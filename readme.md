@@ -29,6 +29,7 @@ BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange t
 - ✂️ Edit: gain, pan, fade, normalize, trim, concat, reverse, resample
 - 💾 Read and write WAV (16/24 bit PCM, 32 bit float) and MP3
 - 🎼 A catalog of complete, original example songs with no samples to license
+- 🗣️ Text to speech with open license voices that download on first use, no API key or cloud service
 - 🔁 Repeatable: the same seed gives the same sound on any machine
 - 🌐 A [catalog explorer](examples/explorer/) web app on the BoxLang MiniServer that plays every piece in the browser
 - 🧩 100% Java, no native dependencies, works from the CLI, web apps and Lambda
@@ -90,7 +91,7 @@ Every function returns a new buffer and leaves its input untouched. BoxLang does
 |---|---|
 | `audioSilence( seconds, channels=2, sampleRate=44100 )` | Create a blank audio buffer |
 | `audioLoad( path )` | Read a WAV (PCM 8/16/24/32 bit and 32/64 bit float) or MP3 file, detected by content |
-| `audioSave( audio, path, bitDepth=16, bitrate=192 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, mono or stereo) |
+| `audioSave( audio, path, bitDepth=16, bitrate=0 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, default 192 or 128 below 32 kHz, mono or stereo) |
 | `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
 | `audioWaveform( audio, points=800 )` | The loudest level in each of `points` equal slices, as an array for drawing a waveform |
 | `audioGain( audio, db )` | Change the volume in decibels |
@@ -197,6 +198,33 @@ audioSave( voice, "out/voice-stereo.wav", 24 );
 println( audioInfo( "out/voice-stereo.wav" ) );
 ```
 
+### Text to speech
+
+`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into the `bx-audio` folder of your BoxLang home.
+
+| Function | Purpose |
+|---|---|
+| `audioSpeak( text, voice, autoInstall, onProgress )` | Speak a text. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
+| `audioVoices( language="", installed=false )` | The voices you can use: id, name, language, quality, license, size and whether it is installed |
+| `audioVoiceInstall( voice, onProgress )` | Download a voice ahead of time, or `"engine"` for the speech engine every voice needs |
+| `audioVoiceRemove( voice )` | Delete a voice, or `"engine"`, from disk |
+| `audioSpeechStatus()` | Where it all lives, whether the engine is installed, and which voices are |
+
+```js
+// A voice-over, ducking music underneath it
+voice = audioSpeak( text="Meet BoxLang. Fast, friendly and made for the JVM.", voice="joe" );
+
+t = audioTimeline( bpm=100 );
+audioAdd( timeline=t, sound=music, at=0, track="music", db=-10 );
+audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
+audioDuck( t, "music", "voice", -9 );
+audioSave( audioSaturate( audioRender( timeline=t, tail=1 ) ), "promo.mp3" );
+```
+
+Only voices whose model card states an open license are on offer, each with its license shown, and you choose which to use. The full list, and the voices that were left out and why, is in [docs/voices.md](docs/voices.md). Only US English voices are available for now.
+
+Two module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine and the voices are downloaded to, empty for the `bx-audio` folder of the BoxLang home, and `autoInstall` is `true` unless you want `audioSpeak` to refuse to download anything. The environment variable `BX_AUDIO_HOME` also sets the folder.
+
 ## Examples
 
 The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/) and [Cinematic](examples/07-cinematic/).
@@ -214,10 +242,12 @@ Installing the module with `install-bx-module` also installs a `bx-audio` comman
 ```bash
 bx-audio render techno --bars=16 --out=techno.mp3   # synthesize an example piece
 bx-audio info techno.mp3                            # format, length, peak and RMS
-bx-audio convert song.wav song.mp3 --bitrate=192    # WAV to MP3, with --sampleRate and --channels
+bx-audio convert song.wav song.mp3 --bitrate=160    # WAV to MP3, with --sampleRate and --channels
 bx-audio normalize voice.wav loud.wav --db=-3
 bx-audio trim song.wav intro.wav --start=0 --end=12
 bx-audio waveform song.wav                          # one line of loudness, add --unicode for blocks
+bx-audio voices                                     # the open license voices you can use
+bx-audio speak "Hello there" --voice=joe --out=hi.mp3   # installs the engine and voice the first time
 bx-audio explorer                                   # the web explorer, on the BoxLang MiniServer
 bx-audio doctor                                     # checks MP3, the examples and the MiniServer
 ```
@@ -229,6 +259,9 @@ bx-audio doctor                                     # checks MP3, the examples a
 | `normalize <in> <out>` | Scale the peak to `--db` (default -1) |
 | `trim <in> <out>` | Keep the section from `--start` to `--end`, in seconds |
 | `waveform <file>` | Draw the loudness on one line, `--width` characters wide |
+| `speak <text>` | Say a text with `--voice`, into `--out` (default `speech.wav`). Installs what is missing, unless `--no-install`. `--file` reads the text from a file |
+| `voices` | List the voices, with `--lang` and `--installed` to narrow it |
+| `install <voice>` / `remove <voice>` | Download or delete a voice, or `engine` for the speech engine |
 | `pieces` | List the example pieces |
 | `render <piece>` | Synthesize an example piece. Takes `--out` and the settings of that piece, such as `--bars` and `--bpm` |
 | `explorer` | Start the web explorer on `--port` (default 8080). Needs the BoxLang MiniServer on your PATH |
@@ -242,14 +275,14 @@ Paths are relative to the folder you run the command in. Run `bx-audio help <com
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
 4. A catalog of example music scripts (pop, lofi, house, ambient, techno, synthwave and cinematic done; chiptune, jazz, rock, game sound effects and more to follow, all original compositions)
-5. Text-to-speech through a pluggable provider, with a content-hash cache
+5. ~~Text-to-speech~~ done (US English, more languages and multi-speaker voices to follow), a content-hash cache of what was spoken still to come
 6. Analysis: ~~waveform data~~ done, loudness, silence detection, FFT
 7. Realtime playback
 8. ~~MP3 read and write as optional codec jars~~ done (see below)
 
 ## Licensing
 
-The module is Apache 2.0. MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
+The module is Apache 2.0. Text to speech downloads the Voices engine (Apache 2 and MIT) and the voices you choose, each with its own license, see [docs/voices.md](docs/voices.md). MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
 
 ## Development
 

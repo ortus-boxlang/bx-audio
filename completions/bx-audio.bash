@@ -3,7 +3,7 @@
 _bx_audio_complete() {
     local current_word="${COMP_WORDS[COMP_CWORD]}"
     local command="${COMP_WORDS[1]}"
-    local commands="info convert normalize trim waveform pieces render explorer doctor version help"
+    local commands="info convert normalize trim waveform speak voices install remove pieces render explorer doctor version help"
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands" -- "$current_word"))
         return
@@ -19,6 +19,8 @@ _bx_audio_complete() {
         normalize) COMPREPLY=($(compgen -f -W "--db=" -- "$current_word")) ;;
         trim) COMPREPLY=($(compgen -f -W "--start= --end=" -- "$current_word")) ;;
         waveform) COMPREPLY=($(compgen -f -W "--width= --unicode" -- "$current_word")) ;;
+        speak) COMPREPLY=($(compgen -f -W "--voice= --out= --file= --no-install" -- "$current_word")) ;;
+        voices) COMPREPLY=($(compgen -W "--lang= --installed" -- "$current_word")) ;;
         explorer) COMPREPLY=($(compgen -W "--port=" -- "$current_word")) ;;
         help) COMPREPLY=($(compgen -W "$commands" -- "$current_word")) ;;
         *) COMPREPLY=($(compgen -f -- "$current_word")) ;;

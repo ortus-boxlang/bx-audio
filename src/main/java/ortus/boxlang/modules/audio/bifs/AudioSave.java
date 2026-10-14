@@ -42,7 +42,7 @@ public class AudioSave extends BIF {
 		    new Argument( true, "any", KeyDictionary.audio ),
 		    new Argument( true, "string", Key.path ),
 		    new Argument( false, "integer", KeyDictionary.bitDepth, 16 ),
-		    new Argument( false, "integer", KeyDictionary.bitrate, 192 )
+		    new Argument( false, "integer", KeyDictionary.bitrate, 0 )
 		};
 	}
 
@@ -62,8 +62,9 @@ public class AudioSave extends BIF {
 	 *                    Ignored for MP3.
 	 *
 	 * @argument.bitrate For MP3: the constant bitrate in kbps. At 32, 44.1 and 48 kHz use 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256 or
-	 *                   320. At lower sample rates use 8 to 160 (8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160). Defaults to 192. Ignored for
-	 *                   WAV.
+	 *                   320. At lower sample rates use 8 to 160 (8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160). Defaults to 0, which means
+	 *                   192, or
+	 *                   128 below 32 kHz where 192 does not exist. Ignored for WAV.
 	 *
 	 * @return The absolute path of the file that was written.
 	 */

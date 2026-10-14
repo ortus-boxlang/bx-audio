@@ -77,13 +77,12 @@ java {
 	withSourcesJar()
 }
 
-// Exclude main resources from IDE classpath to avoid class loading conflicts
-// Resources are still included in the JAR/build outputs
+// The module's own resources: the voice and engine catalogs (voices.json and engine.json), which end up in the module jar.
+// Tests read them straight from src/main/resources, see the test task below.
 sourceSets {
 	main {
 		resources {
-			// Empty the resources to exclude from IDE classpath
-			srcDirs = []
+			srcDirs = [ 'src/main/resources' ]
 		}
 	}
 }

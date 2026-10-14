@@ -162,12 +162,44 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( message ).contains( Path.of( System.getProperty( "user.dir" ), "missing.wav" ).toString() );
 	}
 
-	@DisplayName( "doctor checks MP3 and the examples" )
+	@DisplayName( "voices lists the catalog and filters it, and says where the licenses stand" )
 	@Test
-	void testDoctor() {
+	void testVoices( @TempDir Path home ) {
+		useSpeechHome( home );
+		String voices = run( "voices" );
+		assertThat( voices ).contains( "en_US-joe-medium" );
+		assertThat( voices ).contains( "CC0-1.0" );
+		assertThat( voices ).contains( "open license" );
+		// no share-alike voice is offered at the moment, so its note is not shown
+		assertThat( voices ).doesNotContain( "share what you make" );
+		assertThat( run( "voices", "--lang=en_US" ) ).contains( "en_US-joe-medium" );
+		assertThat( run( "voices", "--lang=en_GB" ) ).contains( "No voices match" );
+		assertThat( run( "voices", "--installed" ) ).contains( "No voices match" );
+	}
+
+	@DisplayName( "speak, install and remove report what is missing instead of failing with a stack trace" )
+	@Test
+	void testSpeechErrors( @TempDir Path home ) {
+		useSpeechHome( home );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "speak", "Hello" ) ).getMessage() ).contains( "--voice" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "speak", "--voice=joe" ) ).getMessage() ).contains( "Missing text" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "speak", "Hello", "--voice=joe", "--no-install" ) ).getMessage() )
+		    .contains( "bx-audio install engine" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "install", "nope" ) ).getMessage() ).contains( "Unknown voice [nope]" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "install" ) ).getMessage() ).contains( "Usage: bx-audio install" );
+		assertThat( run( "remove", "joe" ) ).contains( "joe was not installed" );
+		assertThat( run( "remove", "engine" ) ).contains( "engine was not installed" );
+	}
+
+	@DisplayName( "doctor checks MP3 and the examples, and reports the speech setup without failing on it" )
+	@Test
+	void testDoctor( @TempDir Path home ) {
+		useSpeechHome( home );
 		String doctor = run( "doctor" );
 		assertThat( doctor ).contains( "ok    MP3 write and read" );
 		assertThat( doctor ).contains( "ok    Examples folder" );
+		assertThat( doctor ).contains( "info  speech engine" );
+		assertThat( doctor ).contains( "info  voices installed" );
 	}
 
 }

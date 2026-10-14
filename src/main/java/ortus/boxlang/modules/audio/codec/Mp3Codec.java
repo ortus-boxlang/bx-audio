@@ -97,9 +97,10 @@ public final class Mp3Codec {
 	 * Encode a buffer as a constant bitrate MP3
 	 *
 	 * @param audio       Mono or stereo, at one of {@link #SAMPLE_RATES}
-	 * @param bitrateKbps The bitrate in kilobits per second, see {@link #bitratesFor}
+	 * @param bitrateKbps The bitrate in kilobits per second, see {@link #bitratesFor}, or 0 for {@link #defaultBitrate}
 	 */
 	public static byte[] encode( AudioBuffer audio, int bitrateKbps ) {
+		final int kbps = bitrateKbps == 0 ? defaultBitrate( audio.getSampleRate() ) : bitrateKbps;
 		if ( audio.getChannels() > 2 ) {
 			throw new BoxRuntimeException(
 			    "MP3 holds mono or stereo audio but this buffer has " + audio.getChannels() + " channels. Use audioChannels() first" );
@@ -108,15 +109,22 @@ public final class Mp3Codec {
 			throw new BoxRuntimeException( "MP3 cannot hold a sample rate of " + audio.getSampleRate() + " Hz. Use audioResample() to one of " + SAMPLE_RATES );
 		}
 		int[] allowed = bitratesFor( audio.getSampleRate() );
-		if ( Arrays.stream( allowed ).noneMatch( b -> b == bitrateKbps ) ) {
+		if ( Arrays.stream( allowed ).noneMatch( b -> b == kbps ) ) {
 			throw new BoxRuntimeException(
-			    "A bitrate of " + bitrateKbps + " kbps is not valid for " + audio.getSampleRate() + " Hz. Use one of " + Arrays.toString( allowed ) );
+			    "A bitrate of " + kbps + " kbps is not valid for " + audio.getSampleRate() + " Hz. Use one of " + Arrays.toString( allowed ) );
 		}
 		if ( audio.getFrames() == 0 ) {
 			throw new BoxRuntimeException( "Cannot make an MP3 from empty audio" );
 		}
 		requireAvailable();
-		return Mp3Encoder.encode( audio, bitrateKbps );
+		return Mp3Encoder.encode( audio, kbps );
+	}
+
+	/**
+	 * The bitrate used when none is asked for: 192 kbps, or 128 kbps at sample rates below 32 kHz, where 192 does not exist
+	 */
+	public static int defaultBitrate( int sampleRate ) {
+		return sampleRate >= 32000 ? 192 : 128;
 	}
 
 	/**

@@ -144,6 +144,20 @@ public class Mp3CodecTest {
 		assertThat( high ).isWithin( 3000 ).of( 192 * 1000 / 8 * 3 );
 	}
 
+	@DisplayName( "Without a bitrate, 192 kbps is used, or 128 kbps at sample rates where 192 does not exist" )
+	@Test
+	void testDefaultBitrate() {
+		assertThat( Mp3Codec.defaultBitrate( 44100 ) ).isEqualTo( 192 );
+		assertThat( Mp3Codec.defaultBitrate( 48000 ) ).isEqualTo( 192 );
+		assertThat( Mp3Codec.defaultBitrate( 32000 ) ).isEqualTo( 192 );
+		assertThat( Mp3Codec.defaultBitrate( 22050 ) ).isEqualTo( 128 );
+		assertThat( Mp3Codec.defaultBitrate( 8000 ) ).isEqualTo( 128 );
+		AudioBuffer	wide	= tone( 2, 3.0, 44100 );
+		AudioBuffer	narrow	= tone( 1, 3.0, 22050 );
+		assertThat( Mp3Codec.encode( wide, 0 ).length ).isEqualTo( Mp3Codec.encode( wide, 192 ).length );
+		assertThat( Mp3Codec.encode( narrow, 0 ).length ).isEqualTo( Mp3Codec.encode( narrow, 128 ).length );
+	}
+
 	@DisplayName( "Every sample rate MP3 can hold encodes and decodes at the same rate" )
 	@ParameterizedTest
 	@ValueSource( ints = { 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000 } )
