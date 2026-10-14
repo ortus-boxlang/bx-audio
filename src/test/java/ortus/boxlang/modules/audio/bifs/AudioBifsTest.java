@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import ortus.boxlang.modules.audio.BaseIntegrationTest;
+import ortus.boxlang.modules.audio.codec.WavCodec;
+import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
@@ -101,6 +103,57 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSave( 'not audio', target )", context ) );
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSave( audioSilence( 1 ), target, 12 )", context ) );
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSilence( -1 )", context ) );
+	}
+
+	@DisplayName( "The DSP BIFs chain together through BoxLang" )
+	@Test
+	void testDspPipeline( @TempDir Path dir ) {
+		// A 0.5 second 440 Hz mono sine at 22.05kHz, as a TTS voice would arrive
+		int		frames	= 11025;
+		float[]	sine	= new float[ frames ];
+		for ( int i = 0; i < frames; i++ ) {
+			sine[ i ] = ( float ) ( 0.25 * Math.sin( 2 * Math.PI * 440 * i / 22050 ) );
+		}
+		Path source = dir.resolve( "voice.wav" );
+		WavCodec.write( new AudioBuffer( new float[][] { sine }, 22050 ), source, 16 );
+		variables.put( Key.of( "source" ), source.toString() );
+		variables.put( Key.of( "target" ), dir.resolve( "mixdown.wav" ).toString() );
+
+		runtime.executeSource(
+		    """
+		    voice = audioLoad( source );
+		    voice = audioResample( voice, 44100 );
+		    voice = audioChannels( voice, 2 );
+		    voice = audioNormalize( voice, 0 );
+		    voice = audioGain( voice, -6 );
+		    voice = audioFade( voice, 0.05, 0.1, "smooth" );
+		    voice = audioPan( voice, -0.5 );
+		    voice = audioTrim( voice, 0.1 );
+		    gap = audioSilence( 0.25, 2, 44100 );
+		    full = audioConcat( [ voice, gap, audioReverse( voice ) ] );
+		    audioSave( full, target, 24 );
+		    result = audioInfo( target );
+		    """,
+		    context );
+		IStruct info = ( IStruct ) variables.get( result );
+		assertThat( info.get( Key.of( "channels" ) ) ).isEqualTo( 2 );
+		assertThat( info.get( Key.of( "sampleRate" ) ) ).isEqualTo( 44100 );
+		// 0.5 s - 0.1 s trimmed = 0.4 s, twice, plus the 0.25 s gap
+		assertThat( ( Double ) info.get( Key.of( "seconds" ) ) ).isWithin( 1e-9 ).of( 1.05 );
+		// 0 dB normalize then -6 dB, then a pan that leaves the left side untouched, so the peak is about 0.5
+		assertThat( ( Double ) info.get( Key.of( "peak" ) ) ).isWithin( 0.02 ).of( 0.5 );
+	}
+
+	@DisplayName( "DSP BIFs reject bad arguments with clear errors" )
+	@Test
+	void testDspErrors() {
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioGain( 'nope', -6 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioFade( audioSilence( 1 ), 0, 0, 'wobbly' )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioConcat( [ audioSilence( 1 ), 42 ] )", context ) );
+		assertThrows( BoxRuntimeException.class,
+		    () -> runtime.executeSource( "audioConcat( [ audioSilence( 1, 1 ), audioSilence( 1, 2 ) ] )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioTrim( audioSilence( 1 ), 0.8, 0.2 )", context ) );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioPan( audioSilence( 1 ), 3 )", context ) );
 	}
 
 }

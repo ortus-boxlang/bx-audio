@@ -34,18 +34,34 @@ install-bx-module bx-audio
 | `audioLoad( path )` | Read a WAV file (PCM 8/16/24/32 bit and 32/64 bit float) |
 | `audioSave( audio, path, bitDepth=16 )` | Write a WAV file as 16 bit, 24 bit or 32 bit float |
 | `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
+| `audioGain( audio, db )` | Change the volume in decibels |
+| `audioPan( audio, pan )` | Place a sound from -1 (left) to 1 (right) with a constant power law. Mono becomes stereo, stereo acts as a balance |
+| `audioFade( audio, fadeIn=0, fadeOut=0, curve="linear" )` | Fade in and out, `curve` is `linear` or `smooth` |
+| `audioNormalize( audio, targetDb=-1 )` | Scale the peak to a target level |
+| `audioTrim( audio, start=0, end )` | Cut a section, in seconds |
+| `audioConcat( audios )` | Join buffers end to end, formats must match |
+| `audioReverse( audio )` | Play it backwards |
+| `audioChannels( audio, channels )` | Convert between mono and stereo |
+| `audioResample( audio, sampleRate )` | Change the sample rate with a windowed sinc filter, with anti-aliasing when lowering it |
+
+Every function returns a new buffer and leaves its input untouched.
 
 An audio buffer also exposes `getChannels()`, `getFrames()`, `getSampleRate()`, `getDurationSeconds()`, `getPeak()`, `getRms()` and `copy()`.
 
 ```js
-canvas = audioSilence( seconds=2 )
-audioSave( canvas, "out/blank.wav" )
-println( audioInfo( "out/blank.wav" ) )
+// Bring a mono 22.05kHz voice-over up to a 44.1kHz stereo mixdown format
+voice = audioLoad( "voice.wav" );
+voice = audioResample( voice, 44100 );
+voice = audioChannels( voice, 2 );
+voice = audioNormalize( voice, -3 );
+voice = audioFade( voice, fadeIn=0.05, fadeOut=0.3, curve="smooth" );
+audioSave( voice, "out/voice-stereo.wav", 24 );
+println( audioInfo( "out/voice-stereo.wav" ) );
 ```
 
 ## Roadmap
 
-1. DSP: gain, pan, fade, normalize, trim, concat, resample
+1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. Timeline mixing with a beat grid, ducking, and offline rendering
 3. Synthesis: oscillators, envelopes, sequencing, drum voices
 4. A catalog of example music scripts (pop, lofi, house, chiptune, ambient, cinematic and more, all original compositions)
