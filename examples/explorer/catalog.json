@@ -126,5 +126,19 @@
 			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 100, "max": 160, "step": 1, "value": 128 },
 			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 3 }
 		]
+	},
+	{
+		"id": "voiceover",
+		"title": "Voice-over",
+		"style": "Narration over music",
+		"script": "../12-voiceover/voiceover.bxs",
+		"needsVoice": true,
+		"blurb": "A trailer style announcement: a text to speech voice over music that ducks under it. Needs the speech engine, so it runs from the command line.",
+		"params": [
+			{ "name": "voice", "label": "Voice", "type": "text", "value": "joe" },
+			{ "name": "text", "label": "Lines, separated by |", "type": "text", "value": "" },
+			{ "name": "duck", "label": "Music ducking in dB", "type": "range", "min": -24, "max": 0, "step": 1, "value": -12 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 80, "max": 130, "step": 1, "value": 100 }
+		]
 	}
 ]

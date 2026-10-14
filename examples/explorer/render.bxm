@@ -17,6 +17,9 @@
 		fail( 404, "Unknown piece. Choose one of: " & catalog.map( ( p ) => p.id ).toList() );
 	}
 	piece = piece.first();
+	if( piece.needsVoice ?: false ){
+		fail( 400, "This piece needs the speech engine. Render it from the command line: bx-audio render " & piece.id );
+	}
 
 	// Take only the listed settings, clamp numbers into range, and only allow listed options
 	settings = {};

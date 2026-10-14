@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Example `12-voiceover`: a spoken announcement over music that ducks under the voice, using `audioSpeak` and `audioDuck`, or a recording of your own. Command line only, since it needs the speech engine
 * Examples `10-jazz` (a twelve bar blues with a walking bass and a solo improvised by rules that follow the chords) and `11-rock` (distorted power chords, bass, drums and a seeded solo), measured, tested and in the explorer
 * Example `09-sfx`: ten synthesized game sound effects (jump, coin, laser, explosion, power up, hit, blip, alarm, game over, footstep), as a sampler, one sound, or a folder of files
 * Example `08-chiptune`: five original 8 bit tracks (overworld, cave, boss, title and victory) written as text in a small notation, for two pulse channels, a triangle bass and noise drums. In the explorer as well

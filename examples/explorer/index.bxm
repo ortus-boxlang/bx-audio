@@ -1,6 +1,7 @@
 <bx:script>
 	// The catalog is read on the server and handed to the page, so there is one list of pieces and settings
-	catalogJson = fileRead( expandPath( "./catalog.json" ) );
+	// Pieces that need the speech engine are left out: it is a 150 MB download, which a web page should not start by itself
+	catalogJson = jsonSerialize( jsonDeserialize( fileRead( expandPath( "./catalog.json" ) ) ).filter( ( p ) => !( p.needsVoice ?: false ) ) );
 </bx:script>
 <!doctype html>
 <html lang="en">

@@ -211,7 +211,7 @@ class {
 	}
 
 	function cmdPieces( required array args, required struct options ){
-		catalog().each( ( p ) => out( pad( p.id, 11 ) & pad( p.style, 16 ) & p.blurb ) );
+		catalog().each( ( p ) => out( pad( p.id, 11 ) & pad( p.style, 22 ) & p.blurb ) );
 		out( "" );
 		out( "Render one with `bx-audio render <piece>`, or open them all with `bx-audio explorer`." );
 	}

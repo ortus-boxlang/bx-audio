@@ -83,7 +83,11 @@ public class ExplorerCatalogTest extends BaseIntegrationTest {
 				String	name	= text( param, "name" );
 				String	where	= text( piece, "id" ) + "." + name;
 				assertThat( script ).contains( "--" + name + "=" );
-				if ( text( param, "type" ).equals( "select" ) ) {
+				if ( text( param, "type" ).equals( "text" ) ) {
+					assertWithMessage( where )
+					    .that( Pattern.compile( "\\b" + name + "\\s*:\\s*\"" + Pattern.quote( text( param, "value" ) ) + "\"" ).matcher( script ).find() )
+					    .isTrue();
+				} else if ( text( param, "type" ).equals( "select" ) ) {
 					assertThat( ( ( Array ) param.get( Key.of( "options" ) ) ).contains( param.get( Key.of( "value" ) ) ) ).isTrue();
 					assertWithMessage( where )
 					    .that( Pattern.compile( "\\b" + name + "\\s*:\\s*\"" + Pattern.quote( text( param, "value" ) ) + "\"" ).matcher( script ).find() )
@@ -106,8 +110,12 @@ public class ExplorerCatalogTest extends BaseIntegrationTest {
 	@Test
 	void testMinimumSettingsRender( @TempDir Path dir ) throws Exception {
 		for ( Object entry : loadCatalog() ) {
-			IStruct	piece		= struct( entry );
-			IStruct	overrides	= Struct.of( "out", dir.resolve( text( piece, "id" ) + ".wav" ).toString() );
+			IStruct piece = struct( entry );
+			if ( piece.containsKey( Key.of( "needsVoice" ) ) ) {
+				// needs the speech engine, which is a large download: its mix is tested with a recording instead, in ExamplesGenresTest
+				continue;
+			}
+			IStruct overrides = Struct.of( "out", dir.resolve( text( piece, "id" ) + ".wav" ).toString() );
 			for ( Object p : ( Array ) piece.get( Key.of( "params" ) ) ) {
 				IStruct param = struct( p );
 				overrides.put( Key.of( text( param, "name" ) ),

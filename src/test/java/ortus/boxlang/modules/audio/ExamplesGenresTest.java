@@ -470,4 +470,84 @@ public class ExamplesGenresTest extends ExamplesTestBase {
 		assertThat( b.getFrames() ).isEqualTo( a.getFrames() );
 	}
 
+	/**
+	 * A stand in for narration, so these tests need no speech engine: 2.3 seconds of a few tones around 800 to 2400 Hz, switching on and off
+	 * four times a second the way syllables do
+	 */
+	private Path narration( Path dir ) {
+		int		rate	= 22050;
+		float[]	samples	= new float[ ( int ) ( 2.3 * rate ) ];
+		for ( int i = 0; i < samples.length; i++ ) {
+			double	t		= i / ( double ) rate;
+			double	gate	= 0.5 + 0.5 * Math.sin( 2 * Math.PI * 4 * t );
+			samples[ i ] = ( float ) ( 0.3 * gate
+			    * ( Math.sin( 2 * Math.PI * 800 * t ) + 0.6 * Math.sin( 2 * Math.PI * 1500 * t ) + 0.4 * Math.sin( 2 * Math.PI * 2400 * t ) ) );
+		}
+		Path file = dir.resolve( "narration.wav" );
+		ortus.boxlang.modules.audio.codec.WavCodec.write( new AudioBuffer( new float[][] { samples }, rate ), file, 16 );
+		return file;
+	}
+
+	/**
+	 * The level of what is below 150 Hz in a stretch of the mix, which is the bass and the kick: the music, and none of the narration, whose tones are
+	 * well above
+	 */
+	private static double lowRms( AudioBuffer audio, double from, double to ) {
+		AudioBuffer low = ortus.boxlang.modules.audio.dsp.Dsp.filter( audio, "lowpass", 150, 0.7071 );
+		return rmsBetween( low, from, to );
+	}
+
+	@DisplayName( "The voice-over puts the voice after two bars of music, the music ducks under it, and the mix ends after the music's outro" )
+	@Test
+	void testVoiceover( @TempDir Path dir ) throws Exception {
+		Path	voice	= narration( dir );
+		Path	ducked	= dir.resolve( "ducked.wav" );
+		Path	plain	= dir.resolve( "plain.wav" );
+		render( "12-voiceover/voiceover.bxs", Struct.of( "out", ducked.toString(), "voiceFile", voice.toString(), "duck", -12 ) );
+		render( "12-voiceover/voiceover.bxs", Struct.of( "out", plain.toString(), "voiceFile", voice.toString(), "duck", 0 ) );
+		AudioBuffer	withDuck	= ortus.boxlang.modules.audio.codec.WavCodec.read( ducked );
+		AudioBuffer	noDuck		= ortus.boxlang.modules.audio.codec.WavCodec.read( plain );
+		double		bar			= 4 * 60.0 / 100;
+
+		assertThat( withDuck.getChannels() ).isEqualTo( 2 );
+		assertThat( withDuck.getPeak() ).isWithin( 0.005f ).of( 0.9f );
+		// the voice starts at bar 2 and, with the room added to it, lasts about 3.3 s, which ends in bar 4. Two bars of outro follow: 6 bars, plus 4.2 s of
+		// tail and pad
+		assertThat( withDuck.getDurationSeconds() ).isWithin( 0.5 ).of( 6 * bar + 4.2 );
+		assertThat( AudioMetrics.tailRms( withDuck, 0.05 ) ).isLessThan( 0.001 );
+
+		// the voice is in the mix: tones between 500 Hz and 2 kHz are much stronger while it speaks than in the bars before it
+		AudioBuffer voiceBand = ortus.boxlang.modules.audio.dsp.Dsp.filter( ortus.boxlang.modules.audio.dsp.Dsp.filter( withDuck, "highpass", 600, 0.7071 ),
+		    "lowpass", 1500, 0.7071 );
+		assertThat( rmsBetween( voiceBand, 2 * bar + 0.2, 2 * bar + 2.2 ) ).isGreaterThan( rmsBetween( voiceBand, 0.3, 2 * bar - 0.3 ) * 2 );
+
+		// The final limiter scales the whole mix to a peak of 0.9, and ducking lowers the loudest moments, so the two files differ by a constant
+		// gain. It is the same before the voice and after it, which also shows the music comes back after the voice. Against that constant,
+		// the bass and kick under the voice are 8 dB lower or more (12 dB of ducking)
+		double	scale		= lowRms( withDuck, 0.5, 2 * bar - 0.3 ) / lowRms( noDuck, 0.5, 2 * bar - 0.3 );
+		double	scaleAfter	= lowRms( withDuck, 4 * bar + 0.3, 5 * bar - 0.3 ) / lowRms( noDuck, 4 * bar + 0.3, 5 * bar - 0.3 );
+		double	during		= lowRms( withDuck, 2 * bar + 0.3, 2 * bar + 2.1 ) / lowRms( noDuck, 2 * bar + 0.3, 2 * bar + 2.1 );
+		assertThat( scaleAfter ).isWithin( 0.06 * scale ).of( scale );
+		assertThat( during / scale ).isLessThan( 0.45 );
+	}
+
+	@DisplayName( "The voice-over is the same every time, and refuses to download a voice it was told not to" )
+	@Test
+	void testVoiceoverRepeatAndOffline( @TempDir Path dir ) throws Exception {
+		Path	voice	= narration( dir );
+		Path	a		= dir.resolve( "a.wav" );
+		Path	b		= dir.resolve( "b.wav" );
+		render( "12-voiceover/voiceover.bxs", Struct.of( "out", a.toString(), "voiceFile", voice.toString() ) );
+		render( "12-voiceover/voiceover.bxs", Struct.of( "out", b.toString(), "voiceFile", voice.toString() ) );
+		assertThat( Files.readAllBytes( b ) ).isEqualTo( Files.readAllBytes( a ) );
+
+		// without a recording the script speaks, and with downloads off and an empty speech home it says what to install
+		useSpeechHome( dir.resolve( "speech" ) );
+		String message = org.junit.jupiter.api.Assertions
+		    .assertThrows( Exception.class,
+		        () -> render( "12-voiceover/voiceover.bxs", Struct.of( "out", dir.resolve( "x.wav" ).toString(), "install", false ) ) )
+		    .getMessage();
+		assertThat( message ).contains( "bx-audio install engine" );
+	}
+
 }
