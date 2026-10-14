@@ -17,7 +17,7 @@ package ortus.boxlang.modules.audio.bifs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import ortus.boxlang.modules.audio.codec.WavCodec;
+import ortus.boxlang.modules.audio.codec.AudioFiles;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.KeyDictionary;
 import ortus.boxlang.runtime.bifs.BIF;
@@ -64,7 +64,7 @@ public class AudioInfo extends BIF {
 			if ( !Files.isRegularFile( path ) ) {
 				throw new BoxRuntimeException( "The audio file [" + path + "] does not exist" );
 			}
-			audio = WavCodec.read( path );
+			audio = AudioFiles.read( path );
 		} else {
 			throw new BoxRuntimeException( "The source argument must be an audio buffer or the path of an audio file" );
 		}

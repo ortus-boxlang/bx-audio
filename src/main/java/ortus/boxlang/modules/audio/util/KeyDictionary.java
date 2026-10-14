@@ -83,5 +83,6 @@ public class KeyDictionary {
 	public static final Key	damp		= Key.of( "damp" );
 	public static final Key	rate		= Key.of( "rate" );
 	public static final Key	depth		= Key.of( "depth" );
+	public static final Key	bitrate		= Key.of( "bitrate" );
 
 }

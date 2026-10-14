@@ -31,8 +31,8 @@ install-bx-module bx-audio
 | Function | Purpose |
 |---|---|
 | `audioSilence( seconds, channels=2, sampleRate=44100 )` | Create a blank audio buffer |
-| `audioLoad( path )` | Read a WAV file (PCM 8/16/24/32 bit and 32/64 bit float) |
-| `audioSave( audio, path, bitDepth=16 )` | Write a WAV file as 16 bit, 24 bit or 32 bit float |
+| `audioLoad( path )` | Read a WAV (PCM 8/16/24/32 bit and 32/64 bit float) or MP3 file, detected by content |
+| `audioSave( audio, path, bitDepth=16, bitrate=192 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, mono or stereo) |
 | `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
 | `audioGain( audio, db )` | Change the volume in decibels |
 | `audioPan( audio, pan )` | Place a sound from -1 (left) to 1 (right) with a constant power law. Mono becomes stereo, stereo acts as a balance |
@@ -157,11 +157,11 @@ boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 5. Text-to-speech through a pluggable provider, with a content-hash cache
 6. Analysis: loudness, silence detection, waveform data, FFT
 7. Realtime playback
-8. MP3 read and write as optional codec jars (LGPL, shipped separately from the module)
+8. ~~MP3 read and write as optional codec jars~~ done (see below)
 
 ## Licensing
 
-The module is Apache 2.0. Optional MP3 codecs are LGPL libraries shipped as separate, replaceable jars and are never bundled into the module jar.
+The module is Apache 2.0. MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
 
 ## Development
 

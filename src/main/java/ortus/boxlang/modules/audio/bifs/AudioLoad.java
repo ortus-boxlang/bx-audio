@@ -17,7 +17,7 @@ package ortus.boxlang.modules.audio.bifs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import ortus.boxlang.modules.audio.codec.WavCodec;
+import ortus.boxlang.modules.audio.codec.AudioFiles;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
@@ -28,7 +28,7 @@ import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
-@BoxBIF( description = "Load an audio file into an audio buffer" )
+@BoxBIF( description = "Load a WAV or MP3 file into an audio buffer" )
 public class AudioLoad extends BIF {
 
 	/**
@@ -42,7 +42,8 @@ public class AudioLoad extends BIF {
 	}
 
 	/**
-	 * Reads an audio file fully into memory. Currently WAV files are supported: PCM at 8, 16, 24 and 32 bits and IEEE float.
+	 * Reads an audio file fully into memory. WAV (PCM at 8, 16, 24 and 32 bits, and IEEE float) and MP3 are supported, and the format is found from the
+	 * content of the file, not its name. MP3 needs the optional codec jars that ship with the module.
 	 *
 	 * @param context   The context in which the BIF is being invoked.
 	 * @param arguments Argument scope for the BIF.
@@ -56,7 +57,7 @@ public class AudioLoad extends BIF {
 		if ( !Files.isRegularFile( path ) ) {
 			throw new BoxRuntimeException( "The audio file [" + path + "] does not exist" );
 		}
-		return WavCodec.read( path );
+		return AudioFiles.read( path );
 	}
 
 }

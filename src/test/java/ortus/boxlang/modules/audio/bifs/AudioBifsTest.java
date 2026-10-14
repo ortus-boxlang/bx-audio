@@ -387,4 +387,73 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioChorus( audioSilence( 1 ), 0 )", context ) );
 	}
 
+	@DisplayName( "audioSave writes MP3 by extension and audioLoad and audioInfo read it back" )
+	@Test
+	void testMp3RoundTrip( @TempDir Path dir ) throws Exception {
+		variables.put( Key.of( "mp3" ), dir.resolve( "tone.mp3" ).toString() );
+		runtime.executeSource(
+		    """
+		    tone = audioOsc( "sine", 440, 2 );
+		    stereo = audioChannels( tone, 2 );
+		    saved = audioSave( audio=stereo, path=mp3, bitrate=128 );
+		    back = audioLoad( mp3 );
+		    info = audioInfo( mp3 );
+		    result = [ back.getChannels(), back.getSampleRate(), info.channels, info.sampleRate, info.seconds >= 2.0, info.seconds < 2.2, info.peak > 0.9 ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( values.get( 0 ) ).isEqualTo( 2 );
+		assertThat( values.get( 1 ) ).isEqualTo( 44100 );
+		assertThat( values.get( 2 ) ).isEqualTo( 2 );
+		assertThat( values.get( 3 ) ).isEqualTo( 44100 );
+		assertThat( values.get( 4 ) ).isEqualTo( true );
+		assertThat( values.get( 5 ) ).isEqualTo( true );
+		assertThat( values.get( 6 ) ).isEqualTo( true );
+		// 128 kbps for 2 seconds is about 32 KB
+		assertThat( Files.size( dir.resolve( "tone.mp3" ) ) ).isGreaterThan( 30000L );
+		assertThat( Files.size( dir.resolve( "tone.mp3" ) ) ).isLessThan( 36000L );
+	}
+
+	@DisplayName( "The format is found from the content of a file, not its name" )
+	@Test
+	void testSniffing( @TempDir Path dir ) {
+		variables.put( Key.of( "wavNamedMp3" ), dir.resolve( "really-a-wav.mp3" ).toString() );
+		variables.put( Key.of( "mp3NamedWav" ), dir.resolve( "really-an-mp3.wav" ).toString() );
+		variables.put( Key.of( "mp3Real" ), dir.resolve( "real.mp3" ).toString() );
+		runtime.executeSource(
+		    """
+		    tone = audioChannels( audioOsc( "sine", 440, 1 ), 2 );
+		    audioSave( tone, mp3Real, 16, 128 );
+		    // an MP3 under a .wav name is written as WAV by audioSave, so copy the real bytes across to make the mismatch
+		    fileCopy( mp3Real, mp3NamedWav );
+		    audioSave( tone, dir & "/plain.wav" );
+		    fileCopy( dir & "/plain.wav", wavNamedMp3 );
+		    result = [ audioLoad( wavNamedMp3 ).getFrames(), audioLoad( mp3NamedWav ).getSampleRate() ];
+		    """.replace( "dir &", "\"" + dir.toString().replace( "\\", "/" ) + "\" &" ),
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( values.get( 0 ) ).isEqualTo( 44100 );
+		assertThat( values.get( 1 ) ).isEqualTo( 44100 );
+	}
+
+	@DisplayName( "Unknown extensions, unusable MP3 settings and files that are not audio fail clearly" )
+	@Test
+	void testFileErrors( @TempDir Path dir ) throws Exception {
+		variables.put( Key.of( "flac" ), dir.resolve( "x.flac" ).toString() );
+		variables.put( Key.of( "mp3" ), dir.resolve( "x.mp3" ).toString() );
+		Path text = dir.resolve( "notes.txt" );
+		Files.writeString( text, "this is not audio" );
+		variables.put( Key.of( "text" ), text.toString() );
+		BoxRuntimeException ext = assertThrows( BoxRuntimeException.class,
+		    () -> runtime.executeSource( "audioSave( audioSilence( 1 ), flac )", context ) );
+		assertThat( ext.getMessage() ).contains( ".mp3" );
+		BoxRuntimeException rate = assertThrows( BoxRuntimeException.class,
+		    () -> runtime.executeSource( "audioSave( audioSilence( seconds=1, sampleRate=10000 ), mp3 )", context ) );
+		assertThat( rate.getMessage() ).contains( "audioResample" );
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSave( audioSilence( 1 ), mp3, 16, 100 )", context ) );
+		BoxRuntimeException notAudio = assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioLoad( text )", context ) );
+		assertThat( notAudio.getMessage() ).contains( "not a WAV or MP3" );
+		assertThat( Files.exists( dir.resolve( "x.flac" ) ) ).isFalse();
+	}
+
 }
