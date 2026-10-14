@@ -1,0 +1,129 @@
+/**
+ * Ambient: slow, spacious and without a beat. Four chords in D lydian (Dmaj9, Bm9, Gmaj9, A6) drift past as long pads that fade in over
+ * several seconds and overlap, a deep drone holds the key note, sparse bell tones fall into the space, and slow swells of filtered noise
+ * move like wind. A very large reverb and a long ping pong echo blur it all together.
+ *
+ * Nothing here has a sharp attack, so the piece has almost no transients. The bells land at seeded random moments, so the same settings
+ * always make the same file.
+ *
+ * Usage:
+ *   boxlang ambient.bxs [--out=out/ambient.wav] [--bars=12] [--bpm=48] [--seed=5]
+ *
+ * One "bar" is four beats at a very slow 48 BPM, which is five seconds. Each chord lasts two bars.
+ */
+
+settings = { out : "out/ambient.wav", bars : 12, bpm : 48, seed : 5 };
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+settings.append( cliGetArgs().options );
+
+sr = 44100;
+bars = max( 4, int( settings.bars ) );
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+total = bars * bar;
+
+rngState = int( settings.seed ) + 1;
+function rnd(){
+	rngState = ( rngState * 48271 ) mod 2147483647;
+	return rngState / 2147483647;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: each chord lasts two bars. The pad notes are spread across three octaves, the bells use a D lydian pentatonic scale.
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ name : "Dmaj9", pad : [ 50, 57, 61, 64, 69 ], root : 26 },
+	{ name : "Bm9", pad : [ 47, 54, 57, 62, 66 ], root : 23 },
+	{ name : "Gmaj9", pad : [ 43, 50, 55, 59, 62 ], root : 31 },
+	{ name : "A6", pad : [ 45, 52, 57, 61, 66 ], root : 33 }
+];
+// D E F# A B, a pentatonic scale that fits all four chords
+bellScale = [ 74, 76, 78, 81, 83, 86, 88, 90 ];
+
+function newStem(){
+	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline=stem, sound=sound, at=at, track="main", db=db, pan=pan );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Pads: for each note, a pair of slightly detuned saws and a triangle, softened with a low pass whose cutoff differs from note to note
+// and chord to chord, so the sound seems to open and close without any moving filter.
+// ---------------------------------------------------------------------------------------------------------------------------------
+function padNote( note, cutoff, length ){
+	var layers = [
+		audioOsc( "saw", audioFreq( note - 0.1 ), length, sr, 8 ),
+		audioOsc( "saw", audioFreq( note + 0.1 ), length, sr, 8 ),
+		audioGain( audioOsc( "triangle", audioFreq( note ), length ), 2 )
+	];
+	var voice = audioFilter( audioMix( layers ), "lowpass", cutoff, 0.8 );
+	// attack of about a third of a chord, then a very slow fall
+	return audioGain( audioEnvelope( voice, length * 0.33, length * 1.2 ), -13 );
+}
+
+padStem = newStem();
+droneStem = newStem();
+chordLength = bar * 2;
+for( c = 0; c * chordLength < total; c++ ){
+	chord = chords[ ( c mod 4 ) + 1 ];
+	at = c * chordLength;
+	for( n = 1; n <= chord.pad.len(); n++ ) {
+		// each note is held for a little over a chord so they overlap into the next one
+		cutoff = 700 + 500 * ( ( n + c ) mod 3 ) + 200 * n;
+		put( padStem, padNote( chord.pad[ n ], cutoff, chordLength * 1.5 ), at + ( n - 1 ) * 0.4, ( n - 3 ) * 0.28, 0 );
+	}
+	// a deep sine drone on the chord root
+	put( droneStem, audioEnvelope( audioOsc( "sine", audioFreq( chord.root ), chordLength * 1.4 ), chordLength * 0.4, chordLength * 1.5 ), at, 0, -9 );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Bells: a bell has partials that are not whole multiples of the pitch. They arrive at random, a few per bar.
+// ---------------------------------------------------------------------------------------------------------------------------------
+bellCache = {};
+function bell( note ){
+	if( !bellCache.keyExists( note ) ){
+		var tone = audioOsc( shape="additive", freq=audioFreq( note ), seconds=4, partials=[ [ 1, 1.0 ], [ 2.76, 0.32 ], [ 5.4, 0.14 ], [ 8.93, 0.05 ] ] );
+		bellCache[ note ] = audioEnvelope( tone, 0.004, 1.1 );
+	}
+	return bellCache[ note ];
+}
+bellStem = newStem();
+bellAt = bar * 0.5 + rnd() * beat;
+while( bellAt < total - 4 ){
+	note = bellScale[ int( rnd() * bellScale.len() ) + 1 ];
+	put( bellStem, bell( note ), bellAt, rnd() * 1.6 - 0.8, -17 + rnd() * 5 );
+	// from a quarter of a bar to a bar and a half apart
+	bellAt += bar * 0.25 + rnd() * bar * 1.25;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Wind: low pass filtered brown noise that swells in and out over about ten seconds
+// ---------------------------------------------------------------------------------------------------------------------------------
+windStem = newStem();
+swellLength = bar * 2;
+for( w = 0; w * swellLength * 0.75 < total; w++ ){
+	gust = audioFilter( audioNoise( seconds=swellLength, seed=200 + w, color="brown" ), "lowpass", 380 + ( w mod 3 ) * 160, 0.9 );
+	gust = audioFade( audioChannels( gust, 2 ), swellLength * 0.5, swellLength * 0.5, "smooth" );
+	put( windStem, gust, w * swellLength * 0.75, ( w mod 2 == 0 ? -0.4 : 0.4 ), -16 );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Space
+// ---------------------------------------------------------------------------------------------------------------------------------
+pads = audioReverb( audio=audioRender( timeline=padStem, tail=3 ), room=0.92, damp=0.55, mix=0.5, tail=9 );
+drone = audioRender( timeline=droneStem, tail=3 );
+bells = audioRender( timeline=bellStem, tail=2 );
+bells = audioDelay( audio=bells, time=beat * 0.75, feedback=0.55, mix=0.4, pingPong=true );
+bells = audioReverb( audio=bells, room=0.85, damp=0.5, mix=0.45, tail=8 );
+wind = audioReverb( audio=audioRender( timeline=windStem, tail=2 ), room=0.7, damp=0.7, mix=0.3, tail=6 );
+
+mix = audioMix( [ pads, audioGain( drone, 0 ), audioGain( bells, -1 ), audioGain( wind, -2 ) ] );
+mix = audioFilter( mix, "highpass", 24, 0.7071 );
+mix = audioFade( mix, 2, 8, "smooth" );
+mix = audioSaturate( mix, 1.2, 0.85 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

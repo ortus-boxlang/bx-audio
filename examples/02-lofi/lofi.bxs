@@ -1,0 +1,233 @@
+/**
+ * Lofi: a slow, dusty beat to relax to. 78 BPM with swing, jazzy ii V I vi chords (Dm9, G13, Cmaj9, Am9) on a soft electric piano, a lazy
+ * boom bap drum pattern, a pentatonic melody through a dotted eighth echo, a round sub bass, and vinyl crackle and tape hiss on top.
+ *
+ * Everything is synthesized from code. The "human" feel (small timing and volume differences, strummed chords) comes from a seeded random
+ * number generator, so the same settings always make the same file.
+ *
+ * Usage:
+ *   boxlang lofi.bxs [--out=out/lofi.wav] [--bars=16] [--bpm=78] [--swing=0.58] [--seed=7]
+ *
+ * Structure (for 16 bars): 2 bars of piano, the beat comes in at bar 3, the melody plays from bar 5 to 12, then the drums drop out for
+ * the last 2 bars and the piano rings out.
+ */
+
+settings = { out : "out/lofi.wav", bars : 16, bpm : 78, swing : 0.58, seed : 7 };
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+settings.append( cliGetArgs().options );
+
+sr = 44100;
+bars = max( 6, int( settings.bars ) );
+bpm = settings.bpm * 1.0;
+swing = settings.swing * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+step = beat / 4;
+drumsIn = 2;
+drumsOut = bars - 2;
+melodyIn = 4;
+melodyOut = bars - 4;
+
+// Park Miller random numbers, scaled 0 to 1. Seeded, so every run is identical
+rngState = int( settings.seed ) + 1;
+function rnd(){
+	rngState = ( rngState * 48271 ) mod 2147483647;
+	return rngState / 2147483647;
+}
+// A random number from -1 to 1
+function jitter(){
+	return rnd() * 2 - 1;
+}
+
+function gainDb( gain ){
+	return 20 * log10( gain );
+}
+
+// Sixteenth notes are swung: every second one lands a little late
+function swung( stepIndex ){
+	return stepIndex * step + ( stepIndex mod 2 == 1 ? ( swing - 0.5 ) * 2 * step : 0 );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: rootless voicings for the keys and a bass root for each chord, repeating every four bars
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ name : "Dm9", bass : 38, keys : [ 53, 57, 60, 64 ] },
+	{ name : "G13", bass : 43, keys : [ 53, 59, 64, 69 ] },
+	{ name : "Cmaj9", bass : 36, keys : [ 52, 55, 59, 62 ] },
+	{ name : "Am9", bass : 45, keys : [ 55, 59, 60, 64 ] }
+];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------------------------
+// A soft electric piano: a few harmonics, two copies detuned by 5 cents, a quick attack and a long fall, with the highs rolled off
+epianoCache = {};
+function epiano( note ){
+	if( !epianoCache.keyExists( note ) ){
+		var partials = [ [ 1, 1.0 ], [ 2, 0.4 ], [ 3, 0.12 ], [ 4, 0.05 ] ];
+		var pair = audioMix( [
+			audioOsc( shape="additive", freq=audioFreq( note - 0.05 ), seconds=3, partials=partials ),
+			audioOsc( shape="additive", freq=audioFreq( note + 0.05 ), seconds=3, partials=partials )
+		] );
+		epianoCache[ note ] = audioFilter( audioEnvelope( audioGain( pair, -6 ), 0.005, 1.1 ), "lowpass", 2600, 0.7071 );
+	}
+	return epianoCache[ note ];
+}
+
+subCache = {};
+function sub( note, decay ){
+	var key = note & "_" & decay;
+	if( !subCache.keyExists( key ) ){
+		subCache[ key ] = audioEnvelope( audioOsc( "sine", audioFreq( note ), 1.6 ), 0.01, decay );
+	}
+	return subCache[ key ];
+}
+
+// A mellow lead: a triangle with its highs rolled off
+leadCache = {};
+function lead( note ){
+	if( !leadCache.keyExists( note ) ){
+		leadCache[ note ] = audioFilter( audioEnvelope( audioOsc( "triangle", audioFreq( note ), 1.5 ), 0.012, 0.45 ), "lowpass", 2400, 0.7071 );
+	}
+	return leadCache[ note ];
+}
+
+// Drums, softened with filters so they sit behind the piano
+kick = audioFilter( audioDrum( type="kick", pitch=0.78, decay=1.15, level=0.95 ), "lowpass", 1900, 0.7071 );
+snareBank = [];
+hatBank = [];
+for( i = 1; i <= 4; i++ ){
+	snareBank.append( audioFilter( audioDrum( type="snare", seed=40 + i, decay=0.8, level=0.7 ), "lowpass", 4200, 0.7071 ) );
+	hatBank.append( audioFilter( audioDrum( type="hat", seed=60 + i, level=0.5 ), "lowpass", 7500, 0.7071 ) );
+}
+function pick( bank ){
+	return bank[ int( rnd() * bank.len() ) + 1 ];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Each part is mixed on its own timeline so it can have its own effects, then the parts are added together
+// ---------------------------------------------------------------------------------------------------------------------------------
+function newStem(){
+	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline=stem, sound=sound, at=max( 0, at ), track="main", db=db, pan=pan );
+}
+
+keysStem = newStem();
+bassStem = newStem();
+drumStem = newStem();
+leadStem = newStem();
+kickTimes = [];
+
+// Chord hits land on the downbeat and two syncopated spots, each chord note strummed a few milliseconds apart
+hitSteps = [ 0, 7, 10 ];
+hitDb = [ -2, -7, -5 ];
+bassSteps = [ 0, 7, 14 ];
+bassDb = [ -3, -9, -6 ];
+
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	chord = chords[ ( b mod 4 ) + 1 ];
+	// the last two bars only ring out, without the syncopated hits
+	finale = ( b >= bars - 2 );
+
+	for( h = 1; h <= ( finale ? 1 : hitSteps.len() ); h++ ){
+		when = t0 + swung( hitSteps[ h ] );
+		for( n = 1; n <= chord.keys.len(); n++ ){
+			put( keysStem, epiano( chord.keys[ n ] ), when + ( n - 1 ) * 0.012 + jitter() * 0.006, ( n - 2.5 ) * 0.12, hitDb[ h ] + jitter() * 1.2 );
+		}
+	}
+
+	for( h = 1; h <= ( finale ? 1 : bassSteps.len() ); h++ ){
+		note = chord.bass + ( h == 3 ? 12 : 0 );
+		put( bassStem, sub( note, h == 1 ? 0.55 : 0.3 ), t0 + swung( bassSteps[ h ] ) + jitter() * 0.004, 0, bassDb[ h ] );
+	}
+
+	if( b >= drumsIn && b < drumsOut ){
+		// kick on the one and the "and" of three, with a pickup on every other bar
+		put( drumStem, kick, t0 + swung( 0 ), 0, -3 );
+		kickTimes.append( t0 + swung( 0 ) );
+		put( drumStem, kick, t0 + swung( 10 ) + jitter() * 0.005, 0, -5 );
+		kickTimes.append( t0 + swung( 10 ) );
+		if( b mod 2 == 1 ){
+			put( drumStem, kick, t0 + swung( 7 ), 0, -9 );
+		}
+		// snare on two and four, lazy by a few milliseconds
+		put( drumStem, pick( snareBank ), t0 + swung( 4 ) + 0.012, -0.1, -5 + jitter() );
+		put( drumStem, pick( snareBank ), t0 + swung( 12 ) + 0.012, -0.1, -5 + jitter() );
+		// eighth note hats with changing weight, now and then a ghost note
+		for( s = 0; s < 16; s += 2 ){
+			put( drumStem, pick( hatBank ), t0 + swung( s ) + jitter() * 0.004, 0.3, ( s mod 4 == 0 ? -9 : -14 ) + jitter() * 1.5 );
+		}
+		if( rnd() > 0.5 ){
+			put( drumStem, pick( hatBank ), t0 + swung( 15 ), 0.3, -19 );
+		}
+	}
+}
+
+// A two bar phrase repeated and varied: [ step, note ] pairs in C major pentatonic
+phraseA = [ [ 0, 76 ], [ 6, 74 ], [ 10, 72 ], [ 16, 74 ], [ 22, 69 ], [ 26, 72 ] ];
+phraseB = [ [ 0, 76 ], [ 6, 79 ], [ 10, 76 ], [ 16, 74 ], [ 20, 72 ], [ 26, 67 ] ];
+for( b = melodyIn; b < melodyOut; b += 2 ){
+	phrase = ( ( b - melodyIn ) / 2 ) mod 2 == 0 ? phraseA : phraseB;
+	for( p in phrase ){
+		put( leadStem, lead( p[ 2 ] ), b * bar + swung( p[ 1 ] ) + jitter() * 0.006, 0.15, -8 + jitter() * 1.5 );
+	}
+}
+
+// Keys get a gentle pump on the kick, then tape wobble (chorus) and a small room
+if( kickTimes.len() ){
+	audioPump( keysStem, "main", kickTimes, -2.5, 0.25 );
+}
+keys = audioRender( timeline=keysStem, tail=1 );
+keys = audioChorus( audio=keys, rate=0.55, depth=0.0035, mix=0.45 );
+keys = audioReverb( audio=keys, room=0.35, damp=0.6, mix=0.18 );
+
+bass = audioRender( timeline=bassStem, tail=0.5 );
+drums = audioReverb( audio=audioRender( timeline=drumStem, tail=0.5 ), room=0.2, damp=0.7, mix=0.12 );
+
+melody = audioRender( timeline=leadStem, tail=1 );
+melody = audioDelay( audio=melody, time=beat * 0.75, feedback=0.42, mix=0.35, pingPong=true );
+melody = audioReverb( audio=melody, room=0.6, damp=0.65, mix=0.3 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Texture: vinyl crackle and tape hiss
+// ---------------------------------------------------------------------------------------------------------------------------------
+total = bars * bar + 2;
+crackleBank = [];
+for( i = 1; i <= 24; i++ ){
+	crackleBank.append( audioEnvelope( audioChannels( audioNoise( seconds=0.004 + i * 0.0006, seed=900 + i ), 2 ), 0, 0.0018 ) );
+}
+textureStem = newStem();
+popAt = 0.1;
+while( popAt < total ){
+	// roughly 16 small ticks a second, with a louder pop every few seconds
+	loud = rnd() > 0.985;
+	put( textureStem, crackleBank[ int( rnd() * crackleBank.len() ) + 1 ], popAt, jitter() * 0.8, loud ? -24 : -37 + jitter() * 4 );
+	popAt += 0.02 + rnd() * 0.08;
+}
+crackle = audioRender( timeline=textureStem );
+hiss = audioChannels( audioFilter( audioNoise( seconds=total, seed=77, color="pink" ), "lowpass", 5500, 0.7071 ), 2 );
+hiss = audioGain( hiss, -37 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Mix the parts, then a warm master: no sub rumble, no sparkle, a little tape saturation, and a long fade
+// ---------------------------------------------------------------------------------------------------------------------------------
+mix = audioMix( [
+	audioGain( keys, -1 ),
+	audioGain( bass, -1 ),
+	audioGain( drums, -2 ),
+	audioGain( melody, -3 ),
+	crackle,
+	hiss
+] );
+mix = audioFilter( mix, "highpass", 32, 0.7071 );
+mix = audioFilter( mix, "lowpass", 9500, 0.7071 );
+mix = audioFade( mix, 0.3, 3, "smooth" );
+mix = audioSaturate( mix, 1.5, 0.88 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

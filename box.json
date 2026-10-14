@@ -1,24 +1,24 @@
 {
-	"name": "@MODULE_NAME@",
+	"name": "BoxLang Audio",
 	"version": "@build.version@+@build.number@",
-	"location": "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/@MODULE_SLUG@/@build.version@/@MODULE_SLUG@-@build.version@.zip",
+	"location": "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-audio/@build.version@/bx-audio-@build.version@.zip",
 	"author": "Ortus Solutions",
-	"homepage": "https://github.com/ortus-boxlang/@MODULE_SLUG@",
-	"documentation": "https://github.com/ortus-boxlang/@MODULE_SLUG@",
+	"homepage": "https://github.com/ortus-boxlang/bx-audio",
+	"documentation": "https://github.com/ortus-boxlang/bx-audio",
 	"repository": {
 		"type": "git",
-		"URL": "https://github.com/ortus-boxlang/@MODULE_SLUG@"
+		"URL": "https://github.com/ortus-boxlang/bx-audio"
 	},
 	"bugs": "https://ortussolutions.atlassian.net/browse/BLMODULES",
-	"slug": "@MODULE_SLUG@",
-	"shortDescription": "@MODULE_DESCRIPTION@",
+	"slug": "bx-audio",
+	"shortDescription": "Audio synthesis, mixing, analysis, text-to-speech and playback for BoxLang, with no native dependencies",
 	"type": "boxlang-modules",
 	"keywords": [
 		"boxlang"
 	],
 	"boxlang": {
 		"minimumVersion": "1.0.0",
-		"moduleName": "@MODULE_REGISTERED_NAME@"
+		"moduleName": "bxaudio"
 	},
 	"private": false,
 	"license": [

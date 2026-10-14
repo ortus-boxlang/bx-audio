@@ -35,7 +35,7 @@ class {
 	 * The BoxLang mapping for your module.  All BoxLang modules are registered with an internal
 	 * mapping prefix of : bxModules.{this.mapping}, /bxmodules/{this.mapping}. Ex: bxModules.test, /bxmodules/test
 	 */
-	this.mapping = "@MODULE_REGISTERED_NAME@";
+	this.mapping = "bxaudio";
 
 	/**
 	 * Who built the module
@@ -45,7 +45,7 @@ class {
 	/**
 	 * The module description
 	 */
-	this.description = "@MODULE_DESCRIPTION@";
+	this.description = "Audio synthesis, mixing, analysis, text-to-speech and playback for BoxLang, with no native dependencies";
 
 	/**
 	 * The module web URL
@@ -106,16 +106,12 @@ class {
 		 */
 		interceptors = [
 			// { class="path.to.Interceptor", properties={} }
-			{ class : "#moduleRecord.invocationPath#.interceptors.Listener", properties : {
-				createdOn : now(),
-				by : "Luis Majano"
-			} }
 		];
 
 		/**
 		 * A list of custom interception points to register into the runtime
 		 */
-		customInterceptionPoints = [ "onBxTestModule" ];
+		customInterceptionPoints = [];
 	}
 
 	/**

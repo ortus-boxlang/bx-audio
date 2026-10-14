@@ -1,0 +1,236 @@
+/**
+ * House: a four on the floor dance track at 124 BPM in A minor (Am7, Fmaj7, Cmaj7, G6). A punchy kick on every beat, offbeat open hats,
+ * claps on two and four, a rolling offbeat bass, syncopated chord stabs with an echo, a pad, and an arpeggio in the drop. The bass, stabs
+ * and pad all duck on every kick, which is what makes house "pump".
+ *
+ * The arrangement follows the usual shape: intro, build, groove, breakdown with a riser, the drop, and an outro. It scales to any length
+ * that is a multiple of 4 bars by putting each section at the same fraction of the track.
+ *
+ * Usage:
+ *   boxlang house.bxs [--out=out/house.wav] [--bars=32] [--bpm=124]
+ */
+
+settings = { out : "out/house.wav", bars : 32, bpm : 124 };
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+settings.append( cliGetArgs().options );
+
+sr = 44100;
+phrases = max( 4, int( int( settings.bars ) / 4 ) );
+bars = phrases * 4;
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+step = beat / 4;
+
+// Which part of the arrangement a bar belongs to, by its position in the track
+function sectionOf( b ){
+	var f = int( b / 4 ) / phrases;
+	if( f < 0.125 ){ return "intro"; }
+	if( f < 0.25 ){ return "build"; }
+	if( f < 0.5 ){ return "groove"; }
+	if( f < 0.625 ){ return "breakdown"; }
+	if( f < 0.875 ){ return "drop"; }
+	return "outro";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ name : "Am7", bass : 33, notes : [ 57, 60, 64, 67 ] },
+	{ name : "Fmaj7", bass : 29, notes : [ 53, 57, 60, 64 ] },
+	{ name : "Cmaj7", bass : 36, notes : [ 55, 59, 60, 64 ] },
+	{ name : "G6", bass : 31, notes : [ 55, 59, 62, 64 ] }
+];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------------------------
+kick = audioDrum( type="kick", pitch=1.05, decay=0.85, level=1.0 );
+clap = audioDrum( type="clap", seed=11, decay=0.9, level=0.8 );
+openHat = audioDrum( type="openhat", seed=12, decay=0.55, level=0.55 );
+closedHat = audioDrum( type="hat", seed=13, level=0.4 );
+crash = audioDrum( type="crash", seed=14, decay=1.2, level=0.6 );
+shakers = [];
+for( i = 1; i <= 4; i++ ){
+	shakers.append( audioChannels( audioEnvelope( audioNoise( seconds=0.05, seed=30 + i, color="blue" ), 0.002, 0.014 ), 2 ) );
+}
+
+// A filtered saw with a sine an octave below for weight
+bassCache = {};
+function bassNote( note ){
+	if( !bassCache.keyExists( note ) ){
+		var tone = audioFilter( audioOsc( "saw", audioFreq( note ), 0.3, sr, 24 ), "lowpass", 520, 2.2 );
+		var weight = audioGain( audioOsc( "sine", audioFreq( note - 12 ), 0.3 ), -4 );
+		bassCache[ note ] = audioEnvelope( audioMix( [ tone, weight ] ), 0.004, 0.13 );
+	}
+	return bassCache[ note ];
+}
+
+// A chord stab: the chord's notes as slightly detuned saws, filtered and cut short
+stabCache = {};
+function stab( chordIndex ){
+	if( !stabCache.keyExists( chordIndex ) ){
+		var saws = [];
+		for( var note in chords[ chordIndex ].notes ){
+			saws.append( audioOsc( "saw", audioFreq( note - 0.08 ), 0.4, sr, 14 ) );
+			saws.append( audioOsc( "saw", audioFreq( note + 0.08 ), 0.4, sr, 14 ) );
+		}
+		stabCache[ chordIndex ] = audioGain( audioFilter( audioEnvelope( audioMix( saws ), 0.003, 0.11 ), "lowpass", 3200, 1.1 ), -12 );
+	}
+	return stabCache[ chordIndex ];
+}
+
+padCache = {};
+function pad( chordIndex ){
+	if( !padCache.keyExists( chordIndex ) ){
+		var saws = [];
+		for( var note in chords[ chordIndex ].notes ){
+			saws.append( audioOsc( "saw", audioFreq( note - 0.12 ), bar + 1.5, sr, 10 ) );
+			saws.append( audioOsc( "saw", audioFreq( note + 0.12 ), bar + 1.5, sr, 10 ) );
+		}
+		padCache[ chordIndex ] = audioGain( audioFilter( audioEnvelope( audioMix( saws ), 1.0, 5 ), "lowpass", 1500, 0.8 ), -16 );
+	}
+	return padCache[ chordIndex ];
+}
+
+pluckCache = {};
+function pluck( note ){
+	if( !pluckCache.keyExists( note ) ){
+		pluckCache[ note ] = audioFilter( audioEnvelope( audioOsc( "square", audioFreq( note ), 0.25, sr, 12 ), 0.002, 0.07 ), "lowpass", 4200, 1.0 );
+	}
+	return pluckCache[ note ];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Arrangement. Each part has its own timeline so it can have its own effects.
+// ---------------------------------------------------------------------------------------------------------------------------------
+function newStem(){
+	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline=stem, sound=sound, at=at, track="main", db=db, pan=pan );
+}
+
+drumStem = newStem();
+bassStem = newStem();
+stabStem = newStem();
+padStem = newStem();
+arpStem = newStem();
+fxStem = newStem();
+kickTimes = [];
+
+arpPattern = [ 1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 3, 2, 1, 2, 3, 4 ];
+stabSteps = [ 0, 3, 6, 10, 13 ];
+
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	section = sectionOf( b );
+	chordIndex = ( b mod 4 ) + 1;
+	chord = chords[ chordIndex ];
+	hasKick = ( section != "breakdown" );
+	hasBass = ( section == "groove" || section == "drop" || section == "build" );
+	nextSection = ( b + 1 < bars ) ? sectionOf( b + 1 ) : "";
+
+	// Kick on every beat except in the breakdown, with a thin hat and shaker texture in the intro and outro
+	if( hasKick ){
+		for( k = 0; k < 4; k++ ){
+			put( drumStem, kick, t0 + k * beat, 0, section == "outro" && b == bars - 1 ? -5 : -1 );
+			kickTimes.append( t0 + k * beat );
+		}
+	}
+	// Open hats on the offbeats, a quiet closed hat just before the next beat
+	if( section != "breakdown" ){
+		for( k = 0; k < 4; k++ ){
+			put( drumStem, openHat, t0 + k * beat + 2 * step, 0.12, -6 );
+			if( section != "intro" ){
+				put( drumStem, closedHat, t0 + k * beat + 3 * step, -0.2, -17 );
+			}
+		}
+	}
+	if( section == "build" || section == "groove" || section == "drop" ){
+		for( k = 1; k <= 3; k += 2 ){
+			put( drumStem, clap, t0 + k * beat, 0, -3 );
+		}
+		// shaker on every sixteenth, alternating sides and weight
+		for( s = 0; s < 16; s++ ){
+			put( drumStem, shakers[ ( s mod 4 ) + 1 ], t0 + s * step, s mod 2 == 0 ? -0.35 : 0.35, s mod 4 == 0 ? -17 : -23 );
+		}
+	}
+
+	// Bass rolls on the offbeat eighths, with a jump up to the octave at the end of every fourth bar
+	if( hasBass ){
+		for( k = 0; k < 4; k++ ){
+			note = chord.bass + ( b mod 4 == 3 && k == 3 ? 12 : 0 );
+			put( bassStem, bassNote( note ), t0 + k * beat + 2 * step, 0, -2 );
+		}
+	}
+
+	// Stabs from the groove on, thinner in the breakdown
+	if( section == "groove" || section == "drop" ){
+		for( s in stabSteps ){
+			put( stabStem, stab( chordIndex ), t0 + s * step, -0.15, s == 0 ? 0 : -4 );
+		}
+	} else if( section == "breakdown" ){
+		put( stabStem, stab( chordIndex ), t0, -0.15, -2 );
+		put( stabStem, stab( chordIndex ), t0 + 3 * step, -0.15, -6 );
+	}
+
+	// A pad under everything except the intro and outro
+	if( section != "intro" && section != "outro" ){
+		put( padStem, pad( chordIndex ), t0, 0, section == "breakdown" ? 0 : -3 );
+	}
+
+	// Arpeggio in the drop
+	if( section == "drop" ){
+		for( s = 0; s < 16; s++ ){
+			put( arpStem, pluck( chord.notes[ arpPattern[ s + 1 ] ] + 12 ), t0 + s * step, s mod 2 == 0 ? -0.3 : 0.3, s mod 4 == 0 ? -7 : -11 );
+		}
+	}
+
+	// The riser across the last two bars of the breakdown, and a crash and an extra hit on the first bar of the drop
+	if( section == "breakdown" && nextSection == "drop" ){
+		put( fxStem, audioDrum( type="riser", seconds=bar * 2, seed=21, level=0.8 ), t0 - bar, 0, -8 );
+	}
+	if( section == "drop" && ( b == 0 || sectionOf( b - 1 ) != "drop" ) ){
+		put( fxStem, crash, t0, 0, -4 );
+	}
+}
+
+// Everything but the drums ducks on every kick: this is the pumping sound
+if( kickTimes.len() ){
+	audioPump( bassStem, "main", kickTimes, -10, 0.2 );
+	audioPump( stabStem, "main", kickTimes, -8, 0.2 );
+	audioPump( padStem, "main", kickTimes, -12, 0.25 );
+	audioPump( arpStem, "main", kickTimes, -7, 0.18 );
+}
+
+drums = audioRender( timeline=drumStem, tail=0.5 );
+bass = audioRender( timeline=bassStem, tail=0.3 );
+stabs = audioRender( timeline=stabStem, tail=1 );
+stabs = audioDelay( audio=stabs, time=beat * 0.75, feedback=0.38, mix=0.28, pingPong=true );
+stabs = audioReverb( audio=stabs, room=0.4, damp=0.5, mix=0.15 );
+pads = audioReverb( audio=audioRender( timeline=padStem, tail=2 ), room=0.8, damp=0.5, mix=0.35 );
+arp = audioRender( timeline=arpStem, tail=1 );
+arp = audioDelay( audio=arp, time=beat * 0.75, feedback=0.4, mix=0.3, pingPong=true );
+arp = audioReverb( audio=arp, room=0.3, damp=0.6, mix=0.12 );
+fx = audioReverb( audio=audioRender( timeline=fxStem, tail=1 ), room=0.6, damp=0.4, mix=0.2 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Mix and master
+// ---------------------------------------------------------------------------------------------------------------------------------
+mix = audioMix( [
+	audioGain( drums, 0 ),
+	audioGain( bass, -1 ),
+	audioGain( stabs, -2 ),
+	audioGain( pads, -1 ),
+	audioGain( arp, -3 ),
+	audioGain( fx, -2 )
+] );
+mix = audioFilter( mix, "highpass", 28, 0.7071 );
+mix = audioFade( mix, 0, beat * 4, "smooth" );
+mix = audioSaturate( mix, 1.8, 0.9 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

@@ -31,7 +31,22 @@ repositories {
     mavenCentral()
 }
 
+/**
+ * Optional MP3 codecs. Both are LGPL, so they are compiled against but never shaded into the module jar: they are copied into the module's
+ * libs folder as separate jars that a user can replace or delete, see the licenses folder. Without them everything but MP3 still works.
+ */
+configurations {
+	mp3
+	compileOnly.extendsFrom mp3
+	testImplementation.extendsFrom mp3
+}
+
 dependencies {
+	// MP3 decoding: JLayer, LGPL 2.1
+	mp3 'javazoom:jlayer:1.0.1'
+	// MP3 encoding: a Java port of LAME, LGPL 2.1+
+	mp3 'de.sciss:jump3r:1.0.5'
+
 	// Look for it in the local build directory
 	// You must run `./gradle build -x test` in the BoxLang project
 	if ( file( '../boxlang/build/libs/boxlang-' + boxlangVersion + '.jar' ).exists() ) {
@@ -141,6 +156,8 @@ jar {
     }
 }
 shadowJar {
+	// The ServiceLoader manifests are what register the BIFs, a jar built without them loads but has no functions
+	dependsOn serviceLoaderBuild
 	archiveClassifier = ''
     mergeServiceFiles()
     destinationDirectory = file( "build/libs" )
@@ -167,6 +184,10 @@ spotless {
  */
 task createModuleStructure(type: Copy) {
 	mustRunAfter shadowJar, jar
+	// Start clean so files removed from the source do not linger in the module folder
+	doFirst {
+		delete file( 'build/module' )
+	}
     from( 'build/libs' ) {
 		include "${project.name}-${version}.jar"
         into 'libs'
@@ -182,6 +203,13 @@ task createModuleStructure(type: Copy) {
 		} else {
 			filter{ line -> line.replaceAll( '@build.number@', project.buildID ) }
 		}
+    }
+    // The optional LGPL MP3 codecs stay separate jars
+    from( configurations.mp3 ) {
+        into 'libs'
+    }
+    from( 'licenses' ) {
+        into 'licenses'
     }
     from( '.' ) {
         include 'box.json'
