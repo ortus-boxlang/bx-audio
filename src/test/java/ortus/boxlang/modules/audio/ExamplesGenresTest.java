@@ -119,4 +119,66 @@ public class ExamplesGenresTest extends ExamplesTestBase {
 		assertRepeatable( dir, "07-cinematic/cinematic.bxs", 16 );
 	}
 
+	/**
+	 * Render one chiptune track for a single loop
+	 */
+	private AudioBuffer chiptune( Path dir, String track ) throws Exception {
+		return renderAudio( dir, track, "08-chiptune/chiptune.bxs", Struct.of( "track", track, "loops", 1 ) );
+	}
+
+	@DisplayName( "Every chiptune track renders, is bright and dry, ends cleanly and has the length its tempo and form give" )
+	@Test
+	void testChiptuneTracks( @TempDir Path dir ) throws Exception {
+		// track, bpm, bars in one loop, the seconds of tail past the last bar: 0.3 for the last note, 4.3 for the cave's echo
+		Object[][] tracks = { { "overworld", 150.0, 16, 0.3 }, { "cave", 90.0, 8, 4.3 }, { "boss", 170.0, 16, 0.33 }, { "title", 120.0, 8, 0.3 },
+		    { "victory", 140.0, 8, 0.3 } };
+		for ( Object[] t : tracks ) {
+			AudioBuffer audio = chiptune( dir, ( String ) t[ 0 ] );
+			assertThat( audio.getChannels() ).isEqualTo( 2 );
+			assertThat( audio.getPeak() ).isWithin( 0.005f ).of( 0.9f );
+			assertThat( audio.getDurationSeconds() - ( int ) t[ 2 ] * 4 * 60.0 / ( double ) t[ 1 ] ).isWithin( 0.5 ).of( ( double ) t[ 3 ] );
+			// pulse and noise channels have no rolled off highs, the brightest music in the catalog
+			assertThat( AudioMetrics.brightnessDb( audio ) ).isGreaterThan( -20.0 );
+			assertThat( AudioMetrics.tailRms( audio, 0.05 ) ).isLessThan( 0.001 );
+		}
+	}
+
+	@DisplayName( "Chiptune keeps time: a pulse at the beat and the bar" )
+	@Test
+	void testChiptuneRhythm( @TempDir Path dir ) throws Exception {
+		AudioBuffer overworld = chiptune( dir, "overworld" );
+		assertThat( AudioMetrics.lowBandAutocorrelation( overworld, 60.0 / 150 ) ).isGreaterThan( 0.7 );
+		assertThat( AudioMetrics.lowBandAutocorrelation( overworld, 4 * 60.0 / 150 ) ).isGreaterThan( 0.6 );
+		// the boss track is the fastest and keeps a strong bar pulse too
+		assertThat( AudioMetrics.lowBandAutocorrelation( chiptune( dir, "boss" ), 4 * 60.0 / 170 ) ).isGreaterThan( 0.4 );
+	}
+
+	@DisplayName( "The tracks differ, the same track repeats exactly, and loops lengthen it" )
+	@Test
+	void testChiptuneVariants( @TempDir Path dir ) throws Exception {
+		Path	a	= dir.resolve( "a.wav" );
+		Path	b	= dir.resolve( "b.wav" );
+		Path	c	= dir.resolve( "c.wav" );
+		render( "08-chiptune/chiptune.bxs", Struct.of( "out", a.toString(), "track", "victory" ) );
+		render( "08-chiptune/chiptune.bxs", Struct.of( "out", b.toString(), "track", "victory" ) );
+		render( "08-chiptune/chiptune.bxs", Struct.of( "out", c.toString(), "track", "title" ) );
+		assertThat( Files.readAllBytes( b ) ).isEqualTo( Files.readAllBytes( a ) );
+		assertThat( Files.readAllBytes( c ) ).isNotEqualTo( Files.readAllBytes( a ) );
+
+		double	once	= chiptune( dir, "title" ).getDurationSeconds();
+		Path	twice	= dir.resolve( "twice.wav" );
+		render( "08-chiptune/chiptune.bxs", Struct.of( "out", twice.toString(), "track", "title", "loops", 2 ) );
+		assertThat( ortus.boxlang.modules.audio.codec.WavCodec.read( twice ).getDurationSeconds() - 0.3 ).isWithin( 0.1 ).of( 2 * ( once - 0.3 ) );
+	}
+
+	@DisplayName( "An unknown track is refused with the list of tracks" )
+	@Test
+	void testChiptuneUnknownTrack( @TempDir Path dir ) {
+		String message = org.junit.jupiter.api.Assertions
+		    .assertThrows( Exception.class, () -> render( "08-chiptune/chiptune.bxs", Struct.of( "out", dir.resolve( "x.wav" ).toString(), "track", "nope" ) ) )
+		    .getMessage();
+		assertThat( message ).contains( "Unknown track [nope]" );
+		assertThat( message ).contains( "overworld" );
+	}
+
 }

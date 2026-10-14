@@ -79,5 +79,16 @@
 			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 40, "step": 4, "value": 24 },
 			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 70, "max": 120, "step": 1, "value": 90 }
 		]
+	},
+	{
+		"id": "chiptune",
+		"title": "Chiptune",
+		"style": "8 bit game music",
+		"script": "../08-chiptune/chiptune.bxs",
+		"blurb": "Original music for an imaginary console: two pulse channels, a triangle bass and noise drums. Five tracks, from an overworld theme to a boss fight.",
+		"params": [
+			{ "name": "track", "label": "Track", "type": "select", "options": [ "overworld", "cave", "boss", "title", "victory" ], "value": "overworld" },
+			{ "name": "loops", "label": "Loops (0 is the track's own)", "type": "range", "min": 0, "max": 4, "step": 1, "value": 0 }
+		]
 	}
 ]

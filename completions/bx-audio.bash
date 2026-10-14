@@ -11,9 +11,9 @@ _bx_audio_complete() {
     case "$command" in
         render)
             if [ "$COMP_CWORD" -eq 2 ]; then
-                COMPREPLY=($(compgen -W "pop-drive lofi house ambient techno synthwave cinematic" -- "$current_word"))
+                COMPREPLY=($(compgen -W "pop-drive lofi house ambient techno synthwave cinematic chiptune" -- "$current_word"))
             else
-                COMPREPLY=($(compgen -W "--out= --bars= --bpm= --style= --swing= --seed=" -- "$current_word"))
+                COMPREPLY=($(compgen -W "--out= --bars= --bpm= --style= --swing= --seed= --track= --loops=" -- "$current_word"))
             fi ;;
         convert) COMPREPLY=($(compgen -f -W "--bitrate= --bitDepth= --sampleRate= --channels=" -- "$current_word")) ;;
         normalize) COMPREPLY=($(compgen -f -W "--db=" -- "$current_word")) ;;
