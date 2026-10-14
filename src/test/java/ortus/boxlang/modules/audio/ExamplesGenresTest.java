@@ -181,4 +181,122 @@ public class ExamplesGenresTest extends ExamplesTestBase {
 		assertThat( message ).contains( "overworld" );
 	}
 
+	/**
+	 * Render one sound effect
+	 */
+	private AudioBuffer sfx( Path dir, String sound ) throws Exception {
+		return renderAudio( dir, "sfx-" + sound, "09-sfx/sfx.bxs", Struct.of( "sound", sound ) );
+	}
+
+	/**
+	 * Zero crossings per second between two moments, which is twice the pitch of a simple tone
+	 */
+	private static double crossingsPerSecond( AudioBuffer audio, double from, double to ) {
+		float[]	mono	= audio.channel( 0 );
+		int		start	= ( int ) ( from * audio.getSampleRate() );
+		int		end		= Math.min( mono.length, ( int ) ( to * audio.getSampleRate() ) );
+		int		count	= 0;
+		for ( int i = start + 1; i < end; i++ ) {
+			if ( ( mono[ i - 1 ] < 0 ) != ( mono[ i ] < 0 ) ) {
+				count++;
+			}
+		}
+		return count / 2.0 / ( ( end - start ) / ( double ) audio.getSampleRate() );
+	}
+
+	@DisplayName( "Every sound effect is mono, at the common level, as long as it should be and ends cleanly" )
+	@Test
+	void testSfxEachSound( @TempDir Path dir ) throws Exception {
+		Object[][] sounds = { { "jump", 0.20 }, { "coin", 0.47 }, { "laser", 0.28 }, { "explosion", 1.0 }, { "powerup", 0.36 }, { "hit", 0.12 },
+		    { "blip", 0.06 }, { "alarm", 0.64 }, { "gameover", 1.56 }, { "footstep", 0.12 } };
+		for ( Object[] sound : sounds ) {
+			AudioBuffer audio = sfx( dir, ( String ) sound[ 0 ] );
+			assertThat( audio.getChannels() ).isEqualTo( 1 );
+			// normalized to -2 dB
+			assertThat( audio.getPeak() ).isWithin( 0.005f ).of( 0.794f );
+			assertThat( audio.getDurationSeconds() ).isWithin( 0.03 ).of( ( double ) sound[ 1 ] );
+			// the last sample is the end of a fade out: no click
+			assertThat( Math.abs( audio.channel( 0 )[ audio.getFrames() - 1 ] ) ).isLessThan( 0.01f );
+		}
+	}
+
+	@DisplayName( "The pitch moves the way each sound is meant to: jump and power up rise, laser, hit and game over fall" )
+	@Test
+	void testSfxPitchDirections( @TempDir Path dir ) throws Exception {
+		AudioBuffer jump = sfx( dir, "jump" );
+		assertThat( crossingsPerSecond( jump, 0.14, 0.2 ) ).isGreaterThan( crossingsPerSecond( jump, 0, 0.06 ) * 1.4 );
+		AudioBuffer laser = sfx( dir, "laser" );
+		assertThat( crossingsPerSecond( laser, 0, 0.09 ) ).isGreaterThan( crossingsPerSecond( laser, 0.19, 0.28 ) * 2.5 );
+		AudioBuffer powerup = sfx( dir, "powerup" );
+		assertThat( crossingsPerSecond( powerup, 0.24, 0.36 ) ).isGreaterThan( crossingsPerSecond( powerup, 0, 0.12 ) * 1.8 );
+		AudioBuffer hit = sfx( dir, "hit" );
+		assertThat( crossingsPerSecond( hit, 0, 0.04 ) ).isGreaterThan( crossingsPerSecond( hit, 0.08, 0.12 ) * 1.5 );
+		AudioBuffer gameover = sfx( dir, "gameover" );
+		assertThat( crossingsPerSecond( gameover, 0, 0.2 ) ).isGreaterThan( crossingsPerSecond( gameover, 1.2, 1.5 ) * 1.3 );
+	}
+
+	@DisplayName( "The coin is two notes, B5 then E6, and the alarm alternates two pitches" )
+	@Test
+	void testSfxCoinAndAlarm( @TempDir Path dir ) throws Exception {
+		AudioBuffer coin = sfx( dir, "coin" );
+		assertThat( crossingsPerSecond( coin, 0.005, 0.065 ) ).isWithin( 80.0 ).of( 988.0 );
+		assertThat( crossingsPerSecond( coin, 0.1, 0.4 ) ).isWithin( 40.0 ).of( 1319.0 );
+		AudioBuffer alarm = sfx( dir, "alarm" );
+		assertThat( crossingsPerSecond( alarm, 0.02, 0.14 ) ).isWithin( 60.0 ).of( 620.0 );
+		assertThat( crossingsPerSecond( alarm, 0.18, 0.30 ) ).isWithin( 60.0 ).of( 930.0 );
+		assertThat( crossingsPerSecond( alarm, 0.34, 0.46 ) ).isWithin( 60.0 ).of( 620.0 );
+	}
+
+	@DisplayName( "The explosion is a decaying noise burst and the footstep is a dull thud" )
+	@Test
+	void testSfxNoiseSounds( @TempDir Path dir ) throws Exception {
+		AudioBuffer explosion = sfx( dir, "explosion" );
+		assertThat( rmsBetween( explosion, 0, 0.33 ) ).isGreaterThan( rmsBetween( explosion, 0.67, 1.0 ) * 10 );
+		assertThat( AudioMetrics.brightnessDb( sfx( dir, "footstep" ) ) ).isLessThan( -25.0 );
+		// a pulse tone is bright, noise that was low passed is not
+		assertThat( AudioMetrics.brightnessDb( sfx( dir, "jump" ) ) ).isGreaterThan( AudioMetrics.brightnessDb( explosion ) );
+	}
+
+	@DisplayName( "The sampler plays every sound with a pause after it, and a folder gets one file per sound" )
+	@Test
+	void testSfxSamplerAndFolder( @TempDir Path dir ) throws Exception {
+		AudioBuffer	sampler	= renderAudio( dir, "sampler", "09-sfx/sfx.bxs", Struct.of() );
+		double		sounds	= 0.20 + 0.47 + 0.28 + 1.0 + 0.36 + 0.12 + 0.06 + 0.64 + 1.56 + 0.12;
+		assertThat( sampler.getDurationSeconds() ).isWithin( 0.3 ).of( sounds + 10 * 0.35 );
+
+		Path pack = dir.resolve( "pack" );
+		// folder mode writes no single file, so run the script directly instead of through render(), which reads one back
+		variables.put( ortus.boxlang.runtime.scopes.Key.of( "overrides" ), Struct.of( "folder", pack.toString() ) );
+		runtime.executeSource( Files.readString( EXAMPLES.resolve( "09-sfx/sfx.bxs" ) ), context );
+		try ( var files = Files.list( pack ) ) {
+			assertThat( files.map( f -> f.getFileName().toString() ).sorted().toList() ).containsExactly( "alarm.wav", "blip.wav", "coin.wav",
+			    "explosion.wav", "footstep.wav", "gameover.wav", "hit.wav", "jump.wav", "laser.wav", "powerup.wav" );
+		}
+	}
+
+	@DisplayName( "The seed changes the noise sounds and nothing else, and the same seed gives the same file" )
+	@Test
+	void testSfxSeed( @TempDir Path dir ) throws Exception {
+		Path[]		files	= new Path[ 6 ];
+		String[]	sounds	= { "explosion", "explosion", "explosion", "jump", "jump", "jump" };
+		int[]		seeds	= { 1, 1, 2, 1, 1, 2 };
+		for ( int i = 0; i < files.length; i++ ) {
+			files[ i ] = dir.resolve( "f" + i + ".wav" );
+			render( "09-sfx/sfx.bxs", Struct.of( "out", files[ i ].toString(), "sound", sounds[ i ], "seed", seeds[ i ] ) );
+		}
+		assertThat( Files.readAllBytes( files[ 1 ] ) ).isEqualTo( Files.readAllBytes( files[ 0 ] ) );
+		assertThat( Files.readAllBytes( files[ 2 ] ) ).isNotEqualTo( Files.readAllBytes( files[ 0 ] ) );
+		assertThat( Files.readAllBytes( files[ 5 ] ) ).isEqualTo( Files.readAllBytes( files[ 3 ] ) );
+	}
+
+	@DisplayName( "An unknown sound is refused with the list of sounds" )
+	@Test
+	void testSfxUnknownSound( @TempDir Path dir ) {
+		String message = org.junit.jupiter.api.Assertions
+		    .assertThrows( Exception.class, () -> render( "09-sfx/sfx.bxs", Struct.of( "out", dir.resolve( "x.wav" ).toString(), "sound", "nope" ) ) )
+		    .getMessage();
+		assertThat( message ).contains( "Unknown sound [nope]" );
+		assertThat( message ).contains( "explosion" );
+	}
+
 }

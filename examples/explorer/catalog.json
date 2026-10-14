@@ -90,5 +90,16 @@
 			{ "name": "track", "label": "Track", "type": "select", "options": [ "overworld", "cave", "boss", "title", "victory" ], "value": "overworld" },
 			{ "name": "loops", "label": "Loops (0 is the track's own)", "type": "range", "min": 0, "max": 4, "step": 1, "value": 0 }
 		]
+	},
+	{
+		"id": "sfx",
+		"title": "Game sound effects",
+		"style": "Sound effects",
+		"script": "../09-sfx/sfx.bxs",
+		"blurb": "A jump, a coin, a laser, an explosion and more, made from pulse waves and noise. Hear them all in the sampler or one at a time.",
+		"params": [
+			{ "name": "sound", "label": "Sound", "type": "select", "options": [ "sampler", "jump", "coin", "laser", "explosion", "powerup", "hit", "blip", "alarm", "gameover", "footstep" ], "value": "sampler" },
+			{ "name": "seed", "label": "Seed (the noise in the explosion, hit and footstep)", "type": "range", "min": 1, "max": 99, "step": 1, "value": 1 }
+		]
 	}
 ]

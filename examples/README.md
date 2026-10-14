@@ -22,8 +22,9 @@ Audio is written to `out/` by default and is not committed. Each script takes `-
 | 06 | [Synthwave](06-synthwave/) | Synthwave, 100 BPM | A melody as data, a gated snare in a huge room, detuned pads and leads with chorus |
 | 07 | [Cinematic](07-cinematic/) | Trailer music, 90 BPM | Dynamics from quiet to loud, a true silent beat before the boom, strings and a theme |
 | 08 | [Chiptune](08-chiptune/) | 8 bit game music, five tracks | Pulse, triangle and noise channels, music written as text and read by a parser, a track per setting |
+| 09 | [Game sound effects](09-sfx/) | Ten effects, as a sampler or a pack of files | Pitch glides that never click, noise shaped by envelopes, an effects pack exported as one file per sound |
 
-More are planned for rock and jazz, plus game sound effects and a voice-over with ducked music.
+More are planned for rock and jazz, and a voice-over with ducked music.
 
 `examples/` is covered by a test that renders each script with short settings. It checks the length, the level, that the same settings give the same file, and what each piece sounds like by measurement: how bright it is, whether it pulses on the beat, how percussive it is, and that it fades out. So the catalog cannot silently break or drift.
 
