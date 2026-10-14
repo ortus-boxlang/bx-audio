@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Catalog explorer in `examples/explorer`: a BoxLang MiniServer app (`index.bxm`, `render.bxm`) that plays every catalog piece in the browser with adjustable settings, a waveform, seeking and a render cache. Covered by `ExplorerCatalogTest`
+* `audioWaveform( audio, points )` returns per-slice peak levels for drawing a waveform
 * MP3 read and write through `audioLoad` and `audioSave` (new `bitrate` argument). Uses LGPL JLayer and jump3r as separate optional jars in `libs/`, with license texts in `licenses/`; files are detected by content, not extension
 * Module scaffold from the BoxLang module template
 * `AudioBuffer` type and a dependency free WAV codec (read PCM 8/16/24/32 and float 32/64, write 16/24 bit PCM and 32 bit float)

@@ -456,4 +456,28 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThat( Files.exists( dir.resolve( "x.flac" ) ) ).isFalse();
 	}
 
+	@DisplayName( "audioWaveform returns one peak per point, scaled like the signal" )
+	@Test
+	void testWaveform() {
+		runtime.executeSource(
+		    """
+		    tone = audioGain( audioOsc( "sine", 220, 1 ), -6 );
+		    wave = audioWaveform( tone, 50 );
+		    defaults = audioWaveform( tone ).len();
+		    result = [ wave.len(), wave.max(), wave.min(), defaults ];
+		    """,
+		    context );
+		Array values = ( Array ) variables.get( result );
+		assertThat( values.get( 0 ) ).isEqualTo( 50 );
+		assertThat( ( ( Number ) values.get( 1 ) ).doubleValue() ).isWithin( 0.01 ).of( 0.5 );
+		assertThat( ( ( Number ) values.get( 2 ) ).doubleValue() ).isGreaterThan( 0.45 );
+		assertThat( values.get( 3 ) ).isEqualTo( 800 );
+	}
+
+	@DisplayName( "audioWaveform rejects things that are not audio" )
+	@Test
+	void testWaveformErrors() {
+		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioWaveform( 'nope' )", context ) );
+	}
+
 }

@@ -28,6 +28,7 @@ public class KeyDictionary {
 	public static final Key	channels	= Key.of( "channels" );
 	public static final Key	frames		= Key.of( "frames" );
 	public static final Key	peak		= Key.of( "peak" );
+	public static final Key	points		= Key.of( "points" );
 	public static final Key	rms			= Key.of( "rms" );
 	public static final Key	sampleRate	= Key.of( "sampleRate" );
 	public static final Key	source		= Key.of( "source" );

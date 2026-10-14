@@ -30,6 +30,7 @@ BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange t
 - 💾 Read and write WAV (16/24 bit PCM, 32 bit float) and MP3
 - 🎼 A catalog of complete, original example songs with no samples to license
 - 🔁 Repeatable: the same seed gives the same sound on any machine
+- 🌐 A [catalog explorer](examples/explorer/) web app on the BoxLang MiniServer that plays every piece in the browser
 - 🧩 100% Java, no native dependencies, works from the CLI, web apps and Lambda
 
 ## Why BoxLang Audio?
@@ -91,6 +92,7 @@ Every function returns a new buffer and leaves its input untouched. BoxLang does
 | `audioLoad( path )` | Read a WAV (PCM 8/16/24/32 bit and 32/64 bit float) or MP3 file, detected by content |
 | `audioSave( audio, path, bitDepth=16, bitrate=192 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, mono or stereo) |
 | `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
+| `audioWaveform( audio, points=800 )` | The loudest level in each of `points` equal slices, as an array for drawing a waveform |
 | `audioGain( audio, db )` | Change the volume in decibels |
 | `audioPan( audio, pan )` | Place a sound from -1 (left) to 1 (right) with a constant power law. Mono becomes stereo, stereo acts as a balance |
 | `audioFade( audio, fadeIn=0, fadeOut=0, curve="linear" )` | Fade in and out, `curve` is `linear` or `smooth` |
@@ -203,6 +205,8 @@ The [examples catalog](examples/) holds complete pieces of music made from code,
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 ```
 
+To listen in a browser, start the [explorer](examples/explorer/) with the MiniServer: `cd examples/explorer && boxlang-miniserver --webroot .`.
+
 ## Roadmap
 
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
@@ -210,7 +214,7 @@ boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
 4. A catalog of example music scripts (pop, lofi, house and ambient done; techno, synthwave, cinematic, chiptune and more to follow, all original compositions)
 5. Text-to-speech through a pluggable provider, with a content-hash cache
-6. Analysis: loudness, silence detection, waveform data, FFT
+6. Analysis: ~~waveform data~~ done, loudness, silence detection, FFT
 7. Realtime playback
 8. ~~MP3 read and write as optional codec jars~~ done (see below)
 

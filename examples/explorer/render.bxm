@@ -1,0 +1,85 @@
+<bx:script>
+	/**
+	 * Renders one catalog piece with the settings from the query string and answers with JSON: where the audio is, how long it is, and
+	 * the waveform peaks. Only pieces and settings listed in catalog.json are accepted, and every value is clamped to the range
+	 * listed there, so the URL can never reach any other script. Results are cached on disk by piece and settings.
+	 */
+	function fail( status, message ){
+		bx:header statusCode=status;
+		bx:content type="application/json" reset=true;
+		writeOutput( jsonSerialize( { "error" : message } ) );
+		abort;
+	}
+
+	catalog = jsonDeserialize( fileRead( expandPath( "./catalog.json" ) ) );
+	piece = catalog.filter( ( p ) => p.id == ( url.piece ?: "" ) );
+	if( !piece.len() ){
+		fail( 404, "Unknown piece. Choose one of: " & catalog.map( ( p ) => p.id ).toList() );
+	}
+	piece = piece.first();
+
+	// Take only the listed settings, clamp numbers into range, and only allow listed options
+	settings = {};
+	for( param in piece.params ){
+		raw = url[ param.name ] ?: param.value;
+		if( param.type == "select" ){
+			settings[ param.name ] = param.options.contains( raw ) ? raw : param.value;
+		} else {
+			if( !isNumeric( raw ) ){
+				fail( 400, "Setting [#param.name#] must be a number" );
+			}
+			settings[ param.name ] = max( param.min, min( param.max, raw + 0 ) );
+		}
+	}
+
+	cacheDir = expandPath( "./cache" );
+	directoryCreate( cacheDir, true, true );
+	// A readable, stable name: the piece plus its settings
+	key = piece.id & "-" & settings.keyArray().sort( "text" ).map( ( k ) => k & settings[ k ] ).toList( "-" ).reReplace( "[^A-Za-z0-9._-]", "", "all" );
+	wavPath = cacheDir & "/" & key & ".wav";
+	metaPath = cacheDir & "/" & key & ".json";
+	cached = fileExists( metaPath ) && fileExists( wavPath );
+
+	if( !cached ){
+		// One render per key at a time, a second request for the same sound waits and then finds it cached
+		bx:lock name="bx-audio-explorer-#key#" timeout=300 type="exclusive" {
+			if( !( fileExists( metaPath ) && fileExists( wavPath ) ) ){
+				started = getTickCount();
+				forScript = { "out" : wavPath };
+				forScript.append( settings );
+				request.audioJob = { "script" : piece.script, "overrides" : forScript };
+				new Renderer();
+				audio = audioLoad( wavPath );
+				info = audioInfo( audio );
+				fileWrite( metaPath, jsonSerialize( {
+					"seconds" : info.seconds,
+					"peak" : info.peak,
+					"renderMs" : getTickCount() - started,
+					"peaks" : audioWaveform( audio, 900 ).map( ( v ) => round( v * 1000 ) / 1000 )
+				} ) );
+			}
+		}
+	}
+
+	// Keep the cache from growing without bound: the newest 40 renders stay, older ones are removed
+	if( !cached ){
+		old = directoryList( cacheDir, false, "query", "*.wav", "dateLastModified desc" );
+		for( i = 41; i <= old.recordCount; i++ ){
+			fileDelete( old.directory[ i ] & "/" & old.name[ i ] );
+			metaFile = old.directory[ i ] & "/" & old.name[ i ].reReplace( "\.wav$", ".json" );
+			if( fileExists( metaFile ) ){ fileDelete( metaFile ); }
+		}
+	}
+
+	meta = jsonDeserialize( fileRead( metaPath ) );
+	bx:content type="application/json" reset=true;
+	writeOutput( jsonSerialize( {
+		"id" : piece.id,
+		"settings" : settings,
+		"url" : "cache/" & key & ".wav",
+		"seconds" : meta.seconds,
+		"peaks" : meta.peaks,
+		"cached" : cached,
+		"renderMs" : meta.renderMs
+	} ) );
+</bx:script>

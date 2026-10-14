@@ -8,6 +8,8 @@ Run an example with the module installed:
 boxlang examples/01-pop-drive/pop-drive.bxs
 ```
 
+Prefer to listen in a browser? The [explorer](explorer/) is a BoxLang MiniServer app that plays any piece and lets you change its settings.
+
 Audio is written to `out/` by default and is not committed. Each script takes `--out=`, and most take `--bars=` and `--bpm=`.
 
 | # | Example | Style | Shows |

@@ -1,0 +1,255 @@
+<bx:script>
+	// The catalog is read on the server and handed to the page, so there is one list of pieces and settings
+	catalogJson = fileRead( expandPath( "./catalog.json" ) );
+</bx:script>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BoxLang Audio Explorer</title>
+<style>
+	:root {
+		--bg: #f6f7fb; --panel: #ffffff; --ink: #1b1e2c; --muted: #5b6075; --line: #dfe2ee;
+		--accent: #0a8fb0; --accent-ink: #ffffff; --wave: #9fb3d9; --wave-played: #0a8fb0; --shadow: 0 1px 3px rgba(20,24,50,.08);
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			--bg: #12141d; --panel: #1b1e2c; --ink: #edeef4; --muted: #9aa0b8; --line: #2c3045;
+			--accent: #00dbff; --accent-ink: #03121a; --wave: #3b4466; --wave-played: #00dbff; --shadow: none;
+		}
+	}
+	:root[data-theme="dark"] {
+		--bg: #12141d; --panel: #1b1e2c; --ink: #edeef4; --muted: #9aa0b8; --line: #2c3045;
+		--accent: #00dbff; --accent-ink: #03121a; --wave: #3b4466; --wave-played: #00dbff; --shadow: none;
+	}
+	* { box-sizing: border-box; }
+	body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+	header { padding: 20px 16px 8px; max-width: 1040px; margin: 0 auto; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+	h1 { margin: 0; font-size: 1.4rem; }
+	header p { margin: 0; color: var(--muted); font-size: .9rem; }
+	main { max-width: 1040px; margin: 0 auto; padding: 8px 16px 48px; display: grid; grid-template-columns: 260px 1fr; gap: 16px; }
+	@media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+	.list { display: flex; flex-direction: column; gap: 8px; }
+	.card { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: inherit; font: inherit; cursor: pointer; box-shadow: var(--shadow); }
+	.card strong { display: block; }
+	.card span { color: var(--muted); font-size: .85rem; }
+	.card[aria-current="true"] { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -2px; }
+	.card:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+	.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); min-width: 0; }
+	.panel h2 { margin: 0 0 2px; font-size: 1.2rem; }
+	.panel .blurb { margin: 0 0 14px; color: var(--muted); }
+	.wave { position: relative; height: 120px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--bg); }
+	.wave canvas { width: 100%; height: 100%; display: block; }
+	.wave .hint { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: .9rem; pointer-events: none; text-align: center; padding: 8px; }
+	.transport { display: flex; align-items: center; gap: 12px; margin: 12px 0 4px; flex-wrap: wrap; }
+	button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer; min-height: 44px; }
+	button.primary:disabled { opacity: .6; cursor: progress; }
+	button.ghost, a.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; font: inherit; cursor: pointer; min-height: 44px; }
+	.hint[hidden] { display: none; }
+	a.ghost { text-decoration: none; display: inline-flex; align-items: center; }
+	.time { font-variant-numeric: tabular-nums; color: var(--muted); }
+	.status { color: var(--muted); font-size: .85rem; min-height: 1.4em; margin: 4px 0 0; }
+	.status.error { color: #d6336c; }
+	.params { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px 20px; margin-top: 16px; }
+	.param label { display: flex; justify-content: space-between; font-size: .9rem; margin-bottom: 4px; }
+	.param output { color: var(--muted); font-variant-numeric: tabular-nums; }
+	.param input[type=range] { width: 100%; accent-color: var(--accent); }
+	.param select { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+	footer { max-width: 1040px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: .85rem; }
+	code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<header>
+	<h1>BoxLang Audio Explorer</h1>
+	<p>Every piece here is synthesized by a BoxLang script when you press play.</p>
+</header>
+<main>
+	<nav class="list" id="list" aria-label="Pieces"></nav>
+	<section class="panel" aria-live="polite">
+		<h2 id="title"></h2>
+		<p class="blurb" id="blurb"></p>
+		<div class="wave" id="wave" role="slider" aria-label="Seek" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+			<canvas id="canvas"></canvas>
+			<div class="hint" id="hint">Press Render and play to synthesize this piece</div>
+		</div>
+		<div class="transport">
+			<button class="primary" id="go">Render and play</button>
+			<button class="ghost" id="toggle" disabled>Pause</button>
+			<a class="ghost" id="download" hidden download>Download WAV</a>
+			<span class="time" id="time">0:00 / 0:00</span>
+		</div>
+		<p class="status" id="status"></p>
+		<div class="params" id="params"></div>
+	</section>
+</main>
+<footer>
+	Rendered by <code>render.bxm</code> with the module's <code>audioRender</code>, <code>audioSave</code> and <code>audioWaveform</code>. Results are cached in <code>cache/</code> by piece and settings, so the same settings play instantly.
+</footer>
+<audio id="player" preload="auto"></audio>
+<bx:output><script>window.CATALOG = #catalogJson#;</script></bx:output>
+<script>
+( function () {
+	const $ = ( id ) => document.getElementById( id );
+	const player = $( "player" ), canvas = $( "canvas" ), ctx = canvas.getContext( "2d" );
+	let current = null, values = {}, peaks = null, seconds = 0, busy = false;
+
+	const css = ( name ) => getComputedStyle( document.documentElement ).getPropertyValue( name ).trim();
+	const fmt = ( s ) => Math.floor( s / 60 ) + ":" + String( Math.floor( s % 60 ) ).padStart( 2, "0" );
+	const status = ( text, error ) => { $( "status" ).textContent = text; $( "status" ).classList.toggle( "error", !!error ); };
+
+	function buildList() {
+		const list = $( "list" );
+		window.CATALOG.forEach( ( piece ) => {
+			const button = document.createElement( "button" );
+			button.className = "card";
+			button.type = "button";
+			button.dataset.id = piece.id;
+			button.innerHTML = "<strong></strong><span></span>";
+			button.firstChild.textContent = piece.title;
+			button.lastChild.textContent = piece.style;
+			button.addEventListener( "click", () => choose( piece.id, true ) );
+			list.appendChild( button );
+		} );
+	}
+
+	function choose( id, fromClick ) {
+		current = window.CATALOG.find( ( p ) => p.id === id );
+		values = {};
+		current.params.forEach( ( p ) => { values[ p.name ] = p.value; } );
+		peaks = null;
+		player.pause();
+		player.removeAttribute( "src" );
+		document.querySelectorAll( ".card" ).forEach( ( c ) => c.setAttribute( "aria-current", c.dataset.id === id ? "true" : "false" ) );
+		$( "title" ).textContent = current.title;
+		$( "blurb" ).textContent = current.blurb;
+		$( "hint" ).hidden = false;
+		$( "toggle" ).disabled = true;
+		$( "download" ).hidden = true;
+		$( "time" ).textContent = "0:00 / 0:00";
+		status( "" );
+		buildParams();
+		draw();
+		if ( fromClick ) history.replaceState( null, "", "#" + id );
+	}
+
+	function buildParams() {
+		const box = $( "params" );
+		box.innerHTML = "";
+		current.params.forEach( ( p ) => {
+			const wrap = document.createElement( "div" );
+			wrap.className = "param";
+			const label = document.createElement( "label" );
+			const text = document.createElement( "span" );
+			text.textContent = p.label;
+			const out = document.createElement( "output" );
+			label.append( text, out );
+			label.htmlFor = "p-" + p.name;
+			let input;
+			if ( p.type === "select" ) {
+				input = document.createElement( "select" );
+				p.options.forEach( ( o ) => { const opt = document.createElement( "option" ); opt.value = o; opt.textContent = o; input.appendChild( opt ); } );
+			} else {
+				input = document.createElement( "input" );
+				input.type = "range";
+				input.min = p.min; input.max = p.max; input.step = p.step;
+			}
+			input.id = "p-" + p.name;
+			input.value = values[ p.name ];
+			out.textContent = input.value;
+			input.addEventListener( "input", () => { values[ p.name ] = input.value; out.textContent = input.value; } );
+			wrap.append( label, input );
+			box.appendChild( wrap );
+		} );
+	}
+
+	async function renderAndPlay() {
+		if ( busy || !current ) return;
+		busy = true;
+		$( "go" ).disabled = true;
+		player.pause();
+		status( "Synthesizing, a new sound can take a few seconds..." );
+		const started = performance.now();
+		try {
+			const query = new URLSearchParams( Object.assign( { piece: current.id }, values ) );
+			const response = await fetch( "render.bxm?" + query );
+			const data = await response.json();
+			if ( !response.ok || data.error ) throw new Error( data.error || ( "Server answered " + response.status ) );
+			peaks = data.peaks;
+			seconds = data.seconds;
+			player.src = data.url;
+			$( "hint" ).hidden = true;
+			$( "download" ).href = data.url;
+			$( "download" ).hidden = false;
+			$( "toggle" ).disabled = false;
+			draw();
+			await player.play();
+			const took = Math.round( performance.now() - started );
+			status( data.cached ? "From the cache in " + took + " ms." : "Rendered in " + ( data.renderMs / 1000 ).toFixed( 1 ) + " s, " + data.seconds.toFixed( 1 ) + " s of audio." );
+		} catch ( error ) {
+			status( String( error.message || error ), true );
+		} finally {
+			busy = false;
+			$( "go" ).disabled = false;
+		}
+	}
+
+	function draw() {
+		const ratio = window.devicePixelRatio || 1;
+		const width = canvas.clientWidth, height = canvas.clientHeight;
+		canvas.width = Math.round( width * ratio );
+		canvas.height = Math.round( height * ratio );
+		ctx.setTransform( ratio, 0, 0, ratio, 0, 0 );
+		ctx.clearRect( 0, 0, width, height );
+		if ( !peaks ) return;
+		const progress = seconds ? Math.min( 1, player.currentTime / seconds ) : 0;
+		const bars = Math.min( peaks.length, Math.floor( width / 3 ) );
+		const gap = width / bars;
+		for ( let i = 0; i < bars; i++ ) {
+			const from = Math.floor( i * peaks.length / bars ), to = Math.max( from + 1, Math.floor( ( i + 1 ) * peaks.length / bars ) );
+			let peak = 0;
+			for ( let k = from; k < to; k++ ) peak = Math.max( peak, peaks[ k ] );
+			const h = Math.max( 2, peak * ( height - 8 ) );
+			ctx.fillStyle = ( i / bars ) < progress ? css( "--wave-played" ) : css( "--wave" );
+			ctx.fillRect( i * gap, ( height - h ) / 2, Math.max( 1, gap - 1 ), h );
+		}
+		ctx.fillStyle = css( "--ink" );
+		ctx.fillRect( progress * width - 1, 0, 2, height );
+	}
+
+	function tick() {
+		if ( peaks ) {
+			$( "time" ).textContent = fmt( player.currentTime ) + " / " + fmt( seconds );
+			$( "wave" ).setAttribute( "aria-valuenow", String( Math.round( 100 * player.currentTime / ( seconds || 1 ) ) ) );
+			draw();
+		}
+		requestAnimationFrame( tick );
+	}
+
+	function seekTo( fraction ) {
+		if ( peaks ) player.currentTime = Math.max( 0, Math.min( 1, fraction ) ) * seconds;
+	}
+
+	$( "go" ).addEventListener( "click", renderAndPlay );
+	$( "toggle" ).addEventListener( "click", () => { player.paused ? player.play() : player.pause(); } );
+	player.addEventListener( "play", () => { $( "toggle" ).textContent = "Pause"; } );
+	player.addEventListener( "pause", () => { $( "toggle" ).textContent = "Play"; } );
+	player.addEventListener( "ended", () => { $( "toggle" ).textContent = "Play"; } );
+	$( "wave" ).addEventListener( "click", ( e ) => { const r = $( "wave" ).getBoundingClientRect(); seekTo( ( e.clientX - r.left ) / r.width ); } );
+	$( "wave" ).addEventListener( "keydown", ( e ) => {
+		if ( e.key === "ArrowRight" ) player.currentTime += 5;
+		if ( e.key === "ArrowLeft" ) player.currentTime -= 5;
+	} );
+	document.addEventListener( "keydown", ( e ) => {
+		if ( e.code === "Space" && !/INPUT|SELECT|BUTTON|TEXTAREA/.test( e.target.tagName ) && peaks ) { e.preventDefault(); player.paused ? player.play() : player.pause(); }
+	} );
+	window.addEventListener( "resize", draw );
+
+	buildList();
+	choose( ( location.hash.slice( 1 ) && window.CATALOG.some( ( p ) => p.id === location.hash.slice( 1 ) ) ) ? location.hash.slice( 1 ) : window.CATALOG[ 0 ].id, false );
+	requestAnimationFrame( tick );
+} )();
+</script>
+</body>
+</html>

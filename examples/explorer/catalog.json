@@ -1,0 +1,50 @@
+[
+	{
+		"id": "pop-drive",
+		"title": "Pop Drive",
+		"style": "Upbeat pop",
+		"script": "../01-pop-drive/pop-drive.bxs",
+		"blurb": "Voices, a beat grid, kick pump and mastering. A port of a numpy script, checked against the original.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 8, "max": 56, "step": 4, "value": 28 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 90, "max": 150, "step": 1, "value": 128 },
+			{ "name": "style", "label": "Style", "type": "select", "options": [ "pop", "drive" ], "value": "pop" }
+		]
+	},
+	{
+		"id": "lofi",
+		"title": "Lofi",
+		"style": "Lofi hip hop",
+		"script": "../02-lofi/lofi.bxs",
+		"blurb": "Swing, humanised timing, tape wobble and vinyl crackle over jazzy seventh chords.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 8, "max": 32, "step": 4, "value": 16 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 60, "max": 95, "step": 1, "value": 78 },
+			{ "name": "swing", "label": "Swing", "type": "range", "min": 0.5, "max": 0.7, "step": 0.01, "value": 0.58 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 7 }
+		]
+	},
+	{
+		"id": "house",
+		"title": "House",
+		"style": "House",
+		"script": "../03-house/house.bxs",
+		"blurb": "Four on the floor with sidechain pumping, a rolling bass, stabs, a riser and a drop.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 16, "max": 48, "step": 4, "value": 32 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 118, "max": 130, "step": 1, "value": 124 }
+		]
+	},
+	{
+		"id": "ambient",
+		"title": "Ambient",
+		"style": "Drone and pads",
+		"script": "../04-ambient/ambient.bxs",
+		"blurb": "Slow envelopes, inharmonic bells, noise swells and a very large reverb.",
+		"params": [
+			{ "name": "bars", "label": "Bars", "type": "range", "min": 4, "max": 24, "step": 4, "value": 12 },
+			{ "name": "bpm", "label": "Tempo", "type": "range", "min": 36, "max": 70, "step": 1, "value": 48 },
+			{ "name": "seed", "label": "Seed", "type": "range", "min": 1, "max": 99, "step": 1, "value": 5 }
+		]
+	}
+]
