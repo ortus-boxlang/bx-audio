@@ -44,3 +44,25 @@ were left out because their license is restrictive or unclear. Voices are downlo
 
 MP3 decoding and encoding need the `java.desktop` module of the JDK (the encoder describes its input with `javax.sound.sampled`).
 Standard JDKs include it.
+
+## FFmpeg (optional, never bundled)
+
+OGG, Opus and AAC output, reading other formats and the audio of video files, and muxing audio onto a video use FFmpeg and FFprobe. They are separate
+programs that the module starts as processes. The module finds one that is already on your computer (the `ffmpeg` setting, `BX_AUDIO_FFMPEG`, or the PATH),
+and if there is none it can download one into `~/.bxaudio/ffmpeg`, checking every file against the size and SHA-256 listed in `ffmpeg.json`. Nothing of FFmpeg
+is in this module or its jars, and the module does not link to it.
+
+| Platform | Provider | Version |
+|---|---|---|
+| Linux and macOS, amd64 and arm64 | [martin-riedl.de](https://ffmpeg.martin-riedl.de/) static builds | 9.0.2 |
+| Windows amd64 | [gyan.dev](https://www.gyan.dev/ffmpeg/builds/) "essentials" build | 8.1.2 |
+
+FFmpeg is licensed LGPL 2.1 or later, or GPL 2 or later when built with GPL components, and these builds include such components (and, for the Linux
+and macOS builds, are marked non-free by their provider, which means they cannot be redistributed). The module does not redistribute them: you download them
+from their provider, on your computer. If your use needs a particular FFmpeg license, install your own build and point the module at it. See
+<https://ffmpeg.org/legal.html>.
+
+## FLAC
+
+The FLAC encoder and decoder are written for this module, from the published format specification (<https://xiph.org/flac/format.html>). No code from
+libFLAC or other FLAC libraries is used.
