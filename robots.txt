@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bxaudio.boxlang.io/sitemap.xml

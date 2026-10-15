@@ -1,0 +1,593 @@
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Voices - BoxLang Audio</title>
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="BoxLang Audio">
+	<meta property="og:title" content="Voices">
+
+	
+	
+
+	
+	
+		<link rel="canonical" href="https&#x3a;&#x2f;&#x2f;bxaudio.boxlang.io&#x2f;voices&#x2f;index.html">
+	
+
+	
+	
+		<meta name="description" content="Every voice of the Piper collection&#x3a; which can be used, which cannot, and why.">
+		<meta property="og:description" content="Every voice of the Piper collection&#x3a; which can be used, which cannot, and why.">
+	
+
+	
+	
+		<meta property="og:image" content="/assets/og-image.png">
+		<meta name="twitter:card" content="summary_large_image">
+	
+
+	
+	
+		<link rel="icon" href="/assets/favicon.png">
+	
+
+	
+	<script>
+		( function () {
+			var configuredMode = "dark";
+			var stored = localStorage.getItem( "bxsites-theme" );
+			var prefersDark = window.matchMedia( "(prefers-color-scheme: dark)" ).matches;
+			var wantsDark = stored ? stored === "dark" : ( configuredMode === "dark" || ( configuredMode === "auto" && prefersDark ) );
+			if ( wantsDark ) {
+				document.documentElement.setAttribute( "data-theme", "dark" );
+			}
+		} )();
+	</script>
+
+	
+	<link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/vendor/highlight/github.min.css">
+	<link rel="stylesheet" href="/assets/theme/style.a70338f7.css">
+
+	
+	
+
+	
+	
+		<style>
+			
+			
+				:root {
+					--bxsites-accent: #00C853;
+					--bxsites-link: #00C853;
+					--bxsites-link-hover: color-mix( in srgb, #00C853 85%, black );
+				}
+			
+			
+			
+				[data-theme="dark"] {
+					--bxsites-accent: #34D399;
+					--bxsites-link: #34D399;
+					--bxsites-link-hover: color-mix( in srgb, #34D399 85%, white );
+				}
+			
+		</style>
+	
+
+	
+	
+		<style>
+			.bxsites-nav-nested {
+				border-inline-start: 2px solid var(--bxsites-accent, var(--bxsites-border));
+				margin-inline-start: 0.2rem;
+				padding-inline-start: 0.85rem;
+			}
+		</style>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+		<script>window.__BXSITES_BASE_PATH__ = "/";</script>
+		<script>window.__BXSITES_SEARCH_NO_RESULTS__ = "No\x20results\x20found.";</script>
+		<script src="/assets/vendor/minisearch/minisearch.js"></script>
+		<script src="/assets/search.f14e08a2.js" defer></script>
+	
+
+	
+	
+
+	
+	
+
+	<script src="/assets/vendor/alpine/cdn.min.js" defer></script>
+</head>
+
+
+<body
+	x-data="{ dark: document.documentElement.getAttribute( 'data-theme' ) === 'dark', navOpen: window.matchMedia( '(min-width: 992px)' ).matches ? ( localStorage.getItem( 'bxsites-nav-open' ) !== null ? localStorage.getItem( 'bxsites-nav-open' ) === 'true' : true ) : false }"
+	x-init="$watch( 'dark', v => { document.documentElement.setAttribute( 'data-theme', v ? 'dark' : 'light' ); localStorage.setItem( 'bxsites-theme', v ? 'dark' : 'light' ) } ); $watch( 'navOpen', v => { if ( window.matchMedia( '(min-width: 992px)' ).matches ) localStorage.setItem( 'bxsites-nav-open', v ) } )">
+	
+	<nav class="navbar navbar-expand-lg brand-navbar">
+		<div class="container-fluid navbar-row">
+			
+			<button
+				class="navbar-toggler"
+				type="button"
+				@click="navOpen = !navOpen"
+				:aria-expanded="navOpen.toString()"
+				aria-controls="bxsites-sidebar"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			
+			<a class="navbar-brand brand-mark" href="/"><img class="brand-logo" src="/assets/boxlang-icon-full.svg" alt=""><span class="brand-name">BoxLang Audio</span></a>
+
+			
+			<div class="navbar-controls">
+				
+				
+					
+
+	<div class="bxsites-search position-relative">
+		<input
+			type="search"
+			id="bxsites-search-input"
+			class="form-control"
+			placeholder="Search..."
+			aria-label="Search">
+		<kbd class="bxsites-search-kbd" aria-hidden="true">Ctrl K</kbd>
+		<ul id="bxsites-search-results" class="bxsites-search-results list-unstyled"></ul>
+	</div>
+
+
+
+				
+
+				
+				
+
+				
+				
+					<a
+						class="repo-link"
+						href="https://github.com/ortus-boxlang/bx-audio"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Repository"
+						title="Repository">
+						<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg>
+					</a>
+				
+
+				
+				<button
+					type="button"
+					class="theme-toggle"
+					@click="dark = !dark"
+					aria-label="Toggle dark mode">
+					<span x-show="!dark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></span>
+					<span x-show="dark" x-cloak><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+				</button>
+			</div>
+			
+		</div>
+		
+	</nav>
+
+	
+	<div class="container-fluid">
+		
+		<div class="row" :class="{ 'bxsites-nav-collapsed' : !navOpen }">
+			
+			<aside class="col-lg-3 col-xl-2 sidebar" id="bxsites-sidebar" x-show="navOpen" x-cloak>
+				
+				
+				<ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/index.html"><svg class="bxsites-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,96v64H48V96Z" opacity="0.2"/><path d="M56,96v64a8,8,0,0,1-16,0V96a8,8,0,0,1,16,0ZM88,24a8,8,0,0,0-8,8V224a8,8,0,0,0,16,0V32A8,8,0,0,0,88,24Zm40,32a8,8,0,0,0-8,8V192a8,8,0,0,0,16,0V64A8,8,0,0,0,128,56Zm40,32a8,8,0,0,0-8,8v64a8,8,0,0,0,16,0V96A8,8,0,0,0,168,88Zm40-16a8,8,0,0,0-8,8v96a8,8,0,0,0,16,0V80A8,8,0,0,0,208,72Z"/></svg> BoxLang Audio</a></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Start here</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Start here section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/getting-started/index.html">Getting started</a></li><li class="nav-item"><a class="nav-link" href="/examples/index.html">Examples</a></li><li class="nav-item"><a class="nav-link" href="/guides/explorer/index.html">The explorer</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Guides</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Guides section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/guides/index.html">Guides</a></li><li class="nav-item"><a class="nav-link" href="/guides/synthesis-and-effects/index.html">Synthesis and effects</a></li><li class="nav-item"><a class="nav-link" href="/guides/mixing/index.html">Timeline mixing</a></li><li class="nav-item"><a class="nav-link" href="/guides/trailers-and-video/index.html">Trailers and video</a></li><li class="nav-item"><a class="nav-link" href="/guides/loudness-and-mastering/index.html">Loudness and mastering</a></li><li class="nav-item"><a class="nav-link" href="/guides/time-and-pitch/index.html">Time and pitch</a></li><li class="nav-item"><a class="nav-link" href="/guides/speech-and-subtitles/index.html">Speech and subtitles</a></li><li class="nav-item"><a class="nav-link" href="/guides/games/index.html">Game audio</a></li><li class="nav-item"><a class="nav-link" href="/guides/analysis/index.html">Analysis</a></li><li class="nav-item"><a class="nav-link" href="/guides/formats-and-ffmpeg/index.html">Formats and FFmpeg</a></li><li class="nav-item"><a class="nav-link" href="/guides/storage/index.html">Storage</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Voices and licenses</span><button type="button" class="nav-toggle" aria-expanded="true" aria-label="Toggle Voices and licenses section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested"><li class="nav-item"><a class="nav-link active" href="/voices/index.html">Voices</a></li><li class="nav-item"><a class="nav-link" href="/licenses/index.html">Licenses</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Reference</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Reference section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/reference/functions/index.html">Functions</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/files-and-editing/index.html">Files and editing</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/synthesis/index.html">Synthesis</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/effects/index.html">Effects</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/timeline/index.html">Timeline mixing</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/loudness-and-dynamics/index.html">Loudness and dynamics</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/time-and-pitch/index.html">Time and pitch</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/analysis/index.html">Analysis</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/ffmpeg-and-video/index.html">FFmpeg and video</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/speech/index.html">Speech and subtitles</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/games/index.html">Game audio</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/storage/index.html">Storage</a></li><li class="nav-item"><a class="nav-link" href="/reference/cli/index.html">Command line</a></li><li class="nav-item"><a class="nav-link" href="/reference/configuration/index.html">Configuration</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Help</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Help section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/troubleshooting/index.html">Troubleshooting</a></li><li class="nav-item"><a class="nav-link" href="/roadmap/index.html">Roadmap</a></li><li class="nav-item"><a class="nav-link" href="/contribute/index.html">Contribute</a></li></ul></li></ul>
+				<a class="bxsites-powered-by" href="https://bxsites.io" target="_blank" rel="noopener noreferrer">
+					<img class="bxsites-powered-by__logo" src="/assets/bxsites-logo.svg" alt="" aria-hidden="true"> <span>Powered by BxSites</span>
+				</a>
+			</aside>
+
+			
+			<main class="col-lg-9 col-xl-8 content">
+					
+
+	
+	<article class="page-content">
+		
+		
+			<div class="bxsites-page-actions"><details class="bxsites-page-actions__disclosure"><summary class="bxsites-page-actions__button" aria-label="Page actions"><span>Copy</span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg><kbd class="bxsites-page-actions__kbd" aria-hidden="true">C</kbd></summary><div class="bxsites-page-actions__panel"><button type="button" class="bxsites-page-actions__item" data-bxsites-action="copy-markdown" data-bxsites-markdown-url="/voices.md"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Copy page</span><span class="bxsites-page-actions__item-hint">Copy page as Markdown for LLMs</span></span></button><button type="button" class="bxsites-page-actions__item" data-bxsites-action="copy-link" data-bxsites-page-url="https://bxaudio.boxlang.io/voices/index.html"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Copy link</span><span class="bxsites-page-actions__item-hint">Copy a link to this page</span></span></button><a class="bxsites-page-actions__item" href="/voices.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">View as Markdown <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">View this page as plain text</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://chatgpt.com/?q=Read%20https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2c.3 3.6 1 6.2 2.1 7.9C15.2 11.5 17 12.5 20 13c-3 .5-4.8 1.5-5.9 3.1C13 17.8 12.3 20.4 12 24c-.3-3.6-1-6.2-2.1-7.9C8.8 14.5 7 13.5 4 13c3-.5 4.8-1.5 5.9-3.1C11 8.2 11.7 5.6 12 2Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Open in ChatGPT <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Ask ChatGPT about this page</span></span></a><a class="bxsites-page-actions__item" href="https://claude.ai/new?q=Read%20https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2c.3 3.6 1 6.2 2.1 7.9C15.2 11.5 17 12.5 20 13c-3 .5-4.8 1.5-5.9 3.1C13 17.8 12.3 20.4 12 24c-.3-3.6-1-6.2-2.1-7.9C8.8 14.5 7 13.5 4 13c3-.5 4.8-1.5 5.9-3.1C11 8.2 11.7 5.6 12 2Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Open in Claude <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Ask Claude about this page</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/voices.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Edit on GitHub <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Edit this page on GitHub</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><button type="button" class="bxsites-page-actions__item" data-bxsites-action="print"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Export as PDF</span><span class="bxsites-page-actions__item-hint">Download this page as a PDF</span></span></button><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://x.com/intent/tweet?url=https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html&amp;text=Voices" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on X <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on X</span></span></a><a class="bxsites-page-actions__item" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124ZM7.119 20.452H3.554V9h3.565v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on LinkedIn <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on LinkedIn</span></span></a><a class="bxsites-page-actions__item" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on Facebook <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on Facebook</span></span></a></div></details></div>
+		
+		
+		
+		
+		
+		
+		<h1 class="page-title" id="page-title">
+			<a href="#page-title" id="page-title" class="anchor"></a>
+			
+			Voices
+		</h1>
+		
+		
+			<p class="page-summary">Every voice of the Piper collection&#x3a; which can be used, which cannot, and why.</p>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#licenses">Licenses</a></li><li class="toc-level-2"><a href="#available-voices">Available voices</a></li><li class="toc-level-2"><a href="#not-offered">Not offered</a></li><li class="toc-level-2"><a href="#updating-this-list">Updating this list</a></li></ul></details>
+		
+
+		
+		<!-- Generated by tools/update-voices.bxs. Do not edit. -->
+<p>These are the voices <code>audioSpeak()</code> can use. They are <a href="https://github.com/rhasspy/piper">Piper</a> voices from the <a href="https://huggingface.co/rhasspy/piper-voices">rhasspy/piper-voices</a> collection, and none of them is bundled with the module: each is downloaded the first time you use it, into <code>~/.bxaudio/voices</code> (see <a href="/guides/storage/index.html">Storage</a>).</p>
+<pre><code class="language-bash">bx-audio voices                       # the voices you can use, from the command line
+bx-audio voices --excluded            # the voices that are not offered, and why
+bx-audio voices joe                   # one voice in detail
+bx-audio install joe                  # download a voice ahead of time
+bx-audio speak &quot;Hello&quot; --voice=joe     # or just use it, it installs itself
+</code></pre>
+<pre><code class="language-js">audio = audioSpeak( text=&quot;Hello from BoxLang&quot;, voice=&quot;joe&quot; );
+audioSave( audio, &quot;hello.mp3&quot; );
+</code></pre>
+<h2 id="licenses"><a href="#licenses" id="licenses" name="licenses" class="anchor"></a>Licenses</h2>
+<p>Only voices whose model card states an open license are listed: CC0, public domain, CC BY, CC BY-SA, Apache 2.0 or the Unlicense. The license column is the identifier we map the card's wording to, and the card itself stays the authority, so read it when it matters (the link in the last column leads to the training data). A voice licensed CC BY asks for credit, and CC BY-SA also asks that what you make from it is shared under the same terms. Voices whose card says non-commercial, names a custom license, says only &quot;See URL&quot;, or says nothing are not listed.</p>
+<h2 id="available-voices"><a href="#available-voices" id="available-voices" name="available-voices" class="anchor"></a>Available voices</h2>
+<div class="bxsites-table-wrap" x-data="{ q: '' }"><input type="search" class="bxsites-table-filter" x-model="q" placeholder="Filter table..." aria-label="Filter table"><table class="table">
+<thead>
+<tr><th>Voice</th><th>Language</th><th>Quality</th><th>License</th><th>Download</th><th>Training data</th><th>Listen</th></tr>
+</thead>
+<tbody>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-bryce-medium</code></td><td>en_US</td><td>medium</td><td>Public-Domain</td><td>64 MB</td><td>not stated</td><td><audio controls preload="none" src="assets/audio/voices/en_US-bryce-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-joe-medium</code></td><td>en_US</td><td>medium</td><td>CC0-1.0</td><td>63 MB</td><td><a href="https://github.com/OHF-Voice/voice-datasets">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-joe-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-john-medium</code></td><td>en_US</td><td>medium</td><td>Public-Domain</td><td>64 MB</td><td><a href="https://librivox.org">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-john-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-kathleen-low</code></td><td>en_US</td><td>low</td><td>CC0-1.0</td><td>63 MB</td><td><a href="https://github.com/rhasspy/dataset-voice-kathleen">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-kathleen-low.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-kristin-medium</code></td><td>en_US</td><td>medium</td><td>Public-Domain</td><td>64 MB</td><td><a href="https://librivox.org">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-kristin-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-ljspeech-high</code></td><td>en_US</td><td>high</td><td>Public-Domain</td><td>114 MB</td><td><a href="https://keithito.com/LJ-Speech-Dataset/">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-ljspeech-high.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-ljspeech-medium</code></td><td>en_US</td><td>medium</td><td>Public-Domain</td><td>64 MB</td><td><a href="https://keithito.com/LJ-Speech-Dataset/">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-ljspeech-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-mike-medium</code></td><td>en_US</td><td>medium</td><td>CC0-1.0</td><td>63 MB</td><td><a href="https://github.com/OHF-Voice/voice-datasets">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-mike-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-norman-medium</code></td><td>en_US</td><td>medium</td><td>Public-Domain</td><td>64 MB</td><td><a href="https://librivox.org">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-norman-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-reza_ibrahim-medium</code></td><td>en_US</td><td>medium</td><td>CC0-1.0</td><td>64 MB</td><td><a href="https://huggingface.co/datasets/mah92/Hedayatfar-Persian-Quran-Audio-Dataset">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-reza_ibrahim-medium.mp3"></audio></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-sam-medium</code></td><td>en_US</td><td>medium</td><td>Apache-2.0</td><td>63 MB</td><td><a href="https://github.com/Sam-Accenture-Non-Binary-Voice/non-binary-voice-files">source</a></td><td><audio controls preload="none" src="assets/audio/voices/en_US-sam-medium.mp3"></audio></td></tr>
+</tbody>
+</table></div>
+<p>Use a voice by its full id, or by its short name when only one voice has that name (<code>joe</code>, but not <code>ljspeech</code>, which comes in two qualities).</p>
+<h2 id="not-offered"><a href="#not-offered" id="not-offered" name="not-offered" class="anchor"></a>Not offered</h2>
+<p>Every voice of the collection that is not offered, and why. <code>bx-audio voices --excluded</code> prints the same list, and <code>audioVoices( status=&quot;excluded&quot; )</code> returns it.</p>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Why</th><th>Voices</th></tr>
+</thead>
+<tbody>
+<tr><td>License is not open or not clear</td><td>73</td></tr>
+<tr><td>Needs the GPL 3 British dictionary</td><td>7</td></tr>
+<tr><td>Several speakers</td><td>2</td></tr>
+<tr><td>Language not supported yet</td><td>84</td></tr>
+</tbody>
+</table></div>
+<div class="bxsites-table-wrap" x-data="{ q: '' }"><input type="search" class="bxsites-table-filter" x-model="q" placeholder="Filter table..." aria-label="Filter table"><table class="table">
+<thead>
+<tr><th>Voice</th><th>Language</th><th>License on the card</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ar_JO-kareem-low</code></td><td>ar_JO</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ar_JO-kareem-medium</code></td><td>ar_JO</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bg_BG-dimitar-medium</code></td><td>bg_BG</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Bulgarian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bn_BD-google-medium</code></td><td>bn_BD</td><td>Attribution-ShareAlike 4.0 International</td><td>Not supported yet: the Voices engine has no phonemizer for Bengali</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ca_ES-upc_ona-medium</code></td><td>ca_ES</td><td>CC BY-SA 3.0 ES</td><td>Not an open license we accept: CC BY-SA 3.0 ES</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ca_ES-upc_ona-x_low</code></td><td>ca_ES</td><td>CC BY-SA 3.0 ES</td><td>Not an open license we accept: CC BY-SA 3.0 ES</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ca_ES-upc_pau-x_low</code></td><td>ca_ES</td><td>CC BY-SA 3.0 ES</td><td>Not an open license we accept: CC BY-SA 3.0 ES</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>cs_CZ-jirka-low</code></td><td>cs_CZ</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Czech</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>cs_CZ-jirka-medium</code></td><td>cs_CZ</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Czech</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>cs_CZ-kasandra-medium</code></td><td>cs_CZ</td><td>Creative Commons Attribution 4.0 International (CC BY 4.0)</td><td>Not an open license we accept: Creative Commons Attribution 4.0 International (CC</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>cy_GB-bu_tts-medium</code></td><td>cy_GB</td><td>CC-BY</td><td>Not an open license we accept: CC-BY</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>cy_GB-gwryw_gogleddol-medium</code></td><td>cy_GB</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>da_DK-talesyntese-medium</code></td><td>da_DK</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Danish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-eva_k-x_low</code></td><td>de_DE</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-karlsson-low</code></td><td>de_DE</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-kerstin-low</code></td><td>de_DE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for German</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-mls-medium</code></td><td>de_DE</td><td>CC-BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for German</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-pavoque-low</code></td><td>de_DE</td><td><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">http://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-ramona-low</code></td><td>de_DE</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-thorsten-high</code></td><td>de_DE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for German</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-thorsten-low</code></td><td>de_DE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for German</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-thorsten-medium</code></td><td>de_DE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for German</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>de_DE-thorsten_emotional-medium</code></td><td>de_DE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for German</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>el_GR-joy-medium</code></td><td>el_GR</td><td>CC BY-NC 4.0</td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>el_GR-rapunzelina-low</code></td><td>el_GR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Greek</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>el_GR-rapunzelina-medium</code></td><td>el_GR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Greek</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-alan-low</code></td><td>en_GB</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-alan-medium</code></td><td>en_GB</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-alba-medium</code></td><td>en_GB</td><td><a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-aru-medium</code></td><td>en_GB</td><td><a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-cori-high</code></td><td>en_GB</td><td>public domain</td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-cori-medium</code></td><td>en_GB</td><td>public domain</td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-jenny_dioco-medium</code></td><td>en_GB</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-northern_english_male-medium</code></td><td>en_GB</td><td>CC-BY-SA 4.0 International</td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-semaine-medium</code></td><td>en_GB</td><td><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">http://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-southern_english_female-low</code></td><td>en_GB</td><td>CC-BY-SA 4.0 International</td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_GB-vctk-medium</code></td><td>en_GB</td><td><a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></td><td>Needs the British English dictionary of the Voices engine, which is licensed GPL 3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-amy-low</code></td><td>en_US</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-amy-medium</code></td><td>en_US</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-arctic-medium</code></td><td>en_US</td><td>See LICENSE file</td><td>The model card only says 'See LICENSE file', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-danny-low</code></td><td>en_US</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-hfc_female-medium</code></td><td>en_US</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-hfc_male-medium</code></td><td>en_US</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-kusal-medium</code></td><td>en_US</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-l2arctic-medium</code></td><td>en_US</td><td><a href="https://creativecommons.org/licenses/by-nc/4.0/">https://creativecommons.org/licenses/by-nc/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-lessac-high</code></td><td>en_US</td><td><a href="https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html">https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html</a></td><td>Custom license (Blizzard 2013 data), not an open license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-lessac-low</code></td><td>en_US</td><td><a href="https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html">https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html</a></td><td>Custom license (Blizzard 2013 data), not an open license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-lessac-medium</code></td><td>en_US</td><td><a href="https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html">https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html</a></td><td>Custom license (Blizzard 2013 data), not an open license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-libritts-high</code></td><td>en_US</td><td>CC BY 4.0</td><td>904 speakers, not supported yet</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-libritts_r-medium</code></td><td>en_US</td><td>CC BY 4.0</td><td>904 speakers, not supported yet</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-ryan-high</code></td><td>en_US</td><td>CC BY-NC-SA 4.0</td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-ryan-low</code></td><td>en_US</td><td>CC BY-NC-SA 4.0</td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>en_US-ryan-medium</code></td><td>en_US</td><td>CC BY-NC-SA 4.0</td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_AR-daniela-high</code></td><td>es_AR</td><td>Attribution-ShareAlike 4.0 International</td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_ES-carlfm-x_low</code></td><td>es_ES</td><td>Public domain</td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_ES-davefx-medium</code></td><td>es_ES</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_ES-mls_10246-low</code></td><td>es_ES</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_ES-mls_9972-low</code></td><td>es_ES</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_ES-sharvard-medium</code></td><td>es_ES</td><td><a href="http://creativecommons.org/licenses/by/3.0/">http://creativecommons.org/licenses/by/3.0/</a></td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_MX-ald-medium</code></td><td>es_MX</td><td><a href="http://unlicense.org">http://unlicense.org</a></td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_MX-ald-x_low</code></td><td>es_MX</td><td>none</td><td>The model card states no license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>es_MX-claude-high</code></td><td>es_MX</td><td>apache-2.0</td><td>Not supported yet: the Voices engine has no phonemizer for Spanish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>et_EE-news-medium</code></td><td>et_EE</td><td>CC-BY (META-SHARE &quot;Available - Unrestricted Use&quot;)</td><td>Not an open license we accept: CC-BY (META-SHARE &quot;Available - Unrestricted Use&quot;)</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>eu_ES-antton-medium</code></td><td>eu_ES</td><td>Creative Commons Attribution 4.0</td><td>Not an open license we accept: Creative Commons Attribution 4.0</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>eu_ES-maider-medium</code></td><td>eu_ES</td><td>Creative Commons Attribution 4.0</td><td>Not an open license we accept: Creative Commons Attribution 4.0</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fa_IR-amir-medium</code></td><td>fa_IR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Farsi</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fa_IR-ganji-medium</code></td><td>fa_IR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Farsi</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fa_IR-ganji_adabi-medium</code></td><td>fa_IR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Farsi</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fa_IR-gyro-medium</code></td><td>fa_IR</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fa_IR-reza_ibrahim-medium</code></td><td>fa_IR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Farsi</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fi_FI-harri-low</code></td><td>fi_FI</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Finnish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fi_FI-harri-medium</code></td><td>fi_FI</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Finnish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-gilles-low</code></td><td>fr_FR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for French</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-mls-medium</code></td><td>fr_FR</td><td>CC-BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for French</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-mls_1840-low</code></td><td>fr_FR</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for French</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-siwis-low</code></td><td>fr_FR</td><td>CC-BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for French</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-siwis-medium</code></td><td>fr_FR</td><td>CC-BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for French</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-tom-medium</code></td><td>fr_FR</td><td>AGPLv3</td><td>Not an open license we accept: AGPLv3</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>fr_FR-upmc-medium</code></td><td>fr_FR</td><td><a href="http://creativecommons.org/licenses/by-sa/4.0/">http://creativecommons.org/licenses/by-sa/4.0/</a></td><td>Not supported yet: the Voices engine has no phonemizer for French</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>he_IL-saspeech-medium</code></td><td>he_IL</td><td>See dataset URL</td><td>The model card only says 'See dataset URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hi_IN-pratham-medium</code></td><td>hi_IN</td><td><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">http://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hi_IN-priyamvada-medium</code></td><td>hi_IN</td><td><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">http://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hi_IN-rohan-medium</code></td><td>hi_IN</td><td><a href="https://www.iitm.ac.in/donlab/indictts/downloads/license.pdf">https://www.iitm.ac.in/donlab/indictts/downloads/license.pdf</a></td><td>Not an open license we accept: <a href="https://www.iitm.ac.in/donlab/indictts/downloads/l">https://www.iitm.ac.in/donlab/indictts/downloads/l</a></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hu_HU-anna-medium</code></td><td>hu_HU</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Hungarian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hu_HU-berta-medium</code></td><td>hu_HU</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Hungarian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hu_HU-imre-medium</code></td><td>hu_HU</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Hungarian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>hy_AM-gor-medium</code></td><td>hy_AM</td><td>GPL 2.0</td><td>Not an open license we accept: GPL 2.0</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>id_ID-news_tts-medium</code></td><td>id_ID</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>is_IS-bui-medium</code></td><td>is_IS</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>is_IS-salka-medium</code></td><td>is_IS</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>is_IS-steinn-medium</code></td><td>is_IS</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>is_IS-ugla-medium</code></td><td>is_IS</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>it_IT-paola-medium</code></td><td>it_IT</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>it_IT-riccardo-x_low</code></td><td>it_IT</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>it_IT-serena-high</code></td><td>it_IT</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Italian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>it_IT-serena-medium</code></td><td>it_IT</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Italian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ja_JP-hi_fi_captain-medium</code></td><td>ja_JP</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ka_GE-natia-medium</code></td><td>ka_GE</td><td>See LICENSE file</td><td>The model card only says 'See LICENSE file', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>kk_KZ-iseke-x_low</code></td><td>kk_KZ</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Kazakh</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>kk_KZ-issai-high</code></td><td>kk_KZ</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Kazakh</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>kk_KZ-raya-x_low</code></td><td>kk_KZ</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Kazakh</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ko_KR-kss-medium</code></td><td>ko_KR</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">https://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ku_TR-berfin_renas-medium</code></td><td>ku_TR</td><td>** <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a> — free for non-commercial use with attribution; commercial use restricted due to <a href="https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/license.html">Blizzard 2013 base model</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>lb_LU-marylux-medium</code></td><td>lb_LU</td><td><a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">http://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>lt_LT-reginute1-medium</code></td><td>lt_LT</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Lithuanian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>lv_LV-aivars-medium</code></td><td>lv_LV</td><td>CC0 1.0 Universal</td><td>Not supported yet: the Voices engine has no phonemizer for Latvian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ml_IN-arjun-medium</code></td><td>ml_IN</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ml_IN-meera-medium</code></td><td>ml_IN</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>mr_IN-google-medium</code></td><td>mr_IN</td><td>Attribution-ShareAlike 4.0 International</td><td>Not supported yet: the Voices engine has no phonemizer for Marathi</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ne_NP-chitwan-medium</code></td><td>ne_NP</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Nepali</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ne_NP-google-medium</code></td><td>ne_NP</td><td>CC-BY-SA-4.0 International</td><td>Not supported yet: the Voices engine has no phonemizer for Nepali</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ne_NP-google-x_low</code></td><td>ne_NP</td><td>CC-BY-SA-4.0 International</td><td>Not supported yet: the Voices engine has no phonemizer for Nepali</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_BE-nathalie-medium</code></td><td>nl_BE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_BE-nathalie-x_low</code></td><td>nl_BE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_BE-rdh-medium</code></td><td>nl_BE</td><td>CC0 1.0 Universal</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_BE-rdh-x_low</code></td><td>nl_BE</td><td>CC0 1.0 Universal</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_NL-alex-medium</code></td><td>nl_NL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_NL-mls-medium</code></td><td>nl_NL</td><td>CC-BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_NL-mls_5809-low</code></td><td>nl_NL</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_NL-mls_7432-low</code></td><td>nl_NL</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_NL-pim-medium</code></td><td>nl_NL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>nl_NL-ronnie-medium</code></td><td>nl_NL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Dutch</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>no_NO-nvcc-medium</code></td><td>no_NO</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Norwegian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>no_NO-talesyntese-medium</code></td><td>no_NO</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Norwegian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pl_PL-bass-high</code></td><td>pl_PL</td><td>none</td><td>The model card states no license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pl_PL-darkman-medium</code></td><td>pl_PL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Polish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pl_PL-gosia-medium</code></td><td>pl_PL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Polish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pl_PL-mc_speech-medium</code></td><td>pl_PL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Polish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pl_PL-mls_6892-low</code></td><td>pl_PL</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Polish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pt_BR-cadu-medium</code></td><td>pt_BR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Portuguese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pt_BR-edresson-low</code></td><td>pt_BR</td><td>CC BY 4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Portuguese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pt_BR-faber-medium</code></td><td>pt_BR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Portuguese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pt_BR-jeff-medium</code></td><td>pt_BR</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Portuguese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>pt_PT-tugão-medium</code></td><td>pt_PT</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Portuguese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ro_RO-mihai-medium</code></td><td>ro_RO</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Romanian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ru_RU-denis-medium</code></td><td>ru_RU</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Russian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ru_RU-dmitri-medium</code></td><td>ru_RU</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Russian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ru_RU-irina-medium</code></td><td>ru_RU</td><td>Unknown</td><td>Not an open license we accept: Unknown</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ru_RU-ruslan-medium</code></td><td>ru_RU</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">https://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sk_SK-lili-medium</code></td><td>sk_SK</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Slovak</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sl_SI-artur-medium</code></td><td>sl_SI</td><td><a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></td><td>Not supported yet: the Voices engine has no phonemizer for Slovenian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sq_AL-edon-medium</code></td><td>sq_AL</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Albanian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sr_RS-serbski_institut-medium</code></td><td>sr_RS</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">https://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sv_SE-alma-medium</code></td><td>sv_SE</td><td>none</td><td>The model card states no license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sv_SE-lisa-medium</code></td><td>sv_SE</td><td>none</td><td>The model card states no license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sv_SE-nst-medium</code></td><td>sv_SE</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Swedish</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>sw_CD-lanfrica-medium</code></td><td>sw_CD</td><td>See URL</td><td>The model card only says 'See URL', so the license is not clear</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>te_IN-maya-medium</code></td><td>te_IN</td><td><a href="http://www.iitm.ac.in/donlab/indictts/downloads/license.pdf">www.iitm.ac.in/donlab/indictts/downloads/license.pdf</a></td><td>Not an open license we accept: <a href="http://www.iitm.ac.in/donlab/indictts/downloads/license.p">www.iitm.ac.in/donlab/indictts/downloads/license.p</a></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>te_IN-padmavathi-medium</code></td><td>te_IN</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Telugu</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>te_IN-venkatesh-medium</code></td><td>te_IN</td><td>CC-BY-4.0</td><td>Not supported yet: the Voices engine has no phonemizer for Telugu</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>th_TH-tsync2-medium</code></td><td>th_TH</td><td>CC BY-NC-SA 3.0 (<strong>non-commercial</strong>)</td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>tr_TR-dfki-medium</code></td><td>tr_TR</td><td><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">https://creativecommons.org/licenses/by-nc-sa/4.0/</a></td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>uk_UA-lada-x_low</code></td><td>uk_UA</td><td>Apache 2.0</td><td>Not supported yet: the Voices engine has no phonemizer for Ukrainian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>uk_UA-mykyta-high</code></td><td>uk_UA</td><td>Apache 2.0</td><td>Not supported yet: the Voices engine has no phonemizer for Ukrainian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>uk_UA-oleksa-high</code></td><td>uk_UA</td><td>Apache 2.0</td><td>Not supported yet: the Voices engine has no phonemizer for Ukrainian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>uk_UA-tetiana-high</code></td><td>uk_UA</td><td>Apache 2.0</td><td>Not supported yet: the Voices engine has no phonemizer for Ukrainian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>uk_UA-ukrainian_tts-medium</code></td><td>uk_UA</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Ukrainian</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ur_PK-aegis_female-medium</code></td><td>ur_PK</td><td>none</td><td>The model card states no license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>ur_PK-fasih-medium</code></td><td>ur_PK</td><td>none</td><td>The model card states no license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>vi_VN-25hours_single-low</code></td><td>vi_VN</td><td>Unknown</td><td>Not an open license we accept: Unknown</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>vi_VN-vais1000-medium</code></td><td>vi_VN</td><td><a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></td><td>Not supported yet: the Voices engine has no phonemizer for Vietnamese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>vi_VN-vivos-x_low</code></td><td>vi_VN</td><td>CC BY-NC-SA 4.0</td><td>Non-commercial license</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>zh_CN-chaowen-medium</code></td><td>zh_CN</td><td>CC0</td><td>Not supported yet: the Voices engine has no phonemizer for Chinese</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>zh_CN-huayan-medium</code></td><td>zh_CN</td><td>Unknown</td><td>Not an open license we accept: Unknown</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>zh_CN-huayan-x_low</code></td><td>zh_CN</td><td>Unknown</td><td>Not an open license we accept: Unknown</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>zh_CN-xiao_ya-medium</code></td><td>zh_CN</td><td>Non-commercial use (see <a href="https://www.data-baker.com/data/index/TNtts/">https://www.data-baker.com/data/index/TNtts/</a>)</td><td>Non-commercial license</td></tr>
+</tbody>
+</table></div>
+<p>British English voices (<code>en_GB</code>) need the <code>en_uk</code> dictionary of the Voices engine, which is licensed GPL 3, so they are not offered. Other languages need a phonemizer the engine does not have yet.</p>
+<h2 id="updating-this-list"><a href="#updating-this-list" id="updating-this-list" name="updating-this-list" class="anchor"></a>Updating this list</h2>
+<p>This page and <code>voices.json</code> are generated. Run <code>boxlang tools/update-voices.bxs</code> in the module repository to read the current voices and their model cards again, and review the difference.</p>
+
+	
+
+	
+	
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/voices.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/voices.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 15, 2026, 3&#x3a;54&#x3a;33 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Voices&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+	
+</article>
+
+
+
+
+
+
+	<nav class="page-nav d-flex justify-content-between" aria-label="Page navigation">
+		
+		
+			<a class="page-nav__card page-nav__card--prev" href="/guides/storage/index.html">
+				<span class="page-nav__icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+				<span class="page-nav__text">
+					<span class="page-nav__label">Previous</span>
+					<span class="page-nav__title">Storage</span>
+				</span>
+			</a>
+		
+		
+		
+		
+		
+			<a class="page-nav__card page-nav__card--next" href="/licenses/index.html">
+				<span class="page-nav__text">
+					<span class="page-nav__label">Next</span>
+					<span class="page-nav__title">Licenses</span>
+				</span>
+				<span class="page-nav__icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+			</a>
+		
+	</nav>
+
+
+
+
+
+
+			</main>
+
+			
+			
+				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#licenses">Licenses</a></li><li class="toc-level-2"><a href="#available-voices">Available voices</a></li><li class="toc-level-2"><a href="#not-offered">Not offered</a></li><li class="toc-level-2"><a href="#updating-this-list">Updating this list</a></li></ul></nav>
+				</aside>
+			
+		</div>
+		
+	</div>
+	
+
+	
+	
+		<footer class="bxsites-footer">
+			<div class="container-fluid bxsites-footer__inner">
+				
+				<div class="bxsites-footer__copy">&copy; 2026 BoxLang Audio</div>
+				
+				
+					<div class="bxsites-footer__social"><a class="social-link" href="https://github.com/ortus-boxlang/bx-audio" target="_blank" rel="noopener noreferrer" aria-label="BoxLang Audio on GitHub" title="BoxLang Audio on GitHub"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg></a><a class="social-link" href="https://github.com/ortus-boxlang" target="_blank" rel="noopener noreferrer" aria-label="BoxLang on GitHub" title="BoxLang on GitHub"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg></a><a class="social-link" href="https://x.com/TryBoxLang" target="_blank" rel="noopener noreferrer" aria-label="X &#x28;Twitter&#x29;" title="X &#x28;Twitter&#x29;"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a class="social-link" href="https://www.youtube.com/@OrtusSolutions" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186 31.7 31.7 0 0 0 0 12a31.7 31.7 0 0 0 .502 5.814 3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136A31.7 31.7 0 0 0 24 12a31.7 31.7 0 0 0-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z"/></svg></a><a class="social-link" href="https://www.linkedin.com/company/tryboxlang" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124ZM7.119 20.452H3.554V9h3.565v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg></a><a class="social-link" href="https://bsky.app/profile/boxlang.bsky.social" target="_blank" rel="noopener noreferrer" aria-label="Bluesky" title="Bluesky"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.203-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/></svg></a><a class="social-link" href="https://www.ortussolutions.com/community/slack" target="_blank" rel="noopener noreferrer" aria-label="Slack Community" title="Slack Community"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52ZM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313ZM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834ZM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312ZM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834ZM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312ZM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52ZM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313Z"/></svg></a></div>
+				
+				
+				<div class="bxsites-footer__credit">Built with <a href="https://bxsites.io" target="_blank" rel="noopener noreferrer">BxSites</a></div>
+			</div>
+		</footer>
+	
+
+	
+	<script src="/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+	<script src="/assets/vendor/highlight/highlight.min.js"></script>
+	<script src="/assets/highlight-boxlang.c59b5de4.js"></script>
+	<script>hljs.highlightAll();</script>
+	<script src="/assets/code-lines.66ad0c90.js"></script>
+	<script src="/assets/copy-code.5bd76adc.js" defer></script>
+	<script src="/assets/admonition-collapse.df9b134e.js" defer></script>
+	<script src="/assets/nav-toggle.6bc5dbe8.js" defer></script>
+	<script src="/assets/toc-collapse.cb73e778.js" defer></script>
+	<script src="/assets/tabs.24dffad6.js" defer></script>
+	<script src="/assets/conditional-content-init.9ef1e0f9.js" defer></script>
+	<script src="/assets/course-progress.3813411a.js" defer></script>
+	<script src="/assets/prompt-init.774781de.js" defer></script>
+	<script src="/assets/contact-form-init.7f7be308.js" defer></script>
+
+	
+	
+		<script src="/assets/page-actions-init.9092e0f1.js" defer></script>
+	
+
+	
+	
+		<script src="/assets/vendor/mermaid/mermaid.min.js"></script>
+		<script src="/assets/mermaid-init.b2f3ed5c.js"></script>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+		<script src="/assets/image-gallery-init.63219523.js" defer></script>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+</body>
+</html>
+

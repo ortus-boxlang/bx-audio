@@ -1,0 +1,597 @@
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Examples - BoxLang Audio</title>
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="BoxLang Audio">
+	<meta property="og:title" content="Examples">
+
+	
+	
+
+	
+	
+		<link rel="canonical" href="https&#x3a;&#x2f;&#x2f;bxaudio.boxlang.io&#x2f;examples&#x2f;index.html">
+	
+
+	
+	
+		<meta name="description" content="Fourteen complete pieces made from code, each with a player.">
+		<meta property="og:description" content="Fourteen complete pieces made from code, each with a player.">
+	
+
+	
+	
+		<meta property="og:image" content="/assets/og-image.png">
+		<meta name="twitter:card" content="summary_large_image">
+	
+
+	
+	
+		<link rel="icon" href="/assets/favicon.png">
+	
+
+	
+	<script>
+		( function () {
+			var configuredMode = "dark";
+			var stored = localStorage.getItem( "bxsites-theme" );
+			var prefersDark = window.matchMedia( "(prefers-color-scheme: dark)" ).matches;
+			var wantsDark = stored ? stored === "dark" : ( configuredMode === "dark" || ( configuredMode === "auto" && prefersDark ) );
+			if ( wantsDark ) {
+				document.documentElement.setAttribute( "data-theme", "dark" );
+			}
+		} )();
+	</script>
+
+	
+	<link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/vendor/highlight/github.min.css">
+	<link rel="stylesheet" href="/assets/theme/style.a70338f7.css">
+
+	
+	
+
+	
+	
+		<style>
+			
+			
+				:root {
+					--bxsites-accent: #00C853;
+					--bxsites-link: #00C853;
+					--bxsites-link-hover: color-mix( in srgb, #00C853 85%, black );
+				}
+			
+			
+			
+				[data-theme="dark"] {
+					--bxsites-accent: #34D399;
+					--bxsites-link: #34D399;
+					--bxsites-link-hover: color-mix( in srgb, #34D399 85%, white );
+				}
+			
+		</style>
+	
+
+	
+	
+		<style>
+			.bxsites-nav-nested {
+				border-inline-start: 2px solid var(--bxsites-accent, var(--bxsites-border));
+				margin-inline-start: 0.2rem;
+				padding-inline-start: 0.85rem;
+			}
+		</style>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+		<script>window.__BXSITES_BASE_PATH__ = "/";</script>
+		<script>window.__BXSITES_SEARCH_NO_RESULTS__ = "No\x20results\x20found.";</script>
+		<script src="/assets/vendor/minisearch/minisearch.js"></script>
+		<script src="/assets/search.f14e08a2.js" defer></script>
+	
+
+	
+	
+
+	
+	
+
+	<script src="/assets/vendor/alpine/cdn.min.js" defer></script>
+</head>
+
+
+<body
+	x-data="{ dark: document.documentElement.getAttribute( 'data-theme' ) === 'dark', navOpen: window.matchMedia( '(min-width: 992px)' ).matches ? ( localStorage.getItem( 'bxsites-nav-open' ) !== null ? localStorage.getItem( 'bxsites-nav-open' ) === 'true' : true ) : false }"
+	x-init="$watch( 'dark', v => { document.documentElement.setAttribute( 'data-theme', v ? 'dark' : 'light' ); localStorage.setItem( 'bxsites-theme', v ? 'dark' : 'light' ) } ); $watch( 'navOpen', v => { if ( window.matchMedia( '(min-width: 992px)' ).matches ) localStorage.setItem( 'bxsites-nav-open', v ) } )">
+	
+	<nav class="navbar navbar-expand-lg brand-navbar">
+		<div class="container-fluid navbar-row">
+			
+			<button
+				class="navbar-toggler"
+				type="button"
+				@click="navOpen = !navOpen"
+				:aria-expanded="navOpen.toString()"
+				aria-controls="bxsites-sidebar"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			
+			<a class="navbar-brand brand-mark" href="/"><img class="brand-logo" src="/assets/boxlang-icon-full.svg" alt=""><span class="brand-name">BoxLang Audio</span></a>
+
+			
+			<div class="navbar-controls">
+				
+				
+					
+
+	<div class="bxsites-search position-relative">
+		<input
+			type="search"
+			id="bxsites-search-input"
+			class="form-control"
+			placeholder="Search..."
+			aria-label="Search">
+		<kbd class="bxsites-search-kbd" aria-hidden="true">Ctrl K</kbd>
+		<ul id="bxsites-search-results" class="bxsites-search-results list-unstyled"></ul>
+	</div>
+
+
+
+				
+
+				
+				
+
+				
+				
+					<a
+						class="repo-link"
+						href="https://github.com/ortus-boxlang/bx-audio"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Repository"
+						title="Repository">
+						<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg>
+					</a>
+				
+
+				
+				<button
+					type="button"
+					class="theme-toggle"
+					@click="dark = !dark"
+					aria-label="Toggle dark mode">
+					<span x-show="!dark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></span>
+					<span x-show="dark" x-cloak><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+				</button>
+			</div>
+			
+		</div>
+		
+	</nav>
+
+	
+	<div class="container-fluid">
+		
+		<div class="row" :class="{ 'bxsites-nav-collapsed' : !navOpen }">
+			
+			<aside class="col-lg-3 col-xl-2 sidebar" id="bxsites-sidebar" x-show="navOpen" x-cloak>
+				
+				
+				<ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/index.html"><svg class="bxsites-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,96v64H48V96Z" opacity="0.2"/><path d="M56,96v64a8,8,0,0,1-16,0V96a8,8,0,0,1,16,0ZM88,24a8,8,0,0,0-8,8V224a8,8,0,0,0,16,0V32A8,8,0,0,0,88,24Zm40,32a8,8,0,0,0-8,8V192a8,8,0,0,0,16,0V64A8,8,0,0,0,128,56Zm40,32a8,8,0,0,0-8,8v64a8,8,0,0,0,16,0V96A8,8,0,0,0,168,88Zm40-16a8,8,0,0,0-8,8v96a8,8,0,0,0,16,0V80A8,8,0,0,0,208,72Z"/></svg> BoxLang Audio</a></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Start here</span><button type="button" class="nav-toggle" aria-expanded="true" aria-label="Toggle Start here section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested"><li class="nav-item"><a class="nav-link" href="/getting-started/index.html">Getting started</a></li><li class="nav-item"><a class="nav-link active" href="/examples/index.html">Examples</a></li><li class="nav-item"><a class="nav-link" href="/guides/explorer/index.html">The explorer</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Guides</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Guides section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/guides/index.html">Guides</a></li><li class="nav-item"><a class="nav-link" href="/guides/synthesis-and-effects/index.html">Synthesis and effects</a></li><li class="nav-item"><a class="nav-link" href="/guides/mixing/index.html">Timeline mixing</a></li><li class="nav-item"><a class="nav-link" href="/guides/trailers-and-video/index.html">Trailers and video</a></li><li class="nav-item"><a class="nav-link" href="/guides/loudness-and-mastering/index.html">Loudness and mastering</a></li><li class="nav-item"><a class="nav-link" href="/guides/time-and-pitch/index.html">Time and pitch</a></li><li class="nav-item"><a class="nav-link" href="/guides/speech-and-subtitles/index.html">Speech and subtitles</a></li><li class="nav-item"><a class="nav-link" href="/guides/games/index.html">Game audio</a></li><li class="nav-item"><a class="nav-link" href="/guides/analysis/index.html">Analysis</a></li><li class="nav-item"><a class="nav-link" href="/guides/formats-and-ffmpeg/index.html">Formats and FFmpeg</a></li><li class="nav-item"><a class="nav-link" href="/guides/storage/index.html">Storage</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Voices and licenses</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Voices and licenses section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/voices/index.html">Voices</a></li><li class="nav-item"><a class="nav-link" href="/licenses/index.html">Licenses</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Reference</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Reference section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/reference/functions/index.html">Functions</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/files-and-editing/index.html">Files and editing</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/synthesis/index.html">Synthesis</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/effects/index.html">Effects</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/timeline/index.html">Timeline mixing</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/loudness-and-dynamics/index.html">Loudness and dynamics</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/time-and-pitch/index.html">Time and pitch</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/analysis/index.html">Analysis</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/ffmpeg-and-video/index.html">FFmpeg and video</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/speech/index.html">Speech and subtitles</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/games/index.html">Game audio</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/storage/index.html">Storage</a></li><li class="nav-item"><a class="nav-link" href="/reference/cli/index.html">Command line</a></li><li class="nav-item"><a class="nav-link" href="/reference/configuration/index.html">Configuration</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Help</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Help section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/troubleshooting/index.html">Troubleshooting</a></li><li class="nav-item"><a class="nav-link" href="/roadmap/index.html">Roadmap</a></li><li class="nav-item"><a class="nav-link" href="/contribute/index.html">Contribute</a></li></ul></li></ul>
+				<a class="bxsites-powered-by" href="https://bxsites.io" target="_blank" rel="noopener noreferrer">
+					<img class="bxsites-powered-by__logo" src="/assets/bxsites-logo.svg" alt="" aria-hidden="true"> <span>Powered by BxSites</span>
+				</a>
+			</aside>
+
+			
+			<main class="col-lg-9 col-xl-8 content">
+					
+
+	
+	<article class="page-content">
+		
+		
+			<div class="bxsites-page-actions"><details class="bxsites-page-actions__disclosure"><summary class="bxsites-page-actions__button" aria-label="Page actions"><span>Copy</span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg><kbd class="bxsites-page-actions__kbd" aria-hidden="true">C</kbd></summary><div class="bxsites-page-actions__panel"><button type="button" class="bxsites-page-actions__item" data-bxsites-action="copy-markdown" data-bxsites-markdown-url="/examples/index.md"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Copy page</span><span class="bxsites-page-actions__item-hint">Copy page as Markdown for LLMs</span></span></button><button type="button" class="bxsites-page-actions__item" data-bxsites-action="copy-link" data-bxsites-page-url="https://bxaudio.boxlang.io/examples/index.html"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Copy link</span><span class="bxsites-page-actions__item-hint">Copy a link to this page</span></span></button><a class="bxsites-page-actions__item" href="/examples/index.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">View as Markdown <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">View this page as plain text</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://chatgpt.com/?q=Read%20https%3A%2F%2Fbxaudio.boxlang.io%2Fexamples%2Findex.html%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2c.3 3.6 1 6.2 2.1 7.9C15.2 11.5 17 12.5 20 13c-3 .5-4.8 1.5-5.9 3.1C13 17.8 12.3 20.4 12 24c-.3-3.6-1-6.2-2.1-7.9C8.8 14.5 7 13.5 4 13c3-.5 4.8-1.5 5.9-3.1C11 8.2 11.7 5.6 12 2Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Open in ChatGPT <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Ask ChatGPT about this page</span></span></a><a class="bxsites-page-actions__item" href="https://claude.ai/new?q=Read%20https%3A%2F%2Fbxaudio.boxlang.io%2Fexamples%2Findex.html%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2c.3 3.6 1 6.2 2.1 7.9C15.2 11.5 17 12.5 20 13c-3 .5-4.8 1.5-5.9 3.1C13 17.8 12.3 20.4 12 24c-.3-3.6-1-6.2-2.1-7.9C8.8 14.5 7 13.5 4 13c3-.5 4.8-1.5 5.9-3.1C11 8.2 11.7 5.6 12 2Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Open in Claude <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Ask Claude about this page</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/examples/index.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Edit on GitHub <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Edit this page on GitHub</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><button type="button" class="bxsites-page-actions__item" data-bxsites-action="print"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Export as PDF</span><span class="bxsites-page-actions__item-hint">Download this page as a PDF</span></span></button><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://x.com/intent/tweet?url=https%3A%2F%2Fbxaudio.boxlang.io%2Fexamples%2Findex.html&amp;text=Examples" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on X <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on X</span></span></a><a class="bxsites-page-actions__item" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fbxaudio.boxlang.io%2Fexamples%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124ZM7.119 20.452H3.554V9h3.565v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on LinkedIn <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on LinkedIn</span></span></a><a class="bxsites-page-actions__item" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbxaudio.boxlang.io%2Fexamples%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on Facebook <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on Facebook</span></span></a></div></details></div>
+		
+		
+		
+		
+		
+		
+		<h1 class="page-title" id="page-title">
+			<a href="#page-title" id="page-title" class="anchor"></a>
+			
+			Examples
+		</h1>
+		
+		
+			<p class="page-summary">Fourteen complete pieces made from code, each with a player.</p>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#pop-drive">Pop Drive</a></li><li class="toc-level-2"><a href="#lofi">Lofi</a></li><li class="toc-level-2"><a href="#house">House</a></li><li class="toc-level-2"><a href="#ambient">Ambient</a></li><li class="toc-level-2"><a href="#techno">Techno</a></li><li class="toc-level-2"><a href="#synthwave">Synthwave</a></li><li class="toc-level-2"><a href="#cinematic">Cinematic</a></li><li class="toc-level-2"><a href="#chiptune">Chiptune</a></li><li class="toc-level-2"><a href="#game-sound-effects">Game sound effects</a></li><li class="toc-level-2"><a href="#jazz">Jazz</a></li><li class="toc-level-2"><a href="#rock">Rock</a></li><li class="toc-level-2"><a href="#voice-over">Voice-over</a></li><li class="toc-level-2"><a href="#trailer-soundtrack">Trailer soundtrack</a></li><li class="toc-level-2"><a href="#game-audio">Game audio</a></li></ul></details>
+		
+
+		
+		<!-- Generated by tools/generate-docs.bxs from examples/explorer/catalog.json. Do not edit. -->
+<p>Every example is a BoxLang script that makes a complete piece of sound from code, with no samples and no licensing questions: all the music is original. The clips below are short renders at 96 kbps; the scripts make the full pieces. Each is one readable file in <a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples"><code>examples/</code></a>, covered by tests that render it and measure what it sounds like.</p>
+<pre><code class="language-bash">bx-audio pieces                         # the list
+bx-audio render house --out=house.mp3   # render one, with its own settings
+bx-audio explorer                       # play them all in the browser
+</code></pre>
+<h2 id="pop-drive"><a href="#pop-drive" id="pop-drive" name="pop-drive" class="anchor"></a>Pop Drive</h2>
+<p><em>Upbeat pop.</em> Voices, a beat grid, kick pump and mastering. A port of a numpy script, checked against the original.</p>
+<p><audio controls preload="none" src="../assets/audio/pop-drive.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render pop-drive --out=pop-drive.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>8 to 56</td><td><code>28</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>90 to 150</td><td><code>128</code></td></tr>
+<tr><td><code>--style</code></td><td>Style</td><td>pop, drive</td><td><code>pop</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/01-pop-drive">Script and notes</a></p>
+<h2 id="lofi"><a href="#lofi" id="lofi" name="lofi" class="anchor"></a>Lofi</h2>
+<p><em>Lofi hip hop.</em> Swing, humanised timing, tape wobble and vinyl crackle over jazzy seventh chords.</p>
+<p><audio controls preload="none" src="../assets/audio/lofi.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render lofi --out=lofi.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>8 to 32</td><td><code>16</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>60 to 95</td><td><code>78</code></td></tr>
+<tr><td><code>--swing</code></td><td>Swing</td><td>0.5 to 0.7</td><td><code>0.58</code></td></tr>
+<tr><td><code>--seed</code></td><td>Seed</td><td>1 to 99</td><td><code>7</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/02-lofi">Script and notes</a></p>
+<h2 id="house"><a href="#house" id="house" name="house" class="anchor"></a>House</h2>
+<p><em>House.</em> Four on the floor with sidechain pumping, a rolling bass, stabs, a riser and a drop.</p>
+<p><audio controls preload="none" src="../assets/audio/house.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render house --out=house.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>16 to 48</td><td><code>32</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>118 to 130</td><td><code>124</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/03-house">Script and notes</a></p>
+<h2 id="ambient"><a href="#ambient" id="ambient" name="ambient" class="anchor"></a>Ambient</h2>
+<p><em>Drone and pads.</em> Slow envelopes, inharmonic bells, noise swells and a very large reverb.</p>
+<p><audio controls preload="none" src="../assets/audio/ambient.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render ambient --out=ambient.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>4 to 24</td><td><code>12</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>36 to 70</td><td><code>48</code></td></tr>
+<tr><td><code>--seed</code></td><td>Seed</td><td>1 to 99</td><td><code>5</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/04-ambient">Script and notes</a></p>
+<h2 id="techno"><a href="#techno" id="techno" name="techno" class="anchor"></a>Techno</h2>
+<p><em>Techno.</em> A hypnotic groove in F sharp minor: hard kick, rumble bass, a resonant acid line and echoing stabs.</p>
+<p><audio controls preload="none" src="../assets/audio/techno.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render techno --out=techno.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>16 to 48</td><td><code>32</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>124 to 145</td><td><code>132</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/05-techno">Script and notes</a></p>
+<h2 id="synthwave"><a href="#synthwave" id="synthwave" name="synthwave" class="anchor"></a>Synthwave</h2>
+<p><em>Synthwave.</em> A night drive: pulsing bass, a gated snare in a huge room, wide pads, an arpeggio and a lead melody.</p>
+<p><audio controls preload="none" src="../assets/audio/synthwave.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render synthwave --out=synthwave.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>16 to 48</td><td><code>32</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>85 to 120</td><td><code>100</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/06-synthwave">Script and notes</a></p>
+<h2 id="cinematic"><a href="#cinematic" id="cinematic" name="cinematic" class="anchor"></a>Cinematic</h2>
+<p><em>Trailer music.</em> Tension, a build, one silent beat, then a huge boom, taiko drums and a theme. Ends on a ringing hit.</p>
+<p><audio controls preload="none" src="../assets/audio/cinematic.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render cinematic --out=cinematic.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>16 to 40</td><td><code>24</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>70 to 120</td><td><code>90</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/07-cinematic">Script and notes</a></p>
+<h2 id="chiptune"><a href="#chiptune" id="chiptune" name="chiptune" class="anchor"></a>Chiptune</h2>
+<p><em>8 bit game music.</em> Original music for an imaginary console: two pulse channels, a triangle bass and noise drums. Five tracks, from an overworld theme to a boss fight.</p>
+<p><audio controls preload="none" src="../assets/audio/chiptune.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render chiptune --out=chiptune.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--track</code></td><td>Track</td><td>overworld, cave, boss, title, victory</td><td><code>overworld</code></td></tr>
+<tr><td><code>--loops</code></td><td>Loops (0 is the track's own)</td><td>0 to 4</td><td><code>0</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/08-chiptune">Script and notes</a></p>
+<h2 id="game-sound-effects"><a href="#game-sound-effects" id="game-sound-effects" name="game-sound-effects" class="anchor"></a>Game sound effects</h2>
+<p><em>Sound effects.</em> A jump, a coin, a laser, an explosion and more, made from pulse waves and noise. Hear them all in the sampler or one at a time.</p>
+<p><audio controls preload="none" src="../assets/audio/sfx.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render sfx --out=sfx.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--sound</code></td><td>Sound</td><td>sampler, jump, coin, laser, explosion, powerup, hit, blip, alarm, gameover, footstep</td><td><code>sampler</code></td></tr>
+<tr><td><code>--seed</code></td><td>Seed (the noise in the explosion, hit and footstep)</td><td>1 to 99</td><td><code>1</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/09-sfx">Script and notes</a></p>
+<h2 id="jazz"><a href="#jazz" id="jazz" name="jazz" class="anchor"></a>Jazz</h2>
+<p><em>Swing blues.</em> A trio on a twelve bar blues in F: walking bass, ride, piano comping and an improvised solo. Change the seed for another solo.</p>
+<p><audio controls preload="none" src="../assets/audio/jazz.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render jazz --out=jazz.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--choruses</code></td><td>Choruses</td><td>2 to 6</td><td><code>3</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>100 to 180</td><td><code>132</code></td></tr>
+<tr><td><code>--swing</code></td><td>Swing</td><td>0.5 to 0.75</td><td><code>0.64</code></td></tr>
+<tr><td><code>--seed</code></td><td>Seed</td><td>1 to 99</td><td><code>4</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/10-jazz">Script and notes</a></p>
+<h2 id="rock"><a href="#rock" id="rock" name="rock" class="anchor"></a>Rock</h2>
+<p><em>Rock.</em> Distorted power chords, a bass guitar, drums with fills and crashes, and a pentatonic solo from a seeded generator.</p>
+<p><audio controls preload="none" src="../assets/audio/rock.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render rock --out=rock.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--bars</code></td><td>Bars</td><td>16 to 48</td><td><code>32</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>100 to 160</td><td><code>128</code></td></tr>
+<tr><td><code>--seed</code></td><td>Seed</td><td>1 to 99</td><td><code>3</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/11-rock">Script and notes</a></p>
+<h2 id="voice-over"><a href="#voice-over" id="voice-over" name="voice-over" class="anchor"></a>Voice-over</h2>
+<p><em>Narration over music.</em> A trailer style announcement: a text to speech voice over music that ducks under it. Needs the speech engine, so it runs from the command line.</p>
+<p><audio controls preload="none" src="../assets/audio/voiceover.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render voiceover --out=voiceover.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--voice</code></td><td>Voice</td><td>text</td><td><code>joe</code></td></tr>
+<tr><td><code>--text</code></td><td>Lines, separated by</td><td> </td><td>text</td></tr>
+<tr><td><code>--duck</code></td><td>Music ducking in dB</td><td>-24 to 0</td><td><code>-12</code></td></tr>
+<tr><td><code>--bpm</code></td><td>Tempo</td><td>80 to 130</td><td><code>100</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/12-voiceover">Script and notes</a></p>
+<h2 id="trailer-soundtrack"><a href="#trailer-soundtrack" id="trailer-soundtrack" name="trailer-soundtrack" class="anchor"></a>Trailer soundtrack</h2>
+<p><em>A scored video.</em> Music cut to an exact length, a voice-over with captions, ducking, mastering to a loudness target and chapter markers. Needs the speech engine, so it runs from the command line.</p>
+<p><audio controls preload="none" src="../assets/audio/trailer.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render trailer --out=trailer.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--seconds</code></td><td>Length in seconds</td><td>8 to 40</td><td><code>15</code></td></tr>
+<tr><td><code>--voice</code></td><td>Voice</td><td>text</td><td><code>joe</code></td></tr>
+<tr><td><code>--text</code></td><td>What the voice says</td><td>text</td><td><code>none</code></td></tr>
+<tr><td><code>--target</code></td><td>Loudness target</td><td>streaming, podcast, game, broadcast, cinema</td><td><code>streaming</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/13-trailer">Script and notes</a></p>
+<h2 id="game-audio"><a href="#game-audio" id="game-audio" name="game-audio" class="anchor"></a>Game audio</h2>
+<p><em>A scripted play session.</em> What a game asks of a sound engine: effects with variations, a looping theme, a boss theme made with time stretch and pitch shift, and a real time mixer with music and effects buses. A scripted session is rendered here.</p>
+<p><audio controls preload="none" src="../assets/audio/game-audio.mp3"></audio></p>
+<pre><code class="language-bash">bx-audio render game-audio --out=game-audio.mp3
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Setting</th><th> </th><th>Range</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--seed</code></td><td>Seed (changes the variations)</td><td>1 to 20</td><td><code>1</code></td></tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/ortus-boxlang/bx-audio/tree/development/examples/14-game-audio">Script and notes</a></p>
+
+	
+
+	
+	
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/examples/index.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/examples/index.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 15, 2026, 3&#x3a;54&#x3a;33 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Examples&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fexamples%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+	
+</article>
+
+
+
+
+
+
+	<nav class="page-nav d-flex justify-content-between" aria-label="Page navigation">
+		
+		
+			<a class="page-nav__card page-nav__card--prev" href="/getting-started/index.html">
+				<span class="page-nav__icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+				<span class="page-nav__text">
+					<span class="page-nav__label">Previous</span>
+					<span class="page-nav__title">Getting started</span>
+				</span>
+			</a>
+		
+		
+		
+		
+		
+			<a class="page-nav__card page-nav__card--next" href="/guides/explorer/index.html">
+				<span class="page-nav__text">
+					<span class="page-nav__label">Next</span>
+					<span class="page-nav__title">The explorer</span>
+				</span>
+				<span class="page-nav__icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+			</a>
+		
+	</nav>
+
+
+
+
+
+
+			</main>
+
+			
+			
+				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#pop-drive">Pop Drive</a></li><li class="toc-level-2"><a href="#lofi">Lofi</a></li><li class="toc-level-2"><a href="#house">House</a></li><li class="toc-level-2"><a href="#ambient">Ambient</a></li><li class="toc-level-2"><a href="#techno">Techno</a></li><li class="toc-level-2"><a href="#synthwave">Synthwave</a></li><li class="toc-level-2"><a href="#cinematic">Cinematic</a></li><li class="toc-level-2"><a href="#chiptune">Chiptune</a></li><li class="toc-level-2"><a href="#game-sound-effects">Game sound effects</a></li><li class="toc-level-2"><a href="#jazz">Jazz</a></li><li class="toc-level-2"><a href="#rock">Rock</a></li><li class="toc-level-2"><a href="#voice-over">Voice-over</a></li><li class="toc-level-2"><a href="#trailer-soundtrack">Trailer soundtrack</a></li><li class="toc-level-2"><a href="#game-audio">Game audio</a></li></ul></nav>
+				</aside>
+			
+		</div>
+		
+	</div>
+	
+
+	
+	
+		<footer class="bxsites-footer">
+			<div class="container-fluid bxsites-footer__inner">
+				
+				<div class="bxsites-footer__copy">&copy; 2026 BoxLang Audio</div>
+				
+				
+					<div class="bxsites-footer__social"><a class="social-link" href="https://github.com/ortus-boxlang/bx-audio" target="_blank" rel="noopener noreferrer" aria-label="BoxLang Audio on GitHub" title="BoxLang Audio on GitHub"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg></a><a class="social-link" href="https://github.com/ortus-boxlang" target="_blank" rel="noopener noreferrer" aria-label="BoxLang on GitHub" title="BoxLang on GitHub"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg></a><a class="social-link" href="https://x.com/TryBoxLang" target="_blank" rel="noopener noreferrer" aria-label="X &#x28;Twitter&#x29;" title="X &#x28;Twitter&#x29;"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a class="social-link" href="https://www.youtube.com/@OrtusSolutions" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186 31.7 31.7 0 0 0 0 12a31.7 31.7 0 0 0 .502 5.814 3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136A31.7 31.7 0 0 0 24 12a31.7 31.7 0 0 0-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z"/></svg></a><a class="social-link" href="https://www.linkedin.com/company/tryboxlang" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124ZM7.119 20.452H3.554V9h3.565v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg></a><a class="social-link" href="https://bsky.app/profile/boxlang.bsky.social" target="_blank" rel="noopener noreferrer" aria-label="Bluesky" title="Bluesky"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.203-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/></svg></a><a class="social-link" href="https://www.ortussolutions.com/community/slack" target="_blank" rel="noopener noreferrer" aria-label="Slack Community" title="Slack Community"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52ZM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313ZM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834ZM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312ZM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834ZM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312ZM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52ZM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313Z"/></svg></a></div>
+				
+				
+				<div class="bxsites-footer__credit">Built with <a href="https://bxsites.io" target="_blank" rel="noopener noreferrer">BxSites</a></div>
+			</div>
+		</footer>
+	
+
+	
+	<script src="/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+	<script src="/assets/vendor/highlight/highlight.min.js"></script>
+	<script src="/assets/highlight-boxlang.c59b5de4.js"></script>
+	<script>hljs.highlightAll();</script>
+	<script src="/assets/code-lines.66ad0c90.js"></script>
+	<script src="/assets/copy-code.5bd76adc.js" defer></script>
+	<script src="/assets/admonition-collapse.df9b134e.js" defer></script>
+	<script src="/assets/nav-toggle.6bc5dbe8.js" defer></script>
+	<script src="/assets/toc-collapse.cb73e778.js" defer></script>
+	<script src="/assets/tabs.24dffad6.js" defer></script>
+	<script src="/assets/conditional-content-init.9ef1e0f9.js" defer></script>
+	<script src="/assets/course-progress.3813411a.js" defer></script>
+	<script src="/assets/prompt-init.774781de.js" defer></script>
+	<script src="/assets/contact-form-init.7f7be308.js" defer></script>
+
+	
+	
+		<script src="/assets/page-actions-init.9092e0f1.js" defer></script>
+	
+
+	
+	
+		<script src="/assets/vendor/mermaid/mermaid.min.js"></script>
+		<script src="/assets/mermaid-init.b2f3ed5c.js"></script>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+		<script src="/assets/image-gallery-init.63219523.js" defer></script>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+</body>
+</html>
+
