@@ -39,6 +39,13 @@ public class DocsTest extends BaseIntegrationTest {
 
 	private static final Path DOCS = Path.of( "docs" );
 
+	/**
+	 * A file as text with Unix line endings: a Windows checkout converts them
+	 */
+	private static String read( Path file ) throws java.io.IOException {
+		return Files.readString( file ).replace( "\r\n", "\n" );
+	}
+
 	private static List<Path> pages() throws Exception {
 		try ( Stream<Path> walk = Files.walk( DOCS ) ) {
 			return walk.filter( p -> p.toString().endsWith( ".md" ) ).sorted().toList();
@@ -56,7 +63,7 @@ public class DocsTest extends BaseIntegrationTest {
 		StringBuilder reference = new StringBuilder();
 		try ( Stream<Path> files = Files.list( DOCS.resolve( "reference/functions" ) ) ) {
 			for ( Path p : files.toList() ) {
-				reference.append( Files.readString( p ) ).append( '\n' );
+				reference.append( read( p ) ).append( '\n' );
 			}
 		}
 		for ( String name : functions ) {
@@ -74,8 +81,8 @@ public class DocsTest extends BaseIntegrationTest {
 	@DisplayName( "every command of the command line has a section in the reference" )
 	@Test
 	void testCommandsDocumented() throws Exception {
-		String	cli		= Files.readString( Path.of( "src/main/bx/cli/Cli.bx" ) );
-		String	docs	= Files.readString( DOCS.resolve( "reference/cli.md" ) );
+		String	cli		= read( Path.of( "src/main/bx/cli/Cli.bx" ) );
+		String	docs	= read( DOCS.resolve( "reference/cli.md" ) );
 		Matcher	names	= Pattern.compile( "\\{ name : \"(\\w+)\", usage" ).matcher( cli );
 		int		count	= 0;
 		while ( names.find() ) {
@@ -89,7 +96,7 @@ public class DocsTest extends BaseIntegrationTest {
 	@Test
 	void testLinks() throws Exception {
 		@SuppressWarnings( "unchecked" )
-		List<Object>	nav		= JSON.std.listFrom( Files.readString( DOCS.resolve( "nav.json" ) ) );
+		List<Object>	nav		= JSON.std.listFrom( read( DOCS.resolve( "nav.json" ) ) );
 		List<String>	listed	= new ArrayList<>();
 		collect( nav, listed );
 		for ( String file : listed ) {
@@ -97,7 +104,7 @@ public class DocsTest extends BaseIntegrationTest {
 		}
 		Pattern link = Pattern.compile( "!?\\[[^\\]]*\\]\\(([^)\\s]+)\\)" );
 		for ( Path page : pages() ) {
-			String text = Files.readString( page );
+			String text = read( page );
 			assertThat( text ).startsWith( "---\n" );
 			assertThat( text ).containsMatch( "(?m)^title: .+$" );
 			assertThat( listed ).contains( DOCS.relativize( page ).toString().replace( '\\', '/' ) );
@@ -127,7 +134,7 @@ public class DocsTest extends BaseIntegrationTest {
 	@DisplayName( "the audio the examples page plays exists" )
 	@Test
 	void testClipsExist() throws Exception {
-		String	page	= Files.readString( DOCS.resolve( "examples/index.md" ) );
+		String	page	= read( DOCS.resolve( "examples/index.md" ) );
 		Matcher	clips	= Pattern.compile( "src=\"\\.\\./assets/audio/([\\w\\-]+\\.mp3)\"" ).matcher( page );
 		int		count	= 0;
 		while ( clips.find() ) {
@@ -145,7 +152,7 @@ public class DocsTest extends BaseIntegrationTest {
 		Pattern	file	= Pattern.compile( "\"((?:[\\w\\-]+/)*[\\w\\-]+\\.(?:wav|mp3|flac|json|edl|txt|srt))\"" );
 		int		ran		= 0;
 		for ( Path page : pages() ) {
-			Matcher m = snippet.matcher( Files.readString( page ) );
+			Matcher m = snippet.matcher( read( page ) );
 			while ( m.find() ) {
 				// Files the example writes go to a temporary folder, not the project
 				String code = file.matcher( m.group( 1 ) ).replaceAll( r -> "\"" + dir.toString().replace( '\\', '/' ) + "/" + r.group( 1 ) + "\"" );
