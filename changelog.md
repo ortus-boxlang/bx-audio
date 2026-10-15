@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Examples `13-trailer` (music fitted to a video, a voice-over with captions, ducking, mastering, chapters and mux) and `14-game-audio` (a mixer session with buses, loops, variations, a boss theme from stretch and pitch, and a sprite)
+* Game audio: `audioMixer` (real time, buses, volume, pan, pitch, loops, crossfade; output to the speakers, a clock with no sound, or memory), `audioPlay`, `audioLoopify`, `audioVariations`, `audioSprite` (with a Howler.js map). CLI `play`, `loopify`, `sprite`
+* Speech for video: `audioSpeak` takes `speed` and `pauses`; `audioSpeakCues` returns the audio with timed caption lines; `audioSubtitles` writes SRT and WebVTT. CLI `speak --speed --captions --by-clause`
+* FFmpeg as an optional separate program: `audioFfmpeg`, `audioFfmpegInstall` (pinned, SHA-256 checked downloads for Linux and macOS on amd64 and arm64, and Windows), OGG, Opus and AAC output through `audioSave`, reading any format and the audio of any video through `audioLoad`, `videoInfo`, `audioMux` and `audioMarkers`. CLI `ffmpeg`, `probe`, `mux`. Settings `ffmpeg`, `BX_AUDIO_FFMPEG`
+* FLAC read and write in plain Java, verified against FFmpeg (identical samples, CRC and MD5 valid)
+* Loudness and mastering: `audioLoudness` (EBU R128 / BS.1770, within 0.1 LU of FFmpeg's ebur128), `audioNormalizeLoudness`, `audioMaster` with presets, `audioCompress`, `audioLimit`, `audioEq`. CLI `loudness`, `master`
+* Time and pitch: `audioStretch`, `audioFitTo`, `audioPitch` (WSOLA). CLI `stretch`, `pitch`
+* Analysis: `audioBpm` (tempo and beats), `audioSpectrum`, `audioSpectrogram`, `audioFft`, `audioDetectSilence`, `audioTrimSilence`. CLI `bpm`, `silence`
+* Downloads now live in `~/.bxaudio` (settings `home`, `BX_AUDIO_HOME`), shared by every BoxLang install. `audioStorage`, `audioStorageClear` and the CLI `where` and `clean` show and free them. The speech engine loads through the module's own class loader
+* Voices: all 177 voices of the collection are classified. `audioVoices( status=, license= )`, `audioLicenses` and CLI `voices --excluded --downloadable --all`, `voices <voice>` and `licenses` show what is offered, what is not and why
 * Example `12-voiceover`: a spoken announcement over music that ducks under the voice, using `audioSpeak` and `audioDuck`, or a recording of your own. Command line only, since it needs the speech engine
 * Examples `10-jazz` (a twelve bar blues with a walking bass and a solo improvised by rules that follow the chords) and `11-rock` (distorted power chords, bass, drums and a seeded solo), measured, tested and in the explorer
 * Example `09-sfx`: ten synthesized game sound effects (jump, coin, laser, explosion, power up, hit, blip, alarm, game over, footstep), as a sampler, one sound, or a folder of files

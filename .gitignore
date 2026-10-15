@@ -20,3 +20,5 @@ src/test/resources/libs/*
 out/
 *.wav
 !src/test/resources/**/*.wav
+site/
+.cache/

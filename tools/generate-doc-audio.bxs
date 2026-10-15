@@ -1,0 +1,68 @@
+/**
+ * Renders the short clips the documentation plays (docs/assets/audio/*.mp3): one for each example, at 96 kbps so the site stays small.
+ * Run it when an example changes, and commit the clips it writes.
+ *
+ * The speech based examples (12-voiceover and 13-trailer) need the speech engine, which downloads once; pass --voices to render them, and
+ * leave them alone otherwise (the clips already in the folder stay).
+ *
+ * With --voice-samples it also speaks a sample line with every voice the module offers (docs/assets/audio/voices/*.mp3). That downloads each
+ * voice (60 to 114 MB), so it is a thing to run now and then, not on every change.
+ *
+ * Usage:
+ *   boxlang tools/generate-doc-audio.bxs [--voices] [--voice-samples] [--only=house,jazz]
+ */
+
+root = expandPath( "../" );
+options = cliGetArgs().options;
+withVoices = options.keyExists( "voices" ) && options.voices != false;
+only = options.keyExists( "only" ) ? options.only.listToArray() : [];
+target = root & "docs/assets/audio";
+directoryCreate( target, true, true );
+temp = getTempDirectory() & "/bxaudio-doc-clips-" & createUUID();
+directoryCreate( temp, true, true );
+
+cli = new bxModules.bxaudio.cli.Cli( root );
+
+// Settings that make each clip about 20 to 30 seconds
+clips = [
+	{ id : "pop-drive", args : [ "--bars=12" ] },
+	{ id : "lofi", args : [ "--bars=8" ] },
+	{ id : "house", args : [ "--bars=12" ] },
+	{ id : "ambient", args : [ "--bars=6" ] },
+	{ id : "techno", args : [ "--bars=12" ] },
+	{ id : "synthwave", args : [ "--bars=10" ] },
+	{ id : "cinematic", args : [] },
+	{ id : "chiptune", args : [ "--track=overworld" ] },
+	{ id : "sfx", args : [] },
+	{ id : "jazz", args : [ "--choruses=1" ] },
+	{ id : "rock", args : [ "--bars=12" ] },
+	{ id : "voiceover", args : [], voice : true },
+	{ id : "trailer", args : [ "--seconds=15" ], voice : true },
+	{ id : "game-audio", args : [] }
+];
+
+for( clip in clips ){
+	if( only.len() && !only.contains( clip.id ) ){
+		continue;
+	}
+	if( clip.keyExists( "voice" ) && !withVoices ){
+		println( "skipped " & clip.id & " (needs the speech engine, add --voices)" );
+		continue;
+	}
+	wav = temp & "/" & clip.id & ".wav";
+	cli.run( [ "render", clip.id, "--out=" & wav ].append( clip.args, true ) );
+	audio = audioLoad( wav );
+	audioSave( audio, target & "/" & clip.id & ".mp3", 16, 96 );
+	println( clip.id & ": " & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s" );
+}
+
+if( options.keyExists( "voice-samples" ) && options[ "voice-samples" ] != false ){
+	directoryCreate( target & "/voices", true, true );
+	for( voice in audioVoices( status = "offered" ) ){
+		line = "Hello. I am " & voice.name & ", one of the open license voices of BoxLang Audio.";
+		sample = audioSpeak( text = line, voice = voice.id );
+		audioSave( sample, target & "/voices/" & voice.id & ".mp3", 16, 64 );
+		println( voice.id & ": " & numberFormat( sample.getDurationSeconds(), "0.0" ) & " s" );
+	}
+}
+directoryDelete( temp, true );

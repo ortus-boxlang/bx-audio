@@ -255,6 +255,10 @@ test {
     useJUnitPlatform()
     // Rendering a full arrangement holds a dozen stereo stems at once, more than the 512 MB Gradle default
     maxHeapSize = "2g"
+    // The documentation tests read docs/ and the examples, so a change there must run them again
+    inputs.dir( 'docs' )
+    inputs.dir( 'examples' )
+    inputs.file( 'src/main/bx/cli/Cli.bx' )
     testLogging {
 		showStandardStreams = true
 		events "passed", "skipped", "failed"

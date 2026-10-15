@@ -76,10 +76,12 @@ class {
 		 * Every module has a settings configuration object
 		 */
 		settings = {
-			// Where the speech engine and the voices are downloaded to. Empty means a bx-audio folder inside the BoxLang home.
+			// Where the speech engine, the voices and FFmpeg are downloaded to. Empty means the .bxaudio folder in the user's home.
 			home : "",
-			// May audioSpeak() download the engine and the voice it needs, the first time they are used
-			autoInstall : true
+			// May the module download the speech engine, a voice or FFmpeg when you first use something that needs it
+			autoInstall : true,
+			// Path to FFmpeg (the program, or its folder). Empty finds it in the BX_AUDIO_FFMPEG variable, the bx-audio home, then the PATH.
+			ffmpeg : ""
 		};
 
 		/**
@@ -157,9 +159,8 @@ class {
 			if( ( server.system.environment.BX_AUDIO_DEBUG ?: "" ) == "1" ){
 				rethrow;
 			}
-			System = createObject( "java", "java.lang.System" );
-			System.err.println( "bx-audio: " & e.message );
-			System.exit( 1 );
+			systemOutput( "bx-audio: " & e.message, true, true );
+			cliExit( 1 );
 		}
 	}
 

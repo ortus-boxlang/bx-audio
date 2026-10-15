@@ -33,12 +33,32 @@ import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
  */
 public final class VoiceCatalog {
 
-	private final String			baseUrl;
-	private final List<VoiceInfo>	voices;
+	private final String				baseUrl;
+	private final List<VoiceInfo>		voices;
+	private final List<ExcludedVoice>	excluded;
 
-	private VoiceCatalog( String baseUrl, List<VoiceInfo> voices ) {
+	private VoiceCatalog( String baseUrl, List<VoiceInfo> voices, List<ExcludedVoice> excluded ) {
 		this.baseUrl	= baseUrl;
 		this.voices		= voices;
+		this.excluded	= excluded;
+	}
+
+	/**
+	 * A voice of the collection that is not offered
+	 *
+	 * @param id          The Piper voice key
+	 * @param name        The short name
+	 * @param language    The language and region
+	 * @param quality     {@code low}, {@code medium} or {@code high}
+	 * @param license     The license as an identifier, empty when the card's license is not an open one we accept
+	 * @param licenseText The license as the model card states it, empty when it states none
+	 * @param source      Where the training data came from, may be empty
+	 * @param reasonKind  {@code license}, {@code dictionary}, {@code speakers} or {@code language}
+	 * @param reason      Why it is not offered, in a sentence
+	 * @param size        The bytes its files would take
+	 */
+	public record ExcludedVoice( String id, String name, String language, String quality, String license, String licenseText, String source,
+	    String reasonKind, String reason, long size ) {
 	}
 
 	/**
@@ -76,7 +96,14 @@ public final class VoiceCatalog {
 			    file( ( Map<String, Object> ) v.get( "model" ) ),
 			    file( ( Map<String, Object> ) v.get( "config" ) ) ) );
 		}
-		return new VoiceCatalog( ( String ) root.get( "source" ), List.copyOf( voices ) );
+		List<ExcludedVoice> excluded = new ArrayList<>();
+		for ( Object entry : ( List<Object> ) root.getOrDefault( "excluded", List.of() ) ) {
+			Map<String, Object> v = ( Map<String, Object> ) entry;
+			excluded.add( new ExcludedVoice( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ),
+			    ( String ) v.get( "quality" ), ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ), ( String ) v.get( "source" ),
+			    ( String ) v.get( "reasonKind" ), ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue() ) );
+		}
+		return new VoiceCatalog( ( String ) root.get( "source" ), List.copyOf( voices ), List.copyOf( excluded ) );
 	}
 
 	private static VoiceFile file( Map<String, Object> node ) {
@@ -95,6 +122,13 @@ public final class VoiceCatalog {
 	 */
 	public List<VoiceInfo> all() {
 		return this.voices;
+	}
+
+	/**
+	 * @return The voices of the collection that are not offered, with the reason
+	 */
+	public List<ExcludedVoice> excluded() {
+		return this.excluded;
 	}
 
 	/**
@@ -118,6 +152,17 @@ public final class VoiceCatalog {
 		if ( byName.size() > 1 ) {
 			throw new BoxRuntimeException( "More than one voice is called [" + wanted + "], use the full id: "
 			    + byName.stream().map( VoiceInfo::id ).collect( Collectors.joining( ", " ) ) );
+		}
+		List<ExcludedVoice> skipped = this.excluded.stream().filter( v -> v.id().equalsIgnoreCase( wanted ) ).toList();
+		if ( skipped.isEmpty() ) {
+			skipped = this.excluded.stream().filter( v -> v.name().equalsIgnoreCase( wanted ) ).toList();
+		}
+		if ( !skipped.isEmpty() ) {
+			ExcludedVoice voice = skipped.get( 0 );
+			{
+				throw new BoxRuntimeException( "The voice [" + ( skipped.size() > 1 ? wanted : voice.id() ) + "] is not offered: " + voice.reason()
+				    + ". Run `bx-audio voices --excluded` to see every voice that is not offered and why." );
+			}
 		}
 		throw new BoxRuntimeException( "Unknown voice [" + wanted + "]. Run audioVoices() or `bx-audio voices` to see the voices you can install." );
 	}

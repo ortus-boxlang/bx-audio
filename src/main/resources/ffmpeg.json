@@ -1,0 +1,100 @@
+{
+  "_comment": "Pinned FFmpeg downloads. Every file is checked against its size and SHA-256 before it is used. The programs are third party builds by their providers (martin-riedl.de for macOS and Linux, gyan.dev for Windows), started as separate processes, and never bundled or linked by this module. Their licenses are those of the builds: see https://ffmpeg.org/legal.html.",
+  "version": "9.0.2",
+  "platforms": {
+    "macos-amd64": {
+      "archives": [
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/macos/amd64/1789931006_9.0.2/ffmpeg.zip",
+          "size": 33816391,
+          "sha256": "7c6b4125b191cbf773832dc51f424cf2b6bb7da43007d1e066f95909e47cacd4",
+          "extract": {
+            "ffmpeg": "ffmpeg"
+          }
+        },
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/macos/amd64/1789931006_9.0.2/ffprobe.zip",
+          "size": 33719233,
+          "sha256": "2322438ed2f6319a691291b247d09c69dcaa3a982460d1f269a7e1af335cfdfd",
+          "extract": {
+            "ffprobe": "ffprobe"
+          }
+        }
+      ]
+    },
+    "macos-arm64": {
+      "archives": [
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffmpeg.zip",
+          "size": 28395699,
+          "sha256": "c8ed4c4e6978a03c485edbfe4e0a5dc2380f8a30bba5150531b31b094492d924",
+          "extract": {
+            "ffmpeg": "ffmpeg"
+          }
+        },
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2/ffprobe.zip",
+          "size": 28317701,
+          "sha256": "fcbe839537485eaee7a7a8bc5cbc0f90d53617e80943e8a5b2e31cb851197ea6",
+          "extract": {
+            "ffprobe": "ffprobe"
+          }
+        }
+      ]
+    },
+    "linux-amd64": {
+      "archives": [
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/linux/amd64/1789931100_9.0.2/ffmpeg.zip",
+          "size": 33326445,
+          "sha256": "fa8ecf4abbd290d98f7d188b8649cc6b391ae209a98452be955a15aab1909d7f",
+          "extract": {
+            "ffmpeg": "ffmpeg"
+          }
+        },
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/linux/amd64/1789931100_9.0.2/ffprobe.zip",
+          "size": 33223234,
+          "sha256": "3f428c49070be3d24ec338602b76d412e401ffcb8a5641ef0e729181a232fc32",
+          "extract": {
+            "ffprobe": "ffprobe"
+          }
+        }
+      ]
+    },
+    "linux-arm64": {
+      "archives": [
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/linux/arm64/1789931697_9.0.2/ffmpeg.zip",
+          "size": 28753826,
+          "sha256": "93a76ae90db5474eecdf951a729857c64f3de23567228d6a7d5e6e8e3cd1021b",
+          "extract": {
+            "ffmpeg": "ffmpeg"
+          }
+        },
+        {
+          "url": "https://ffmpeg.martin-riedl.de/download/linux/arm64/1789931697_9.0.2/ffprobe.zip",
+          "size": 28655683,
+          "sha256": "bcbe80fb741c180083327afaf5434812e006b33cacde2016b9aeaf6936128330",
+          "extract": {
+            "ffprobe": "ffprobe"
+          }
+        }
+      ]
+    },
+    "windows-amd64": {
+      "version": "8.1.2",
+      "archives": [
+        {
+          "url": "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-8.1.2-essentials_build.zip",
+          "size": 109728040,
+          "sha256": "db580001caa24ac104c8cb856cd113a87b0a443f7bdf47d8c12b1d740584a2ec",
+          "extract": {
+            "ffmpeg.exe": "ffmpeg-8.1.2-essentials_build/bin/ffmpeg.exe",
+            "ffprobe.exe": "ffmpeg-8.1.2-essentials_build/bin/ffprobe.exe"
+          }
+        }
+      ]
+    }
+  }
+}

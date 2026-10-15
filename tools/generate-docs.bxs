@@ -1,0 +1,281 @@
+/**
+ * Writes the generated parts of the documentation site (docs/): the function reference, from the BIF classes, and the command reference,
+ * from the CLI. Run it after changing a BIF or a command, and commit what it writes.
+ *
+ * The arguments of each function come from the running module, so they are exactly what the function accepts. The descriptions come from the
+ * Javadoc of each BIF: its first paragraph, the @argument tags and @return. A function that is not in `categories` below stops the run, so
+ * a new function cannot go undocumented.
+ *
+ * Usage (the module must be installed in the BoxLang home that runs it):
+ *   boxlang tools/generate-docs.bxs
+ */
+
+hash = char( 35 );
+newline = createObject( "java", "java.lang.System" ).lineSeparator();
+root = expandPath( "../" );
+
+// Category pages, in the order of the reference. Each lists its functions in the order they should be read.
+categories = [
+	{ slug : "files-and-editing", title : "Files and editing", blurb : "Create, load, save and edit audio buffers.", functions : [ "audioSilence", "audioLoad", "audioSave", "audioInfo", "audioWaveform", "audioGain", "audioPan", "audioFade", "audioNormalize", "audioTrim", "audioConcat", "audioReverse", "audioMix", "audioChannels", "audioResample" ] },
+	{ slug : "synthesis", title : "Synthesis", blurb : "Make sound from nothing: oscillators, noise, envelopes, sweeps and drums.", functions : [ "audioFreq", "audioOsc", "audioSweep", "audioNoise", "audioEnvelope", "audioDrum", "audioFilter" ] },
+	{ slug : "effects", title : "Effects", blurb : "Echo, reverb, chorus and saturation.", functions : [ "audioDelay", "audioReverb", "audioChorus", "audioSaturate" ] },
+	{ slug : "timeline", title : "Timeline mixing", blurb : "Arrange sounds on a beat grid, on tracks, with pumping and ducking.", functions : [ "audioTimeline", "audioAdd", "audioBeats", "audioTrackGain", "audioPump", "audioDuck", "audioRender" ] },
+	{ slug : "loudness-and-dynamics", title : "Loudness and dynamics", blurb : "Measure loudness the EBU R128 way, master to a target, compress, limit and equalize.", functions : [ "audioLoudness", "audioNormalizeLoudness", "audioMaster", "audioCompress", "audioLimit", "audioEq" ] },
+	{ slug : "time-and-pitch", title : "Time and pitch", blurb : "Change speed without pitch and pitch without speed, and fit audio to a length.", functions : [ "audioStretch", "audioFitTo", "audioPitch" ] },
+	{ slug : "analysis", title : "Analysis", blurb : "Tempo and beats, spectrum, and silence.", functions : [ "audioBpm", "audioSpectrum", "audioSpectrogram", "audioFft", "audioDetectSilence", "audioTrimSilence" ] },
+	{ slug : "ffmpeg-and-video", title : "FFmpeg and video", blurb : "Find or download FFmpeg, read video, put sound on a video, write markers.", functions : [ "audioFfmpeg", "audioFfmpegInstall", "videoInfo", "audioMux", "audioMarkers" ] },
+	{ slug : "speech", title : "Speech and subtitles", blurb : "Text to speech with open license voices, captions timed to the voice, and the voice catalog.", functions : [ "audioSpeak", "audioSpeakCues", "audioSubtitles", "audioVoices", "audioLicenses", "audioVoiceInstall", "audioVoiceRemove", "audioSpeechStatus" ] },
+	{ slug : "games", title : "Game audio", blurb : "A real time mixer, loops, variations and audio sprites.", functions : [ "audioMixer", "audioPlay", "audioLoopify", "audioVariations", "audioSprite" ] },
+	{ slug : "storage", title : "Storage", blurb : "Where the module keeps what it downloads.", functions : [ "audioStorage", "audioStorageClear" ] }
+];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The functions the module registers, with their arguments
+// ---------------------------------------------------------------------------------------------------------------------------------
+registered = {};
+for( name in getFunctionList().keyArray() ){
+	entry = getFunctionList()[ name ];
+	if( entry.module == "bxaudio" ){
+		registered[ name.lcase() ] = { name : name, className : entry.className, params : entry.arguments };
+	}
+}
+
+listed = [];
+categories.each( ( c ) => c.functions.each( ( f ) => listed.append( f.lcase() ) ) );
+missing = registered.keyArray().filter( ( k ) => !listed.contains( k ) );
+if( missing.len() ){
+	throw( type = "docs", message = "These functions have no category in tools/generate-docs.bxs, add them: " & missing.toList( ", " ) );
+}
+unknown = listed.filter( ( k ) => !registered.keyExists( k ) );
+if( unknown.len() ){
+	throw( type = "docs", message = "These functions are listed in tools/generate-docs.bxs but are not registered: " & unknown.toList( ", " ) );
+}
+
+/**
+ * The Javadoc of a BIF: its description, a struct of argument notes, and the return note
+ */
+function javadocOf( className ){
+	var file = expandPath( "../src/main/java/" & className.replace( ".", "/", "all" ) & ".java" );
+	var source = fileRead( file );
+	var invoke = source.indexOf( "_invoke(" );
+	var start = source.lastIndexOf( "/**", invoke );
+	var end = source.indexOf( "*/", start );
+	var lines = source.substring( start + 3, end ).split( char( 10 ) ).map( ( l ) => l.reReplace( "^\s*\*?\s*", "" ).trim() );
+	var result = { description : [], arguments : {}, returns : [] };
+	var current = "description";
+	var name = "";
+	for( var line in lines ){
+		if( !line.len() ){
+			continue;
+		}
+		if( line.startsWith( "@param " ) ){
+			current = "ignore";
+		} else if( line.startsWith( "@argument." ) ){
+			current = "argument";
+			name = line.reReplace( "^@argument\.(\S+).*$", "\1" );
+			result.arguments[ name ] = [ line.reReplace( "^@argument\.\S+\s*", "" ) ];
+		} else if( line.startsWith( "@return" ) ){
+			current = "returns";
+			result.returns.append( line.reReplace( "^@return\s*", "" ) );
+		} else if( line.startsWith( "@" ) ){
+			current = "ignore";
+		} else if( current == "description" ){
+			result.description.append( line );
+		} else if( current == "argument" ){
+			result.arguments[ name ].append( line );
+		} else if( current == "returns" ){
+			result.returns.append( line );
+		}
+	}
+	return {
+		description : result.description.toList( " " ),
+		arguments : result.arguments.map( ( k, v ) => v.toList( " " ) ),
+		returns : result.returns.toList( " " )
+	};
+}
+
+function showDefault( value ){
+	if( isNull( value ) ){
+		return "";
+	}
+	if( isBoolean( value ) && !isNumeric( value ) ){
+		return value ? "true" : "false";
+	}
+	if( isNumeric( value ) ){
+		return value == int( value ) ? int( value ) & "" : value & "";
+	}
+	return char( 34 ) & value & char( 34 );
+}
+
+function argText( name, spec ){
+	if( spec.required ){
+		return name;
+	}
+	return isNull( spec.defaultValue ) ? name : name & "=" & showDefault( spec.defaultValue );
+}
+
+function escapeCell( text ){
+	return text.replace( "|", "\|", "all" );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// One page per category
+// ---------------------------------------------------------------------------------------------------------------------------------
+indexRows = [];
+order = 1;
+for( category in categories ){
+	page = [];
+	page.append( "---" );
+	page.append( "title: " & category.title );
+	page.append( "order: " & order );
+	page.append( "summary: " & category.blurb );
+	page.append( "---" );
+	page.append( "" );
+	page.append( "<!-- Generated by tools/generate-docs.bxs from the BIF classes. Do not edit; change the Javadoc and run it again. -->" );
+	page.append( "" );
+	page.append( category.blurb );
+	page.append( "" );
+	for( funcName in category.functions ){
+		info = registered[ funcName.lcase() ];
+		doc = javadocOf( info.className );
+		argNames = info.params.keyArray();
+		argParts = [];
+		for( a in argNames ){
+			argParts.append( argText( a, info.params[ a ] ) );
+		}
+		argList = argParts.toList( ", " );
+		signature = argList.len() ? funcName & "( " & argList & " )" : funcName & "()";
+		page.append( hash & hash & " " & funcName );
+		page.append( "" );
+		page.append( doc.description );
+		page.append( "" );
+		page.append( "```js" );
+		page.append( signature );
+		page.append( "```" );
+		page.append( "" );
+		if( argNames.len() ){
+			page.append( "| Argument | Type | Default | |" );
+			page.append( "|---|---|---|---|" );
+			for( a in argNames ){
+				spec = info.params[ a ];
+				note = doc.arguments.keyExists( a ) ? doc.arguments[ a ] : "";
+				page.append( "| `" & a & "` | " & spec.type & " | " & ( spec.required ? "required" : ( isNull( spec.defaultValue ) ? "optional" : "`" & showDefault( spec.defaultValue ) & "`" ) ) & " | " & escapeCell( note ) & " |" );
+			}
+			page.append( "" );
+		}
+		if( doc.returns.len() ){
+			page.append( "**Returns** " & doc.returns );
+			page.append( "" );
+		}
+		indexRows.append( "| [`" & funcName & "`](" & category.slug & ".md) | " & category.title & " | " & doc.description.reReplace( "\.\s.*$", "." ) & " |" );
+	}
+	fileWrite( root & "docs/reference/functions/" & category.slug & ".md", page.toList( newline ) & newline );
+	order++;
+}
+
+// The index of all functions
+index = [];
+index.append( "---" );
+index.append( "title: Functions" );
+index.append( "order: 1" );
+index.append( "summary: Every function of the module, by area." );
+index.append( "---" );
+index.append( "" );
+index.append( "<!-- Generated by tools/generate-docs.bxs. Do not edit. -->" );
+index.append( "" );
+index.append( "All " & registered.len() & " functions of the module. Audio is passed around as an audio buffer: every function that changes audio returns a new buffer and leaves the one you gave it alone." );
+index.append( "" );
+index.append( "| Function | Area | |" );
+index.append( "|---|---|---|" );
+index.append( indexRows.sort( "text" ), true );
+fileWrite( root & "docs/reference/functions/index.md", index.flatten().toList( newline ) & newline );
+println( "Wrote " & registered.len() & " functions in " & categories.len() & " pages to docs/reference/functions/" );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The command line reference
+// ---------------------------------------------------------------------------------------------------------------------------------
+cli = new bxModules.bxaudio.cli.Cli( root );
+commands = cli.getCommands();
+page = [];
+page.append( "---" );
+page.append( "title: Command line" );
+page.append( "order: 2" );
+page.append( "summary: Every bx-audio command and its options." );
+page.append( "---" );
+page.append( "" );
+page.append( "<!-- Generated by tools/generate-docs.bxs from the CLI. Do not edit. -->" );
+page.append( "" );
+page.append( "`bx-audio` is installed by `install-bx-module bx-audio`, together with its bash tab completion. Without the installer the same commands run as `boxlang module:bxaudio <command>`. Paths are relative to the folder you run the command in. `bx-audio help <command>` prints the usage of one command." );
+page.append( "" );
+page.append( "| Command | What it does |" );
+page.append( "|---|---|" );
+commands.each( ( c ) => page.append( "| [`" & c.name & "`](" & char( 35 ) & c.name & ") | " & escapeCell( c.help ) & " |" ) );
+page.append( "" );
+for( c in commands ){
+	page.append( hash & hash & " " & c.name );
+	page.append( "" );
+	page.append( c.help & "." );
+	page.append( "" );
+	page.append( "```bash" );
+	page.append( "bx-audio " & c.usage );
+	page.append( "```" );
+	page.append( "" );
+	if( c.keyExists( "details" ) ){
+		page.append( "```text" );
+		page.append( c.details, true );
+		page.append( "```" );
+		page.append( "" );
+	}
+}
+fileWrite( root & "docs/reference/cli.md", page.flatten().toList( newline ) & newline );
+println( "Wrote " & commands.len() & " commands to docs/reference/cli.md" );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The examples page, from the explorer's catalog, with a player for each clip made by tools/generate-doc-audio.bxs
+// ---------------------------------------------------------------------------------------------------------------------------------
+catalog = jsonDeserialize( fileRead( root & "examples/explorer/catalog.json" ) );
+page = [];
+page.append( "---" );
+page.append( "title: Examples" );
+page.append( "order: 3" );
+page.append( "summary: Fourteen complete pieces made from code, each with a player." );
+page.append( "---" );
+page.append( "" );
+page.append( "<!-- Generated by tools/generate-docs.bxs from examples/explorer/catalog.json. Do not edit. -->" );
+page.append( "" );
+page.append( "Every example is a BoxLang script that makes a complete piece of sound from code, with no samples and no licensing questions: all the music is original. The clips below are short renders at 96 kbps; the scripts make the full pieces. Each is one readable file in [`examples/`](https://github.com/ortus-boxlang/bx-audio/tree/development/examples), covered by tests that render it and measure what it sounds like." );
+page.append( "" );
+page.append( "```bash" );
+page.append( "bx-audio pieces                         " & hash & " the list" );
+page.append( "bx-audio render house --out=house.mp3   " & hash & " render one, with its own settings" );
+page.append( "bx-audio explorer                       " & hash & " play them all in the browser" );
+page.append( "```" );
+page.append( "" );
+for( piece in catalog ){
+	folder = piece.script.listFirst( "/" ) == ".." ? piece.script.listGetAt( 2, "/" ) : piece.script.listFirst( "/" );
+	page.append( hash & hash & " " & piece.title );
+	page.append( "" );
+	page.append( "*" & piece.style & ".* " & piece.blurb );
+	page.append( "" );
+	page.append( "<audio controls preload=""none"" src=""../assets/audio/" & piece.id & ".mp3""></audio>" );
+	page.append( "" );
+	rows = [];
+	for( param in piece.params ){
+		range = param.type == "range" ? param.min & " to " & param.max : ( param.type == "select" ? param.options.toList( ", " ) : "text" );
+		rows.append( "| `--" & param.name & "` | " & param.label & " | " & range & " | `" & ( param.value == "" ? "none" : param.value ) & "` |" );
+	}
+	page.append( "```bash" );
+	page.append( "bx-audio render " & piece.id & " --out=" & piece.id & ".mp3" );
+	page.append( "```" );
+	page.append( "" );
+	if( rows.len() ){
+		page.append( "| Setting | | Range | Default |" );
+		page.append( "|---|---|---|---|" );
+		page.append( rows, true );
+		page.append( "" );
+	}
+	page.append( "[Script and notes](https://github.com/ortus-boxlang/bx-audio/tree/development/examples/" & folder & ")" );
+	page.append( "" );
+}
+fileWrite( root & "docs/examples/index.md", page.flatten().toList( newline ) & newline );
+println( "Wrote docs/examples/index.md (" & catalog.len() & " examples)" );

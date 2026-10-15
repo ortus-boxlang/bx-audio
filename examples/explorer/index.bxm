@@ -2,6 +2,12 @@
 	// The catalog is read on the server and handed to the page, so there is one list of pieces and settings
 	// Pieces that need the speech engine are left out: it is a 150 MB download, which a web page should not start by itself
 	catalogJson = jsonSerialize( jsonDeserialize( fileRead( expandPath( "./catalog.json" ) ) ).filter( ( p ) => !( p.needsVoice ?: false ) ) );
+	// Where the module keeps what it downloads, shown in the footer. Nothing can be deleted from this page: use `bx-audio clean`.
+	try {
+		storage = audioStorage();
+	} catch( any e ){
+		storage = { home : "", totalMB : 0 };
+	}
 </bx:script>
 <!doctype html>
 <html lang="en">
@@ -106,6 +112,11 @@
 	<img src="assets/boxlang-icon-full.svg" alt="" width="22" height="22">
 	<span>Rendered by <code>render.bxm</code> with the module's <code>audioRender</code>, <code>audioSave</code> and <code>audioWaveform</code>. Results are cached in <code>cache/</code> by piece and settings, so the same settings play instantly.</span>
 </footer>
+<bx:output>
+<footer>
+	<span>Downloads (speech engine, voices, FFmpeg) are kept in <code>#encodeForHTML( storage.home )#</code>, #numberFormat( storage.totalMB, "0.0" )# MB at the moment. See them with <code>bx-audio where</code> and free them with <code>bx-audio clean</code>.</span>
+</footer>
+</bx:output>
 <audio id="player" preload="auto"></audio>
 <bx:output><script>window.CATALOG = #catalogJson#;</script></bx:output>
 <script>

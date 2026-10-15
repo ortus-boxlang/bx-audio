@@ -63,6 +63,54 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
 	}
 
+	@DisplayName( "audioVoices filters by status and license, and says why a voice is not offered" )
+	@Test
+	void testVoiceStatuses( @TempDir Path home ) {
+		useSpeechHome( home );
+		int offered = VoiceCatalog.load().all().size();
+		assertThat( ( ( Array ) run( "result = audioVoices( status='downloadable' )" ) ).size() ).isEqualTo( offered );
+		assertThat( ( ( Array ) run( "result = audioVoices( status='installed' )" ) ).size() ).isEqualTo( 0 );
+		Array excluded = ( Array ) run( "result = audioVoices( status='excluded' )" );
+		assertThat( excluded.size() ).isEqualTo( VoiceCatalog.load().excluded().size() );
+		assertThat( ( ( Array ) run( "result = audioVoices( status='all' )" ) ).size() ).isEqualTo( offered + excluded.size() );
+		IStruct ryan = ( IStruct ) ( ( Array ) run( "result = audioVoices( status='excluded' ).filter( ( v ) => v.id == 'en_US-ryan-high' )" ) ).get( 0 );
+		assertThat( ryan.get( Key.of( "status" ) ) ).isEqualTo( "excluded" );
+		assertThat( ryan.get( Key.of( "reason" ) ).toString() ).contains( "Non-commercial" );
+		assertThat( ( ( Array ) run( "result = audioVoices( license='Apache-2.0' )" ) ).size() ).isEqualTo( 1 );
+		assertThat( message( "result = audioVoices( status='bogus' )" ) ).contains( "Unknown status [bogus]" );
+	}
+
+	@DisplayName( "audioLicenses describes each license and counts the offered voices that use it" )
+	@Test
+	void testLicenses() {
+		Array licenses = ( Array ) run( "result = audioLicenses()" );
+		assertThat( licenses.size() ).isAtLeast( 5 );
+		IStruct apache = ( IStruct ) run( "result = audioLicenses().filter( ( l ) => l.id == 'Apache-2.0' ).first()" );
+		assertThat( apache.get( Key.of( "attribution" ) ) ).isEqualTo( true );
+		assertThat( apache.get( Key.of( "commercial" ) ) ).isEqualTo( true );
+		assertThat( ( ( Number ) apache.get( Key.of( "voices" ) ) ).intValue() ).isEqualTo( 1 );
+		// every offered voice has a license we describe
+		assertThat( run( "ids = audioLicenses().map( ( l ) => l.id ); result = audioVoices().every( ( v ) => ids.contains( v.license ) )" ) )
+		    .isEqualTo( true );
+	}
+
+	@DisplayName( "audioSubtitles formats cues and writes the file, and audioSpeakCues explains what is missing" )
+	@Test
+	void testSubtitlesAndCues( @TempDir Path home ) throws Exception {
+		useSpeechHome( home );
+		variables.put( Key.of( "target" ), home.resolve( "out/captions.vtt" ).toString() );
+		String text = ( String ) run(
+		    "result = audioSubtitles( [ { start: 0, end: 1.5, text: 'Hello' }, { start: 2, end: 3, text: 'World' } ], 'vtt', target, 10 )" );
+		assertThat( text ).startsWith( "WEBVTT\n\n00:00:10.000 --> 00:00:11.500\nHello" );
+		assertThat( java.nio.file.Files.readString( home.resolve( "out/captions.vtt" ) ) ).isEqualTo( text );
+		assertThat( message( "result = audioSubtitles( [ { start: 0, text: 'x' } ] )" ) ).contains( "Each cue must be a struct" );
+		assertThat( message( "result = audioSubtitles( [], 'ass' )" ) ).contains( "Unknown subtitle format" );
+		assertThat( message( "result = audioSpeakCues( text='Hello there.', voice='joe', autoInstall=false )" ) ).contains( "bx-audio install engine" );
+		assertThat( message( "result = audioSpeakCues( text='Hello there.', voice='joe', split='word', autoInstall=false )" ) ).contains( "split must be" );
+		assertThat( message( "result = audioSpeak( text='Hello.', voice='joe', autoInstall=false, speed=9 )" ) )
+		    .containsMatch( "bx-audio install engine|speed must be" );
+	}
+
 	@DisplayName( "audioSpeechStatus says where everything lives and that nothing is installed yet" )
 	@Test
 	void testStatus( @TempDir Path home ) {
@@ -84,7 +132,7 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( message( "audioSpeak( text='Hello', voice='nope', autoInstall=false )" ) ).contains( "Unknown voice [nope]" );
 		assertThat( message( "audioSpeak( text='  ', voice='joe', autoInstall=false )" ) ).contains( "nothing to say" );
 		// a restricted voice is not in the catalog, so it cannot be asked for
-		assertThat( message( "audioSpeak( text='Hello', voice='lessac', autoInstall=false )" ) ).contains( "Unknown voice [lessac]" );
+		assertThat( message( "audioSpeak( text='Hello', voice='lessac', autoInstall=false )" ) ).contains( "The voice [lessac] is not offered" );
 	}
 
 	@DisplayName( "A setting can turn automatic downloads off for every call" )

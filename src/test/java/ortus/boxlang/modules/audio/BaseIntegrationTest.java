@@ -67,9 +67,17 @@ public abstract class BaseIntegrationTest {
 		moduleRecord.settings.put( Key.of( "home" ), home.toString() );
 	}
 
+	/**
+	 * Make the module refuse to download anything, so a test that meets a missing engine, voice or FFmpeg fails instead of fetching it
+	 */
+	protected void useNoDownloads() {
+		moduleRecord.settings.put( Key.of( "autoInstall" ), false );
+	}
+
 	@AfterEach
 	public void resetSpeechHome() {
 		moduleRecord.settings.put( Key.of( "home" ), "" );
+		moduleRecord.settings.put( Key.of( "autoInstall" ), true );
 	}
 
 	protected static void loadModule( IBoxContext context ) {

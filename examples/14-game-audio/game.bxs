@@ -1,0 +1,163 @@
+/**
+ * Game audio: what a game needs from a sound engine, in one script. Sound effects made from nothing, five varied copies of each so the
+ * jump never sounds the same twice, a music loop that repeats without a click, a faster, higher boss theme made from the same loop with
+ * the time stretch and the pitch shift, and a mixer that plays all of it with music and effects on their own volume buses.
+ *
+ * A scripted play session runs through the mixer: the music starts, the player jumps and collects coins, a laser fires, the music
+ * crossfades to the boss theme, there is an explosion and the music fades out. By default the session is rendered to a file. With --play it
+ * plays live to your speakers.
+ *
+ * Usage:
+ *   boxlang game.bxs [--out=out/game-session.wav] [--folder=out/game-audio] [--seed=1]
+ *   boxlang game.bxs --play                  # hear it now, through the sound card
+ *
+ * With --folder the sound effects are also written as one audio sprite with a Howler.js map, with the two music loops, ready to load in a web or desktop game.
+ */
+
+settings = { out : "out/game-session.wav", folder : "", seed : 1, play : false };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+seed = int( settings.seed );
+live = settings.play == true || settings.play == "true";
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Building blocks
+// ---------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * A tone that glides from one pitch to another in small steps, with the phase carried over so it never clicks
+ */
+function glide( shape, fromHz, toHz, seconds, width ){
+	var segment = 0.005;
+	var count = max( 2, int( seconds / segment ) );
+	var phase = 0;
+	var parts = [];
+	for( var i = 0; i < count; i++ ){
+		var hz = fromHz * ( toHz / fromHz ) ^ ( i / ( count - 1 ) );
+		parts.append( audioOsc( shape = shape, freq = hz, seconds = segment, sampleRate = sr, width = width, phase = phase ) );
+		phase = ( phase + hz * segment ) mod 1;
+	}
+	return audioConcat( parts );
+}
+
+/**
+ * One note with the volume shape of an arcade tone: an instant attack and a decay
+ */
+function note( shape, hz, seconds, width, decay ){
+	return audioFade( audioEnvelope( audioOsc( shape = shape, freq = hz, seconds = seconds, sampleRate = sr, width = width ), 0.001, decay ), 0, min( 0.01, seconds / 2 ) );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The sound effects. Each is mono; the mixer pans them.
+// ---------------------------------------------------------------------------------------------------------------------------------
+jump = audioGain( glide( "pulse", 260, 760, 0.18, 0.25 ), -8 );
+coin = audioGain( audioConcat( [ note( "pulse", 988, 0.07, 0.5, 0.05 ), note( "pulse", 1319, 0.25, 0.5, 0.2 ) ] ), -10 );
+laser = audioGain( glide( "saw", 1800, 220, 0.22, 0.5 ), -12 );
+boom = audioGain( audioReverb( audio = audioFilter( audioEnvelope( audioNoise( seconds = 1.4, sampleRate = sr, seed = seed, color = "brown" ), 0.002, 0.5 ), "lowpass", 900, 0.8 ), room = 0.4, damp = 0.5, mix = 0.2 ), 0 );
+
+// Five copies of the effects that repeat a lot, each a little different in pitch and level
+jumps = audioVariations( audio = jump, count = 5, pitchRange = 1.5, gainRange = 2, seed = seed );
+coins = audioVariations( audio = coin, count = 4, pitchRange = 0.7, gainRange = 1.5, seed = seed + 1 );
+lasers = audioVariations( audio = laser, count = 5, pitchRange = 1.0, gainRange = 2, seed = seed + 2 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The music: four bars of bass and arpeggio at 130 bpm, made into a loop
+// ---------------------------------------------------------------------------------------------------------------------------------
+beat = 60 / 130;
+chords = [ [ 57, 60, 64 ], [ 53, 57, 60 ], [ 48, 52, 55 ], [ 55, 59, 62 ] ];
+bassRoots = [ 33, 29, 36, 31 ];
+parts = [];
+for( bar = 1; bar <= 4; bar++ ){
+	bassNotes = [];
+	arpNotes = [];
+	for( q = 0; q < 8; q++ ){
+		bassNotes.append( note( "triangle", audioFreq( bassRoots[ bar ] ), beat / 2, 0.5, beat / 2 ) );
+		arpNotes.append( note( "pulse", audioFreq( chords[ bar ][ ( q mod 3 ) + 1 ] + 12 ), beat / 2, 0.25, beat / 3 ) );
+	}
+	parts.append( audioMix( [ audioConcat( bassNotes ), audioGain( audioConcat( arpNotes ), -6 ) ] ) );
+}
+// The loop is made seamless by blending its end into its start
+musicLoop = audioLoopify( audioGain( audioConcat( parts ), -6 ), 0.15 );
+// The boss theme is the same loop a little faster and a third lower, made with the time stretch and the pitch shift
+bossLoop = audioPitch( audioStretch( musicLoop, 1.15 ), -4 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The play session
+// ---------------------------------------------------------------------------------------------------------------------------------
+mixer = audioMixer( sampleRate = sr, channels = 2, output = live ? "speakers" : "memory", buses = { music : 0.6, sfx : 1.0 } );
+segments = [];
+clock = 0;
+
+/**
+ * Let time pass: render it to the file, or wait for it while the sound card plays
+ */
+function advance( seconds ){
+	if( seconds <= 0 ){
+		return;
+	}
+	if( live ){
+		sleep( int( seconds * 1000 ) );
+	} else {
+		segments.append( mixer.render( seconds ) );
+	}
+	clock += seconds;
+}
+
+function at( time ){
+	advance( time - clock );
+}
+
+theme = mixer.play( musicLoop, { bus : "music", loop : true, fadeIn : 0.5 } );
+at( 1.5 );
+mixer.play( jumps[ 1 ], { bus : "sfx", pan : -0.3 } );
+at( 2.2 );
+mixer.play( coins[ 1 ], { bus : "sfx", pan : 0.2 } );
+at( 2.45 );
+mixer.play( coins[ 2 ], { bus : "sfx", pan : 0.3 } );
+at( 3.3 );
+mixer.play( jumps[ 3 ], { bus : "sfx", pan : 0.1 } );
+for( shot = 0; shot < 3; shot++ ){
+	at( 4.0 + shot * 0.25 );
+	mixer.play( lasers[ shot + 1 ], { bus : "sfx", pan : -0.6 + shot * 0.6 } );
+}
+// The boss arrives: the music crossfades to the boss theme
+at( 5.5 );
+theme = mixer.crossfade( theme, bossLoop, 1.5, { bus : "music", loop : true } );
+at( 7.5 );
+mixer.play( boom, { bus : "sfx", volume : 1.0 } );
+// The explosion deafens the music for a moment: duck the music bus and let it come back
+mixer.setVolume( "music", 0.25 );
+at( 8.5 );
+mixer.setVolume( "music", 0.6 );
+at( 9.5 );
+theme.stop( 1.5 );
+advance( 2.0 );
+
+if( live ){
+	mixer.close();
+	println( "played live for " & numberFormat( clock, "0.0" ) & " s" );
+} else {
+	session = audioConcat( segments );
+	mixer.close();
+	written = audioSave( session, settings.out );
+	println( "wrote " & written & " (" & numberFormat( session.getDurationSeconds(), "0.0" ) & " s)" );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// What a game loads: the effects as one sprite with a map, and the loops
+// ---------------------------------------------------------------------------------------------------------------------------------
+if( settings.folder.len() ){
+	sprite = audioSprite(
+		sounds = [ jump1 : jumps[ 1 ], jump2 : jumps[ 2 ], jump3 : jumps[ 3 ], coin1 : coins[ 1 ], coin2 : coins[ 2 ], laser1 : lasers[ 1 ], laser2 : lasers[ 2 ], boom : boom ],
+		gap = 0.1,
+		path = settings.folder & "/sfx.wav"
+	);
+	audioSave( musicLoop, settings.folder & "/music-loop.wav" );
+	audioSave( bossLoop, settings.folder & "/boss-loop.wav" );
+	println( "game assets in " & settings.folder & ": sfx.wav + sfx.json (" & sprite.sprites.len() & " effects), music-loop.wav, boss-loop.wav" );
+}

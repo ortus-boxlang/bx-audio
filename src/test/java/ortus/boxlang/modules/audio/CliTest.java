@@ -177,6 +177,34 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( run( "voices", "--installed" ) ).contains( "No voices match" );
 	}
 
+	@DisplayName( "voices shows why voices are not offered, details of one voice, and the licenses" )
+	@Test
+	void testVoicesExcludedDetailAndLicenses( @TempDir Path home ) {
+		useSpeechHome( home );
+		assertThat( run( "voices" ) ).contains( "more voices are not offered" );
+		String excluded = run( "voices", "--excluded" );
+		assertThat( excluded ).contains( "en_US-ryan-high" );
+		assertThat( excluded ).contains( "Non-commercial" );
+		assertThat( excluded ).contains( "GPL 3" );
+		assertThat( excluded ).doesNotContain( "en_US-joe-medium" );
+		assertThat( run( "voices", "--all" ) ).contains( "en_US-joe-medium" );
+		assertThat( run( "voices", "--all" ) ).contains( "en_US-ryan-high" );
+		assertThat( run( "voices", "--downloadable" ) ).contains( "downloadable" );
+		assertThat( run( "voices", "--license=Apache-2.0" ) ).contains( "en_US-sam-medium" );
+		String detail = run( "voices", "joe" );
+		assertThat( detail ).contains( "CC0-1.0" );
+		assertThat( detail ).contains( "downloadable" );
+		assertThat( detail ).contains( "creativecommons.org" );
+		assertThat( run( "voices", "en_US-ryan-high" ) ).contains( "not offered" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "voices", "nobody" ) ).getMessage() ).contains( "Unknown voice [nobody]" );
+		String licenses = run( "licenses" );
+		assertThat( licenses ).contains( "CC-BY-SA-4.0" );
+		assertThat( licenses ).contains( "not legal advice" );
+		String help = run( "help", "voices" );
+		assertThat( help ).contains( "--excluded" );
+		assertThat( help ).contains( "--downloadable" );
+	}
+
 	@DisplayName( "speak, install and remove report what is missing instead of failing with a stack trace" )
 	@Test
 	void testSpeechErrors( @TempDir Path home ) {
@@ -187,8 +215,71 @@ public class CliTest extends BaseIntegrationTest {
 		    .contains( "bx-audio install engine" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "install", "nope" ) ).getMessage() ).contains( "Unknown voice [nope]" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "install" ) ).getMessage() ).contains( "Usage: bx-audio install" );
+		assertThat(
+		    assertThrows( BoxRuntimeException.class, () -> run( "speak", "Hello there.", "--voice=joe", "--captions=x.srt", "--no-install" ) ).getMessage() )
+		    .contains( "bx-audio install engine" );
+		assertThat( run( "help", "speak" ) ).contains( "--captions" );
 		assertThat( run( "remove", "joe" ) ).contains( "joe was not installed" );
 		assertThat( run( "remove", "engine" ) ).contains( "engine was not installed" );
+	}
+
+	@DisplayName( "loudness, master, stretch, pitch, bpm and silence work on files" )
+	@Test
+	void testMasteringCommands( @TempDir Path dir ) {
+		String	tone	= tone( dir, "tone.wav" );
+		String	loud	= run( "loudness", tone );
+		assertThat( loud ).contains( "integrated" );
+		assertThat( loud ).contains( "LUFS" );
+		String mastered = dir.resolve( "mastered.wav" ).toString();
+		assertThat( run( "master", tone, mastered, "--target=-16" ) ).contains( "-16." );
+		assertThat( run( "loudness", mastered ) ).containsMatch( "integrated +-1[56]\\.\\d LUFS" );
+		String stretched = dir.resolve( "slow.wav" ).toString();
+		assertThat( run( "stretch", tone, stretched, "--rate=0.5" ) ).contains( "2.0" );
+		assertThat( run( "stretch", tone, stretched, "--seconds=3" ) ).contains( "3.00 s" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "stretch", tone, stretched ) ).getMessage() ).contains( "--rate" );
+		String pitched = dir.resolve( "up.wav" ).toString();
+		assertThat( run( "pitch", tone, pitched, "--semitones=12" ) ).contains( "wrote" );
+		assertThat( run( "info", pitched ) ).contains( "length    1.000 s" );
+		assertThat( run( "bpm", tone ) ).containsMatch( "No clear pulse|BPM" );
+		assertThat( run( "silence", tone ) ).contains( "No silence found" );
+		assertThat( run( "silence", tone, "--trim=" + dir.resolve( "trimmed.wav" ) ) ).contains( "wrote" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "pitch", tone, pitched ) ).getMessage() ).contains( "--semitones" );
+	}
+
+	@DisplayName( "play keeps time with a null output, loopify shortens, and sprite joins files with a map" )
+	@Test
+	void testGameCommands( @TempDir Path dir ) throws Exception {
+		String	tone	= tone( dir, "tone.wav" );
+		String	second	= tone( dir, "jump.wav" );
+		assertThat( run( "play", tone, "--output=null" ) ).contains( "playing" );
+		String looped = dir.resolve( "loop.wav" ).toString();
+		assertThat( run( "loopify", tone, looped, "--crossfade=0.2" ) ).contains( "0.80 s" );
+		String	sprite	= dir.resolve( "sfx/sprite.wav" ).toString();
+		String	listing	= run( "sprite", sprite, tone, second, "--gap=0.5" );
+		assertThat( listing ).contains( "  tone " );
+		assertThat( listing ).contains( "  jump " );
+		assertThat( Files.readString( dir.resolve( "sfx/sprite.json" ) ) ).contains( "\"sprite\"" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "sprite", sprite ) ).getMessage() ).contains( "Usage: bx-audio sprite" );
+	}
+
+	@DisplayName( "where shows the storage folders and clean asks first, then deletes only what was named" )
+	@Test
+	void testWhereAndClean( @TempDir Path home ) throws Exception {
+		useSpeechHome( home );
+		Path voice = home.resolve( "voices/joe/model.onnx" );
+		Files.createDirectories( voice.getParent() );
+		Files.write( voice, new byte[ 2_000_000 ] );
+		String where = run( "where" );
+		assertThat( where ).contains( home.toString() );
+		assertThat( where ).contains( "voices" );
+		assertThat( where ).contains( "2.0 MB" );
+		assertThat( run( "clean", "voices" ) ).contains( "Add --yes" );
+		assertThat( Files.exists( voice ) ).isTrue();
+		assertThat( run( "clean", "engine", "--yes" ) ).contains( "freed 0.0 MB" );
+		assertThat( Files.exists( voice ) ).isTrue();
+		assertThat( run( "clean", "voices", "--yes" ) ).contains( "freed 2.0 MB" );
+		assertThat( Files.exists( voice ) ).isFalse();
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "clean", "bogus", "--yes" ) ).getMessage() ).contains( "Unknown kind" );
 	}
 
 	@DisplayName( "doctor checks MP3 and the examples, and reports the speech setup without failing on it" )
