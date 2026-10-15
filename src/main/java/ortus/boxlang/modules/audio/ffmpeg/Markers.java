@@ -73,7 +73,7 @@ public final class Markers {
 			case "csv" -> {
 				out.append( "time,label,duration\n" );
 				for ( Marker m : sorted ) {
-					out.append( String.format( Locale.ROOT, "%.3f,%s,%.3f%n", m.time(), csv( m.label() ), end( sorted, m, total ) - m.time() ) );
+					out.append( String.format( Locale.ROOT, "%.3f,%s,%.3f\n", m.time(), csv( m.label() ), end( sorted, m, total ) - m.time() ) );
 				}
 			}
 			case "edl" -> {
@@ -82,7 +82,7 @@ public final class Markers {
 				for ( Marker m : sorted ) {
 					String in = Timecode.frames( m.time(), fps ), after = Timecode.frames( m.time() + 1.0 / fps, fps );
 					out.append(
-					    String.format( Locale.ROOT, "%03d  001      V     C        %s %s %s %s%n |C:ResolveColorBlue |M:%s |D:1%n%n", n++, in, after, in, after,
+					    String.format( Locale.ROOT, "%03d  001      V     C        %s %s %s %s\n |C:ResolveColorBlue |M:%s |D:1\n\n", n++, in, after, in, after,
 					        m.label().replace( '|', '/' ) ) );
 				}
 			}

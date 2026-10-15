@@ -244,7 +244,7 @@ class {
 			if( !fileExists( path ) ){
 				throw( type = "bxaudio.cli", message = "File not found: #path#" );
 			}
-			sounds[ path.listLast( "/" ).reReplace( "\.[^.]*$", "" ) ] = audioLoad( path );
+			sounds[ path.listLast( "/\\" ).reReplace( "\.[^.]*$", "" ) ] = audioLoad( path );
 		} );
 		var result = audioSprite( sounds = sounds, gap = val( options.gap ?: 0.1 ), path = target );
 		out( "wrote " & result.path & " and " & result.mapPath );
