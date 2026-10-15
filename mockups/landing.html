@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BoxLang Audio Landing Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand1:#00e676; --brand2:#1de9b6; --brand3:#00d4ff; --violet:#7c5cff;
+  --grad:linear-gradient(90deg,#00e676,#1de9b6 55%,#00d4ff);
+  --grad-diag:linear-gradient(135deg,#00e676,#1de9b6 55%,#00d4ff);
+  --bg:#f4fbf8; --surface:#fff; --surface-2:#e6f6ef; --text:#06231a; --muted:#47675a;
+  --border:rgba(6,35,26,.10); --border-strong:rgba(6,35,26,.2);
+  --code-bg:#07150f; --code-text:#d7f5e8;
+}
+:root[data-theme="dark"]{
+  --bg:#050f0b; --surface:#0a1a13; --surface-2:#0e2419; --text:#e6f5ee; --muted:#8fb0a2;
+  --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.17);
+  --code-bg:#030a07;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Poppins,ui-sans-serif,system-ui,sans-serif;color:var(--text);line-height:1.6;
+  background:
+   radial-gradient(1000px 520px at 85% -8%,rgba(29,233,182,.16),transparent 60%),
+   radial-gradient(800px 520px at 5% 6%,rgba(0,230,118,.10),transparent 55%),
+   radial-gradient(900px 600px at 60% 110%,rgba(0,212,255,.12),transparent 60%),var(--bg);}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--brand2);font-weight:600;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}
+h1,h2,h3{letter-spacing:-.015em;margin:0}
+code,pre{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--border)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand svg{width:30px;height:30px}
+nav.main{display:flex;gap:22px;font-size:.92rem;color:var(--muted);margin-left:8px}
+nav.main a:hover{color:var(--text)}
+.spacer{flex:1}
+.search{display:flex;align-items:center;gap:10px;border:1px solid var(--border-strong);border-radius:10px;padding:7px 12px;color:var(--muted);font-size:.85rem;min-width:200px}
+.search kbd{margin-left:auto;font-size:.72rem;border:1px solid var(--border-strong);border-radius:5px;padding:0 6px}
+.icon-btn{border:1px solid var(--border-strong);background:transparent;color:var(--text);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:1rem}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;font-weight:600;font-size:.95rem;border:1px solid var(--border-strong);cursor:pointer;transition:.15s}
+.btn-primary{background:var(--grad-diag);color:#03140c;border:0;box-shadow:0 8px 28px rgba(29,233,182,.28)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 34px rgba(0,230,118,.36)}
+.btn-ghost{background:transparent;color:var(--text)}
+.btn-ghost:hover{background:var(--surface-2)}
+
+/* hero */
+.hero{position:relative;padding:76px 0 56px;overflow:hidden}
+.aurora{position:absolute;inset:-20% -10% auto -10%;height:70%;pointer-events:none;opacity:.5;filter:blur(70px);
+  background:conic-gradient(from 210deg at 70% 40%,rgba(0,230,118,0),rgba(29,233,182,.35),rgba(0,212,255,.3),rgba(0,230,118,0) 60%);
+  animation:drift 18s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(-4%,3%,0) rotate(6deg) scale(1.06)}}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.15fr);gap:44px;align-items:center}
+.hero h1{font-size:clamp(2.1rem,3.4vw,3.1rem);line-height:1.06;font-weight:700;margin:14px 0 18px}
+.lead{font-size:1.1rem;color:var(--muted);max-width:34em}
+.lead strong{color:var(--text)}
+.install{margin:26px 0 0;display:flex;align-items:center;gap:12px;border:1px solid var(--border-strong);background:var(--code-bg);color:var(--code-text);border-radius:12px;padding:12px 14px 12px 18px;font-size:.88rem;max-width:34em}
+.install .prompt{color:var(--brand1)}
+.install button{margin-left:auto;border:0;background:rgba(255,255,255,.08);color:inherit;border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit;font-size:.78rem}
+.install button:hover{background:rgba(255,255,255,.16)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.trust{list-style:none;display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 0;padding:0;font-size:.84rem}
+.trust li{padding:7px 14px;border-radius:999px;border:1px solid rgba(29,233,182,.35);background:rgba(29,233,182,.06)}
+
+/* hero card: code + player */
+.stage{border:1px solid var(--border-strong);border-radius:18px;overflow:hidden;background:var(--surface);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.stage-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;background:#ff5f56}.dot:nth-child(2){background:#ffbd2e}.dot:nth-child(3){background:#27c93f}
+.stage-bar span{margin-left:8px}
+pre.code{margin:0;padding:18px 20px;background:var(--code-bg);color:var(--code-text);font-size:.8rem;line-height:1.7;overflow:auto}
+.k{color:#7aa2ff}.f{color:#1de9b6}.s{color:#ffd479}.n{color:#ff9e64}.c{color:#587a6b}
+.player{padding:16px 20px 18px;border-top:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--grad-diag);color:#03140c;font-size:1.15rem;cursor:pointer;box-shadow:0 6px 20px rgba(29,233,182,.35)}
+.wave{height:54px;display:flex;align-items:center;gap:3px}
+.wave i{flex:1;background:linear-gradient(var(--brand2),var(--brand1));border-radius:2px;opacity:.45;height:20%;transition:height .12s}
+.playing .wave i{opacity:1}
+.meta{grid-column:1/-1;display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted)}
+.meta b{color:var(--text)}
+.meta .pill{border:1px solid rgba(29,233,182,.4);color:var(--brand2);border-radius:999px;padding:0 10px}
+
+/* sections */
+section{padding:64px 0}
+.head{text-align:center;max-width:46em;margin:0 auto 38px}
+.head h2{font-size:clamp(1.6rem,2.4vw,2.2rem);margin-top:10px}
+.head p{color:var(--muted);margin:12px 0 0}
+
+/* listen strip */
+.listen{padding-top:20px}
+.clips{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.clip{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;color:var(--text);font:inherit;transition:.15s}
+.clip:hover{border-color:rgba(29,233,182,.5);transform:translateY(-2px)}
+.clip .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--brand2);flex:none;font-size:.8rem}
+.clip.on .ic{background:var(--grad-diag);color:#03140c}
+.clip b{display:block;font-size:.88rem;line-height:1.2}
+.clip small{color:var(--muted);font-size:.72rem}
+
+/* features */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:24px;transition:.15s;position:relative;overflow:hidden}
+.card:hover{border-color:rgba(29,233,182,.45);transform:translateY(-3px)}
+.card .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(29,233,182,.1);color:var(--brand2);font-size:1.3rem;margin-bottom:14px}
+.card h3{font-size:1.05rem;margin-bottom:6px}
+.card p{margin:0;color:var(--muted);font-size:.9rem}
+.card code{font-size:.78rem;color:var(--brand2)}
+.card.wide{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.meter{display:grid;gap:8px;font-size:.78rem;color:var(--muted)}
+.meter div{display:flex;align-items:center;gap:10px}
+.meter em{font-style:normal;width:90px}
+.meter span{flex:1;height:8px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.meter span i{display:block;height:100%;background:var(--grad)}
+.meter b{color:var(--text);width:70px;text-align:right}
+
+/* voices band */
+.voices{background:linear-gradient(180deg,transparent,rgba(29,233,182,.05),transparent)}
+.vgrid{display:grid;grid-template-columns:1fr 1.1fr;gap:34px;align-items:center}
+.vgrid h2{font-size:clamp(1.6rem,2.4vw,2.2rem);margin:10px 0 14px}
+.vgrid p{color:var(--muted)}
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.big div{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:14px;text-align:center}
+.big b{display:block;font-size:1.8rem;line-height:1.1}
+.big small{color:var(--muted);font-size:.74rem}
+.lic{border:1px solid var(--border-strong);border-radius:16px;background:var(--surface);overflow:hidden}
+.lic table{width:100%;border-collapse:collapse;font-size:.86rem}
+.lic th,.lic td{padding:11px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.lic th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+.lic tr:last-child td{border-bottom:0}
+.tag{font-size:.72rem;border-radius:999px;padding:2px 10px;border:1px solid}
+.tag.ok{color:var(--brand1);border-color:rgba(0,230,118,.45);background:rgba(0,230,118,.08)}
+.tag.no{color:#ff8a80;border-color:rgba(255,138,128,.4);background:rgba(255,138,128,.07)}
+.vplay{border:0;background:var(--surface-2);color:var(--brand2);width:28px;height:28px;border-radius:50%;cursor:pointer}
+
+/* ecosystem */
+.eco{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.eco a{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;display:block;transition:.15s}
+.eco a:hover{border-color:rgba(29,233,182,.5);transform:translateY(-2px)}
+.eco .ic{width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;margin-bottom:10px;font-weight:700;color:var(--brand2)}
+.eco b{display:block;font-size:.95rem}
+.eco span{color:var(--muted);font-size:.82rem;line-height:1.4;display:block;margin-top:2px}
+
+/* consulting CTA */
+.support{display:grid;grid-template-columns:1.25fr 1fr;gap:0;border:1px solid var(--border-strong);border-radius:22px;overflow:hidden;background:var(--surface)}
+.support .l{padding:40px;background:radial-gradient(500px 300px at 0% 0%,rgba(29,233,182,.18),transparent 70%)}
+.support h2{font-size:clamp(1.5rem,2.2vw,2rem);margin:10px 0 12px}
+.support p{color:var(--muted);margin:0 0 22px}
+.support .r{padding:34px 40px;border-left:1px solid var(--border);display:grid;gap:16px;align-content:center}
+.perk{display:flex;gap:14px;align-items:flex-start;font-size:.9rem}
+.perk i{font-style:normal;width:34px;height:34px;border-radius:10px;background:rgba(29,233,182,.1);color:var(--brand2);display:grid;place-items:center;flex:none}
+.perk b{display:block}
+.perk span{color:var(--muted);font-size:.82rem}
+
+/* final cta */
+.cta{text-align:center;border-radius:22px;padding:54px 24px;border:1px solid rgba(29,233,182,.35);background:radial-gradient(700px 300px at 50% 0%,rgba(29,233,182,.16),transparent 70%),var(--surface)}
+.cta h2{font-size:clamp(1.6rem,2.6vw,2.3rem);margin:10px 0 10px}
+.cta p{color:var(--muted);margin:0 auto 24px;max-width:36em}
+.cta .actions{justify-content:center}
+
+/* footer */
+footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
+.ft{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:28px}
+.ft h4{margin:0 0 12px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ft a{display:block;color:var(--text);font-size:.88rem;margin:6px 0;opacity:.85}
+.ft a:hover{opacity:1;color:var(--brand2)}
+.ft p{color:var(--muted);font-size:.86rem;max-width:22em}
+.madeby{font-size:.8rem;color:var(--muted)}.madeby b{color:var(--text)}
+.fb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:34px;padding-top:18px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
+
+@media(max-width:960px){
+  .hero-grid,.vgrid,.support{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr 1fr}.card.wide{grid-column:span 2;grid-template-columns:1fr}
+  .eco{grid-template-columns:1fr 1fr}.ft{grid-template-columns:1fr 1fr}
+  nav.main,.search{display:none}.support .r{border-left:0;border-top:1px solid var(--border)}
+}
+@media(max-width:560px){.cards{grid-template-columns:1fr}.card.wide{grid-column:auto}.big{grid-template-columns:1fr}.top .wrap{gap:12px}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><svg viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e676"/><stop offset="1" stop-color="#00d4ff"/></linearGradient></defs><path d="M30 6a26 26 0 0 1 4 52 26 26 0 0 1-22-12l6-3a19 19 0 1 0 12-35z" fill="url(#g)"/><path d="M30 18a14 14 0 0 1 0 28 14 14 0 0 1-9-3l7-5a7 7 0 0 0 4-12z" fill="url(#g)"/><circle cx="11" cy="48" r="4" fill="#00d4ff"/></svg>BoxLang <span class="grad">Audio</span></a>
+  <nav class="main"><a href="#">Get started</a><a href="#listen">Examples</a><a href="#">Guides</a><a href="#">Reference</a><a href="#voices">Voices</a></nav>
+  <div class="spacer"></div>
+  <div class="search">Search the docs <kbd>/</kbd></div>
+  <button class="icon-btn" id="theme" title="Toggle theme">&#9680;</button>
+</div></header>
+
+<!-- HERO -->
+<div class="hero"><div class="aurora"></div><div class="wrap hero-grid">
+  <div>
+    <span class="eyebrow">&#9835; A BoxLang module &middot; pure JVM</span>
+    <h1>Make sound from <span class="grad">code</span>. Master it. Make it speak.</h1>
+    <p class="lead">Synthesize instruments and drums, arrange them on a beat grid, master to a loudness target, speak text with <strong>open license voices</strong>, score a video and play sound in a game. <strong>No Python. Nothing native to install.</strong></p>
+    <div class="install"><span class="prompt">$</span><code>install-bx-module bx-audio</code><button id="copy">Copy</button></div>
+    <div class="actions">
+      <a class="btn btn-primary" href="#">Get started &rarr;</a>
+      <a class="btn btn-ghost" href="#listen">&#9654; Listen to the examples</a>
+    </div>
+    <ul class="trust"><li><b>68</b> functions</li><li><b>EBU R128</b> mastering</li><li><b>11</b> open voices</li><li><b>14</b> songs made from code</li></ul>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="stage-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>groove.bxs</span></div>
+<pre class="code"><span class="n">t</span> = <span class="f">audioTimeline</span>( bpm=<span class="n">128</span> );
+<span class="n">kick</span> = <span class="f">audioDrum</span>( <span class="s">"kick"</span> );
+<span class="n">bass</span> = <span class="f">audioFilter</span>(
+    <span class="f">audioEnvelope</span>( <span class="f">audioOsc</span>( <span class="s">"saw"</span>, <span class="f">audioFreq</span>( <span class="s">"A1"</span> ), <span class="n">0.4</span> ), <span class="n">0.003</span>, <span class="n">0.12</span> ),
+    <span class="s">"lowpass"</span>, <span class="n">900</span>, <span class="n">2</span> );
+
+<span class="k">for</span>( <span class="n">at</span> <span class="k">in</span> <span class="f">audioBeats</span>( t, <span class="n">0</span>, <span class="n">16</span> ) ){
+    <span class="f">audioAdd</span>( timeline=t, sound=kick, at=at, track=<span class="s">"drums"</span> );
+}
+<span class="f">audioPump</span>( t, <span class="s">"bass"</span>, <span class="f">audioBeats</span>( t, <span class="n">0</span>, <span class="n">16</span> ), -<span class="n">5</span>, <span class="n">0.18</span> );
+
+<span class="n">mix</span> = <span class="f">audioMaster</span>( audio=<span class="f">audioRender</span>( t ), target=<span class="s">"streaming"</span> );
+<span class="f">audioSave</span>( mix, <span class="s">"groove.mp3"</span> );  <span class="c">// -14 LUFS</span></pre>
+    <div class="player" id="heroPlayer">
+      <button class="play" id="heroBtn" aria-label="Play">&#9654;</button>
+      <div class="wave" id="wave"></div>
+      <div class="meta"><span>Rendered from the code above &middot; <b>House</b></span><span class="pill">-14 LUFS</span></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- LISTEN STRIP -->
+<section class="listen" id="listen"><div class="wrap">
+  <div class="head"><span class="eyebrow">Press play</span><h2>Every one of these was <span class="grad">written, not recorded</span>.</h2><p>Fourteen complete pieces rendered by the module from a few dozen lines each.</p></div>
+  <div class="clips" id="clips"></div>
+</div></section>
+
+<!-- FEATURES -->
+<section><div class="wrap">
+  <div class="head"><span class="eyebrow">Everything on the JVM</span><h2>One module. The whole <span class="grad">audio pipeline</span>.</h2></div>
+  <div class="cards">
+    <div class="card"><div class="ico">&#127929;</div><h3>Synthesis and mixing</h3><p>Band-limited oscillators, drums, filters, a tempo grid, named tracks and kick pumping.</p></div>
+    <div class="card"><div class="ico">&#127908;</div><h3>Text to speech</h3><p>Open license voices that download on first use, with speed, pauses and captions timed to the words.</p></div>
+    <div class="card"><div class="ico">&#127910;</div><h3>Score a video</h3><p>Cut music to the exact length of a picture, add a voice-over and mux it with FFmpeg. <code>audioMux()</code></p></div>
+    <div class="card wide">
+      <div><div class="ico">&#128200;</div><h3>Loudness and mastering</h3><p>Measure the EBU R128 way and deliver to a target with a mastering chain, compressor, limiter and EQ.</p></div>
+      <div class="meter">
+        <div><em>Streaming</em><span><i style="width:72%"></i></span><b>-14 LUFS</b></div>
+        <div><em>Podcast</em><span><i style="width:66%"></i></span><b>-16 LUFS</b></div>
+        <div><em>Broadcast</em><span><i style="width:60%"></i></span><b>-23 LUFS</b></div>
+      </div>
+    </div>
+    <div class="card"><div class="ico">&#127918;</div><h3>Game audio</h3><p>A real time mixer with buses, loops and crossfades, varied effects and audio sprites.</p></div>
+    <div class="card"><div class="ico">&#9201;</div><h3>Time and pitch</h3><p>Stretch, pitch shift and fit a clip to an exact length without the chipmunk.</p></div>
+    <div class="card"><div class="ico">&#128269;</div><h3>Analysis</h3><p>FFT, spectrum, tempo and silence detection, plus true peak.</p></div>
+    <div class="card"><div class="ico">&#9000;</div><h3>A real command line</h3><p><code>bx-audio info</code>, <code>master</code>, <code>speak</code> and more. Downloads live in <code>~/.bxaudio</code>.</p></div>
+  </div>
+</div></section>
+
+<!-- VOICES -->
+<section class="voices" id="voices"><div class="wrap vgrid">
+  <div>
+    <span class="eyebrow">Voices and licenses</span>
+    <h2>Only voices you can <span class="grad">legally ship</span>.</h2>
+    <p>We checked the license of every voice in the collection and its training data. Only CC0, Public Domain and Apache-2.0 voices are offered. The rest are listed with the reason they are not.</p>
+    <div class="big"><div><b class="grad">177</b><small>voices reviewed</small></div><div><b class="grad">11</b><small>offered</small></div><div><b>166</b><small>excluded, with reasons</small></div></div>
+    <div class="actions"><a class="btn btn-ghost" href="#">Read the license guide &rarr;</a></div>
+  </div>
+  <div class="lic"><table>
+    <tr><th>Voice</th><th>License</th><th>Status</th><th></th></tr>
+    <tr><td>en_US joe</td><td>CC0</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-joe-medium.mp3">&#9654;</button></td></tr>
+    <tr><td>en_US bryce</td><td>CC0</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-bryce-medium.mp3">&#9654;</button></td></tr>
+    <tr><td>en_US kristin</td><td>Public Domain</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-kristin-medium.mp3">&#9654;</button></td></tr>
+    <tr><td>en_GB (dictionary)</td><td>GPL data</td><td><span class="tag no">Excluded</span></td><td></td></tr>
+    <tr><td>Non-commercial set</td><td>CC BY-NC</td><td><span class="tag no">Excluded</span></td><td></td></tr>
+  </table></div>
+</div></section>
+
+<!-- ECOSYSTEM -->
+<section><div class="wrap">
+  <div class="head"><span class="eyebrow">Part of the BoxLang ecosystem</span><h2>Built for <span class="grad">BoxLang</span>, with <span class="grad">BoxLang</span>.</h2></div>
+  <div class="eco">
+    <a href="#"><div class="ic">B</div><b>BoxLang</b><span>The dynamic JVM language this module is built for.</span></a>
+    <a href="#"><div class="ic">AI</div><b>BoxLang AI</b><span>Generate scripts and narration text, then render them with Audio.</span></a>
+    <a href="#"><div class="ic">+</div><b>BoxLang+</b><span>Support, modules and the features that run a fleet.</span></a>
+    <a href="#"><div class="ic">C</div><b>ColdBox</b><span>Serve generated audio from the apps you build on ColdBox.</span></a>
+    <a href="#"><div class="ic">&gt;_</div><b>CommandBox</b><span>Install the module and its command line from the package manager.</span></a>
+    <a href="#"><div class="ic">S</div><b>bxSites</b><span>The static site generator that builds these docs.</span></a>
+    <a href="#"><div class="ic">P</div><b>BxPlaywright</b><span>Browser automation and testing for BoxLang.</span></a>
+    <a href="#"><div class="ic">L</div><b>BxLens</b><span>The debug bar and ops console for BoxLang apps.</span></a>
+  </div>
+</div></section>
+
+<!-- CONSULTING AND SUPPORT -->
+<section style="padding-top:0"><div class="wrap">
+  <div class="support">
+    <div class="l">
+      <span class="eyebrow">Consulting and support</span>
+      <h2>Need audio in production? <span class="grad">Talk to the people who build BoxLang.</span></h2>
+      <p>Ortus Solutions offers professional support, architecture reviews and custom development for BoxLang, including audio pipelines, narration and video workflows.</p>
+      <div class="actions"><a class="btn btn-primary" href="#">Talk to Ortus &rarr;</a><a class="btn btn-ghost" href="#">See BoxLang+ plans</a></div>
+    </div>
+    <div class="r">
+      <div class="perk"><i>&#9993;</i><div><b>Priority support</b><span>Answers from the team that wrote the runtime.</span></div></div>
+      <div class="perk"><i>&#128736;</i><div><b>Custom development</b><span>Voices, pipelines and integrations built to your brief.</span></div></div>
+      <div class="perk"><i>&#127891;</i><div><b>Training and review</b><span>Get your team productive and your design checked.</span></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FINAL CTA -->
+<section style="padding-top:0"><div class="wrap">
+  <div class="cta">
+    <span class="eyebrow">Two minutes to your first sound</span>
+    <h2>Install it. Run one line. <span class="grad">Hear it.</span></h2>
+    <p>Install the module and render your first beat from a script.</p>
+    <div class="actions"><a class="btn btn-primary" href="#">Get started &rarr;</a><a class="btn btn-ghost" href="#">Browse the reference</a></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="ft">
+    <div><a class="brand" href="#" style="opacity:1">BoxLang <span class="grad">Audio</span></a><p>Make, mix, master and speak audio from BoxLang, on the JVM.</p><div class="madeby">Developed by <b>Ortus Solutions</b></div></div>
+    <div><h4>Learn</h4><a href="#">Getting started</a><a href="#">Guides</a><a href="#">Examples</a><a href="#">Voices</a></div>
+    <div><h4>Reference</h4><a href="#">Functions</a><a href="#">Command line</a><a href="#">Configuration</a><a href="#">Licenses</a></div>
+    <div><h4>Project</h4><a href="#">Roadmap</a><a href="#">Contribute</a><a href="#">Troubleshooting</a><a href="#">llms.txt</a></div>
+    <div><h4>Community</h4><a href="#">Slack</a><a href="#">Forums</a><a href="#">Report an issue</a><a href="#">Consulting</a></div>
+  </div>
+  <div class="fb"><span>&copy; 2026 Ortus Solutions, Corp</span><span>Part of the <b>BoxLang</b> ecosystem</span></div>
+</div></footer>
+
+<audio id="audio" preload="none"></audio>
+<script>
+const A = document.getElementById('audio');
+const base = '../docs/assets/audio/';
+const clips = [['Pop Drive','pop-drive'],['Lofi','lofi'],['House','house'],['Ambient','ambient'],['Techno','techno'],['Synthwave','synthwave'],['Cinematic','cinematic'],['Chiptune','chiptune'],['Game SFX','sfx'],['Jazz','jazz'],['Rock','rock'],['Voice-over','voiceover'],['Trailer','trailer'],['Game audio','game-audio']];
+const box = document.getElementById('clips');
+clips.forEach(([name,file])=>{
+  const b = document.createElement('button'); b.className='clip'; b.dataset.src = base+file+'.mp3';
+  b.innerHTML = '<span class="ic">&#9654;</span><span><b>'+name+'</b><small>made from code</small></span>';
+  box.appendChild(b);
+});
+const wave = document.getElementById('wave');
+for(let i=0;i<56;i++) wave.appendChild(document.createElement('i'));
+const bars = [...wave.children];
+let timer = null;
+function animate(on){
+  document.getElementById('heroPlayer').classList.toggle('playing', on);
+  clearInterval(timer);
+  if(on) timer = setInterval(()=>bars.forEach((b,i)=>b.style.height=(18+Math.abs(Math.sin(Date.now()/260+i*.5))*Math.random()*80)+'%'),120);
+  else bars.forEach((b,i)=>b.style.height=(20+Math.abs(Math.sin(i*.4))*60)+'%');
+}
+animate(false);
+let current = null;
+function toggle(src, btn){
+  const same = current === btn && !A.paused;
+  document.querySelectorAll('.clip.on').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.clip .ic, .vplay, #heroBtn').forEach(e=>e.innerHTML='&#9654;');
+  animate(false);
+  if(same){ A.pause(); return; }
+  current = btn; A.src = src; A.play().catch(()=>{});
+  const mark = btn.classList.contains('clip') ? btn.querySelector('.ic') : btn;
+  if(btn.classList.contains('clip')) btn.classList.add('on');
+  mark.innerHTML = '&#10074;&#10074;';
+  if(btn.id==='heroBtn') animate(true);
+}
+document.addEventListener('click', e=>{
+  const c = e.target.closest('.clip'); if(c) toggle(c.dataset.src, c);
+  const v = e.target.closest('.vplay'); if(v) toggle(v.dataset.src, v);
+  if(e.target.closest('#heroBtn')) toggle(base+'house.mp3', document.getElementById('heroBtn'));
+});
+A.addEventListener('ended', ()=>{ document.querySelectorAll('.clip.on').forEach(e=>e.classList.remove('on')); document.querySelectorAll('.clip .ic, .vplay, #heroBtn').forEach(e=>e.innerHTML='&#9654;'); animate(false); });
+document.getElementById('copy').onclick = e => { navigator.clipboard && navigator.clipboard.writeText('install-bx-module bx-audio'); e.target.textContent='Copied'; setTimeout(()=>e.target.textContent='Copy',1500); };
+document.getElementById('theme').onclick = () => { const r=document.documentElement; r.dataset.theme = r.dataset.theme==='dark'?'light':'dark'; };
+</script>
+</body>
+</html>
