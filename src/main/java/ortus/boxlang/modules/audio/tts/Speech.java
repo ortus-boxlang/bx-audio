@@ -18,9 +18,7 @@ import java.nio.file.Path;
 
 import ortus.boxlang.modules.audio.tts.Downloader.Progress;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.BoxRuntime;
-import ortus.boxlang.runtime.modules.ModuleRecord;
-import ortus.boxlang.runtime.scopes.Key;
+import ortus.boxlang.modules.audio.util.ModuleSettings;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
 /**
@@ -28,18 +26,11 @@ import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
  */
 public final class Speech {
 
-	private static final Key MODULE = Key.of( "bxaudio" );
-
 	private Speech() {
 	}
 
 	private static Object setting( String name ) {
-		try {
-			ModuleRecord record = BoxRuntime.getInstance().getModuleService().getModuleRecord( MODULE );
-			return record == null || record.settings == null ? null : record.settings.get( Key.of( name ) );
-		} catch ( RuntimeException e ) {
-			return null;
-		}
+		return ModuleSettings.get( name );
 	}
 
 	/**

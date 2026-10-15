@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
+import ortus.boxlang.modules.audio.ffmpeg.FfmpegSupport;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
@@ -31,7 +32,7 @@ public final class AudioFiles {
 	}
 
 	/**
-	 * Read a WAV or MP3 file. The format is found from the content, so a file with the wrong extension still loads.
+	 * Read a WAV, MP3 or FLAC file. The format is found from the content, so a file with the wrong extension still loads.
 	 */
 	public static AudioBuffer read( Path path ) {
 		byte[] bytes;
@@ -46,16 +47,19 @@ public final class AudioFiles {
 		if ( Mp3Codec.looksLikeMp3( bytes ) ) {
 			return Mp3Codec.decode( bytes );
 		}
-		throw new BoxRuntimeException( "The file [" + path + "] is not a WAV or MP3 file" );
+		if ( FlacCodec.looksLikeFlac( bytes ) ) {
+			return FlacCodec.decode( bytes );
+		}
+		return FfmpegSupport.require( "Reading [" + path.getFileName() + "], which is not a WAV, MP3 or FLAC file," ).decode( path );
 	}
 
 	/**
-	 * Write a file as WAV or MP3 depending on its extension, replacing any existing file. No extension means WAV.
+	 * Write a file as WAV, MP3 or FLAC depending on its extension, replacing any existing file. No extension means WAV.
 	 *
 	 * @param audio       The audio to write
-	 * @param path        The destination, {@code .wav}, {@code .wave} or {@code .mp3}
-	 * @param bitDepth    For WAV: 16 or 24 for integer PCM, 32 for float. Ignored for MP3.
-	 * @param bitrateKbps For MP3: the constant bitrate. Ignored for WAV.
+	 * @param path        The destination, {@code .wav}, {@code .wave}, {@code .mp3} or {@code .flac}
+	 * @param bitDepth    For WAV: 16 or 24 for integer PCM, 32 for float. For FLAC: 16 or 24. Ignored for MP3.
+	 * @param bitrateKbps For MP3, OGG, Opus and AAC: the bitrate in kbps, 0 for the format's default. Ignored for WAV and FLAC.
 	 */
 	public static void write( AudioBuffer audio, Path path, int bitDepth, int bitrateKbps ) {
 		String	name	= path.getFileName().toString().toLowerCase( Locale.ROOT );
@@ -71,7 +75,16 @@ public final class AudioFiles {
 					throw new BoxRuntimeException( "Could not write audio file [" + path + "]: " + e.getMessage(), e );
 				}
 			}
-			default -> throw new BoxRuntimeException( "Cannot write [" + ext + "] files. Use .wav or .mp3" );
+			case ".flac" -> {
+				try {
+					Files.write( path, FlacCodec.encode( audio, bitDepth == 24 ? 24 : 16 ) );
+				} catch ( IOException e ) {
+					throw new BoxRuntimeException( "Could not write audio file [" + path + "]: " + e.getMessage(), e );
+				}
+			}
+			case ".ogg", ".oga", ".opus", ".m4a", ".mp4", ".aac" ->
+			    FfmpegSupport.require( "Writing " + ext + " files" ).encode( audio, path, bitrateKbps );
+			default -> throw new BoxRuntimeException( "Cannot write [" + ext + "] files. Use .wav, .mp3, .flac, .ogg, .opus, .m4a or .aac" );
 		}
 	}
 

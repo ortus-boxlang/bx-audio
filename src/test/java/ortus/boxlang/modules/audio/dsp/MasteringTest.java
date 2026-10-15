@@ -66,7 +66,7 @@ public class MasteringTest {
 	/**
 	 * Frequency by counting rising zero crossings of the first channel
 	 */
-	static double frequency( AudioBuffer audio ) {
+	public static double frequency( AudioBuffer audio ) {
 		float[]	data		= audio.channel( 0 );
 		int		crossings	= 0;
 		int		first		= -1, last = -1;

@@ -51,6 +51,9 @@ class {
 		{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
 		{ name : "where", usage : "where", help : "Show where bx-audio keeps its downloads, and how much space they take" },
 		{ name : "clean", usage : "clean [engine|voices|ffmpeg|cache|all] [--yes]", help : "Delete downloaded files to free space, after asking" },
+		{ name : "ffmpeg", usage : "ffmpeg [status|install]", help : "Show whether FFmpeg is available (OGG, Opus, AAC and video need it), or download it" },
+		{ name : "probe", usage : "probe <file>", help : "Describe any audio or video file: length, size, video and audio streams" },
+		{ name : "mux", usage : "mux <video> <audio> <out> [--keep-original] [--offset=0]", help : "Put an audio file on a video, copying the picture without re-encoding" },
 		{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
 		{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
 		{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
@@ -126,7 +129,7 @@ class {
 		var info = audioInfo( file );
 		var dbfs = ( v ) => v > 0 ? numberFormat( 20 * log10( v ), "0.0" ) & " dBFS" : "silence";
 		out( file );
-		out( "  format    " & ( file.lcase().endsWith( ".mp3" ) ? "MP3" : "WAV" ) );
+		out( "  format    " & ( [ "wav", "wave", "" ].contains( file.listLast( "." ).lcase() ) || !file.find( "." ) ? "WAV" : file.listLast( "." ).ucase() ) );
 		out( "  channels  " & info.channels );
 		out( "  rate      " & info.sampleRate & " Hz" );
 		out( "  length    " & numberFormat( info.seconds, "0.000" ) & " s (" & info.frames & " frames)" );
@@ -137,6 +140,7 @@ class {
 	function cmdConvert( required array args, required struct options ){
 		var source = needFile( args, 1, "convert <in> <out>" );
 		var target = absolute( needArg( args, 2, "convert <in> <out>" ) );
+		ensureFfmpeg( target );
 		var audio = audioLoad( source );
 		if( options.keyExists( "sampleRate" ) ){
 			audio = audioResample( audio, int( options.sampleRate ) );
@@ -166,6 +170,51 @@ class {
 		var audio = audioLoad( source );
 		var written = audioSave( audioTrim( audio, options.start ?: 0, options.end ?: audio.getDurationSeconds() ), target );
 		out( "wrote " & written );
+	}
+
+	function cmdFfmpeg( required array args, required struct options ){
+		var action = args.len() ? args.first().lcase() : "status";
+		if( action == "install" ){
+			var info = audioFfmpegInstall( progressPrinter() );
+			out( "installed FFmpeg " & info.version & " at " & info.path );
+			return;
+		}
+		if( action != "status" ){
+			throw( type = "bxaudio.cli", message = "Unknown action [#action#]. Usage: bx-audio ffmpeg [status|install]" );
+		}
+		var f = audioFfmpeg();
+		if( f.available ){
+			out( "FFmpeg " & f.version & " (" & f.source & ")" );
+			out( "  program   " & f.path );
+			out( "  encoders  " & f.encoders.toList( ", " ) );
+		} else {
+			out( "FFmpeg is not available." );
+			out( f.installable ? "  Download it (" & numberFormat( f.downloadSizeMB, "0.0" ) & " MB into " & f.installDir & ") with: bx-audio ffmpeg install" : "  There is no download for " & f.platform & ", install FFmpeg so it is on the PATH." );
+		}
+		out( "  Needed for: OGG, Opus, AAC and M4A files, reading video files, mux, probe. WAV, MP3 and FLAC never need it." );
+	}
+
+	function cmdProbe( required array args, required struct options ){
+		var file = needFile( args, 1, "probe <file>" );
+		var info = videoInfo( file );
+		out( file );
+		out( "  format    " & info.format );
+		out( "  length    " & numberFormat( info.seconds, "0.000" ) & " s" );
+		out( "  size      " & numberFormat( info.sizeBytes / 1000000, "0.0" ) & " MB" );
+		if( !isNull( info.video ) ){
+			out( "  video     " & info.video.codec & " " & info.video.width & "x" & info.video.height & " at " & info.video.fps & " fps" );
+		}
+		if( !isNull( info.audio ) ){
+			out( "  audio     " & info.audio.codec & " " & info.audio.channels & " ch " & info.audio.sampleRate & " Hz" );
+		}
+	}
+
+	function cmdMux( required array args, required struct options ){
+		var video = needFile( args, 1, "mux <video> <audio> <out>" );
+		var sound = needFile( args, 2, "mux <video> <audio> <out>" );
+		var target = absolute( needArg( args, 3, "mux <video> <audio> <out>" ) );
+		var keep = options.keyExists( "keep-original" ) && options[ "keep-original" ] != false;
+		out( "wrote " & audioMux( video = video, audio = audioLoad( sound ), output = target, keepOriginal = keep, offset = val( options.offset ?: 0 ) ) );
 	}
 
 	function cmdLoudness( required array args, required struct options ){
@@ -535,7 +584,25 @@ class {
 		if( !fileExists( file ) ){
 			throw( type = "bxaudio.cli", message = "File not found: #file#" );
 		}
+		ensureFfmpeg( file );
 		return file;
+	}
+
+	/**
+	 * Formats the module does not read or write itself need FFmpeg. Download it, with a progress line, the first time one is used.
+	 */
+	private function ensureFfmpeg( required string file ){
+		var ext = file.listLast( "." ).lcase();
+		if( [ "wav", "wave", "mp3", "flac" ].contains( ext ) || !file.find( "." ) ){
+			return;
+		}
+		if( !audioFfmpeg().available ){
+			out( "Reading and writing ." & ext & " files needs FFmpeg." );
+			if( audioFfmpeg().installable ){
+				var info = audioFfmpegInstall( progressPrinter() );
+				out( "installed FFmpeg " & info.version );
+			}
+		}
 	}
 
 	private function findOnPath( required string program ){

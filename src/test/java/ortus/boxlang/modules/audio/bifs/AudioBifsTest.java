@@ -439,7 +439,8 @@ public class AudioBifsTest extends BaseIntegrationTest {
 	@DisplayName( "Unknown extensions, unusable MP3 settings and files that are not audio fail clearly" )
 	@Test
 	void testFileErrors( @TempDir Path dir ) throws Exception {
-		variables.put( Key.of( "flac" ), dir.resolve( "x.flac" ).toString() );
+		useNoDownloads();
+		variables.put( Key.of( "flac" ), dir.resolve( "x.xyz" ).toString() );
 		variables.put( Key.of( "mp3" ), dir.resolve( "x.mp3" ).toString() );
 		Path text = dir.resolve( "notes.txt" );
 		Files.writeString( text, "this is not audio" );
@@ -452,8 +453,9 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThat( rate.getMessage() ).contains( "audioResample" );
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSave( audioSilence( 1 ), mp3, 16, 100 )", context ) );
 		BoxRuntimeException notAudio = assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioLoad( text )", context ) );
-		assertThat( notAudio.getMessage() ).contains( "not a WAV or MP3" );
-		assertThat( Files.exists( dir.resolve( "x.flac" ) ) ).isFalse();
+		// Without FFmpeg the message says which formats are read natively, with it FFprobe says it is not media
+		assertThat( notAudio.getMessage() ).containsMatch( "not a WAV, MP3 or FLAC|could not read" );
+		assertThat( Files.exists( dir.resolve( "x.xyz" ) ) ).isFalse();
 	}
 
 	@DisplayName( "audioWaveform returns one peak per point, scaled like the signal" )
