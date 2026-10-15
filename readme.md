@@ -18,7 +18,7 @@
 
 ## Introduction
 
-BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix tracks with ducking, add effects and save the result as WAV or MP3. It runs entirely on the JVM, so there is no ffmpeg, Python or native tool to install, and a track made on your laptop renders the same on a server.
+BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix tracks with ducking, add effects and save the result as WAV or MP3. It runs entirely on the JVM, so there is no Python or native tool to install, and a track made on your laptop renders the same on a server. WAV, MP3 and FLAC need nothing else; OGG, Opus, AAC and video files use FFmpeg, which the module finds on your computer or downloads for you.
 
 **Key Features:**
 
@@ -27,7 +27,12 @@ BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange t
 - 🔊 Kick-style pump and voice-over ducking for trailers and videos
 - 🎛️ Filters, delay (with ping pong), Freeverb reverb and chorus
 - ✂️ Edit: gain, pan, fade, normalize, trim, concat, reverse, resample
-- 💾 Read and write WAV (16/24 bit PCM, 32 bit float) and MP3
+- 💾 Read and write WAV (16/24 bit PCM, 32 bit float), MP3 and FLAC, and with FFmpeg OGG, Opus, AAC and the audio of any video
+- 📏 Loudness measured the EBU R128 way and mastering to a target (-14 LUFS for streaming), with a true-peak limiter
+- ⏱️ Time stretch and pitch shift, to cut music to the exact length of a video
+- 📝 Subtitles (SRT, WebVTT) timed to the text to speech voice, and chapter markers
+- 🎮 A real time mixer for games: buses, volume, pan, pitch, loops, crossfades, audio sprites
+- 🔬 Analysis: tempo and beats, spectrum, silence
 - 🎼 A catalog of complete, original example songs with no samples to license
 - 🗣️ Text to speech with open license voices that download on first use, no API key or cloud service
 - 🔁 Repeatable: the same seed gives the same sound on any machine
@@ -198,17 +203,90 @@ audioSave( voice, "out/voice-stereo.wav", 24 );
 println( audioInfo( "out/voice-stereo.wav" ) );
 ```
 
+### Loudness and mastering
+
+Loudness is measured as ITU-R BS.1770 and EBU R128 define it (K-weighting, gated blocks, true peak), the numbers streaming services and broadcasters use. Checked against FFmpeg's `ebur128` on rendered music: within 0.1 LU.
+
+| Function | Purpose |
+|---|---|
+| `audioLoudness( audio )` | `integrated` LUFS, `range` LU, `truePeak` and `samplePeak` dBFS, `momentaryMax` and `shortTermMax` LUFS. Silence reads -120 |
+| `audioNormalizeLoudness( audio, targetLufs=-14, truePeak=-1 )` | Set the loudness, with a limiter keeping peaks under the ceiling |
+| `audioMaster( audio, target="streaming", truePeak=-1, glue=false )` | The same with presets: `streaming` -14, `podcast` -16, `game` -16, `broadcast` -23 (EBU R128), `cinema` -24, or a number. `glue` compresses lightly first |
+| `audioCompress( audio, thresholdDb=-18, ratio=4, attack=10, release=100, knee=6, makeupDb="auto" )` | A compressor. `auto` make-up matches the loudness of the input |
+| `audioLimit( audio, ceilingDb=-1, release=100, lookAhead=5 )` | A look-ahead limiter: no sample ends above the ceiling |
+| `audioEq( audio, bands )` | Parametric EQ. Each band is `{ type, freq, gain, q }` with `type` `peak`, `lowshelf`, `highshelf`, `lowpass`, `highpass` or `notch` |
+
+```js
+mix = audioRender( timeline=t );
+println( audioLoudness( mix ).integrated );          // -19.5
+final = audioMaster( audio=mix, target="streaming" ); // -14 LUFS, true peak under -1 dBFS
+```
+
+### Time and pitch
+
+| Function | Purpose |
+|---|---|
+| `audioStretch( audio, rate )` | Change the speed without changing the pitch. `1.25` is faster and shorter, between 0.25 and 4 |
+| `audioFitTo( audio, seconds )` | Change the length to exactly this many seconds, keeping the pitch. Keep the change within about 25 percent for natural results |
+| `audioPitch( audio, semitones )` | Change the pitch without changing the length, within 24 semitones |
+
+This is WSOLA (waveform similarity overlap-add), written for this module: good on music and speech, with the usual limits of the method on dense chords at large changes. Pitch shifting does not keep the character of a voice (formants move with the pitch).
+
+### Analysis
+
+| Function | Purpose |
+|---|---|
+| `audioBpm( audio, minBpm=60, maxBpm=200 )` | `bpm` (0 when there is no clear pulse), `confidence` and the `beats` in seconds |
+| `audioSpectrum( audio, bands=16, minHz=40, maxHz=16000, start=0, seconds=0 )` | Level in dB of log spaced bands |
+| `audioSpectrogram( audio, bands=16, frames=64 )` | Band levels over time, for drawing |
+| `audioFft( audio, size=2048, start=0 )` | The raw `frequencies` and `magnitudes` of one window |
+| `audioDetectSilence( audio, thresholdDb=-50, minSeconds=0.3 )` | The silent stretches as `{ start, end, duration }` |
+| `audioTrimSilence( audio, thresholdDb=-50, pad=0 )` | Cut the silence off both ends |
+
+### Formats and FFmpeg
+
+WAV, MP3 and FLAC are read and written by the module itself (FLAC lossless, in plain Java, verified against FFmpeg). OGG Vorbis, Opus, AAC and M4A, and reading the audio of any video or other format, use FFmpeg as a separate program. The module looks for it in this order: the `ffmpeg` module setting, the `BX_AUDIO_FFMPEG` variable, `~/.bxaudio/ffmpeg`, then the PATH. If there is none it downloads one for your computer (about 66 MB on Linux and macOS, 110 MB on Windows) into `~/.bxaudio`, checked against a pinned checksum, unless `autoInstall` is false.
+
+| Function | Purpose |
+|---|---|
+| `audioFfmpeg()` | Is FFmpeg available, where from, which version and encoders, and what a download would be |
+| `audioFfmpegInstall( onProgress )` | Download it now |
+| `videoInfo( path )` | Length, size, video and audio streams of any media file |
+| `audioMux( video, audio, output, keepOriginal=false, originalDb=-12, offset=0 )` | Put audio on a video, copying the picture untouched; never longer than the video |
+| `audioMarkers( markers, format="json", path="" )` | Markers as `json`, `csv`, a Resolve `edl`, `srt`, `vtt`, FFmpeg chapters (`ffmetadata`) or a `youtube` chapter list |
+
+`audioSave( audio, "out.ogg", 16, 96 )` and `audioLoad( "clip.mp4" )` just work once FFmpeg is there. FFmpeg builds are third party programs with their own licenses (see [docs](docs/)); the module never bundles or links them.
+
+### Game audio
+
+| Function | Purpose |
+|---|---|
+| `audioMixer( sampleRate=44100, channels=2, output="speakers", buses )` | A real time mixer. `output` is `speakers`, `null` (keeps time, no sound, for servers) or `memory` (call `render( seconds )` to get the audio) |
+| `mixer.play( sound, { bus, volume, pan, pitch, loop, loopStart, loopEnd, start, fadeIn } )` | Play a sound, get a playback to `stop( fade )`, `pause()`, `resume()`, `setVolume()`, `setPan()`, `setPitch()`, `fadeTo( level, seconds )` |
+| `mixer.crossfade( playback, sound, seconds, options )` | Swap music smoothly |
+| `mixer.setVolume( bus, volume )` / `mixer.setVolume( volume )` | Bus and master volume |
+| `audioPlay( audio, wait=true, volume=1 )` | Play one sound through the speakers |
+| `audioLoopify( audio, crossfade=0.25 )` | Blend the end into the start so a loop cannot click |
+| `audioVariations( audio, count=5, pitchRange=1, gainRange=2, seed=1 )` | Slightly different copies, so repeated effects do not sound alike |
+| `audioSprite( sounds, gap=0.1, path )` | Join named sounds into one file with a Howler.js map |
+
+Playing to the speakers needs a sound card and the JVM's `java.desktop` module. The [game audio example](examples/14-game-audio/) shows a scripted session, rendered to a file or played live. MIDI files are not rendered: the JDK's software synthesizer cannot be driven offline from outside the JDK.
+
 ### Text to speech
 
 `audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into `~/.bxaudio`, shared by every BoxLang install. `bx-audio where` shows what is stored and `bx-audio clean` frees it.
 
 | Function | Purpose |
 |---|---|
-| `audioSpeak( text, voice, autoInstall, onProgress )` | Speak a text. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
-| `audioVoices( language="", installed=false )` | The voices you can use: id, name, language, quality, license, size and whether it is installed |
+| `audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses )` | Speak a text, `speed` 1 is the voice's pace, `pauses` (`{ sentence, clause, paragraph }` in seconds) speaks it piece by piece. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
+| `audioSpeakCues( text, voice, speed, pauses, maxChars=80, split="sentence" )` | Speak piece by piece and get `audio`, `cues` (`start`, `end`, `text`) and `seconds`. Captions land on the words within about 10 ms |
+| `audioSubtitles( cues, format="srt", path="", offset=0 )` | SRT or WebVTT text from cues, written to a file if you give a path |
+| `audioVoices( language="", installed=false, status="offered", license="" )` | The voices: id, name, language, quality, license, size, `status` (`installed`, `downloadable`, or `excluded` with `reason`). `status="excluded"` or `"all"` shows the voices that are not offered and why |
+| `audioLicenses()` | The licenses of the offered voices and what each asks of you |
 | `audioVoiceInstall( voice, onProgress )` | Download a voice ahead of time, or `"engine"` for the speech engine every voice needs |
 | `audioVoiceRemove( voice )` | Delete a voice, or `"engine"`, from disk |
 | `audioSpeechStatus()` | Where it all lives, whether the engine is installed, and which voices are |
+| `audioStorage()` / `audioStorageClear( kind )` | Where `~/.bxaudio` keeps the engine, voices, FFmpeg and caches and how big each is, and delete one kind (`engine`, `voices`, `ffmpeg`, `cache`) or `all` |
 
 ```js
 // A voice-over, ducking music underneath it
@@ -223,11 +301,11 @@ audioSave( audioSaturate( audioRender( timeline=t, tail=1 ) ), "promo.mp3" );
 
 Only voices whose model card states an open license are on offer, each with its license shown, and you choose which to use. The full list, and the voices that were left out and why, is in [docs/voices.md](docs/voices.md). Only US English voices are available for now.
 
-Two module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine and the voices are downloaded to, empty for `~/.bxaudio`, and `autoInstall` is `true` unless you want `audioSpeak` to refuse to download anything. The environment variable `BX_AUDIO_HOME` also sets the folder.
+Three module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine, the voices and FFmpeg are downloaded to, empty for `~/.bxaudio`; `autoInstall` is `true` unless you want the module to refuse to download anything; `ffmpeg` is the path to an FFmpeg you want it to use. The environment variables `BX_AUDIO_HOME` and `BX_AUDIO_FFMPEG` set the same.
 
 ## Examples
 
-The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/) [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/), [Rock](examples/11-rock/) and a [Voice-over](examples/12-voiceover/) with music that ducks under a spoken voice.
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/) [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/), [Rock](examples/11-rock/), a [Voice-over](examples/12-voiceover/) with music that ducks under a spoken voice, a complete [Trailer](examples/13-trailer/) soundtrack (music cut to the video, voice-over, captions, mastering, mux) and [Game audio](examples/14-game-audio/) (a mixer session, loops, variations, a sprite).
 
 ```bash
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
@@ -254,18 +332,26 @@ bx-audio doctor                                     # checks MP3, the examples a
 
 | Command | Purpose |
 |---|---|
-| `info <file>` | Format, channels, sample rate, length, peak and RMS of a WAV or MP3 file |
-| `convert <in> <out>` | Convert between WAV and MP3. Options: `--bitrate`, `--bitDepth`, `--sampleRate`, `--channels` |
+| `info <file>` | Format, channels, sample rate, length, peak and RMS of an audio file |
+| `convert <in> <out>` | Convert between WAV, MP3, FLAC and (with FFmpeg) OGG, Opus and M4A. Options: `--bitrate`, `--bitDepth`, `--sampleRate`, `--channels` |
+| `loudness <file>` | LUFS, loudness range and true peak |
+| `master <in> <out>` | Reach a loudness target: `--target=streaming` (or `podcast`, `broadcast`, a number), `--truePeak`, `--glue` |
+| `stretch <in> <out>` / `pitch <in> <out>` | `--rate` or `--seconds` for the speed, `--semitones` for the pitch |
+| `bpm <file>` / `silence <file>` | Tempo (with `--beats`), and the silent stretches or `--trim=OUT` |
+| `loopify <in> <out>` / `sprite <out> <files...>` / `play <file>` | Game audio: seamless loops, a sprite with a Howler map, playing to the speakers |
+| `ffmpeg [install]` / `probe <file>` / `mux <video> <audio> <out>` | FFmpeg status and download, media information, audio onto a video |
+| `where` / `clean [kind] --yes` | Where `~/.bxaudio` keeps its downloads and how big they are, and deleting them |
+| `licenses` | The voice licenses and what each asks of you |
 | `normalize <in> <out>` | Scale the peak to `--db` (default -1) |
 | `trim <in> <out>` | Keep the section from `--start` to `--end`, in seconds |
 | `waveform <file>` | Draw the loudness on one line, `--width` characters wide |
-| `speak <text>` | Say a text with `--voice`, into `--out` (default `speech.wav`). Installs what is missing, unless `--no-install`. `--file` reads the text from a file |
-| `voices` | List the voices, with `--lang` and `--installed` to narrow it |
+| `speak <text>` | Say a text with `--voice`, into `--out` (default `speech.wav`). Installs what is missing, unless `--no-install`. `--file` reads the text from a file, `--speed`, `--captions=FILE.srt`, `--by-clause` and the pause options time it for video |
+| `voices [voice]` | List the voices you can use, with `--installed`, `--downloadable`, `--excluded` (not offered, and why), `--all`, `--lang` and `--license`. A voice name shows its details |
 | `install <voice>` / `remove <voice>` | Download or delete a voice, or `engine` for the speech engine |
 | `pieces` | List the example pieces |
 | `render <piece>` | Synthesize an example piece. Takes `--out` and the settings of that piece, such as `--bars` and `--bpm` |
 | `explorer` | Start the web explorer on `--port` (default 8080). Needs the BoxLang MiniServer on your PATH |
-| `doctor` | Check that MP3, the examples and the explorer will work on this machine |
+| `doctor` | Check MP3, FFmpeg, audio output, the examples and the explorer on this machine |
 
 Paths are relative to the folder you run the command in. Run `bx-audio help <command>` for the options of one command.
 
@@ -274,15 +360,17 @@ Paths are relative to the folder you run the command in. Run `bx-audio help <com
 1. ~~DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample~~ (done)
 2. ~~Timeline mixing with a beat grid, ducking, and offline rendering~~ (done)
 3. ~~Synthesis: oscillators, envelopes, noise, drums, filters~~ (done), ~~effects: delay, reverb, chorus~~ (done)
-4. ~~A catalog of example music scripts~~ done: pop, lofi, house, ambient, techno, synthwave, cinematic, chiptune, game sound effects, jazz, rock and a voice-over with ducked music, all original
-5. ~~Text-to-speech~~ done (US English, more languages and multi-speaker voices to follow), a content-hash cache of what was spoken still to come
-6. Analysis: ~~waveform data~~ done, loudness, silence detection, FFT
-7. Realtime playback
-8. ~~MP3 read and write as optional codec jars~~ done (see below)
+4. ~~A catalog of example music scripts~~ done
+5. ~~Text-to-speech~~ done (US English, with speed, pauses, captions and subtitles). More languages, multi-speaker voices and a cache of what was spoken to come
+6. ~~Analysis: waveform, loudness, tempo and beats, spectrum, silence~~ done
+7. ~~Loudness, mastering, compression, EQ, time stretch and pitch shift~~ done
+8. ~~Real time playback and mixing for games~~ done (needs a sound card to hear, headless modes for servers)
+9. ~~MP3 and FLAC read and write; OGG, Opus, AAC and video through FFmpeg~~ done
+10. MIDI file rendering, more languages for speech, formant-preserving pitch shift
 
 ## Licensing
 
-The module is Apache 2.0. Text to speech downloads the Voices engine (Apache 2 and MIT) and the voices you choose, each with its own license, see [docs/voices.md](docs/voices.md). MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
+The module is Apache 2.0. Text to speech downloads the Voices engine (Apache 2 and MIT) and the voices you choose, each with its own license, see [docs/voices.md](docs/voices.md). FLAC is encoded and decoded by code in this module. FFmpeg, when used, is a separate program found on your computer or downloaded from its provider (macOS and Linux builds by martin-riedl.de, Windows builds by gyan.dev), started as a process and never bundled; its builds carry their own licenses, see https://ffmpeg.org/legal.html. MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
 
 ## Development
 

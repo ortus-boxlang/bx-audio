@@ -74,8 +74,8 @@ public class AudioSprite extends BIF {
 	 */
 	public IStruct _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		List<AudioBuffer>	parts	= new ArrayList<>();
-		IStruct				sprites	= new Struct();
-		Struct				map		= new Struct();
+		IStruct				sprites	= new Struct( IStruct.TYPES.LINKED );
+		Struct				map		= new Struct( IStruct.TYPES.LINKED );
 		double				clock	= 0;
 		AudioBuffer			first	= null;
 		IStruct				given	= arguments.getAsStruct( sounds );

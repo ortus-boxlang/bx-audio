@@ -1,0 +1,172 @@
+/**
+ * Trailer soundtrack, start to finish: music cut to the exact length of the video, a voice-over with captions, the music ducked under the
+ * voice, the whole thing mastered to a loudness target, chapter markers for the editor, and, if you give it a video, the finished file with
+ * the new sound on it. It is the job that used to take a Python script, ffmpeg and a loudness tool.
+ *
+ * Usage:
+ *   boxlang trailer.bxs [--seconds=15] [--out=out/trailer.wav] [--video=clip.mp4 --videoOut=out/trailer.mp4]
+ *                       [--text="Line one. Line two."] [--voice=joe] [--voiceFile=narration.wav] [--music=cue.wav]
+ *                       [--captions=out/trailer.srt] [--target=streaming] [--install=false]
+ *
+ * With --video the length is the length of the video. The voice needs the speech engine and a voice, which download the first time (see
+ * docs/voices.md). Muxing, MP3 and FLAC aside, anything that is not WAV needs FFmpeg, see `bx-audio ffmpeg`.
+ */
+
+settings = {
+	out : "out/trailer.wav", seconds : 15, bpm : 100, voice : "joe", text : "", voiceFile : "", music : "", video : "", videoOut : "", captions : "",
+	target : "streaming", lead : 1.5, install : true
+};
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+beat = 60 / settings.bpm;
+bar = beat * 4;
+lead = settings.lead * 1.0;
+
+defaultText = "One module. Pure JVM. No Python. BoxLang Audio.";
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 1. How long is the trailer? The video says so, if there is one
+// ---------------------------------------------------------------------------------------------------------------------------------
+total = settings.seconds * 1.0;
+if( settings.video.len() ){
+	total = videoInfo( settings.video ).seconds;
+	println( "video: " & numberFormat( total, "0.00" ) & " s" );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 2. The voice-over, with captions timed to it. Or your own recording.
+// ---------------------------------------------------------------------------------------------------------------------------------
+cues = [];
+if( settings.voiceFile.len() ){
+	clip = audioLoad( settings.voiceFile );
+} else {
+	spoken = audioSpeakCues(
+		text = settings.text.len() ? settings.text : defaultText,
+		voice = settings.voice,
+		pauses = { sentence : 0.45, paragraph : 0.9 },
+		autoInstall = settings.install != false
+	);
+	clip = spoken.audio;
+	cues = spoken.cues;
+}
+
+/**
+ * A voice at a speaking level: -17 dBFS RMS, which keeps it clearly over the music, but never past -1 dBFS at the peak
+ */
+function leveled( c ){
+	var info = audioInfo( c );
+	var gainDb = -17 - 20 * log10( max( info.rms, 0.0001 ) );
+	var peakDb = 20 * log10( max( info.peak, 0.0001 ) );
+	return audioGain( c, min( gainDb, -1 - peakDb ) );
+}
+clip = leveled( audioReverb( audio = audioFilter( clip, "highpass", 90, 0.7071 ), room = 0.15, damp = 0.6, mix = 0.05 ) );
+clip = audioChannels( audioResample( clip, sr ), 2 );
+// The voice needs room. Without a video the trailer grows to fit it, with a video the picture is the boss and the voice would be cut.
+need = lead + clip.getDurationSeconds() + 2.5;
+if( need > total ){
+	if( settings.video.len() ){
+		println( "WARNING: the voice needs " & numberFormat( need, "0.0" ) & " s but the video is " & numberFormat( total, "0.0" ) & " s, so the end of it is cut. Shorten --text." );
+	} else {
+		println( "the voice needs " & numberFormat( need, "0.0" ) & " s, longer than " & numberFormat( total, "0.0" ) & " s, so the trailer is made that long" );
+		total = need;
+	}
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 3. The music: your file, or a short built-in cue. Either way it is cut to the exact length with audioFitTo.
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [ [ 57, 60, 64, 69 ], [ 53, 57, 60, 65 ], [ 55, 60, 64, 67 ], [ 55, 59, 62, 67 ] ];
+
+function padFor( index ){
+	var saws = [];
+	for( var note in chords[ index ] ){
+		saws.append( audioOsc( shape = "saw", freq = audioFreq( note - 0.15 ), seconds = bar + 1.0, sampleRate = sr, harmonics = 12 ) );
+		saws.append( audioOsc( shape = "saw", freq = audioFreq( note + 0.15 ), seconds = bar + 1.0, sampleRate = sr, harmonics = 12 ) );
+	}
+	return audioGain( audioFilter( audioEnvelope( audioMix( saws ), 0.5, 4 ), "lowpass", 1800, 0.8 ), -12 );
+}
+
+function builtInCue( bars ){
+	var cue = audioTimeline( bpm = settings.bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
+	var kick = audioDrum( type = "kick", pitch = 0.9, decay = 0.9, level = 0.9 );
+	for( var b = 0; b < bars; b++ ){
+		audioAdd( timeline = cue, sound = padFor( ( b mod 4 ) + 1 ), at = b * bar, track = "music", db = -2 );
+		if( b >= 1 && b < bars - 1 ){
+			for( var k = 0; k < 4; k++ ){
+				audioAdd( timeline = cue, sound = kick, at = b * bar + k * beat, track = "drums", db = -6 );
+			}
+		}
+	}
+	// A riser into the last bar and a boom on its first beat
+	var riser = audioFade( audioFilter( audioNoise( seconds = bar, sampleRate = sr, color = "white" ), "highpass", 1200, 0.9 ), bar * 0.9, 0.05, "smooth" );
+	audioAdd( timeline = cue, sound = riser, at = ( bars - 2 ) * bar, track = "music", db = -20, pan = 0 );
+	audioAdd( timeline = cue, sound = audioDrum( type = "kick", pitch = 0.5, decay = 3, level = 1 ), at = ( bars - 1 ) * bar, track = "drums", db = -2 );
+	return audioRender( timeline = cue, tail = 1 );
+}
+
+if( settings.music.len() ){
+	music = audioChannels( audioResample( audioLoad( settings.music ), sr ), 2 );
+} else {
+	music = builtInCue( max( 4, int( ceiling( total / bar ) ) ) );
+}
+music = audioFitTo( music, total );
+println( "music fitted to " & numberFormat( total, "0.00" ) & " s" );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 4. Mix: the voice on its own track, the music ducking under it
+// ---------------------------------------------------------------------------------------------------------------------------------
+t = audioTimeline( bpm = settings.bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
+audioAdd( timeline = t, sound = music, at = 0, track = "music", db = -3 );
+audioAdd( timeline = t, sound = clip, at = lead, track = "voice", db = 0 );
+audioTrackGain( t, "music", -6 );
+audioDuck( t, "music", "voice", -9 );
+mix = audioTrim( audioRender( timeline = t, tail = 0 ), 0, total );
+// Make sure it is exactly as long as the picture, then a short fade at both ends
+if( mix.getDurationSeconds() < total ){
+	mix = audioConcat( [ mix, audioSilence( seconds = total - mix.getDurationSeconds(), channels = 2, sampleRate = sr ) ] );
+}
+mix = audioFade( mix, 0.05, 1.2, "smooth" );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 5. Master: a loudness target with a true-peak ceiling, the way streaming services and broadcasters measure
+// ---------------------------------------------------------------------------------------------------------------------------------
+before = audioLoudness( mix );
+mastered = audioMaster( audio = mix, target = settings.target, truePeak = -1 );
+after = audioLoudness( mastered );
+written = audioSave( mastered, settings.out );
+println( "wrote " & written );
+println( "loudness " & numberFormat( before.integrated, "0.0" ) & " LUFS -> " & numberFormat( after.integrated, "0.0" ) & " LUFS (" & settings.target & "), true peak " & numberFormat( after.truePeak, "0.0" ) & " dBFS" );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 6. Captions and chapter markers for the editor
+// ---------------------------------------------------------------------------------------------------------------------------------
+base = settings.out.reReplace( "\.[^./]*$", "" );
+if( cues.len() ){
+	captionsFile = settings.captions.len() ? settings.captions : base & ".srt";
+	audioSubtitles( cues = cues, format = captionsFile.lcase().endsWith( ".vtt" ) ? "vtt" : "srt", path = captionsFile, offset = lead );
+	println( "captions: " & captionsFile & " (" & cues.len() & " lines)" );
+}
+audioMarkers(
+	markers = [
+		{ time : 0, label : "Music in" },
+		{ time : lead, label : "Voice-over" },
+		{ time : max( lead + clip.getDurationSeconds() + 0.5, total - bar ), label : "Sting" }
+	],
+	format = "youtube",
+	path = base & ".chapters.txt",
+	total = total
+);
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// 7. Put it on the video, copying the picture untouched
+// ---------------------------------------------------------------------------------------------------------------------------------
+if( settings.video.len() ){
+	finished = settings.videoOut.len() ? settings.videoOut : base & ".mp4";
+	audioMux( video = settings.video, audio = mastered, output = finished );
+	println( "video: " & finished );
+}
