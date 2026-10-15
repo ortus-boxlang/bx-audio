@@ -1,8 +1,10 @@
 ---
 title: BoxLang Audio
 order: 1
-summary: BoxLang Audio makes, mixes, masters and speaks audio from BoxLang, on the JVM, with no Python or native tools.
+description: BoxLang Audio makes, mixes, masters and speaks audio from BoxLang, on the JVM, with no Python or native tools.
+icon: phosphor-duotone:waveform
 toc: false
+ogImage: assets/og-image.png
 ---
 
 Make sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix with ducking, add effects, master to a loudness target, speak text with open license voices, score a video, and play sound in a game. It all runs on the JVM, in BoxLang, with no Python and nothing native to install.

@@ -159,9 +159,8 @@ class {
 			if( ( server.system.environment.BX_AUDIO_DEBUG ?: "" ) == "1" ){
 				rethrow;
 			}
-			System = createObject( "java", "java.lang.System" );
-			System.err.println( "bx-audio: " & e.message );
-			System.exit( 1 );
+			systemOutput( "bx-audio: " & e.message, true, true );
+			cliExit( 1 );
 		}
 	}
 

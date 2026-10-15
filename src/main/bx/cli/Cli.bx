@@ -20,71 +20,73 @@ class {
 	/**
 	 * Command names and one line of help each, in the order help lists them
 	 */
-	variables.commands = [
-		{ name : "info", usage : "info <file>", help : "Show the format, length and level of a WAV or MP3 file" },
-		{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV and MP3, and change the sample rate or channels" },
-		{ name : "normalize", usage : "normalize <in> <out> [--db=-1]", help : "Scale the peak of a file to a level in decibels" },
-		{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
-		{ name : "loudness", usage : "loudness <file>", help : "Measure the loudness in LUFS (EBU R128), the loudness range and the true peak" },
-		{ name : "master", usage : "master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeak=-1] [--glue]", help : "Reach a loudness target with a true-peak ceiling, ready to publish" },
-		{ name : "stretch", usage : "stretch <in> <out> --rate=1.1 | --seconds=30", help : "Change the speed or fit the length, keeping the pitch" },
-		{ name : "pitch", usage : "pitch <in> <out> --semitones=2", help : "Change the pitch, keeping the length" },
-		{ name : "bpm", usage : "bpm <file> [--beats]", help : "Detect the tempo, and with --beats list where the beats fall" },
-		{ name : "silence", usage : "silence <file> [--db=-50] [--min=0.3] [--trim=OUT]", help : "List the silent stretches, or write a copy with the silence cut off both ends" },
-		{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
-		{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--speed=1] [--captions=FILE.srt|.vtt] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time",
-			details : [
-				"  --voice=NAME         A voice id or short name (see `bx-audio voices`)",
-				"  --out=FILE           Where to write the audio: .wav, .mp3, .flac, or .ogg/.opus/.m4a with FFmpeg (default speech.wav)",
-				"  --file=TEXTFILE      Read the text from a file instead of the command line",
-				"  --speed=1            1 is the voice's own pace, 1.2 faster, 0.85 slower (0.25 to 4)",
-				"  --captions=FILE      Also write captions timed to the voice: .srt or .vtt",
-				"  --offset=0           Seconds added to every caption time",
-				"  --max-chars=80       Longest caption line",
-				"  --by-clause          Speak and time clause by clause (at commas), for more natural pauses and shorter captions",
-				"  --sentence-pause=0.35  --clause-pause=0.15  --paragraph-pause=0.8   Seconds of quiet between the pieces",
-				"  --no-install         Fail instead of downloading the engine or the voice",
-				"",
-				"Giving captions, a pause or --by-clause speaks the text piece by piece. Without them the voice phrases the whole text itself."
-			] },
-		{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID]", help : "List voices with their licenses, what is installed, and why some are not offered",
-			details : [
-				"Without options it lists the voices you can use. Each row says whether it is installed or still to download.",
-				"  <voice>         Full details of one voice: license, what the license asks, size, training data, where it is stored",
-				"  --installed     Only voices on disk",
-				"  --downloadable  Only offered voices you have not downloaded yet",
-				"  --excluded      Voices that are NOT offered, each with the reason (license, GPL dictionary, several speakers, language)",
-				"  --all           Offered and excluded together",
-				"  --lang=en_US    One language (--lang=all is the default)",
-				"  --license=ID    One license, for example CC0-1.0 or Apache-2.0",
-				"",
-				"See `bx-audio licenses` for what each license asks of you."
-			] },
-		{ name : "licenses", usage : "licenses", help : "Show the voice licenses and what each one asks of you" },
-		{ name : "install", usage : "install <voice|engine> [...]", help : "Download a voice, or the speech engine every voice needs" },
-		{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
-		{ name : "where", usage : "where", help : "Show where bx-audio keeps its downloads, and how much space they take" },
-		{ name : "clean", usage : "clean [engine|voices|ffmpeg|cache|all] [--yes]", help : "Delete downloaded files to free space, after asking" },
-		{ name : "play", usage : "play <file> [--volume=1] [--output=speakers|null]", help : "Play a file through the speakers" },
-		{ name : "loopify", usage : "loopify <in> <out> [--crossfade=0.25]", help : "Make a sound loop seamlessly by blending its end into its start" },
-		{ name : "sprite", usage : "sprite <out> <file> <file> ... [--gap=0.1]", help : "Join sounds into one audio sprite with a Howler.js map next to it (named by file name)" },
-		{ name : "ffmpeg", usage : "ffmpeg [status|install]", help : "Show whether FFmpeg is available (OGG, Opus, AAC and video need it), or download it" },
-		{ name : "probe", usage : "probe <file>", help : "Describe any audio or video file: length, size, video and audio streams" },
-		{ name : "mux", usage : "mux <video> <audio> <out> [--keep-original] [--offset=0]", help : "Put an audio file on a video, copying the picture without re-encoding" },
-		{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
-		{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
-		{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
-		{ name : "doctor", usage : "doctor", help : "Check that MP3, FFmpeg, audio output, the examples and the explorer will work here" },
-		{ name : "version", usage : "version", help : "Show the module version" },
-		{ name : "help", usage : "help [command]", help : "Show this help" }
-	];
+	static {
+		commands = [
+			{ name : "info", usage : "info <file>", help : "Show the format, length and level of a WAV or MP3 file" },
+			{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV and MP3, and change the sample rate or channels" },
+			{ name : "normalize", usage : "normalize <in> <out> [--db=-1]", help : "Scale the peak of a file to a level in decibels" },
+			{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
+			{ name : "loudness", usage : "loudness <file>", help : "Measure the loudness in LUFS (EBU R128), the loudness range and the true peak" },
+			{ name : "master", usage : "master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeak=-1] [--glue]", help : "Reach a loudness target with a true-peak ceiling, ready to publish" },
+			{ name : "stretch", usage : "stretch <in> <out> --rate=1.1 | --seconds=30", help : "Change the speed or fit the length, keeping the pitch" },
+			{ name : "pitch", usage : "pitch <in> <out> --semitones=2", help : "Change the pitch, keeping the length" },
+			{ name : "bpm", usage : "bpm <file> [--beats]", help : "Detect the tempo, and with --beats list where the beats fall" },
+			{ name : "silence", usage : "silence <file> [--db=-50] [--min=0.3] [--trim=OUT]", help : "List the silent stretches, or write a copy with the silence cut off both ends" },
+			{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
+			{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--speed=1] [--captions=FILE.srt|.vtt] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time",
+				details : [
+					"  --voice=NAME         A voice id or short name (see `bx-audio voices`)",
+					"  --out=FILE           Where to write the audio: .wav, .mp3, .flac, or .ogg/.opus/.m4a with FFmpeg (default speech.wav)",
+					"  --file=TEXTFILE      Read the text from a file instead of the command line",
+					"  --speed=1            1 is the voice's own pace, 1.2 faster, 0.85 slower (0.25 to 4)",
+					"  --captions=FILE      Also write captions timed to the voice: .srt or .vtt",
+					"  --offset=0           Seconds added to every caption time",
+					"  --max-chars=80       Longest caption line",
+					"  --by-clause          Speak and time clause by clause (at commas), for more natural pauses and shorter captions",
+					"  --sentence-pause=0.35  --clause-pause=0.15  --paragraph-pause=0.8   Seconds of quiet between the pieces",
+					"  --no-install         Fail instead of downloading the engine or the voice",
+					"",
+					"Giving captions, a pause or --by-clause speaks the text piece by piece. Without them the voice phrases the whole text itself."
+				] },
+			{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID]", help : "List voices with their licenses, what is installed, and why some are not offered",
+				details : [
+					"Without options it lists the voices you can use. Each row says whether it is installed or still to download.",
+					"  <voice>         Full details of one voice: license, what the license asks, size, training data, where it is stored",
+					"  --installed     Only voices on disk",
+					"  --downloadable  Only offered voices you have not downloaded yet",
+					"  --excluded      Voices that are NOT offered, each with the reason (license, GPL dictionary, several speakers, language)",
+					"  --all           Offered and excluded together",
+					"  --lang=en_US    One language (--lang=all is the default)",
+					"  --license=ID    One license, for example CC0-1.0 or Apache-2.0",
+					"",
+					"See `bx-audio licenses` for what each license asks of you."
+				] },
+			{ name : "licenses", usage : "licenses", help : "Show the voice licenses and what each one asks of you" },
+			{ name : "install", usage : "install <voice|engine> [...]", help : "Download a voice, or the speech engine every voice needs" },
+			{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
+			{ name : "where", usage : "where", help : "Show where bx-audio keeps its downloads, and how much space they take" },
+			{ name : "clean", usage : "clean [engine|voices|ffmpeg|cache|all] [--yes]", help : "Delete downloaded files to free space, after asking" },
+			{ name : "play", usage : "play <file> [--volume=1] [--output=speakers|null]", help : "Play a file through the speakers" },
+			{ name : "loopify", usage : "loopify <in> <out> [--crossfade=0.25]", help : "Make a sound loop seamlessly by blending its end into its start" },
+			{ name : "sprite", usage : "sprite <out> <file> <file> ... [--gap=0.1]", help : "Join sounds into one audio sprite with a Howler.js map next to it (named by file name)" },
+			{ name : "ffmpeg", usage : "ffmpeg [status|install]", help : "Show whether FFmpeg is available (OGG, Opus, AAC and video need it), or download it" },
+			{ name : "probe", usage : "probe <file>", help : "Describe any audio or video file: length, size, video and audio streams" },
+			{ name : "mux", usage : "mux <video> <audio> <out> [--keep-original] [--offset=0]", help : "Put an audio file on a video, copying the picture without re-encoding" },
+			{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
+			{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
+			{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
+			{ name : "doctor", usage : "doctor", help : "Check that MP3, FFmpeg, audio output, the examples and the explorer will work here" },
+			{ name : "version", usage : "version", help : "Show the module version" },
+			{ name : "help", usage : "help [command]", help : "Show this help" }
+		];
+	}
 
 	/**
 	 * The commands with their usage, one line of help and, for some, longer details. The documentation generator reads this, so the command
 	 * line and its reference cannot drift apart.
 	 */
-	function getCommands(){
-		return variables.commands;
+	public static function getCommands(){
+		return static.commands;
 	}
 
 	function init( required string root ){
@@ -109,7 +111,7 @@ class {
 		if( name == "--help" || name == "-h" ){
 			name = "help";
 		}
-		if( !commands.some( ( c ) => c.name == name ) ){
+		if( !static.commands.some( ( c ) => c.name == name ) ){
 			throw( type = "bxaudio.cli", message = "Unknown command [#name#]. Run `bx-audio help` to see the commands." );
 		}
 		if( options.keyExists( "help" ) ){
@@ -124,7 +126,7 @@ class {
 
 	function cmdHelp( required array args, required struct options ){
 		if( args.len() ){
-			var found = commands.filter( ( c ) => c.name == args.first() );
+			var found = static.commands.filter( ( c ) => c.name == args.first() );
 			if( !found.len() ){
 				throw( type = "bxaudio.cli", message = "Unknown command [#args.first()#]." );
 			}
@@ -140,7 +142,7 @@ class {
 		out( "" );
 		out( "Usage: bx-audio <command> [options]" );
 		out( "" );
-		commands.each( ( c ) => out( "  " & pad( c.name, 11 ) & c.help ) );
+		static.commands.each( ( c ) => out( "  " & pad( c.name, 11 ) & c.help ) );
 		out( "" );
 		out( "Run `bx-audio help <command>` for the options of one command." );
 	}
@@ -654,11 +656,11 @@ class {
 	/**
 	 * Pad text with spaces on the right, for columns
 	 */
-	private function pad( required string text, required numeric width ){
+	private static function pad( required string text, required numeric width ){
 		return text.len() >= width ? text & " " : text & repeatString( " ", width - text.len() );
 	}
 
-	private function needArg( required array args, required numeric position, required string usage ){
+	private static function needArg( required array args, required numeric position, required string usage ){
 		if( args.len() < position ){
 			throw( type = "bxaudio.cli", message = "Missing argument. Usage: bx-audio #usage#" );
 		}
@@ -668,7 +670,7 @@ class {
 	/**
 	 * Paths given on the command line are relative to where the person ran the command, not to the module or the example scripts
 	 */
-	private function absolute( required string path ){
+	private static function absolute( required string path ){
 		var Paths = createObject( "java", "java.nio.file.Paths" );
 		var given = Paths.get( path, [] );
 		return given.isAbsolute() ? path : Paths.get( createObject( "java", "java.lang.System" ).getProperty( "user.dir" ), [ path ] ).toString();
@@ -700,7 +702,7 @@ class {
 		}
 	}
 
-	private function findOnPath( required string program ){
+	private static function findOnPath( required string program ){
 		var names = server.os.name.lcase().contains( "windows" ) ? [ program & ".bat", program & ".exe", program ] : [ program ];
 		for( var dir in ( server.system.environment.PATH ?: "" ).listToArray( server.os.name.lcase().contains( "windows" ) ? ";" : ":" ) ){
 			for( var name in names ){

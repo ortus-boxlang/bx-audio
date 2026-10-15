@@ -4,7 +4,7 @@ name: Publish Docs
 # https://bxaudio.boxlang.io
 #
 # One time setup in the repository (Settings, Pages):
-#   - Source: "GitHub Actions"
+#   - Source: "Deploy from a branch", branch gh-pages, folder / (root), the same as bx-lens
 #   - Custom domain: bxaudio.boxlang.io  (and "Enforce HTTPS" once the certificate is ready)
 # and in DNS for boxlang.io: a CNAME record  bxaudio  ->  ortus-boxlang.github.io
 
@@ -19,63 +19,49 @@ on:
   # Manual trigger
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# One deployment at a time, and let one that is running finish
+# Only one publish at a time; a newer push replaces a queued one
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: docs
+  cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build the site
+  publish:
+    name: Build & Publish Docs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
-      - name: Setup BoxLang
-        uses: ortus-boxlang/setup-boxlang@1.4.0
+      - name: Setup Java
+        uses: actions/setup-java@v6
         with:
-          with-commandbox: true
-          modules: bx-sites bx-esapi bx-yaml bx-markdown bx-image
+          distribution: "temurin"
+          java-version: "21"
 
-      - name: Build the site
-        run: boxlang bxSites build
+      - name: Setup BoxLang and bxSites
+        uses: ortus-boxlang/setup-boxlang@main
+        with:
+          version: latest
+          modules: bx-sites bx-markdown bx-esapi bx-yaml bx-image
 
-      - name: Verify the build produced output
+      # Lint issues, broken links or missing alt text fail the publish
+      - name: Build and Check Docs
         run: |
-          # bxSites does not always turn an internal failure into a failing exit code, so look at the result
-          if [[ ! -f site/index.html ]]; then
-            echo "::error::the build produced no site/index.html"
-            exit 1
-          fi
+          export PATH="$HOME/.boxlang/bin:$PATH"
+          bxSites -v
+          bxSites lint
+          bxSites build
+          test -s site/index.html
+          test -s site/404.html
+          bxSites audit
 
-      - name: Check links and images
-        run: boxlang bxSites audit
-
-      - name: Name the domain
-        run: echo "bxaudio.boxlang.io" > site/CNAME
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload the site
-        uses: actions/upload-pages-artifact@v3
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: site
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./site
+          cname: bxaudio.boxlang.io
+          commit_message: "Docs: ${{ github.event.head_commit.message || 'manual publish' }}"
