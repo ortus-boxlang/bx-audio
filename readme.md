@@ -200,7 +200,7 @@ println( audioInfo( "out/voice-stereo.wav" ) );
 
 ### Text to speech
 
-`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into the `bx-audio` folder of your BoxLang home.
+`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into `~/.bxaudio`, shared by every BoxLang install. `bx-audio where` shows what is stored and `bx-audio clean` frees it.
 
 | Function | Purpose |
 |---|---|
@@ -223,7 +223,7 @@ audioSave( audioSaturate( audioRender( timeline=t, tail=1 ) ), "promo.mp3" );
 
 Only voices whose model card states an open license are on offer, each with its license shown, and you choose which to use. The full list, and the voices that were left out and why, is in [docs/voices.md](docs/voices.md). Only US English voices are available for now.
 
-Two module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine and the voices are downloaded to, empty for the `bx-audio` folder of the BoxLang home, and `autoInstall` is `true` unless you want `audioSpeak` to refuse to download anything. The environment variable `BX_AUDIO_HOME` also sets the folder.
+Two module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine and the voices are downloaded to, empty for `~/.bxaudio`, and `autoInstall` is `true` unless you want `audioSpeak` to refuse to download anything. The environment variable `BX_AUDIO_HOME` also sets the folder.
 
 ## Examples
 
