@@ -16,14 +16,12 @@ package ortus.boxlang.modules.audio.tts;
 
 import java.nio.file.Path;
 
-import ortus.boxlang.runtime.BoxRuntime;
-
 /**
- * Where the text to speech engine and the voices live on disk. Both are downloaded on first use, because together they are far too big
- * for the module itself.
+ * Where the downloaded assets live on disk: the text to speech engine, the voices, FFmpeg and caches. They are downloaded on request,
+ * because together they are far too big for the module itself, and they are kept in the user's home so every BoxLang install shares them.
  * <p>
- * The folder is, in order: the {@code bxaudio.home} system property, the {@code BX_AUDIO_HOME} environment variable, or {@code bx-audio}
- * inside the BoxLang home.
+ * The folder is, in order: the module's {@code home} setting (see {@link Speech#home()}), the {@code bxaudio.home} system property, the
+ * {@code BX_AUDIO_HOME} environment variable, or {@code .bxaudio} in the user's home folder.
  */
 public final class TtsHome {
 
@@ -41,7 +39,7 @@ public final class TtsHome {
 		if ( configured != null && !configured.isBlank() ) {
 			return Path.of( configured ).toAbsolutePath();
 		}
-		return BoxRuntime.getInstance().getRuntimeHome().resolve( "bx-audio" );
+		return Path.of( System.getProperty( "user.home" ) ).resolve( ".bxaudio" ).toAbsolutePath();
 	}
 
 	/**
@@ -56,6 +54,20 @@ public final class TtsHome {
 	 */
 	public static Path engine( Path home ) {
 		return home.resolve( "engine" );
+	}
+
+	/**
+	 * @return The folder with the FFmpeg download
+	 */
+	public static Path ffmpeg( Path home ) {
+		return home.resolve( "ffmpeg" );
+	}
+
+	/**
+	 * @return The folder for things that can be rebuilt, such as the explorer's rendered samples
+	 */
+	public static Path cache( Path home ) {
+		return home.resolve( "cache" );
 	}
 
 }

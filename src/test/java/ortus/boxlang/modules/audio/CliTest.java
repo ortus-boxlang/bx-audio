@@ -191,6 +191,26 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( run( "remove", "engine" ) ).contains( "engine was not installed" );
 	}
 
+	@DisplayName( "where shows the storage folders and clean asks first, then deletes only what was named" )
+	@Test
+	void testWhereAndClean( @TempDir Path home ) throws Exception {
+		useSpeechHome( home );
+		Path voice = home.resolve( "voices/joe/model.onnx" );
+		Files.createDirectories( voice.getParent() );
+		Files.write( voice, new byte[ 2_000_000 ] );
+		String where = run( "where" );
+		assertThat( where ).contains( home.toString() );
+		assertThat( where ).contains( "voices" );
+		assertThat( where ).contains( "2.0 MB" );
+		assertThat( run( "clean", "voices" ) ).contains( "Add --yes" );
+		assertThat( Files.exists( voice ) ).isTrue();
+		assertThat( run( "clean", "engine", "--yes" ) ).contains( "freed 0.0 MB" );
+		assertThat( Files.exists( voice ) ).isTrue();
+		assertThat( run( "clean", "voices", "--yes" ) ).contains( "freed 2.0 MB" );
+		assertThat( Files.exists( voice ) ).isFalse();
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "clean", "bogus", "--yes" ) ).getMessage() ).contains( "Unknown kind" );
+	}
+
 	@DisplayName( "doctor checks MP3 and the examples, and reports the speech setup without failing on it" )
 	@Test
 	void testDoctor( @TempDir Path home ) {

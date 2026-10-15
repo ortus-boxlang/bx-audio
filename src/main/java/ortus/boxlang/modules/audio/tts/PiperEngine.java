@@ -19,21 +19,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
+import ortus.boxlang.runtime.loader.DynamicClassLoader;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
 /**
  * Speaks text with the Voices library (Piper models on ONNX Runtime). The library is not a dependency of this module: its jars are
- * downloaded on first use by {@link EngineInstaller} and loaded here in a class loader of their own, then driven by reflection. That keeps
- * 140 MB out of the module and keeps the library's own dependencies from clashing with the rest of the runtime.
+ * downloaded on first use by {@link EngineInstaller} into the user's home and added to the module's own class loader with
+ * {@code DynamicClassLoader.addURLs}, then driven by reflection since nothing compiles against it. That keeps 140 MB out of the module, and
+ * the module loader keeps the library's dependencies away from the rest of the runtime.
  * <p>
- * ONNX Runtime loads a native library, and a JVM can load one only through a single class loader, so the loader and the engines are
- * created once per JVM and shared.
+ * ONNX Runtime loads a native library, and a JVM can load one only through a single class loader, so the engines are created once per JVM
+ * and shared.
  */
 public final class PiperEngine {
 
@@ -45,6 +46,17 @@ public final class PiperEngine {
 	 */
 	private final Map<String, Object>	choruses	= new HashMap<>();
 
+	private static PiperEngine create( URL[] urls ) {
+		ClassLoader loader = PiperEngine.class.getClassLoader();
+		if ( loader instanceof DynamicClassLoader module ) {
+			module.addURLs( urls );
+		} else {
+			// Not running as a module (a plain classpath), so the jars need a loader of their own
+			loader = new java.net.URLClassLoader( urls, ClassLoader.getPlatformClassLoader() );
+		}
+		return new PiperEngine( loader );
+	}
+
 	private PiperEngine( ClassLoader loader ) {
 		this.loader = loader;
 	}
@@ -55,7 +67,7 @@ public final class PiperEngine {
 	public static synchronized PiperEngine get( EngineInstaller installer ) {
 		if ( instance == null ) {
 			URL[] urls = installer.classpath();
-			instance = new PiperEngine( new URLClassLoader( urls, ClassLoader.getPlatformClassLoader() ) );
+			instance = create( urls );
 		}
 		return instance;
 	}

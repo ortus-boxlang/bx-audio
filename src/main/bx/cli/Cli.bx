@@ -30,6 +30,8 @@ class {
 		{ name : "voices", usage : "voices [--lang=en_US] [--installed]", help : "List the voices you can install, with their licenses" },
 		{ name : "install", usage : "install <voice|engine> [...]", help : "Download a voice, or the speech engine every voice needs" },
 		{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
+		{ name : "where", usage : "where", help : "Show where bx-audio keeps its downloads, and how much space they take" },
+		{ name : "clean", usage : "clean [engine|voices|ffmpeg|cache|all] [--yes]", help : "Delete downloaded files to free space, after asking" },
 		{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
 		{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
 		{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
@@ -189,6 +191,29 @@ class {
 		}
 	}
 
+	function cmdWhere( required array args, required struct options ){
+		var storage = audioStorage();
+		out( "bx-audio home: " & storage.home );
+		out( "" );
+		out( pad( "FOLDER", 9 ) & pad( "SIZE", 11 ) & "WHAT" );
+		storage.folders.each( ( f ) => {
+			out( pad( f.kind, 9 ) & pad( f.exists ? numberFormat( f.sizeMB, "0.0" ) & " MB" : "-", 11 ) & f.description );
+			out( "         " & f.path );
+		} );
+		out( "" );
+		out( "Total " & numberFormat( storage.totalMB, "0.0" ) & " MB. Move it with the BX_AUDIO_HOME variable or the module's home setting. Free space with `bx-audio clean`." );
+	}
+
+	function cmdClean( required array args, required struct options ){
+		var kind = args.len() ? args.first().lcase() : "all";
+		if( !options.keyExists( "yes" ) ){
+			var storage = audioStorage();
+			out( "This deletes [#kind#] from #storage.home#. Add --yes to do it. Downloads happen again on next use." );
+			return;
+		}
+		out( "freed " & numberFormat( audioStorageClear( kind ), "0.0" ) & " MB" );
+	}
+
 	function cmdSpeak( required array args, required struct options ){
 		var text = args.toList( " " );
 		if( options.keyExists( "file" ) ){
@@ -286,6 +311,7 @@ class {
 		check( findOnPath( "boxlang-miniserver" ).len() > 0, "MiniServer on PATH (needed for the explorer)", "Install it from https://boxlang.ortusbooks.com/getting-started/installation" );
 		var speech = audioSpeechStatus();
 		out( "  info  speech engine " & ( speech.engineInstalled ? "installed" : "not installed (" & speech.engineSizeMB & " MB, `bx-audio install engine` or the first `speak` downloads it)" ) );
+		out( "  info  downloads are kept in " & audioStorage().home & " (`bx-audio where`, `bx-audio clean`)" );
 		out( "  info  voices installed: " & ( speech.voices.len() ? speech.voices.toList( ", " ) : "none" ) & " (in " & speech.home & ")" );
 		out( problems ? "" & problems & " problem" & ( problems > 1 ? "s" : "" ) & " found." : "Everything looks good." );
 	}
