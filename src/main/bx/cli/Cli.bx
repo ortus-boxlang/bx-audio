@@ -79,6 +79,14 @@ class {
 		{ name : "help", usage : "help [command]", help : "Show this help" }
 	];
 
+	/**
+	 * The commands with their usage, one line of help and, for some, longer details. The documentation generator reads this, so the command
+	 * line and its reference cannot drift apart.
+	 */
+	function getCommands(){
+		return variables.commands;
+	}
+
 	function init( required string root ){
 		variables.root = arguments.root;
 		return this;

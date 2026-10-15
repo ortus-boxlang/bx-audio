@@ -1,0 +1,42 @@
+name: "BoxLang Audio"
+description: "Make, mix, master and speak audio from BoxLang. Synthesis, loudness, time stretch, text to speech with captions, FFmpeg for video and a real time mixer for games, all on the JVM."
+baseURL: "https://bxaudio.boxlang.io/"
+source: docs
+theme:
+    name: bootstrap
+    options:
+        {
+            navCollapsible: true,
+            navExpandAll: false,
+            tocPosition: sticky,
+            accentColor: "#00C853",
+            accentColorDark: "#34D399",
+        }
+    logo: "assets/boxlang-icon-full.svg"
+    favicon: "assets/boxlang-icon-full.svg"
+search: true
+nav: []
+markdown:
+    enableFootnotes: true
+    enableDefinitionLists: true
+repo:
+    url: "https://github.com/ortus-boxlang/bx-audio"
+    editUri: "edit/development/docs/"
+social:
+    - url: "https://github.com/ortus-boxlang/bx-audio"
+      icon: github
+      label: "BoxLang Audio on GitHub"
+    - url: "https://github.com/ortus-boxlang/BoxLang"
+      icon: github
+      label: "BoxLang on GitHub"
+    - url: "https://www.youtube.com/@OrtusSolutions"
+      icon: youtube
+      label: "YouTube"
+    - url: "https://www.ortussolutions.com/community/slack"
+      icon: slack
+      label: "Slack Community"
+    - url: "https://www.patreon.com/ortussolutions"
+      icon: patreon
+      label: "Patreon"
+footer: true
+lastUpdated: true

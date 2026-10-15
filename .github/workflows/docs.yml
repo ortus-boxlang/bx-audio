@@ -1,0 +1,81 @@
+name: Publish Docs
+
+# Builds the documentation site (docs/ + bxsites.yaml, see readme.md) with BX Sites and publishes it to GitHub Pages at
+# https://bxaudio.boxlang.io
+#
+# One time setup in the repository (Settings, Pages):
+#   - Source: "GitHub Actions"
+#   - Custom domain: bxaudio.boxlang.io  (and "Enforce HTTPS" once the certificate is ready)
+# and in DNS for boxlang.io: a CNAME record  bxaudio  ->  ortus-boxlang.github.io
+
+on:
+  push:
+    branches:
+      - development
+    paths:
+      - "docs/**"
+      - "bxsites.yaml"
+      - ".github/workflows/docs.yml"
+  # Manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and let one that is running finish
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup BoxLang
+        uses: ortus-boxlang/setup-boxlang@1.4.0
+        with:
+          with-commandbox: true
+          modules: bx-sites bx-esapi bx-yaml bx-markdown bx-image
+
+      - name: Build the site
+        run: boxlang bxSites build
+
+      - name: Verify the build produced output
+        run: |
+          # bxSites does not always turn an internal failure into a failing exit code, so look at the result
+          if [[ ! -f site/index.html ]]; then
+            echo "::error::the build produced no site/index.html"
+            exit 1
+          fi
+
+      - name: Check links and images
+        run: boxlang bxSites audit
+
+      - name: Name the domain
+        run: echo "bxaudio.boxlang.io" > site/CNAME
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

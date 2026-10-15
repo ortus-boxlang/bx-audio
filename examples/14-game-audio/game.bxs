@@ -11,10 +11,10 @@
  *   boxlang game.bxs [--out=out/game-session.wav] [--folder=out/game-audio] [--seed=1]
  *   boxlang game.bxs --play                  # hear it now, through the sound card
  *
- * The folder gets the sound effects as one audio sprite with a Howler.js map, and the two music loops, ready to load in a web or desktop game.
+ * With --folder the sound effects are also written as one audio sprite with a Howler.js map, with the two music loops, ready to load in a web or desktop game.
  */
 
-settings = { out : "out/game-session.wav", folder : "out/game-audio", seed : 1, play : false };
+settings = { out : "out/game-session.wav", folder : "", seed : 1, play : false };
 settings.append( cliGetArgs().options );
 // Settings preset by whoever runs the script from code (tests, the bx-audio CLI) win over the command line
 if( isDefined( "overrides" ) ){

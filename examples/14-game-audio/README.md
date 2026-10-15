@@ -5,7 +5,7 @@ What a game asks of a sound engine, in one script: sound effects, varied so repe
 ```bash
 boxlang game.bxs                          # renders a scripted play session to out/game-session.wav
 boxlang game.bxs --play                   # the same session, live through your speakers
-boxlang game.bxs --folder=assets/audio    # where the sprite and the loops go
+boxlang game.bxs --folder=assets/audio    # also write the sprite and the loops there
 ```
 
 ## The session

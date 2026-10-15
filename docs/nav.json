@@ -1,0 +1,61 @@
+[
+	"index.md",
+	{
+		"title": "Start here",
+		"children": [
+			"getting-started.md",
+			"examples/index.md",
+			"guides/explorer.md"
+		]
+	},
+	{
+		"title": "Guides",
+		"children": [
+			"guides/index.md",
+			"guides/synthesis-and-effects.md",
+			"guides/mixing.md",
+			"guides/trailers-and-video.md",
+			"guides/loudness-and-mastering.md",
+			"guides/time-and-pitch.md",
+			"guides/speech-and-subtitles.md",
+			"guides/games.md",
+			"guides/analysis.md",
+			"guides/formats-and-ffmpeg.md",
+			"guides/storage.md"
+		]
+	},
+	{
+		"title": "Voices and licenses",
+		"children": [
+			"voices.md",
+			"licenses.md"
+		]
+	},
+	{
+		"title": "Reference",
+		"children": [
+			"reference/functions/index.md",
+			"reference/functions/files-and-editing.md",
+			"reference/functions/synthesis.md",
+			"reference/functions/effects.md",
+			"reference/functions/timeline.md",
+			"reference/functions/loudness-and-dynamics.md",
+			"reference/functions/time-and-pitch.md",
+			"reference/functions/analysis.md",
+			"reference/functions/ffmpeg-and-video.md",
+			"reference/functions/speech.md",
+			"reference/functions/games.md",
+			"reference/functions/storage.md",
+			"reference/cli.md",
+			"reference/configuration.md"
+		]
+	},
+	{
+		"title": "Help",
+		"children": [
+			"troubleshooting.md",
+			"roadmap.md",
+			"contribute.md"
+		]
+	}
+]
