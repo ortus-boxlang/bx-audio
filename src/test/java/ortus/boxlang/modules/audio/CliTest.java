@@ -215,6 +215,10 @@ public class CliTest extends BaseIntegrationTest {
 		    .contains( "bx-audio install engine" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "install", "nope" ) ).getMessage() ).contains( "Unknown voice [nope]" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "install" ) ).getMessage() ).contains( "Usage: bx-audio install" );
+		assertThat(
+		    assertThrows( BoxRuntimeException.class, () -> run( "speak", "Hello there.", "--voice=joe", "--captions=x.srt", "--no-install" ) ).getMessage() )
+		    .contains( "bx-audio install engine" );
+		assertThat( run( "help", "speak" ) ).contains( "--captions" );
 		assertThat( run( "remove", "joe" ) ).contains( "joe was not installed" );
 		assertThat( run( "remove", "engine" ) ).contains( "engine was not installed" );
 	}

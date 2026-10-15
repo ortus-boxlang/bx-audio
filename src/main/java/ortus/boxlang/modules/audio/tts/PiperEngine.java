@@ -82,13 +82,25 @@ public final class PiperEngine {
 	 * @return Mono audio at the voice's sample rate
 	 */
 	public synchronized AudioBuffer speak( VoiceInfo voice, VoiceStore store, String text ) {
+		return speak( voice, store, text, 1.0 );
+	}
+
+	/**
+	 * Speak a text at a speed
+	 *
+	 * @param speed 1 is the voice's own pace, 2 twice as fast, 0.5 half as fast
+	 */
+	public synchronized AudioBuffer speak( VoiceInfo voice, VoiceStore store, String text, double speed ) {
 		try {
 			Object	chorus		= chorusFor( voice.language(), store.getVoicesDir() );
 			Object	model		= model( voice );
 			Object	piperVoice	= call( chorus, "voice", model );
-			Object	audio		= call( piperVoice, "say", text );
-			float[]	samples		= ( float[] ) call( audio, "getSamples" );
-			int		rate		= ( Integer ) call( audio, "getSampleRate" );
+			if ( speed != 1.0 ) {
+				piperVoice = this.loader.loadClass( "org.pitest.voices.Voice" ).getMethod( "withSpeed", float.class ).invoke( piperVoice, ( float ) speed );
+			}
+			Object	audio	= call( piperVoice, "say", text );
+			float[]	samples	= ( float[] ) call( audio, "getSamples" );
+			int		rate	= ( Integer ) call( audio, "getSampleRate" );
 			return new AudioBuffer( new float[][] { samples }, rate );
 		} catch ( InvocationTargetException e ) {
 			Throwable cause = e.getCause() == null ? e : e.getCause();

@@ -94,6 +94,23 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		    .isEqualTo( true );
 	}
 
+	@DisplayName( "audioSubtitles formats cues and writes the file, and audioSpeakCues explains what is missing" )
+	@Test
+	void testSubtitlesAndCues( @TempDir Path home ) throws Exception {
+		useSpeechHome( home );
+		variables.put( Key.of( "target" ), home.resolve( "out/captions.vtt" ).toString() );
+		String text = ( String ) run(
+		    "result = audioSubtitles( [ { start: 0, end: 1.5, text: 'Hello' }, { start: 2, end: 3, text: 'World' } ], 'vtt', target, 10 )" );
+		assertThat( text ).startsWith( "WEBVTT\n\n00:00:10.000 --> 00:00:11.500\nHello" );
+		assertThat( java.nio.file.Files.readString( home.resolve( "out/captions.vtt" ) ) ).isEqualTo( text );
+		assertThat( message( "result = audioSubtitles( [ { start: 0, text: 'x' } ] )" ) ).contains( "Each cue must be a struct" );
+		assertThat( message( "result = audioSubtitles( [], 'ass' )" ) ).contains( "Unknown subtitle format" );
+		assertThat( message( "result = audioSpeakCues( text='Hello there.', voice='joe', autoInstall=false )" ) ).contains( "bx-audio install engine" );
+		assertThat( message( "result = audioSpeakCues( text='Hello there.', voice='joe', split='word', autoInstall=false )" ) ).contains( "split must be" );
+		assertThat( message( "result = audioSpeak( text='Hello.', voice='joe', autoInstall=false, speed=9 )" ) )
+		    .containsMatch( "bx-audio install engine|speed must be" );
+	}
+
 	@DisplayName( "audioSpeechStatus says where everything lives and that nothing is installed yet" )
 	@Test
 	void testStatus( @TempDir Path home ) {

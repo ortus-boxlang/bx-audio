@@ -14,7 +14,13 @@
  */
 package ortus.boxlang.modules.audio.bifs;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import ortus.boxlang.modules.audio.tts.Narration;
 import ortus.boxlang.modules.audio.tts.Speech;
+import ortus.boxlang.runtime.scopes.Key;
+import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.modules.audio.util.KeyDictionary;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
@@ -36,7 +42,9 @@ public class AudioSpeak extends BIF {
 		    new Argument( true, "string", KeyDictionary.text ),
 		    new Argument( true, "string", KeyDictionary.voice ),
 		    new Argument( false, "boolean", KeyDictionary.autoInstall ),
-		    new Argument( false, "function", KeyDictionary.onProgress )
+		    new Argument( false, "function", KeyDictionary.onProgress ),
+		    new Argument( false, "double", Key.of( "speed" ), 1.0 ),
+		    new Argument( false, "struct", Key.of( "pauses" ) )
 		};
 	}
 
@@ -55,17 +63,31 @@ public class AudioSpeak extends BIF {
 	 *
 	 * @argument.onProgress A function called as ( name, bytesDone, bytesTotal ) while something downloads.
 	 *
+	 * @argument.speed How fast to speak: 1 is the voice's own pace, 1.25 faster, 0.8 slower. Between 0.25 and 4. Defaults to 1.
+	 *
+	 * @argument.pauses A struct with any of sentence, clause and paragraph, in seconds, to speak the text piece by piece with those pauses
+	 *                  between the pieces (defaults 0.35, 0.15 and 0.8). Leave it out to let the voice phrase the whole text itself.
+	 *
 	 * @return A mono audio buffer at the voice sample rate, normally 22050 Hz.
 	 */
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		boolean allow = arguments.containsKey( KeyDictionary.autoInstall ) && arguments.get( KeyDictionary.autoInstall ) != null
+		boolean	allow	= arguments.containsKey( KeyDictionary.autoInstall ) && arguments.get( KeyDictionary.autoInstall ) != null
 		    ? arguments.getAsBoolean( KeyDictionary.autoInstall )
 		    : Speech.autoInstall();
+		double	speed	= arguments.getAsDouble( Key.of( "speed" ) );
+		if ( arguments.get( Key.of( "pauses" ) ) instanceof IStruct pauses ) {
+			Map<String, Object> values = new HashMap<>();
+			pauses.forEach( ( k, v ) -> values.put( k.getName().toLowerCase(), v ) );
+			return Speech
+			    .narrate( arguments.getAsString( KeyDictionary.text ), arguments.getAsString( KeyDictionary.voice ), allow, progress( context, arguments ),
+			        speed, Narration.Pauses.from( values ), false, 80 )
+			    .audio();
+		}
 		return Speech.speak( arguments.getAsString( KeyDictionary.text ), arguments.getAsString( KeyDictionary.voice ), allow,
-		    progress( context, arguments ) );
+		    progress( context, arguments ), speed );
 	}
 
-	private static EngineInstaller.NamedProgress progress( IBoxContext context, ArgumentsScope arguments ) {
+	static EngineInstaller.NamedProgress progress( IBoxContext context, ArgumentsScope arguments ) {
 		Object callback = arguments.get( KeyDictionary.onProgress );
 		if ( callback == null ) {
 			return null;

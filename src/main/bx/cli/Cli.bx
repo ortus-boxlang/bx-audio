@@ -32,7 +32,21 @@ class {
 		{ name : "bpm", usage : "bpm <file> [--beats]", help : "Detect the tempo, and with --beats list where the beats fall" },
 		{ name : "silence", usage : "silence <file> [--db=-50] [--min=0.3] [--trim=OUT]", help : "List the silent stretches, or write a copy with the silence cut off both ends" },
 		{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
-		{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time" },
+		{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--speed=1] [--captions=FILE.srt|.vtt] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time",
+			details : [
+				"  --voice=NAME         A voice id or short name (see `bx-audio voices`)",
+				"  --out=FILE           Where to write the audio: .wav, .mp3, .flac, or .ogg/.opus/.m4a with FFmpeg (default speech.wav)",
+				"  --file=TEXTFILE      Read the text from a file instead of the command line",
+				"  --speed=1            1 is the voice's own pace, 1.2 faster, 0.85 slower (0.25 to 4)",
+				"  --captions=FILE      Also write captions timed to the voice: .srt or .vtt",
+				"  --offset=0           Seconds added to every caption time",
+				"  --max-chars=80       Longest caption line",
+				"  --by-clause          Speak and time clause by clause (at commas), for more natural pauses and shorter captions",
+				"  --sentence-pause=0.35  --clause-pause=0.15  --paragraph-pause=0.8   Seconds of quiet between the pieces",
+				"  --no-install         Fail instead of downloading the engine or the voice",
+				"",
+				"Giving captions, a pause or --by-clause speaks the text piece by piece. Without them the voice phrases the whole text itself."
+			] },
 		{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID]", help : "List voices with their licenses, what is installed, and why some are not offered",
 			details : [
 				"Without options it lists the voices you can use. Each row says whether it is installed or still to download.",
@@ -432,9 +446,38 @@ class {
 			throw( type = "bxaudio.cli", message = "Choose a voice with --voice=NAME. See them with `bx-audio voices`." );
 		}
 		var target = absolute( options.out ?: "speech.wav" );
-		var audio = audioSpeak( text = text, voice = options.voice, autoInstall = ( options.install ?: true ) != false, onProgress = progressPrinter() );
-		var written = audioSave( audio, target );
-		out( "wrote " & written & " (" & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s)" );
+		var install = ( options.install ?: true ) != false;
+		var speed = val( options.speed ?: 1 );
+		var pieceByPiece = [ "captions", "by-clause", "sentence-pause", "clause-pause", "paragraph-pause" ].some( ( k ) => options.keyExists( k ) );
+		if( !pieceByPiece ){
+			var audio = audioSpeak( text = text, voice = options.voice, autoInstall = install, onProgress = progressPrinter(), speed = speed );
+			var written = audioSave( audio, target );
+			out( "wrote " & written & " (" & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s)" );
+			return;
+		}
+		var pauses = {};
+		[ "sentence", "clause", "paragraph" ].each( ( k ) => {
+			if( options.keyExists( k & "-pause" ) ){
+				pauses[ k ] = val( options[ k & "-pause" ] );
+			}
+		} );
+		var spoken = audioSpeakCues(
+			text = text,
+			voice = options.voice,
+			speed = speed,
+			pauses = pauses,
+			maxChars = int( options[ "max-chars" ] ?: 80 ),
+			split = options.keyExists( "by-clause" ) && options[ "by-clause" ] != false ? "clause" : "sentence",
+			autoInstall = install,
+			onProgress = progressPrinter()
+		);
+		out( "wrote " & audioSave( spoken.audio, target ) & " (" & numberFormat( spoken.seconds, "0.0" ) & " s)" );
+		if( options.keyExists( "captions" ) ){
+			var captions = absolute( options.captions );
+			var format = captions.lcase().endsWith( ".vtt" ) ? "vtt" : "srt";
+			audioSubtitles( cues = spoken.cues, format = format, path = captions, offset = val( options.offset ?: 0 ) );
+			out( "wrote " & captions & " (" & spoken.cues.len() & " captions)" );
+		}
 	}
 
 	function cmdPieces( required array args, required struct options ){

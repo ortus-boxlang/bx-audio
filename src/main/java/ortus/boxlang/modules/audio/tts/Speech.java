@@ -63,19 +63,26 @@ public final class Speech {
 	}
 
 	/**
-	 * Speak a text. The engine and the voice are downloaded first when {@code allowInstall} is true.
+	 * An engine and a voice that are installed and ready to speak
+	 */
+	public record Ready( VoiceInfo voice, VoiceStore store, PiperEngine engine ) {
+
+		public AudioBuffer say( String text, double speed ) {
+			if ( speed < 0.25 || speed > 4 ) {
+				throw new BoxRuntimeException( "The speed must be between 0.25 and 4 but was " + speed );
+			}
+			return this.engine.speak( this.voice, this.store, text, speed );
+		}
+	}
+
+	/**
+	 * Install what is missing, when that is allowed, and load the engine
 	 *
-	 * @param text         What to say
 	 * @param voiceName    A voice id or short name from the catalog
 	 * @param allowInstall May the engine and the voice be downloaded now
 	 * @param progress     Told how far the downloads have got, may be null
-	 *
-	 * @return Mono audio at the voice's sample rate
 	 */
-	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress ) {
-		if ( text == null || text.isBlank() ) {
-			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
-		}
+	public static Ready prepare( String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress ) {
 		VoiceInfo		voice	= catalog().find( voiceName );
 		VoiceStore		store	= store();
 		EngineInstaller	engine	= engine();
@@ -95,7 +102,43 @@ public final class Speech {
 			Progress p = progress == null ? null : ( done, total ) -> progress.update( voice.id(), done, total );
 			store.install( voice, p );
 		}
-		return PiperEngine.get( engine ).speak( voice, store, text );
+		return new Ready( voice, store, PiperEngine.get( engine ) );
+	}
+
+	/**
+	 * Speak a text. The engine and the voice are downloaded first when {@code allowInstall} is true.
+	 *
+	 * @param text         What to say
+	 * @param voiceName    A voice id or short name from the catalog
+	 * @param allowInstall May the engine and the voice be downloaded now
+	 * @param progress     Told how far the downloads have got, may be null
+	 *
+	 * @return Mono audio at the voice's sample rate
+	 */
+	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress ) {
+		return speak( text, voiceName, allowInstall, progress, 1.0 );
+	}
+
+	/**
+	 * Speak a text at a speed, see {@link #speak(String, String, boolean, EngineInstaller.NamedProgress)}
+	 */
+	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed ) {
+		if ( text == null || text.isBlank() ) {
+			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
+		}
+		return prepare( voiceName, allowInstall, progress ).say( text, speed );
+	}
+
+	/**
+	 * Speak a text piece by piece, with chosen pauses, and report when each caption line is spoken
+	 */
+	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
+	    Narration.Pauses pauses, boolean clauses, int maxChars ) {
+		if ( text == null || text.isBlank() ) {
+			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
+		}
+		Ready ready = prepare( voiceName, allowInstall, progress );
+		return Narration.narrate( text, piece -> ready.say( piece, speed ), pauses, clauses, maxChars );
 	}
 
 	/**
