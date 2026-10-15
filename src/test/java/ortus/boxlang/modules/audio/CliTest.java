@@ -246,6 +246,22 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "pitch", tone, pitched ) ).getMessage() ).contains( "--semitones" );
 	}
 
+	@DisplayName( "play keeps time with a null output, loopify shortens, and sprite joins files with a map" )
+	@Test
+	void testGameCommands( @TempDir Path dir ) throws Exception {
+		String	tone	= tone( dir, "tone.wav" );
+		String	second	= tone( dir, "jump.wav" );
+		assertThat( run( "play", tone, "--output=null" ) ).contains( "playing" );
+		String looped = dir.resolve( "loop.wav" ).toString();
+		assertThat( run( "loopify", tone, looped, "--crossfade=0.2" ) ).contains( "0.80 s" );
+		String	sprite	= dir.resolve( "sfx/sprite.wav" ).toString();
+		String	listing	= run( "sprite", sprite, tone, second, "--gap=0.5" );
+		assertThat( listing ).contains( "  tone " );
+		assertThat( listing ).contains( "  jump " );
+		assertThat( Files.readString( dir.resolve( "sfx/sprite.json" ) ) ).contains( "\"sprite\"" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "sprite", sprite ) ).getMessage() ).contains( "Usage: bx-audio sprite" );
+	}
+
 	@DisplayName( "where shows the storage folders and clean asks first, then deletes only what was named" )
 	@Test
 	void testWhereAndClean( @TempDir Path home ) throws Exception {

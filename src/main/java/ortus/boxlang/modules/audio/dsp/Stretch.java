@@ -86,6 +86,22 @@ public final class Stretch {
 		return exactLength( back, audio.getFrames() );
 	}
 
+	/**
+	 * Play the audio faster or slower, so pitch and length change together like a record or a tape, which is how game effects are varied
+	 *
+	 * @param factor 2 is an octave up and half as long, 0.5 an octave down and twice as long
+	 */
+	public static AudioBuffer varispeed( AudioBuffer audio, double factor ) {
+		if ( Double.isNaN( factor ) || factor < 0.125 || factor > 8 ) {
+			throw new BoxRuntimeException( "The speed factor must be between 0.125 and 8 but was " + factor );
+		}
+		if ( Math.abs( factor - 1 ) < 1e-9 ) {
+			return audio.copy();
+		}
+		AudioBuffer relabeled = new AudioBuffer( copyChannels( audio ), ( int ) Math.round( audio.getSampleRate() * factor ) );
+		return Dsp.resample( relabeled, audio.getSampleRate() );
+	}
+
 	private static float[][] copyChannels( AudioBuffer audio ) {
 		float[][] out = new float[ audio.getChannels() ][];
 		for ( int ch = 0; ch < out.length; ch++ ) {

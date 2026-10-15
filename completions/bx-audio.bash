@@ -3,7 +3,7 @@
 _bx_audio_complete() {
     local current_word="${COMP_WORDS[COMP_CWORD]}"
     local command="${COMP_WORDS[1]}"
-    local commands="info convert normalize trim waveform speak voices install remove pieces render explorer doctor version help"
+    local commands="info convert normalize trim loudness master stretch pitch bpm silence loopify sprite play waveform speak voices licenses install remove where clean ffmpeg probe mux pieces render explorer doctor version help"
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands" -- "$current_word"))
         return
@@ -19,8 +19,19 @@ _bx_audio_complete() {
         normalize) COMPREPLY=($(compgen -f -W "--db=" -- "$current_word")) ;;
         trim) COMPREPLY=($(compgen -f -W "--start= --end=" -- "$current_word")) ;;
         waveform) COMPREPLY=($(compgen -f -W "--width= --unicode" -- "$current_word")) ;;
-        speak) COMPREPLY=($(compgen -f -W "--voice= --out= --file= --no-install" -- "$current_word")) ;;
-        voices) COMPREPLY=($(compgen -W "--lang= --installed" -- "$current_word")) ;;
+        speak) COMPREPLY=($(compgen -f -W "--voice= --out= --file= --speed= --captions= --offset= --max-chars= --by-clause --sentence-pause= --clause-pause= --paragraph-pause= --no-install" -- "$current_word")) ;;
+        voices) COMPREPLY=($(compgen -W "--lang= --installed --downloadable --excluded --all --license=" -- "$current_word")) ;;
+        master) COMPREPLY=($(compgen -f -W "--target= --truePeak= --glue" -- "$current_word")) ;;
+        stretch) COMPREPLY=($(compgen -f -W "--rate= --seconds=" -- "$current_word")) ;;
+        pitch) COMPREPLY=($(compgen -f -W "--semitones=" -- "$current_word")) ;;
+        bpm) COMPREPLY=($(compgen -f -W "--beats" -- "$current_word")) ;;
+        silence) COMPREPLY=($(compgen -f -W "--db= --min= --trim=" -- "$current_word")) ;;
+        loopify) COMPREPLY=($(compgen -f -W "--crossfade=" -- "$current_word")) ;;
+        sprite) COMPREPLY=($(compgen -f -W "--gap=" -- "$current_word")) ;;
+        play) COMPREPLY=($(compgen -f -W "--volume= --output=" -- "$current_word")) ;;
+        mux) COMPREPLY=($(compgen -f -W "--keep-original --offset=" -- "$current_word")) ;;
+        ffmpeg) COMPREPLY=($(compgen -W "status install" -- "$current_word")) ;;
+        clean) COMPREPLY=($(compgen -W "engine voices ffmpeg cache all --yes" -- "$current_word")) ;;
         explorer) COMPREPLY=($(compgen -W "--port=" -- "$current_word")) ;;
         help) COMPREPLY=($(compgen -W "$commands" -- "$current_word")) ;;
         *) COMPREPLY=($(compgen -f -- "$current_word")) ;;

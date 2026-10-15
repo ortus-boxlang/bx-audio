@@ -65,13 +65,16 @@ class {
 		{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
 		{ name : "where", usage : "where", help : "Show where bx-audio keeps its downloads, and how much space they take" },
 		{ name : "clean", usage : "clean [engine|voices|ffmpeg|cache|all] [--yes]", help : "Delete downloaded files to free space, after asking" },
+		{ name : "play", usage : "play <file> [--volume=1] [--output=speakers|null]", help : "Play a file through the speakers" },
+		{ name : "loopify", usage : "loopify <in> <out> [--crossfade=0.25]", help : "Make a sound loop seamlessly by blending its end into its start" },
+		{ name : "sprite", usage : "sprite <out> <file> <file> ... [--gap=0.1]", help : "Join sounds into one audio sprite with a Howler.js map next to it (named by file name)" },
 		{ name : "ffmpeg", usage : "ffmpeg [status|install]", help : "Show whether FFmpeg is available (OGG, Opus, AAC and video need it), or download it" },
 		{ name : "probe", usage : "probe <file>", help : "Describe any audio or video file: length, size, video and audio streams" },
 		{ name : "mux", usage : "mux <video> <audio> <out> [--keep-original] [--offset=0]", help : "Put an audio file on a video, copying the picture without re-encoding" },
 		{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
 		{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
 		{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
-		{ name : "doctor", usage : "doctor", help : "Check that MP3, the examples and the explorer will work here" },
+		{ name : "doctor", usage : "doctor", help : "Check that MP3, FFmpeg, audio output, the examples and the explorer will work here" },
 		{ name : "version", usage : "version", help : "Show the module version" },
 		{ name : "help", usage : "help [command]", help : "Show this help" }
 	];
@@ -206,6 +209,38 @@ class {
 			out( f.installable ? "  Download it (" & numberFormat( f.downloadSizeMB, "0.0" ) & " MB into " & f.installDir & ") with: bx-audio ffmpeg install" : "  There is no download for " & f.platform & ", install FFmpeg so it is on the PATH." );
 		}
 		out( "  Needed for: OGG, Opus, AAC and M4A files, reading video files, mux, probe. WAV, MP3 and FLAC never need it." );
+	}
+
+	function cmdPlay( required array args, required struct options ){
+		var file = needFile( args, 1, "play <file>" );
+		var audio = audioLoad( file );
+		out( "playing " & file & " (" & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s)" );
+		audioPlay( audio = audio, wait = true, volume = val( options.volume ?: 1 ), output = options.output ?: "speakers" );
+	}
+
+	function cmdLoopify( required array args, required struct options ){
+		var source = needFile( args, 1, "loopify <in> <out>" );
+		var target = absolute( needArg( args, 2, "loopify <in> <out>" ) );
+		var looped = audioLoopify( audioLoad( source ), val( options.crossfade ?: 0.25 ) );
+		out( "wrote " & audioSave( looped, target ) & " (" & numberFormat( looped.getDurationSeconds(), "0.00" ) & " s)" );
+	}
+
+	function cmdSprite( required array args, required struct options ){
+		var target = absolute( needArg( args, 1, "sprite <out> <file> <file> ..." ) );
+		if( args.len() < 2 ){
+			throw( type = "bxaudio.cli", message = "Missing argument. Usage: bx-audio sprite <out> <file> <file> ..." );
+		}
+		var sounds = [:];
+		args.slice( 2 ).each( ( f ) => {
+			var path = absolute( f );
+			if( !fileExists( path ) ){
+				throw( type = "bxaudio.cli", message = "File not found: #path#" );
+			}
+			sounds[ path.listLast( "/" ).reReplace( "\.[^.]*$", "" ) ] = audioLoad( path );
+		} );
+		var result = audioSprite( sounds = sounds, gap = val( options.gap ?: 0.1 ), path = target );
+		out( "wrote " & result.path & " and " & result.mapPath );
+		result.sprites.each( ( name, s ) => out( "  " & pad( name, 16 ) & numberFormat( s.start, "0.00" ) & " s to " & numberFormat( s.end, "0.00" ) & " s" ) );
 	}
 
 	function cmdProbe( required array args, required struct options ){
@@ -554,6 +589,15 @@ class {
 		check( mp3, "MP3 write and read", "Check that jlayer and jump3r are in the module's libs folder. See licenses/THIRD-PARTY.md." );
 		check( directoryExists( root & "/examples" ), "Examples folder", "Reinstall the module." );
 		check( findOnPath( "boxlang-miniserver" ).len() > 0, "MiniServer on PATH (needed for the explorer)", "Install it from https://boxlang.ortusbooks.com/getting-started/installation" );
+		var ff = audioFfmpeg();
+		out( "  info  FFmpeg " & ( ff.available ? ff.version & " (" & ff.source & ")" : "not available: OGG, Opus, AAC and video need it" & ( ff.installable ? ", `bx-audio ffmpeg install` downloads " & numberFormat( ff.downloadSizeMB, "0" ) & " MB" : "" ) ) );
+		var soundCard = false;
+		try {
+			soundCard = createObject( "java", "javax.sound.sampled.AudioSystem" ).getMixerInfo().len() > 0;
+		} catch( any e ){
+			soundCard = false;
+		}
+		out( "  info  audio output " & ( soundCard ? "found: `bx-audio play` and audioMixer() will play to the speakers" : "none found: use audioMixer( output=""memory"" ) or ""null"" on this computer" ) );
 		var speech = audioSpeechStatus();
 		out( "  info  speech engine " & ( speech.engineInstalled ? "installed" : "not installed (" & speech.engineSizeMB & " MB, `bx-audio install engine` or the first `speak` downloads it)" ) );
 		out( "  info  downloads are kept in " & audioStorage().home & " (`bx-audio where`, `bx-audio clean`)" );
