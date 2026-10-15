@@ -177,6 +177,34 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( run( "voices", "--installed" ) ).contains( "No voices match" );
 	}
 
+	@DisplayName( "voices shows why voices are not offered, details of one voice, and the licenses" )
+	@Test
+	void testVoicesExcludedDetailAndLicenses( @TempDir Path home ) {
+		useSpeechHome( home );
+		assertThat( run( "voices" ) ).contains( "more voices are not offered" );
+		String excluded = run( "voices", "--excluded" );
+		assertThat( excluded ).contains( "en_US-ryan-high" );
+		assertThat( excluded ).contains( "Non-commercial" );
+		assertThat( excluded ).contains( "GPL 3" );
+		assertThat( excluded ).doesNotContain( "en_US-joe-medium" );
+		assertThat( run( "voices", "--all" ) ).contains( "en_US-joe-medium" );
+		assertThat( run( "voices", "--all" ) ).contains( "en_US-ryan-high" );
+		assertThat( run( "voices", "--downloadable" ) ).contains( "downloadable" );
+		assertThat( run( "voices", "--license=Apache-2.0" ) ).contains( "en_US-sam-medium" );
+		String detail = run( "voices", "joe" );
+		assertThat( detail ).contains( "CC0-1.0" );
+		assertThat( detail ).contains( "downloadable" );
+		assertThat( detail ).contains( "creativecommons.org" );
+		assertThat( run( "voices", "en_US-ryan-high" ) ).contains( "not offered" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "voices", "nobody" ) ).getMessage() ).contains( "Unknown voice [nobody]" );
+		String licenses = run( "licenses" );
+		assertThat( licenses ).contains( "CC-BY-SA-4.0" );
+		assertThat( licenses ).contains( "not legal advice" );
+		String help = run( "help", "voices" );
+		assertThat( help ).contains( "--excluded" );
+		assertThat( help ).contains( "--downloadable" );
+	}
+
 	@DisplayName( "speak, install and remove report what is missing instead of failing with a stack trace" )
 	@Test
 	void testSpeechErrors( @TempDir Path home ) {

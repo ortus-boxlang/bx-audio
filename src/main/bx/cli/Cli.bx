@@ -27,7 +27,20 @@ class {
 		{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
 		{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
 		{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time" },
-		{ name : "voices", usage : "voices [--lang=en_US] [--installed]", help : "List the voices you can install, with their licenses" },
+		{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID]", help : "List voices with their licenses, what is installed, and why some are not offered",
+			details : [
+				"Without options it lists the voices you can use. Each row says whether it is installed or still to download.",
+				"  <voice>         Full details of one voice: license, what the license asks, size, training data, where it is stored",
+				"  --installed     Only voices on disk",
+				"  --downloadable  Only offered voices you have not downloaded yet",
+				"  --excluded      Voices that are NOT offered, each with the reason (license, GPL dictionary, several speakers, language)",
+				"  --all           Offered and excluded together",
+				"  --lang=en_US    One language (--lang=all is the default)",
+				"  --license=ID    One license, for example CC0-1.0 or Apache-2.0",
+				"",
+				"See `bx-audio licenses` for what each license asks of you."
+			] },
+		{ name : "licenses", usage : "licenses", help : "Show the voice licenses and what each one asks of you" },
 		{ name : "install", usage : "install <voice|engine> [...]", help : "Download a voice, or the speech engine every voice needs" },
 		{ name : "remove", usage : "remove <voice|engine> [...]", help : "Delete a downloaded voice, or the speech engine" },
 		{ name : "where", usage : "where", help : "Show where bx-audio keeps its downloads, and how much space they take" },
@@ -83,6 +96,10 @@ class {
 			}
 			out( "bx-audio " & found.first().usage );
 			out( "  " & found.first().help );
+			if( found.first().keyExists( "details" ) ){
+				out( "" );
+				found.first().details.each( ( line ) => out( line ) );
+			}
 			return;
 		}
 		out( "bx-audio: make, mix and convert audio from the command line" );
@@ -157,19 +174,78 @@ class {
 	}
 
 	function cmdVoices( required array args, required struct options ){
-		var voices = audioVoices( language = options.lang ?: "", installed = options.keyExists( "installed" ) && options.installed != false );
+		var flag = ( name ) => options.keyExists( name ) && options[ name ] != false;
+		if( args.len() ){
+			return voiceDetail( args.first() );
+		}
+		var status = flag( "all" ) ? "all" : flag( "excluded" ) ? "excluded" : flag( "installed" ) ? "installed" : flag( "downloadable" ) ? "downloadable" : "offered";
+		var language = ( options.lang ?: "all" ) == "all" ? "" : options.lang;
+		var voices = audioVoices( language = language, status = status, license = options.license ?: "" );
 		if( !voices.len() ){
 			out( "No voices match." );
 			return;
 		}
-		out( pad( "VOICE", 38 ) & pad( "LICENSE", 15 ) & pad( "SIZE", 9 ) & "INSTALLED" );
-		voices.each( ( v ) => out( pad( v.id, 38 ) & pad( v.license, 15 ) & pad( numberFormat( v.sizeMB, "0.0" ) & " MB", 9 ) & ( v.installed ? "yes" : "" ) ) );
+		out( pad( "VOICE", 34 ) & pad( "LICENSE", 15 ) & pad( "SIZE", 9 ) & "STATUS" );
+		voices.each( ( v ) => out( pad( v.id, 34 ) & pad( v.license.len() ? v.license : "-", 15 ) & pad( numberFormat( v.sizeMB, "0.0" ) & " MB", 9 ) & ( v.status == "excluded" ? "not offered: " & v.reason : v.status ) ) );
 		out( "" );
-		out( "Only voices whose model card states an open license are listed, and the license is the one the card gives. Check it fits your use." );
-		if( voices.some( ( v ) => v.shareAlike ) ){
-			out( "CC-BY-SA voices ask that you share what you make from them under the same terms." );
+		if( status != "excluded" ){
+			out( "Only voices whose model card states an open license are offered, and the license is the one the card gives. Check it fits your use." );
+			if( voices.some( ( v ) => v.shareAlike ) ){
+				out( "CC-BY-SA voices ask that you share what you make from them under the same terms." );
+			}
+			out( "Install one with `bx-audio install <voice>`, or just use it: `bx-audio speak ""Hello"" --voice=<voice>`." );
+			if( status == "offered" || status == "downloadable" ){
+				var hidden = audioVoices( status = "excluded", language = language ).len();
+				out( hidden & " more voices are not offered (license, language or engine limits). See them with `bx-audio voices --excluded`." );
+			}
+		} else {
+			out( "These voices are not offered. The reason is per voice; `bx-audio licenses` explains the licenses that are." );
 		}
-		out( "Install one with `bx-audio install <voice>`, or just use it: `bx-audio speak ""Hello"" --voice=<voice>`." );
+	}
+
+	private function voiceDetail( required string name ){
+		var all = audioVoices( status = "all" );
+		var found = all.filter( ( v ) => v.id.lcase() == name.lcase() );
+		if( !found.len() ){
+			found = all.filter( ( v ) => v.name.lcase() == name.lcase() );
+		}
+		if( found.len() > 1 ){
+			throw( type = "bxaudio.cli", message = "More than one voice is called [#name#], use the full id: " & found.map( ( v ) => v.id ).toList( ", " ) );
+		}
+		if( !found.len() ){
+			throw( type = "bxaudio.cli", message = "Unknown voice [#name#]. Run `bx-audio voices --all` to see every voice." );
+		}
+		var v = found.first();
+		out( v.id );
+		out( "  language     " & v.language );
+		out( "  quality      " & v.quality );
+		out( "  size         " & numberFormat( v.sizeMB, "0.0" ) & " MB" );
+		out( "  card says    " & ( v.licenseText.len() ? v.licenseText : "no license stated" ) );
+		out( "  status       " & ( v.status == "excluded" ? "not offered: " & v.reason : v.status ) );
+		if( v.license.len() ){
+			var info = audioLicenses().filter( ( l ) => l.id == v.license );
+			out( "  license      " & v.license );
+			if( info.len() ){
+				out( "               " & info.first().summary );
+				out( "               " & info.first().url );
+			}
+		}
+		out( "  training     " & ( v.source.len() ? v.source : "not stated" ) );
+		if( v.status == "installed" ){
+			out( "  stored in    " & audioSpeechStatus().voicesDir );
+		}
+	}
+
+	function cmdLicenses( required array args, required struct options ){
+		out( pad( "LICENSE", 15 ) & pad( "COMMERCIAL", 12 ) & pad( "CREDIT", 8 ) & pad( "SHARE-ALIKE", 13 ) & "VOICES" );
+		audioLicenses().each( ( l ) => out( pad( l.id, 15 ) & pad( l.commercial ? "yes" : "no", 12 ) & pad( l.attribution ? "yes" : "no", 8 ) & pad( l.shareAlike ? "yes" : "no", 13 ) & l.voices ) );
+		out( "" );
+		audioLicenses().each( ( l ) => {
+			out( l.id & ": " & l.summary );
+			out( "  " & l.url );
+		} );
+		out( "" );
+		out( "This is a summary, not legal advice. The model card of each voice is the authority. Voices with non-commercial, custom or unclear licenses are never offered." );
 	}
 
 	function cmdInstall( required array args, required struct options ){

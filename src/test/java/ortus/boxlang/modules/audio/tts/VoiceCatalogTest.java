@@ -79,7 +79,28 @@ public class VoiceCatalogTest {
 		assertThat( catalog.find( "en_US-joe-medium" ).name() ).isEqualTo( "joe" );
 		assertThat( catalog.find( "JOE" ).id() ).isEqualTo( "en_US-joe-medium" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "ljspeech" ) ).getMessage() ).contains( "en_US-ljspeech-high" );
-		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "lessac" ) ).getMessage() ).contains( "Unknown voice [lessac]" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "nonexistent" ) ).getMessage() ).contains( "Unknown voice [nonexistent]" );
+	}
+
+	@DisplayName( "A voice that is not offered is refused with the reason, not as unknown" )
+	@Test
+	void testFindExplainsExcluded() {
+		VoiceCatalog catalog = VoiceCatalog.load();
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_US-ryan-high" ) ).getMessage() ).contains( "Non-commercial" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "lessac" ) ).getMessage() ).contains( "not offered" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_GB-alba-medium" ) ).getMessage() ).contains( "GPL 3" );
+	}
+
+	@DisplayName( "Every voice of the collection is either offered or excluded with a reason, and none is both" )
+	@Test
+	void testExcludedList() {
+		VoiceCatalog catalog = VoiceCatalog.load();
+		assertThat( catalog.excluded().size() ).isGreaterThan( 100 );
+		assertThat( catalog.excluded().stream().allMatch( v -> !v.reason().isBlank() && !v.reasonKind().isBlank() ) ).isTrue();
+		assertThat( catalog.excluded().stream().map( VoiceCatalog.ExcludedVoice::reasonKind ).distinct().toList() )
+		    .containsAtLeast( "license", "dictionary", "speakers", "language" );
+		var offered = catalog.all().stream().map( VoiceInfo::id ).toList();
+		assertThat( catalog.excluded().stream().anyMatch( v -> offered.contains( v.id() ) ) ).isFalse();
 	}
 
 }
