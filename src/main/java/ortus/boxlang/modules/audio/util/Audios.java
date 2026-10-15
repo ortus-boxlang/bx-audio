@@ -54,4 +54,15 @@ public final class Audios {
 		    "The timeline argument must be a timeline from audioTimeline() but was " + ( value == null ? "null" : value.getClass().getSimpleName() ) );
 	}
 
+	/**
+	 * Box doubles for building a BoxLang array
+	 */
+	public static Object[] box( double[] values ) {
+		Object[] out = new Object[ values.length ];
+		for ( int i = 0; i < out.length; i++ ) {
+			out[ i ] = values[ i ];
+		}
+		return out;
+	}
+
 }

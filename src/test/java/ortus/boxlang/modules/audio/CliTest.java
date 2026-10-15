@@ -219,6 +219,29 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( run( "remove", "engine" ) ).contains( "engine was not installed" );
 	}
 
+	@DisplayName( "loudness, master, stretch, pitch, bpm and silence work on files" )
+	@Test
+	void testMasteringCommands( @TempDir Path dir ) {
+		String	tone	= tone( dir, "tone.wav" );
+		String	loud	= run( "loudness", tone );
+		assertThat( loud ).contains( "integrated" );
+		assertThat( loud ).contains( "LUFS" );
+		String mastered = dir.resolve( "mastered.wav" ).toString();
+		assertThat( run( "master", tone, mastered, "--target=-16" ) ).contains( "-16." );
+		assertThat( run( "loudness", mastered ) ).containsMatch( "integrated +-1[56]\\.\\d LUFS" );
+		String stretched = dir.resolve( "slow.wav" ).toString();
+		assertThat( run( "stretch", tone, stretched, "--rate=0.5" ) ).contains( "2.0" );
+		assertThat( run( "stretch", tone, stretched, "--seconds=3" ) ).contains( "3.00 s" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "stretch", tone, stretched ) ).getMessage() ).contains( "--rate" );
+		String pitched = dir.resolve( "up.wav" ).toString();
+		assertThat( run( "pitch", tone, pitched, "--semitones=12" ) ).contains( "wrote" );
+		assertThat( run( "info", pitched ) ).contains( "length    1.000 s" );
+		assertThat( run( "bpm", tone ) ).containsMatch( "No clear pulse|BPM" );
+		assertThat( run( "silence", tone ) ).contains( "No silence found" );
+		assertThat( run( "silence", tone, "--trim=" + dir.resolve( "trimmed.wav" ) ) ).contains( "wrote" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "pitch", tone, pitched ) ).getMessage() ).contains( "--semitones" );
+	}
+
 	@DisplayName( "where shows the storage folders and clean asks first, then deletes only what was named" )
 	@Test
 	void testWhereAndClean( @TempDir Path home ) throws Exception {

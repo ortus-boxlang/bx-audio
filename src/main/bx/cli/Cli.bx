@@ -25,6 +25,12 @@ class {
 		{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV and MP3, and change the sample rate or channels" },
 		{ name : "normalize", usage : "normalize <in> <out> [--db=-1]", help : "Scale the peak of a file to a level in decibels" },
 		{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
+		{ name : "loudness", usage : "loudness <file>", help : "Measure the loudness in LUFS (EBU R128), the loudness range and the true peak" },
+		{ name : "master", usage : "master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeak=-1] [--glue]", help : "Reach a loudness target with a true-peak ceiling, ready to publish" },
+		{ name : "stretch", usage : "stretch <in> <out> --rate=1.1 | --seconds=30", help : "Change the speed or fit the length, keeping the pitch" },
+		{ name : "pitch", usage : "pitch <in> <out> --semitones=2", help : "Change the pitch, keeping the length" },
+		{ name : "bpm", usage : "bpm <file> [--beats]", help : "Detect the tempo, and with --beats list where the beats fall" },
+		{ name : "silence", usage : "silence <file> [--db=-50] [--min=0.3] [--trim=OUT]", help : "List the silent stretches, or write a copy with the silence cut off both ends" },
 		{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
 		{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time" },
 		{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID]", help : "List voices with their licenses, what is installed, and why some are not offered",
@@ -160,6 +166,77 @@ class {
 		var audio = audioLoad( source );
 		var written = audioSave( audioTrim( audio, options.start ?: 0, options.end ?: audio.getDurationSeconds() ), target );
 		out( "wrote " & written );
+	}
+
+	function cmdLoudness( required array args, required struct options ){
+		var r = audioLoudness( audioLoad( needFile( args, 1, "loudness <file>" ) ) );
+		out( "integrated     " & numberFormat( r.integrated, "0.0" ) & " LUFS" );
+		out( "range          " & numberFormat( r.range, "0.0" ) & " LU" );
+		out( "true peak      " & numberFormat( r.truePeak, "0.0" ) & " dBFS" );
+		out( "sample peak    " & numberFormat( r.samplePeak, "0.0" ) & " dBFS" );
+		out( "momentary max  " & numberFormat( r.momentaryMax, "0.0" ) & " LUFS" );
+		out( "short-term max " & numberFormat( r.shortTermMax, "0.0" ) & " LUFS" );
+		out( "Streaming services aim at -14 LUFS, podcasts -16, broadcast -23." );
+	}
+
+	function cmdMaster( required array args, required struct options ){
+		var source = needFile( args, 1, "master <in> <out>" );
+		var target = absolute( needArg( args, 2, "master <in> <out>" ) );
+		var goal = options.target ?: "streaming";
+		var mastered = audioMaster( audio = audioLoad( source ), target = isNumeric( goal ) ? val( goal ) : goal, truePeak = options.truePeak ?: -1, glue = options.keyExists( "glue" ) && options.glue != false );
+		var r = audioLoudness( mastered );
+		var written = audioSave( mastered, target );
+		out( "wrote " & written & " (" & numberFormat( r.integrated, "0.0" ) & " LUFS, true peak " & numberFormat( r.truePeak, "0.0" ) & " dBFS)" );
+	}
+
+	function cmdStretch( required array args, required struct options ){
+		var source = needFile( args, 1, "stretch <in> <out> --rate=N|--seconds=N" );
+		var target = absolute( needArg( args, 2, "stretch <in> <out> --rate=N|--seconds=N" ) );
+		var audio = audioLoad( source );
+		if( options.keyExists( "seconds" ) ){
+			audio = audioFitTo( audio, val( options.seconds ) );
+		} else if( options.keyExists( "rate" ) ){
+			audio = audioStretch( audio, val( options.rate ) );
+		} else {
+			throw( type = "bxaudio.cli", message = "Missing option. Usage: bx-audio stretch <in> <out> --rate=1.1 | --seconds=30" );
+		}
+		out( "wrote " & audioSave( audio, target ) & " (" & numberFormat( audio.getDurationSeconds(), "0.00" ) & " s)" );
+	}
+
+	function cmdPitch( required array args, required struct options ){
+		var source = needFile( args, 1, "pitch <in> <out> --semitones=N" );
+		var target = absolute( needArg( args, 2, "pitch <in> <out> --semitones=N" ) );
+		if( !options.keyExists( "semitones" ) ){
+			throw( type = "bxaudio.cli", message = "Missing option. Usage: bx-audio pitch <in> <out> --semitones=2" );
+		}
+		out( "wrote " & audioSave( audioPitch( audioLoad( source ), val( options.semitones ) ), target ) );
+	}
+
+	function cmdBpm( required array args, required struct options ){
+		var r = audioBpm( audioLoad( needFile( args, 1, "bpm <file>" ) ) );
+		if( r.bpm == 0 ){
+			out( "No clear pulse found." );
+			return;
+		}
+		out( numberFormat( r.bpm, "0.0" ) & " BPM (confidence " & numberFormat( r.confidence, "0.00" ) & ")" );
+		if( options.keyExists( "beats" ) && options.beats != false ){
+			out( r.beats.map( ( b ) => numberFormat( b, "0.00" ) ).toList( " " ) );
+		}
+	}
+
+	function cmdSilence( required array args, required struct options ){
+		var source = needFile( args, 1, "silence <file>" );
+		var audio = audioLoad( source );
+		if( options.keyExists( "trim" ) ){
+			out( "wrote " & audioSave( audioTrimSilence( audio, val( options.db ?: -50 ) ), absolute( options.trim ) ) );
+			return;
+		}
+		var found = audioDetectSilence( audio, val( options.db ?: -50 ), val( options.min ?: 0.3 ) );
+		if( !found.len() ){
+			out( "No silence found." );
+			return;
+		}
+		found.each( ( r ) => out( numberFormat( r.start, "0.00" ) & " s to " & numberFormat( r.end, "0.00" ) & " s  (" & numberFormat( r.duration, "0.00" ) & " s)" ) );
 	}
 
 	function cmdWaveform( required array args, required struct options ){
