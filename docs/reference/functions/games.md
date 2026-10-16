@@ -1,6 +1,6 @@
 ---
 title: Game audio
-order: 10
+order: 11
 summary: A real time mixer, loops, variations and audio sprites.
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Timeline mixing
-order: 4
+order: 5
 summary: Arrange sounds on a beat grid, on tracks, with pumping and ducking.
 ---
 
