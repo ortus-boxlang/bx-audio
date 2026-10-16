@@ -28,7 +28,9 @@ The speech and video examples are not in it: they download an engine or need FFm
 
 ```bash
 cd examples/explorer
-boxlang-miniserver --webroot . --port 8080
+boxlang-miniserver --webroot . --port 8080 --host 127.0.0.1
 ```
+
+`bx-audio explorer` listens on this machine only (`127.0.0.1`). The MiniServer itself listens on every network interface unless you pass `--host`, so give it one when you start it yourself. To let others on your network use the explorer, run `bx-audio explorer --host=0.0.0.0`. The explorer renders audio on request, so do that only on a network you trust.
 
 The explorer is also a worked example of a BoxLang web app that renders audio: read `render.bxm`.

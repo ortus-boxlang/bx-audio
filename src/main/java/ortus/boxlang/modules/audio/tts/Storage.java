@@ -178,15 +178,49 @@ public final class Storage {
 	}
 
 	private static void delete( Path path ) {
+		delete( path, Files::delete );
+	}
+
+	/**
+	 * Something that removes one file or folder, so the way a failure is reported can be tested
+	 */
+	interface Deleter {
+
+		void delete( Path path ) throws IOException;
+
+	}
+
+	/**
+	 * Delete everything under a folder that can be deleted. A file that cannot go (on Windows a jar the module has loaded stays locked until
+	 * the process ends) does not stop the rest, and one error afterwards names what is left and what to do about it.
+	 */
+	static void delete( Path path, Deleter deleter ) {
 		if ( !Files.isDirectory( path ) ) {
 			return;
 		}
+		List<Path>	stuck	= new java.util.ArrayList<>();
+		String		reason	= "";
 		try ( var walk = Files.walk( path ) ) {
 			for ( Path each : walk.sorted( Comparator.reverseOrder() ).toList() ) {
-				Files.delete( each );
+				try {
+					deleter.delete( each );
+				} catch ( IOException e ) {
+					// a folder that still holds a stuck file cannot go either, which is not worth reporting again
+					if ( stuck.isEmpty() ) {
+						reason = String.valueOf( e.getMessage() );
+					}
+					if ( ! ( e instanceof java.nio.file.DirectoryNotEmptyException ) ) {
+						stuck.add( each );
+					}
+				}
 			}
 		} catch ( IOException e ) {
-			throw new AudioException( AudioException.IO, "Could not delete " + path + ": " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read " + path + ": " + e.getMessage(), e );
+		}
+		if ( !stuck.isEmpty() ) {
+			throw new AudioException( AudioException.IO,
+			    "Could not delete " + stuck.size() + " file" + ( stuck.size() == 1 ? "" : "s" ) + " in " + path + " (first: " + stuck.get( 0 ) + ", " + reason
+			        + "). They are probably in use: on Windows the jars of the speech engine stay locked while BoxLang runs. The rest was deleted. Stop BoxLang and run the clean again." );
 		}
 	}
 

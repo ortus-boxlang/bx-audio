@@ -279,7 +279,10 @@ public final class Dsp {
 	/**
 	 * Filter types for {@link #filter}
 	 */
-	public static final java.util.List<String> FILTER_TYPES = java.util.List.of( "lowpass", "highpass", "bandpass", "notch" );
+	/** Filter state below this is set to zero: it is -600 dB and keeps the arithmetic out of denormal numbers */
+	public static final double					SILENCE			= 1e-30;
+
+	public static final java.util.List<String>	FILTER_TYPES	= java.util.List.of( "lowpass", "highpass", "bandpass", "notch" );
 
 	/**
 	 * The coefficients of a second order filter (the RBJ "audio EQ cookbook" biquads), divided by a0
@@ -353,6 +356,10 @@ public final class Dsp {
 			for ( int i = 0; i < in.length; i++ ) {
 				double	x	= in[ i ];
 				double	y	= b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+				// the tail after a sound dies away to nothing, and denormal numbers on the way are slow, so it is cut at -600 dB
+				if ( Math.abs( y ) < SILENCE ) {
+					y = 0;
+				}
 				x2				= x1;
 				x1				= x;
 				y2				= y1;

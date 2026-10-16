@@ -85,6 +85,14 @@ public class CliTest extends BaseIntegrationTest {
 		    .contains( "Unknown option --db" );
 	}
 
+	@DisplayName( "The explorer listens on this machine only unless a host is given" )
+	@Test
+	void testExplorerHost() {
+		String help = run( "help", "explorer" );
+		assertThat( help ).contains( "--host=127.0.0.1" );
+		assertThat( help ).contains( "this machine only" );
+	}
+
 	@DisplayName( "help lists every command and each command has its own usage" )
 	@Test
 	void testHelp() {

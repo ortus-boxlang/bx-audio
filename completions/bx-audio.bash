@@ -64,7 +64,7 @@ _bx_audio_complete() {
         render)
             COMPREPLY=($(compgen -W "pop-drive lofi house ambient techno synthwave cinematic chiptune sfx jazz rock voiceover trailer game-audio theme sampler --out= --bars= --bpm= --style= --swing= --seed= --track= --loops= --sound= --choruses= --voice= --speed= --text= --duck= --seconds= --target=" -- "$current_word")) ;;
         explorer)
-            COMPREPLY=($(compgen -W "--port=" -- "$current_word")) ;;
+            COMPREPLY=($(compgen -W "--port= --host=" -- "$current_word")) ;;
         doctor)
             COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         completions)
