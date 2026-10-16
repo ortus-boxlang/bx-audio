@@ -3,10 +3,10 @@
 A trailer style announcement over music. The words are spoken by a text to speech voice. The music under it, a pad, a pulsing bass, an arpeggio and a light beat, ducks whenever the voice speaks and swells back between the lines. It is the mix you would otherwise do by hand for a video: record the narration, put music under it, lower the music while someone talks.
 
 ```bash
-boxlang voiceover.bxs                                     # three lines, spoken by joe, out/voiceover.wav
+boxlang voiceover.bxs                                     # three lines, spoken by kristin, out/voiceover.wav
 boxlang voiceover.bxs --voice=kristin --text="Hello there.|This is a voice-over.|Goodbye."
 boxlang voiceover.bxs --voiceFile=narration.wav           # your own recording instead of a synthesized voice
-bx-audio render voiceover --voice=joe --out=promo.mp3
+bx-audio render voiceover --voice=kristin --out=promo.mp3
 ```
 
 The first run downloads the speech engine (about 148 MB) and the voice (63 MB or more), once, see [docs/voices.md](../../docs/voices.md) for the voices. Pass `--install=false` to forbid downloads, and it tells you what to install instead. Because of that download, the voice-over is not in the web explorer, which should not start a 150 MB download by itself. It runs from the command line.
@@ -14,7 +14,8 @@ The first run downloads the speech engine (about 148 MB) and the voice (63 MB or
 | Setting | Default | |
 |---|---|---|
 | `--out` | `out/voiceover.wav` | Where to write the audio |
-| `--voice` | `joe` | A voice from `bx-audio voices` |
+| `--voice` | `kristin` | A voice from `bx-audio voices` |
+| `--speed` | `0.96` | How fast the voice speaks, 1 is its own pace |
 | `--text` | three lines about BoxLang | The lines to speak, separated by `\|` |
 | `--voiceFile` | none | A recording to use instead of speech, one clip placed after two bars of music |
 | `--duck` | -12 | How far the music drops under the voice, in dB |
@@ -52,4 +53,4 @@ The tests use a stand-in for the narration, 2.3 seconds of tones that switch on 
 | Same inputs | give the identical file |
 | Downloads | with `--install=false` and no engine, it fails with `bx-audio install engine` |
 
-With a real voice, `joe` and the lines above, measured by hand: with the 12 dB duck the bass and kick under the voice are about 8.5 dB lower than without it, and the music alone before the voice is about as loud as the voice itself.
+With a real voice, `joe` and the earlier lines, measured by hand: with the 12 dB duck the bass and kick under the voice are about 8.5 dB lower than without it, and the music alone before the voice is about as loud as the voice itself.

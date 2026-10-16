@@ -5,7 +5,7 @@
  *
  * Usage:
  *   boxlang trailer.bxs [--seconds=15] [--out=out/trailer.wav] [--video=clip.mp4 --videoOut=out/trailer.mp4]
- *                       [--text="Line one. Line two."] [--voice=joe] [--voiceFile=narration.wav] [--music=cue.wav]
+ *                       [--text="Line one. Line two."] [--voice=kristin] [--speed=0.96] [--voiceFile=narration.wav] [--music=cue.wav]
  *                       [--captions=out/trailer.srt] [--target=streaming] [--install=false]
  *
  * With --video the length is the length of the video. The voice needs the speech engine and a voice, which download the first time (see
@@ -13,7 +13,7 @@
  */
 
 settings = {
-	out : "out/trailer.wav", seconds : 15, bpm : 100, voice : "joe", text : "", voiceFile : "", music : "", video : "", videoOut : "", captions : "",
+	out : "out/trailer.wav", seconds : 15, bpm : 100, voice : "kristin", speed : 0.96, text : "", voiceFile : "", music : "", video : "", videoOut : "", captions : "",
 	target : "streaming", lead : 1.5, install : true
 };
 settings.append( cliGetArgs().options );
@@ -27,7 +27,7 @@ beat = 60 / settings.bpm;
 bar = beat * 4;
 lead = settings.lead * 1.0;
 
-defaultText = "One module. Pure JVM. No Python. BoxLang Audio.";
+defaultText = "Welcome to BxAudio. Audio for BoxLang, with no native dependencies. Make music, speak, and master, all on the JVM.";
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // 1. How long is the trailer? The video says so, if there is one
@@ -48,7 +48,8 @@ if( settings.voiceFile.len() ){
 	spoken = audioSpeakCues(
 		text = settings.text.len() ? settings.text : defaultText,
 		voice = settings.voice,
-		pauses = { sentence : 0.45, paragraph : 0.9 },
+		speed = settings.speed * 1.0,
+		pauses = { sentence : 0.5, clause : 0.2, paragraph : 0.9 },
 		autoInstall = settings.install != false
 	);
 	clip = spoken.audio;
@@ -64,7 +65,7 @@ function leveled( c ){
 	var peakDb = 20 * log10( max( info.peak, 0.0001 ) );
 	return audioGain( c, min( gainDb, -1 - peakDb ) );
 }
-clip = leveled( audioReverb( audio = audioFilter( clip, "highpass", 90, 0.7071 ), room = 0.15, damp = 0.6, mix = 0.05 ) );
+clip = leveled( audioReverb( audio = audioCompress( audioFilter( clip, "highpass", 80, 0.7071 ), -22, 3, 12, 120 ), room = 0.15, damp = 0.6, mix = 0.05 ) );
 clip = audioChannels( audioResample( clip, sr ), 2 );
 // The voice needs room. Without a video the trailer grows to fit it, with a video the picture is the boss and the voice would be cut.
 need = lead + clip.getDurationSeconds() + 2.5;
