@@ -67,7 +67,7 @@ public class CliTest extends BaseIntegrationTest {
 		for ( String[] shell : shells ) {
 			String	script		= run( "completions", shell[ 0 ] );
 			String	committed	= Files.readString( Path.of( "completions", shell[ 1 ] ) );
-			assertWithMessage( shell[ 0 ] ).that( script.trim() ).isEqualTo( committed.trim() );
+			assertWithMessage( shell[ 0 ] ).that( script.replace( "\r\n", "\n" ).trim() ).isEqualTo( committed.replace( "\r\n", "\n" ).trim() );
 			for ( String command : new String[] { "normalize", "master", "render", "completions" } ) {
 				assertWithMessage( shell[ 0 ] + " " + command ).that( script ).contains( command );
 			}
