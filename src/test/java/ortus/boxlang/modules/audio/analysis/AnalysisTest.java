@@ -131,4 +131,33 @@ public class AnalysisTest {
 		assertThat( Silence.trim( gap, -50, 0 ).getFrames() ).isEqualTo( 0 );
 	}
 
+	@Test
+	@DisplayName( "Surround channels weigh 1.41 and the LFE nothing, up to 7.1" )
+	void testSurroundWeights() {
+		assertThat( Loudness.channelWeights( 2 ) ).isEqualTo( new double[] { 1, 1 } );
+		assertThat( Loudness.channelWeights( 6 ) ).isEqualTo( new double[] { 1, 1, 1, 0, 1.41, 1.41 } );
+		assertThat( Loudness.channelWeights( 7 ) ).isEqualTo( new double[] { 1, 1, 1, 0, 1.41, 1.41, 1.41 } );
+		assertThat( Loudness.channelWeights( 8 ) ).isEqualTo( new double[] { 1, 1, 1, 0, 1.41, 1.41, 1.41, 1.41 } );
+		assertThat( Loudness.channelWeights( 10 ) ).isEqualTo( new double[] { 1, 1, 1, 0, 1.41, 1.41, 1.41, 1.41, 1, 1 } );
+	}
+
+	@Test
+	@DisplayName( "The same tone is 1.5 dB louder on a 7.1 side surround than on the front left, and the LFE does not count" )
+	void testSurroundLoudness() {
+		float[] tone = new float[ RATE * 5 ];
+		for ( int i = 0; i < tone.length; i++ ) {
+			tone[ i ] = ( float ) ( 0.3 * Math.sin( 2 * Math.PI * 1000 * i / RATE ) );
+		}
+		double	front	= Loudness.integrated( withChannel( 8, 0, tone ) );
+		double	side	= Loudness.integrated( withChannel( 8, 7, tone ) );
+		assertThat( side - front ).isWithin( 0.05 ).of( 10 * Math.log10( 1.41 ) );
+		assertThat( Loudness.integrated( withChannel( 8, 3, tone ) ) ).isLessThan( -69.0 );
+	}
+
+	private static AudioBuffer withChannel( int channels, int channel, float[] samples ) {
+		float[][] data = new float[ channels ][ samples.length ];
+		data[ channel ] = samples;
+		return new AudioBuffer( data, RATE );
+	}
+
 }

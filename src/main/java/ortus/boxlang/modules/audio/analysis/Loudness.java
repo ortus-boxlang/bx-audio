@@ -219,8 +219,9 @@ public final class Loudness {
 	}
 
 	/**
-	 * BS.1770 channel weights for the usual layouts: mono is a center channel, stereo L R, 5.1 is L R C LFE Ls Rs where the LFE is not
-	 * measured and the surrounds weigh 1.41
+	 * BS.1770 channel weights for the usual layouts, with the channels in the order WAV files use: mono is a center channel, stereo L R, quad
+	 * L R Ls Rs, 5.0 L R C Ls Rs, and from six channels L R C LFE and then the surrounds (5.1: Ls Rs, 6.1: Cs Ls Rs, 7.1: Lb Rb Ls Rs). The
+	 * LFE is not measured and every surround weighs 1.41 (about +1.5 dB). Channels past the eighth have no weight defined and count as 1.
 	 */
 	static double[] channelWeights( int channels ) {
 		double[] weights = new double[ channels ];
@@ -232,9 +233,10 @@ public final class Loudness {
 			weights[ 3 ]	= 1.41;
 			weights[ 4 ]	= 1.41;
 		} else if ( channels >= 6 ) {
-			weights[ 3 ]	= 0;
-			weights[ 4 ]	= 1.41;
-			weights[ 5 ]	= 1.41;
+			weights[ 3 ] = 0;
+			for ( int ch = 4; ch < Math.min( channels, 8 ); ch++ ) {
+				weights[ ch ] = 1.41;
+			}
 		}
 		return weights;
 	}
