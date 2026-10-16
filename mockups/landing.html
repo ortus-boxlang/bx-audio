@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BxAudio Landing Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand1:#00efd0; --brand2:#00d4ef; --brand3:#0074ff; --violet:#7c5cff;
+  --grad:linear-gradient(90deg,#00efd0,#00d4ef 55%,#0074ff);
+  --grad-diag:linear-gradient(135deg,#00efd0,#00d4ef 55%,#0074ff);
+  --bg:#f4fbfd; --surface:#fff; --surface-2:#e4f4f9; --text:#031a26; --muted:#4a6877;
+  --border:rgba(6,35,26,.10); --border-strong:rgba(6,35,26,.2);
+  --code-bg:#031a26; --code-text:#d7f5e8;
+}
+:root[data-theme="dark"]{
+  --bg:#001019; --surface:#04202d; --surface-2:#082d3e; --text:#e6f5fa; --muted:#8fb3c2;
+  --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.17);
+  --code-bg:#000a10;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Poppins,ui-sans-serif,system-ui,sans-serif;color:var(--text);line-height:1.6;
+  background:
+   radial-gradient(1000px 520px at 85% -8%,rgba(0,212,239,.16),transparent 60%),
+   radial-gradient(800px 520px at 5% 6%,rgba(0,239,208,.10),transparent 55%),
+   radial-gradient(900px 600px at 60% 110%,rgba(0,212,255,.12),transparent 60%),var(--bg);}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--brand2);font-weight:600;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}
+h1,h2,h3{letter-spacing:-.015em;margin:0}
+code,pre{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--border)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand svg{width:30px;height:30px}
+nav.main{display:flex;gap:22px;font-size:.92rem;color:var(--muted);margin-left:8px}
+nav.main a:hover{color:var(--text)}
+.spacer{flex:1}
+.search{display:flex;align-items:center;gap:10px;border:1px solid var(--border-strong);border-radius:10px;padding:7px 12px;color:var(--muted);font-size:.85rem;min-width:200px}
+.search kbd{margin-left:auto;font-size:.72rem;border:1px solid var(--border-strong);border-radius:5px;padding:0 6px}
+.icon-btn{border:1px solid var(--border-strong);background:transparent;color:var(--text);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:1rem}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;font-weight:600;font-size:.95rem;border:1px solid var(--border-strong);cursor:pointer;transition:.15s}
+.btn-primary{background:var(--grad-diag);color:#03140c;border:0;box-shadow:0 8px 28px rgba(0,212,239,.28)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 34px rgba(0,239,208,.36)}
+.btn-ghost{background:transparent;color:var(--text)}
+.btn-ghost:hover{background:var(--surface-2)}
+
+/* hero */
+.hero{position:relative;padding:76px 0 56px;overflow:hidden}
+.aurora{position:absolute;inset:-20% -10% auto -10%;height:70%;pointer-events:none;opacity:.5;filter:blur(70px);
+  background:conic-gradient(from 210deg at 70% 40%,rgba(0,239,208,0),rgba(0,212,239,.35),rgba(0,212,255,.3),rgba(0,239,208,0) 60%);
+  animation:drift 18s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(-4%,3%,0) rotate(6deg) scale(1.06)}}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.15fr);gap:44px;align-items:center}
+.hero h1{font-size:clamp(2.1rem,3.4vw,3.1rem);line-height:1.06;font-weight:700;margin:14px 0 18px}
+.lead{font-size:1.1rem;color:var(--muted);max-width:34em}
+.lead strong{color:var(--text)}
+.install{margin:26px 0 0;display:flex;align-items:center;gap:12px;border:1px solid var(--border-strong);background:var(--code-bg);color:var(--code-text);border-radius:12px;padding:12px 14px 12px 18px;font-size:.88rem;max-width:34em}
+.install .prompt{color:var(--brand1)}
+.install button{margin-left:auto;border:0;background:rgba(255,255,255,.08);color:inherit;border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit;font-size:.78rem}
+.install button:hover{background:rgba(255,255,255,.16)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.trust{list-style:none;display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 0;padding:0;font-size:.84rem}
+.trust li{padding:7px 14px;border-radius:999px;border:1px solid rgba(0,212,239,.35);background:rgba(0,212,239,.06)}
+
+/* hero card: code + player */
+.stage{border:1px solid var(--border-strong);border-radius:18px;overflow:hidden;background:var(--surface);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.stage-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;background:#ff5f56}.dot:nth-child(2){background:#ffbd2e}.dot:nth-child(3){background:#27c93f}
+.stage-bar span{margin-left:8px}
+pre.code{margin:0;padding:18px 20px;background:var(--code-bg);color:var(--code-text);font-size:.8rem;line-height:1.7;overflow:auto}
+.k{color:#7aa2ff}.f{color:#00d4ef}.s{color:#ffd479}.n{color:#ff9e64}.c{color:#587a6b}
+.player{padding:16px 20px 18px;border-top:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--grad-diag);color:#03140c;font-size:1.15rem;cursor:pointer;box-shadow:0 6px 20px rgba(0,212,239,.35)}
+.wave{height:54px;display:flex;align-items:center;gap:3px}
+.wave i{flex:1;background:linear-gradient(var(--brand2),var(--brand1));border-radius:2px;opacity:.45;height:20%;transition:height .12s}
+.playing .wave i{opacity:1}
+.meta{grid-column:1/-1;display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted)}
+.meta b{color:var(--text)}
+.meta .pill{border:1px solid rgba(0,212,239,.4);color:var(--brand2);border-radius:999px;padding:0 10px}
+
+/* sections */
+section{padding:64px 0}
+.head{text-align:center;max-width:46em;margin:0 auto 38px}
+.head h2{font-size:clamp(1.6rem,2.4vw,2.2rem);margin-top:10px}
+.head p{color:var(--muted);margin:12px 0 0}
+
+/* listen strip */
+.listen{padding-top:20px}
+.clips{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.clip{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;color:var(--text);font:inherit;transition:.15s}
+.clip:hover{border-color:rgba(0,212,239,.5);transform:translateY(-2px)}
+.clip .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--brand2);flex:none;font-size:.8rem}
+.clip.on .ic{background:var(--grad-diag);color:#03140c}
+.clip b{display:block;font-size:.88rem;line-height:1.2}
+.clip small{color:var(--muted);font-size:.72rem}
+
+/* features */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:24px;transition:.15s;position:relative;overflow:hidden}
+.card:hover{border-color:rgba(0,212,239,.45);transform:translateY(-3px)}
+.card .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(0,212,239,.1);color:var(--brand2);font-size:1.3rem;margin-bottom:14px}
+.card h3{font-size:1.05rem;margin-bottom:6px}
+.card p{margin:0;color:var(--muted);font-size:.9rem}
+.card code{font-size:.78rem;color:var(--brand2)}
+.card.wide{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.meter{display:grid;gap:8px;font-size:.78rem;color:var(--muted)}
+.meter div{display:flex;align-items:center;gap:10px}
+.meter em{font-style:normal;width:90px}
+.meter span{flex:1;height:8px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.meter span i{display:block;height:100%;background:var(--grad)}
+.meter b{color:var(--text);width:70px;text-align:right}
+
+/* voices band */
+.voices{background:linear-gradient(180deg,transparent,rgba(0,212,239,.05),transparent)}
+.vgrid{display:grid;grid-template-columns:1fr 1.1fr;gap:34px;align-items:center}
+.vgrid h2{font-size:clamp(1.6rem,2.4vw,2.2rem);margin:10px 0 14px}
+.vgrid p{color:var(--muted)}
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.big div{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:14px;text-align:center}
+.big b{display:block;font-size:1.8rem;line-height:1.1}
+.big small{color:var(--muted);font-size:.74rem}
+.lic{border:1px solid var(--border-strong);border-radius:16px;background:var(--surface);overflow:hidden}
+.lic table{width:100%;border-collapse:collapse;font-size:.86rem}
+.lic th,.lic td{padding:11px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.lic th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+.lic tr:last-child td{border-bottom:0}
+.tag{font-size:.72rem;border-radius:999px;padding:2px 10px;border:1px solid}
+.tag.ok{color:var(--brand1);border-color:rgba(0,239,208,.45);background:rgba(0,239,208,.08)}
+.tag.no{color:#ff8a80;border-color:rgba(255,138,128,.4);background:rgba(255,138,128,.07)}
+.vplay{border:0;background:var(--surface-2);color:var(--brand2);width:28px;height:28px;border-radius:50%;cursor:pointer}
+
+/* ecosystem */
+.eco{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.eco a{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;display:block;transition:.15s}
+.eco a:hover{border-color:rgba(0,212,239,.5);transform:translateY(-2px)}
+.eco .ic{width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;margin-bottom:10px;font-weight:700;color:var(--brand2)}
+.eco b{display:block;font-size:.95rem}
+.eco span{color:var(--muted);font-size:.82rem;line-height:1.4;display:block;margin-top:2px}
+
+/* consulting CTA */
+.support{display:grid;grid-template-columns:1.25fr 1fr;gap:0;border:1px solid var(--border-strong);border-radius:22px;overflow:hidden;background:var(--surface)}
+.support .l{padding:40px;background:radial-gradient(500px 300px at 0% 0%,rgba(0,212,239,.18),transparent 70%)}
+.support h2{font-size:clamp(1.5rem,2.2vw,2rem);margin:10px 0 12px}
+.support p{color:var(--muted);margin:0 0 22px}
+.support .r{padding:34px 40px;border-left:1px solid var(--border);display:grid;gap:16px;align-content:center}
+.perk{display:flex;gap:14px;align-items:flex-start;font-size:.9rem}
+.perk i{font-style:normal;width:34px;height:34px;border-radius:10px;background:rgba(0,212,239,.1);color:var(--brand2);display:grid;place-items:center;flex:none}
+.perk b{display:block}
+.perk span{color:var(--muted);font-size:.82rem}
+
+/* final cta */
+.cta{text-align:center;border-radius:22px;padding:54px 24px;border:1px solid rgba(0,212,239,.35);background:radial-gradient(700px 300px at 50% 0%,rgba(0,212,239,.16),transparent 70%),var(--surface)}
+.cta h2{font-size:clamp(1.6rem,2.6vw,2.3rem);margin:10px 0 10px}
+.cta p{color:var(--muted);margin:0 auto 24px;max-width:36em}
+.cta .actions{justify-content:center}
+
+/* footer */
+footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
+.ft{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:28px}
+.ft h4{margin:0 0 12px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ft a{display:block;color:var(--text);font-size:.88rem;margin:6px 0;opacity:.85}
+.ft a:hover{opacity:1;color:var(--brand2)}
+.ft p{color:var(--muted);font-size:.86rem;max-width:22em}
+.madeby{font-size:.8rem;color:var(--muted)}.madeby b{color:var(--text)}
+.fb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:34px;padding-top:18px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)}
+
+@media(max-width:960px){
+  .hero-grid,.vgrid,.support{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr 1fr}.card.wide{grid-column:span 2;grid-template-columns:1fr}
+  .eco{grid-template-columns:1fr 1fr}.ft{grid-template-columns:1fr 1fr}
+  nav.main,.search{display:none}.support .r{border-left:0;border-top:1px solid var(--border)}
+}
+@media(max-width:560px){.cards{grid-template-columns:1fr}.card.wide{grid-column:auto}.big{grid-template-columns:1fr}.top .wrap{gap:12px}}
+
+/* ---------- motion and music ---------- */
+.ph-duotone{--ph-a:.45}
+.ico .ph-duotone,.ic .ph-duotone,.perk i .ph-duotone,.clip .ic .ph-duotone{display:block}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+.notes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.notes i{position:absolute;bottom:-40px;left:var(--x);font-size:var(--s);color:var(--brand2);opacity:0;animation:floatnote var(--t) linear var(--w) infinite}
+@keyframes floatnote{0%{transform:translate3d(0,0,0) rotate(-12deg);opacity:0}12%{opacity:.5}60%{opacity:.25}100%{transform:translate3d(var(--dx),-780px,0) rotate(18deg);opacity:0}}
+.swap{display:inline-block;position:relative;min-width:3.2ch;transition:opacity .35s,transform .35s}
+.swap.out{opacity:0;transform:translateY(-14px)}
+.seq{display:grid;grid-template-columns:repeat(16,1fr);gap:5px;padding:12px 20px 14px;border-top:1px solid var(--border);background:var(--surface)}
+.seq .row{display:contents}
+.seq b{height:14px;border-radius:4px;background:var(--surface-2);transition:background .08s,transform .08s,box-shadow .08s}
+.seq b.on{background:rgba(0,212,239,.28)}
+.seq b.hit{background:var(--brand1);transform:scaleY(1.35);box-shadow:0 0 14px rgba(0,239,208,.7)}
+.seq b.off.hit{background:var(--surface-2);transform:scaleY(1.1);box-shadow:none}
+.seq-label{grid-column:1/-1;display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:2px}
+.seq-label span:first-child{display:inline-flex;gap:6px;align-items:center}
+.bpm{font-variant-numeric:tabular-nums}
+.stage{transition:transform .25s ease-out,box-shadow .25s}
+.stage:hover{box-shadow:0 40px 100px rgba(0,239,208,.14),0 30px 80px rgba(0,0,0,.35)}
+.play{position:relative}
+.play::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(0,212,239,.5);animation:ring 2s ease-out infinite}
+.playing .play::after{animation-duration:.94s}
+@keyframes ring{from{transform:scale(.9);opacity:.9}to{transform:scale(1.5);opacity:0}}
+.btn-primary .ph-duotone{transition:transform .2s}
+.btn-primary:hover .ph-duotone{transform:translateX(4px)}
+.btn .ph-duotone{font-size:1.1rem}
+.eyebrow .ph-duotone{font-size:1rem}
+
+/* equalizer marquee divider */
+.eq{height:70px;display:flex;align-items:flex-end;gap:4px;padding:0 20px;max-width:1180px;margin:0 auto;opacity:.9}
+.eq i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(var(--brand2),transparent);height:12%;animation:eqb var(--t) ease-in-out var(--w) infinite alternate;transform-origin:bottom}
+@keyframes eqb{0%{height:8%}100%{height:var(--h)}}
+.marquee{overflow:hidden;border-block:1px solid var(--border);padding:16px 0;mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.marquee .track{display:flex;gap:40px;width:max-content;animation:slide 38s linear infinite}
+.marquee:hover .track{animation-play-state:paused}
+.marquee span{display:inline-flex;gap:10px;align-items:center;color:var(--muted);font-weight:500;white-space:nowrap}
+.marquee .ph-duotone{color:var(--brand2);font-size:1.15rem}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* piano divider */
+.piano{display:flex;justify-content:center;margin:0 auto;max-width:1180px;padding:0 20px;height:64px;position:relative}
+.piano .w{flex:1;border:1px solid var(--border-strong);border-top:0;border-radius:0 0 6px 6px;background:linear-gradient(var(--surface),var(--surface-2));transition:background .15s,transform .15s;position:relative}
+.piano .w:hover,.piano .w.lit{background:linear-gradient(var(--brand1),var(--brand3));transform:translateY(3px)}
+.piano .b{position:absolute;top:0;left:calc(100% - 9px);width:18px;height:38px;background:var(--code-bg);border-radius:0 0 4px 4px;z-index:2;border:1px solid var(--border-strong);border-top:0;transition:background .15s}
+.piano .b:hover,.piano .b.lit{background:var(--brand2)}
+
+/* clip cards, playing state */
+.clip .bars{display:none;gap:2px;align-items:flex-end;height:14px;margin-left:auto}
+.clip.on .bars{display:flex}
+.clip .bars i{width:3px;background:var(--brand2);border-radius:2px;animation:eqb .5s ease-in-out infinite alternate;--h:100%}
+.clip .bars i:nth-child(2){animation-delay:.12s}.clip .bars i:nth-child(3){animation-delay:.24s}.clip .bars i:nth-child(4){animation-delay:.07s}
+.clip.on{border-color:rgba(0,212,239,.7);box-shadow:0 0 0 1px rgba(0,212,239,.25),0 10px 30px rgba(0,239,208,.12)}
+.card::before,.eco a::before,.clip::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(0,212,239,.14),transparent 60%);opacity:0;transition:opacity .25s;pointer-events:none}
+.card:hover::before,.eco a:hover::before,.clip:hover::before{opacity:1}
+.eco a,.clip{position:relative;overflow:hidden}
+.card .ico .ph-duotone,.perk i .ph-duotone{transition:transform .3s}
+.card:hover .ico .ph-duotone{transform:scale(1.18) rotate(-6deg)}
+.wavesvg{display:block;width:100%;height:90px;margin-top:-1px}
+.wavesvg path{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}
+.wavesvg .a{stroke:url(#wg);opacity:.9;animation:wv 7s ease-in-out infinite alternate}
+.wavesvg .b{stroke:url(#wg);opacity:.4;animation:wv 9s ease-in-out -3s infinite alternate}
+@keyframes wv{to{transform:translateX(-80px)}}
+
+/* ecosystem with real icons */
+.eco .ic{background:transparent;width:48px;height:48px;padding:0;margin-bottom:12px;overflow:visible}
+.eco .ic img{width:100%;height:100%;object-fit:contain;transition:transform .3s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 4px 12px rgba(0,0,0,.25))}
+.eco a:hover .ic img{transform:translateY(-3px) scale(1.12) rotate(-4deg)}
+.eco .ic.ph{background:var(--grad-diag);border-radius:12px;display:grid;place-items:center;color:#03140c;font-size:1.6rem}
+.eco b{display:flex;align-items:center;gap:6px}
+.eco b .ph-duotone{font-size:.85rem;opacity:0;transform:translate(-4px,4px);transition:.2s;color:var(--brand2)}
+.eco a:hover b .ph-duotone{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><img src="assets/bxaudio-icon-full.svg" alt="" width="30" height="30">BxAudio</a>
+  <nav class="main"><a href="#">Get started</a><a href="#listen">Examples</a><a href="#">Guides</a><a href="#">Reference</a><a href="#voices">Voices</a></nav>
+  <div class="spacer"></div>
+  <div class="search">Search the docs <kbd>/</kbd></div>
+  <button class="icon-btn" id="theme" title="Toggle theme"><i class="ph-duotone ph-circle-half"></i></button>
+</div></header>
+
+<!-- HERO -->
+<div class="hero"><div class="aurora"></div><div class="notes" id="notes"></div><div class="wrap hero-grid">
+  <div>
+    <span class="eyebrow"><i class="ph-duotone ph-music-notes"></i> A BoxLang module &middot; pure JVM</span>
+    <h1>Make a <span class="grad swap" id="swap">kick</span> from code. Master it. Make it speak.</h1>
+    <p class="lead">Synthesize instruments and drums, arrange them on a beat grid, master to a loudness target, speak text with <strong>open license voices</strong>, score a video and play sound in a game. <strong>No Python. Nothing native to install.</strong></p>
+    <div class="install"><span class="prompt">$</span><code>install-bx-module bx-audio</code><button id="copy">Copy</button></div>
+    <div class="actions">
+      <a class="btn btn-primary" href="#">Get started <i class="ph-duotone ph-arrow-right"></i></a>
+      <a class="btn btn-ghost" href="#listen"><i class="ph-duotone ph-play-circle"></i> Listen to the examples</a>
+    </div>
+    <ul class="trust"><li><b>68</b> functions</li><li><b>EBU R128</b> mastering</li><li><b>11</b> open voices</li><li><b>14</b> songs made from code</li></ul>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="stage-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>groove.bxs</span></div>
+<pre class="code"><span class="n">t</span> = <span class="f">audioTimeline</span>( bpm=<span class="n">128</span> );
+<span class="n">kick</span> = <span class="f">audioDrum</span>( <span class="s">"kick"</span> );
+<span class="n">bass</span> = <span class="f">audioFilter</span>(
+    <span class="f">audioEnvelope</span>( <span class="f">audioOsc</span>( <span class="s">"saw"</span>, <span class="f">audioFreq</span>( <span class="s">"A1"</span> ), <span class="n">0.4</span> ), <span class="n">0.003</span>, <span class="n">0.12</span> ),
+    <span class="s">"lowpass"</span>, <span class="n">900</span>, <span class="n">2</span> );
+
+<span class="k">for</span>( <span class="n">at</span> <span class="k">in</span> <span class="f">audioBeats</span>( t, <span class="n">0</span>, <span class="n">16</span> ) ){
+    <span class="f">audioAdd</span>( timeline=t, sound=kick, at=at, track=<span class="s">"drums"</span> );
+}
+<span class="f">audioPump</span>( t, <span class="s">"bass"</span>, <span class="f">audioBeats</span>( t, <span class="n">0</span>, <span class="n">16</span> ), -<span class="n">5</span>, <span class="n">0.18</span> );
+
+<span class="n">mix</span> = <span class="f">audioMaster</span>( audio=<span class="f">audioRender</span>( t ), target=<span class="s">"streaming"</span> );
+<span class="f">audioSave</span>( mix, <span class="s">"groove.mp3"</span> );  <span class="c">// -14 LUFS</span></pre>
+    <div class="player" id="heroPlayer">
+      <button class="play" id="heroBtn" aria-label="Play"><i class="ph-duotone ph-play"></i></button>
+      <div class="wave" id="wave"></div>
+      <div class="meta"><span>Rendered from the code above &middot; <b>House</b></span><span class="pill">-14 LUFS</span></div>
+    </div>
+    <div class="seq" id="seq">
+      <div class="seq-label"><span><i class="ph-duotone ph-metronome"></i> 16 step grid</span><span class="bpm">128 BPM</span></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="track"></div></div>
+<!-- LISTEN STRIP -->
+<section class="listen" id="listen"><div class="wrap">
+  <div class="head reveal"><span class="eyebrow"><i class="ph-duotone ph-headphones"></i> Press play</span><h2>Every one of these was <span class="grad">written, not recorded</span>.</h2><p>Fourteen complete pieces rendered by the module from a few dozen lines each.</p></div>
+  <div class="clips" id="clips"></div>
+</div></section>
+
+<svg class="wavesvg" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wg" x1="0" x2="1"><stop offset="0" stop-color="#00efd0"/><stop offset=".6" stop-color="#00d4ef"/><stop offset="1" stop-color="#00d4ff"/></linearGradient></defs><path class="a" d="M-100 45 Q -55 5 -10 45 T 80 45 T 170 45 T 260 45 T 350 45 T 440 45 T 530 45 T 620 45 T 710 45 T 800 45 T 890 45 T 980 45 T 1070 45 T 1160 45 T 1250 45 T 1340 45 T 1430 45 T 1520 45"/><path class="b" d="M-100 45 Q -55 80 -10 45 T 80 45 T 170 45 T 260 45 T 350 45 T 440 45 T 530 45 T 620 45 T 710 45 T 800 45 T 890 45 T 980 45 T 1070 45 T 1160 45 T 1250 45 T 1340 45 T 1430 45 T 1520 45"/></svg>
+<!-- FEATURES -->
+<section><div class="wrap">
+  <div class="head reveal"><span class="eyebrow"><i class="ph-duotone ph-cpu"></i> Everything on the JVM</span><h2>One module. The whole <span class="grad">audio pipeline</span>.</h2></div>
+  <div class="cards">
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-piano-keys"></i></div><h3>Synthesis and mixing</h3><p>Band-limited oscillators, drums, filters, a tempo grid, named tracks and kick pumping.</p></div>
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-microphone-stage"></i></div><h3>Text to speech</h3><p>Open license voices that download on first use, with speed, pauses and captions timed to the words.</p></div>
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-film-strip"></i></div><h3>Score a video</h3><p>Cut music to the exact length of a picture, add a voice-over and mux it with FFmpeg. <code>audioMux()</code></p></div>
+    <div class="card wide reveal">
+      <div><div class="ico"><i class="ph-duotone ph-gauge"></i></div><h3>Loudness and mastering</h3><p>Measure the EBU R128 way and deliver to a target with a mastering chain, compressor, limiter and EQ.</p></div>
+      <div class="meter">
+        <div><em>Streaming</em><span><i style="width:72%"></i></span><b>-14 LUFS</b></div>
+        <div><em>Podcast</em><span><i style="width:66%"></i></span><b>-16 LUFS</b></div>
+        <div><em>Broadcast</em><span><i style="width:60%"></i></span><b>-23 LUFS</b></div>
+      </div>
+    </div>
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-game-controller"></i></div><h3>Game audio</h3><p>A real time mixer with buses, loops and crossfades, varied effects and audio sprites.</p></div>
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-metronome"></i></div><h3>Time and pitch</h3><p>Stretch, pitch shift and fit a clip to an exact length without the chipmunk.</p></div>
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-chart-bar"></i></div><h3>Analysis</h3><p>FFT, spectrum, tempo and silence detection, plus true peak.</p></div>
+    <div class="card reveal"><div class="ico"><i class="ph-duotone ph-terminal-window"></i></div><h3>A real command line</h3><p><code>bx-audio info</code>, <code>master</code>, <code>speak</code> and more. Downloads live in <code>~/.bxaudio</code>.</p></div>
+  </div>
+</div></section>
+
+<div class="piano" id="piano" aria-hidden="true"></div>
+<!-- VOICES -->
+<section class="voices" id="voices"><div class="wrap vgrid">
+  <div>
+    <span class="eyebrow"><i class="ph-duotone ph-scales"></i> Voices and licenses</span>
+    <h2>Voices with the <span class="grad">paperwork done</span>.</h2>
+    <p>We checked the license of every voice in the collection and its training data. Only CC0, Public Domain and Apache-2.0 voices are offered. The rest are listed with the reason they are not.</p>
+    <div class="big"><div><b class="grad">177</b><small>voices reviewed</small></div><div><b class="grad">11</b><small>offered</small></div><div><b>166</b><small>excluded, with reasons</small></div></div>
+    <div class="actions"><a class="btn btn-ghost" href="#">Read the license guide <i class="ph-duotone ph-arrow-right"></i></a></div>
+  </div>
+  <div class="lic reveal"><table>
+    <tr><th>Voice</th><th>License</th><th>Status</th><th></th></tr>
+    <tr><td>en_US joe</td><td>CC0</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-joe-medium.mp3"><i class="ph-duotone ph-play"></i></button></td></tr>
+    <tr><td>en_US bryce</td><td>CC0</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-bryce-medium.mp3"><i class="ph-duotone ph-play"></i></button></td></tr>
+    <tr><td>en_US kristin</td><td>Public Domain</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-kristin-medium.mp3"><i class="ph-duotone ph-play"></i></button></td></tr>
+    <tr><td>en_GB (dictionary)</td><td>GPL data</td><td><span class="tag no">Not offered</span></td><td></td></tr>
+    <tr><td>Non-commercial set</td><td>CC BY-NC</td><td><span class="tag no">Not offered</span></td><td></td></tr>
+  </table></div>
+</div></section>
+
+<!-- ECOSYSTEM -->
+<section><div class="wrap">
+  <div class="head reveal"><span class="eyebrow"><i class="ph-duotone ph-graph"></i> Part of the BoxLang ecosystem</span><h2>Built for <span class="grad">BoxLang</span>, with <span class="grad">BoxLang</span>.</h2></div>
+  <div class="eco">
+    <a class="reveal" style="--d:0.00s" href="https://boxlang.io" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/boxlang-icon-full.svg" alt="BoxLang"></div><b>BoxLang <i class="ph-duotone ph-arrow-up-right"></i></b><span>The dynamic JVM language this module is built for.</span></a>
+    <a class="reveal" style="--d:0.05s" href="https://ai.boxlang.io" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/icon-module-bx-ai.svg" alt="BoxLang AI"></div><b>BoxLang AI <i class="ph-duotone ph-arrow-up-right"></i></b><span>Generate scripts and narration text, then render them with Audio.</span></a>
+    <a class="reveal" style="--d:0.10s" href="https://boxlang.io/plans" target="_blank" rel="noopener noreferrer"><div class="ic ph"><i class="ph-duotone ph-seal-check"></i></div><b>BoxLang+ <i class="ph-duotone ph-arrow-up-right"></i></b><span>Support, modules and the features that run a fleet.</span></a>
+    <a class="reveal" style="--d:0.15s" href="https://www.coldbox.org" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/coldbox-icon-full.svg" alt="ColdBox"></div><b>ColdBox <i class="ph-duotone ph-arrow-up-right"></i></b><span>Serve generated audio from the apps you build on ColdBox.</span></a>
+    <a class="reveal" style="--d:0.20s" href="https://commandbox.ortusbooks.com" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/commandbox-icon-full.svg" alt="CommandBox"></div><b>CommandBox <i class="ph-duotone ph-arrow-up-right"></i></b><span>Install the module and its command line from the package manager.</span></a>
+    <a class="reveal" style="--d:0.25s" href="https://bxsites.io" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/bxsites-icon-full.svg" alt="bxSites"></div><b>bxSites <i class="ph-duotone ph-arrow-up-right"></i></b><span>The static site generator that builds these docs.</span></a>
+    <a class="reveal" style="--d:0.30s" href="https://bxplaywright.boxlang.io" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/bxplaywright-icon-full.svg" alt="BxPlaywright"></div><b>BxPlaywright <i class="ph-duotone ph-arrow-up-right"></i></b><span>Browser automation and testing for BoxLang.</span></a>
+    <a class="reveal" style="--d:0.35s" href="https://bxlens.boxlang.io" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/bxlens-icon-full.svg" alt="BxLens"></div><b>BxLens <i class="ph-duotone ph-arrow-up-right"></i></b><span>The debug bar and ops console for BoxLang apps.</span></a>
+    <a class="reveal" style="--d:0.40s" href="https://bxagents.ai" target="_blank" rel="noopener noreferrer"><div class="ic"><img src="assets/bxagents-icon-full.svg" alt="BxAgents"></div><b>BxAgents <i class="ph-duotone ph-arrow-up-right"></i></b><span>Build AI agents by convention, powered by BoxLang AI.</span></a>
+  </div>
+</div></section>
+
+<!-- CONSULTING AND SUPPORT -->
+<section style="padding-top:0"><div class="wrap">
+  <div class="support reveal">
+    <div class="l">
+      <span class="eyebrow"><i class="ph-duotone ph-handshake"></i> Consulting and support</span>
+      <h2>Need audio in production? <span class="grad">Talk to the people who build BoxLang.</span></h2>
+      <p>Ortus Solutions offers professional support, architecture reviews and custom development for BoxLang, including audio pipelines, narration and video workflows.</p>
+      <div class="actions"><a class="btn btn-primary" href="#">Talk to Ortus <i class="ph-duotone ph-arrow-right"></i></a><a class="btn btn-ghost" href="#">See BoxLang+ plans</a><a class="btn btn-ghost" href="mailto:consulting@ortussolutions.com"><i class="ph-duotone ph-envelope-simple"></i> consulting@ortussolutions.com</a></div>
+    </div>
+    <div class="r">
+      <div class="perk"><i><i class="ph-duotone ph-headset"></i></i><div><b>Priority support</b><span>Answers from the team that wrote the runtime.</span></div></div>
+      <div class="perk"><i><i class="ph-duotone ph-wrench"></i></i><div><b>Custom development</b><span>Voices, pipelines and integrations built to your brief.</span></div></div>
+      <div class="perk"><i><i class="ph-duotone ph-graduation-cap"></i></i><div><b>Training and review</b><span>Get your team productive and your design checked.</span></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- FINAL CTA -->
+<section style="padding-top:0"><div class="wrap">
+  <div class="cta reveal">
+    <span class="eyebrow"><i class="ph-duotone ph-timer"></i> Two minutes to your first sound</span>
+    <h2>Install it. Run one line. <span class="grad">Hear it.</span></h2>
+    <p>Install the module and render your first beat from a script.</p>
+    <div class="actions"><a class="btn btn-primary" href="#">Get started <i class="ph-duotone ph-arrow-right"></i></a><a class="btn btn-ghost" href="#">Browse the reference</a></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="ft">
+    <div><a class="brand" href="#" style="opacity:1"><img src="assets/bxaudio-icon-full.svg" alt="" width="26" height="26">BxAudio</a><p>Make, mix, master and speak audio from BoxLang, on the JVM.</p><div class="madeby">Developed by <b>Ortus Solutions</b></div></div>
+    <div><h4>Learn</h4><a href="#">Getting started</a><a href="#">Guides</a><a href="#">Examples</a><a href="#">Voices</a></div>
+    <div><h4>Reference</h4><a href="#">Functions</a><a href="#">Command line</a><a href="#">Configuration</a><a href="#">Licenses</a></div>
+    <div><h4>Project</h4><a href="#">Roadmap</a><a href="#">Contribute</a><a href="#">Troubleshooting</a><a href="#">llms.txt</a></div>
+    <div><h4>Community</h4><a href="#">Slack</a><a href="#">Forums</a><a href="#">Report an issue</a><a href="#">Consulting</a></div>
+  </div>
+  <div class="fb"><span>&copy; 2026 Ortus Solutions, Corp</span><span>Part of the <b>BoxLang</b> ecosystem</span></div>
+</div></footer>
+
+<audio id="audio" preload="none"></audio>
+<script>
+const A = document.getElementById('audio');
+const base = '../docs/assets/audio/';
+const ICON = n => '<i class="ph-duotone ph-'+n+'"></i>';
+const PLAY = ICON('play'), PAUSE = ICON('pause');
+const clips = [['Pop Drive','pop-drive','headphones'],['Lofi','lofi','coffee'],['House','house','vinyl-record'],['Ambient','ambient','cloud'],['Techno','techno','lightning'],['Synthwave','synthwave','sun-horizon'],['Cinematic','cinematic','film-slate'],['Chiptune','chiptune','game-controller'],['Game SFX','sfx','sparkle'],['Jazz','jazz','music-notes'],['Rock','rock','guitar'],['Voice-over','voiceover','microphone'],['Trailer','trailer','film-strip'],['Game audio','game-audio','joystick']];
+const box = document.getElementById('clips');
+clips.forEach(([name,file,ic],i)=>{
+  const b = document.createElement('button'); b.className='clip reveal'; b.style.setProperty('--d',(i*0.04)+'s'); b.dataset.src = base+file+'.mp3';
+  b.innerHTML = '<span class="ic">'+PLAY+'</span><span><b>'+name+'</b><small>made from code</small></span><span class="bars"><i></i><i></i><i></i><i></i></span>';
+  box.appendChild(b);
+});
+
+/* hero waveform, driven by the real audio when the browser allows it, simulated otherwise */
+const wave = document.getElementById('wave');
+for(let i=0;i<56;i++) wave.appendChild(document.createElement('i'));
+const bars = [...wave.children];
+let timer=null, ctx=null, an=null, data=null, live=false;
+function setupAnalyser(){
+  if(ctx) return;
+  try{
+    ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ctx.createMediaElementSource(A);
+    an = ctx.createAnalyser(); an.fftSize=128; data = new Uint8Array(an.frequencyBinCount);
+    src.connect(an); an.connect(ctx.destination); live = true;
+  }catch(e){ live=false; }
+}
+function draw(){
+  if(live && an){
+    an.getByteFrequencyData(data); let sum=0;
+    bars.forEach((b,i)=>{ const v=data[Math.min(data.length-1,Math.floor(i*data.length/bars.length*.8))]/255; b.style.height=(8+v*92)+'%'; sum+=v; });
+    if(sum<.05) simulate();
+  } else simulate();
+}
+function simulate(){ bars.forEach((b,i)=>b.style.height=(18+Math.abs(Math.sin(Date.now()/260+i*.5))*Math.random()*80)+'%'); }
+function animate(on){
+  document.getElementById('heroPlayer').classList.toggle('playing', on);
+  clearInterval(timer);
+  if(on) timer = setInterval(draw,60);
+  else bars.forEach((b,i)=>b.style.height=(20+Math.abs(Math.sin(i*.4))*60)+'%');
+}
+animate(false);
+
+let current=null;
+function reset(){
+  document.querySelectorAll('.clip.on').forEach(e=>e.classList.remove('on'));
+  document.querySelectorAll('.clip .ic').forEach(e=>e.innerHTML=PLAY);
+  document.querySelectorAll('.vplay, #heroBtn').forEach(e=>e.innerHTML=PLAY);
+  animate(false);
+}
+function toggle(src, btn){
+  const same = current===btn && !A.paused;
+  reset();
+  if(same){ A.pause(); return; }
+  current=btn; if(btn.id==='heroBtn') setupAnalyser(); if(ctx&&ctx.state==='suspended') ctx.resume();
+  A.src=src; A.play().catch(()=>{});
+  if(btn.classList.contains('clip')){ btn.classList.add('on'); btn.querySelector('.ic').innerHTML=PAUSE; }
+  else btn.innerHTML=PAUSE;
+  if(btn.id==='heroBtn') animate(true);
+}
+document.addEventListener('click', e=>{
+  const c=e.target.closest('.clip'); if(c) toggle(c.dataset.src,c);
+  const v=e.target.closest('.vplay'); if(v) toggle(v.dataset.src,v);
+  if(e.target.closest('#heroBtn')) toggle(base+'house.mp3', document.getElementById('heroBtn'));
+});
+A.addEventListener('ended', reset);
+document.getElementById('copy').onclick = e => { navigator.clipboard && navigator.clipboard.writeText('install-bx-module bx-audio'); e.target.textContent='Copied'; setTimeout(()=>e.target.textContent='Copy',1500); };
+document.getElementById('theme').onclick = () => { const r=document.documentElement; r.dataset.theme = r.dataset.theme==='dark'?'light':'dark'; };
+
+/* floating notes */
+const notesBox = document.getElementById('notes');
+['music-note','music-notes','music-notes-simple','music-note-simple','waveform','vinyl-record'].forEach((n,k)=>{
+  for(let r=0;r<3;r++){ const i=document.createElement('i'); i.className='ph-duotone ph-'+n;
+    i.style.cssText='--x:'+(Math.random()*96)+'%;--s:'+(18+Math.random()*26)+'px;--t:'+(14+Math.random()*10)+'s;--w:-'+(Math.random()*20)+'s;--dx:'+((Math.random()-.5)*160)+'px';
+    notesBox.appendChild(i); }
+});
+
+/* rotating word in the headline */
+const words=['kick','bass line','melody','voice-over','trailer','game loop'];
+let wi=0; const sw=document.getElementById('swap');
+setInterval(()=>{ sw.classList.add('out'); setTimeout(()=>{ wi=(wi+1)%words.length; sw.textContent=words[wi]; sw.classList.remove('out'); },350); },2400);
+
+/* 16 step sequencer in time with 128 BPM (sixteenth notes) */
+const seq=document.getElementById('seq');
+const pat={kick:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],hat:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1]};
+const rows={};
+Object.keys(pat).forEach(k=>{ rows[k]=pat[k].map(v=>{ const b=document.createElement('b'); if(v) b.className='on'; else b.className='off'; seq.appendChild(b); return b; }); });
+let step=0; const stepMs=60000/128/4;
+setInterval(()=>{
+  Object.values(rows).forEach(r=>{ r.forEach(b=>b.classList.remove('hit')); r[step].classList.add('hit'); });
+  step=(step+1)%16;
+},stepMs);
+
+/* marquee and equalizer */
+const tk=document.getElementById('track');
+const tags=[['waveform','Oscillators'],['vinyl-record','Drums'],['sliders-horizontal','Filters and EQ'],['microphone-stage','Speech and captions'],['gauge','EBU R128 loudness'],['film-strip','FFmpeg mux'],['game-controller','Real time mixer'],['metronome','Time stretch'],['chart-bar','Spectrum and tempo'],['file-audio','WAV, FLAC, MP3, OGG'],['terminal-window','bx-audio CLI']];
+let mh=''; for(let r=0;r<2;r++) tags.forEach(([ic,t])=>mh+='<span>'+ICON(ic)+t+'</span>'); tk.innerHTML=mh;
+
+/* piano divider: hover to light the keys, plays a note with Web Audio */
+const piano=document.getElementById('piano');
+const names=['C','D','E','F','G','A','B'], hz=[261.63,293.66,329.63,349.23,392,440,493.88];
+const blackAfter={0:277.18,1:311.13,3:369.99,4:415.3,5:466.16};
+let ph=''; for(let o=0;o<2;o++) for(let i=0;i<7;i++){ const f=hz[i]*(o?2:1); ph+='<div class="w" data-f="'+f+'">'+(blackAfter[i]&&!(o&&i==6)?'<span class="b" data-f="'+(blackAfter[i]*(o?2:1))+'"></span>':'')+'</div>'; }
+piano.innerHTML=ph.repeat(1);
+for(let c=0;c<1;c++) piano.insertAdjacentHTML('beforeend',ph);
+let pctx=null;
+function note(f){ pctx=pctx||new (window.AudioContext||window.webkitAudioContext)(); const o=pctx.createOscillator(),g=pctx.createGain(); o.type='triangle'; o.frequency.value=f; g.gain.setValueAtTime(.0001,pctx.currentTime); g.gain.exponentialRampToValueAtTime(.18,pctx.currentTime+.01); g.gain.exponentialRampToValueAtTime(.0001,pctx.currentTime+.9); o.connect(g).connect(pctx.destination); o.start(); o.stop(pctx.currentTime+1); }
+piano.addEventListener('pointerdown',e=>{ const k=e.target.closest('.b,.w'); if(!k) return; k.classList.add('lit'); setTimeout(()=>k.classList.remove('lit'),250); note(+k.dataset.f); });
+/* the piano plays itself once when it scrolls into view (a lit run, silent) */
+const keys=[...piano.querySelectorAll('.w')];
+let ran=false; new IntersectionObserver((en)=>{ if(en[0].isIntersecting&&!ran){ ran=true; keys.forEach((k,i)=>setTimeout(()=>{k.classList.add('lit');setTimeout(()=>k.classList.remove('lit'),180)},i*45)); } },{threshold:.6}).observe(piano);
+
+/* scroll reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* pointer glow on cards and a gentle 3D tilt on the hero stage */
+document.addEventListener('pointermove',e=>{ const t=e.target.closest('.card,.eco a,.clip'); if(t){ const r=t.getBoundingClientRect(); t.style.setProperty('--mx',(e.clientX-r.left)+'px'); t.style.setProperty('--my',(e.clientY-r.top)+'px'); } });
+const stage=document.getElementById('stage');
+stage.addEventListener('pointermove',e=>{ const r=stage.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5; stage.style.transform='perspective(1100px) rotateY('+(x*5)+'deg) rotateX('+(-y*5)+'deg)'; });
+stage.addEventListener('pointerleave',()=>stage.style.transform='');
+
+/* equalizer under the hero */
+const eq=document.createElement('div'); eq.className='eq'; eq.setAttribute('aria-hidden','true');
+for(let i=0;i<64;i++){ const b=document.createElement('i'); b.style.cssText='--h:'+(20+Math.random()*80)+'%;--t:'+(.5+Math.random()*.9)+'s;--w:-'+(Math.random()*1.5)+'s'; eq.appendChild(b); }
+document.querySelector('.marquee').before(eq);
+</script>
+</body>
+</html>

@@ -475,5 +475,32 @@
         "value": 1
       }
     ]
+  },
+  {
+    "id": "theme",
+    "title": "The BxAudio theme",
+    "style": "Grid anthem",
+    "script": "../15-theme/theme.bxs",
+    "blurb": "A neon grid runner: a pulsing saw bass, gated pads, an opening filter, then an original adventure fanfare of rising fourths with a harp run.",
+    "params": [
+      {
+        "name": "bars",
+        "label": "Bars",
+        "type": "range",
+        "min": 8,
+        "max": 32,
+        "step": 4,
+        "value": 16
+      },
+      {
+        "name": "bpm",
+        "label": "Tempo",
+        "type": "range",
+        "min": 120,
+        "max": 145,
+        "step": 1,
+        "value": 132
+      }
+    ]
   }
 ]

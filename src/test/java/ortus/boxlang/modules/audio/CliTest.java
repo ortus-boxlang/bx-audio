@@ -134,7 +134,7 @@ public class CliTest extends BaseIntegrationTest {
 	@Test
 	void testPieces() {
 		String pieces = run( "pieces" );
-		for ( String piece : new String[] { "pop-drive", "lofi", "house", "ambient", "techno", "synthwave", "cinematic" } ) {
+		for ( String piece : new String[] { "pop-drive", "lofi", "house", "ambient", "techno", "synthwave", "cinematic", "theme" } ) {
 			assertThat( pieces ).contains( piece );
 		}
 	}

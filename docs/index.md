@@ -1,9 +1,10 @@
 ---
-title: BoxLang Audio
+title: BxAudio
 order: 1
 description: BoxLang Audio makes, mixes, masters and speaks audio from BoxLang, on the JVM, with no Python or native tools.
 icon: phosphor-duotone:waveform
 toc: false
+layout: home
 ogImage: assets/og-image.png
 ---
 
@@ -29,7 +30,7 @@ audioSave( mix, "groove.mp3" );
 Install the module, make a sound, and meet the `bx-audio` command line.
 :::
 ::: card title="Listen to the examples" icon="phosphor-duotone:speaker-high" href="examples/index.md"
-Fourteen complete pieces made from code, with a player for each. Pop, lofi, house, techno, jazz, rock, game music and more.
+Fifteen complete pieces made from code, with a player for each. Pop, lofi, house, techno, jazz, rock, game music and more.
 :::
 ::: card title="Score a video" icon="phosphor-duotone:film-strip" href="guides/trailers-and-video.md"
 Cut music to the exact length of a picture, add a voice-over with captions, master to -14 LUFS and put the sound on the video.

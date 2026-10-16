@@ -28,6 +28,7 @@ Audio is written to `out/` by default and is not committed. Each script takes `-
 | 12 | [Voice-over](12-voiceover/) | Narration over music | Text to speech on a timeline with the music ducking under it, a voice levelled by loudness. Command line only, it needs the speech engine |
 | 13 | [Trailer](13-trailer/) | A scored video | Music cut to the exact length of a video, a voice-over with timed captions, ducking, mastering to -14 LUFS, chapter markers and the sound muxed onto the picture |
 | 14 | [Game audio](14-game-audio/) | A scripted play session | A real time mixer with buses, seamless loops, varied effects, a boss theme from time stretch and pitch shift, an audio sprite. Renders to a file or plays live |
+| 15 | [The BxAudio theme](15-theme/) | A grid anthem, 132 BPM in D minor | A filter that opens over the intro, sixteenth note saw bass, gated pads, an original fanfare of rising fourths answered by a harp run, and a discovery chime. `--sting` renders the 3 second jingle |
 
 `examples/` is covered by a test that renders each script with short settings. It checks the length, the level, that the same settings give the same file, and what each piece sounds like by measurement: how bright it is, whether it pulses on the beat, how percussive it is, and that it fades out. Pieces with their own character are checked on it too: the jazz bass starts every bar on the chord root, the music in the voice-over ducks under the voice, and the pitch of every sound effect moves the way the sound is meant to. So the catalog cannot silently break or drift.
 

@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* The BxAudio theme: example `15-theme`, a grid anthem at 132 BPM with an original adventure fanfare (`bx-audio render theme`, and `--sting` for a 3 second jingle). BxAudio logos and brand colors (teal to blue) across the docs, the explorer and the readme
+* A custom landing page for the docs (`docs/.theme/home.bxm`) with press-to-play examples, a browser playground and the ecosystem, and a "Try it" page with a run-tested recipe for every feature and a clone-and-run guide
 * Examples `13-trailer` (music fitted to a video, a voice-over with captions, ducking, mastering, chapters and mux) and `14-game-audio` (a mixer session with buses, loops, variations, a boss theme from stretch and pitch, and a sprite)
 * Game audio: `audioMixer` (real time, buses, volume, pan, pitch, loops, crossfade; output to the speakers, a clock with no sound, or memory), `audioPlay`, `audioLoopify`, `audioVariations`, `audioSprite` (with a Howler.js map). CLI `play`, `loopify`, `sprite`
 * Speech for video: `audioSpeak` takes `speed` and `pauses`; `audioSpeakCues` returns the audio with timed caption lines; `audioSubtitles` writes SRT and WebVTT. CLI `speak --speed --captions --by-clause`

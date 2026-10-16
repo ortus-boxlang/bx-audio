@@ -1,0 +1,291 @@
+/**
+ * The BxAudio theme: a grid-runner synth anthem at 132 BPM in D minor, with an original adventure fanfare on top. Think neon light
+ * cycles and a hero walking into a cave: a pulsing saw bass, wide gated pads, a filter that opens over the intro, a bright arpeggio, then
+ * a heroic lead of rising fourths answered by a harp that runs up the D major pentatonic scale, and a discovery chime to start.
+ *
+ * The melody is original. It borrows the feeling of those fanfares (rising fourths, a dotted rhythm, a harp glissando), not any tune.
+ *
+ * The arrangement is intro, groove, build, and the fanfare. It scales to any length that is a multiple of 4 bars by putting each
+ * section at the same fraction of the track. With --sting it renders a 3 second jingle for buttons and logos instead.
+ *
+ * Usage:
+ *   boxlang theme.bxs [--out=out/theme.wav] [--bars=16] [--bpm=132] [--sting]
+ */
+
+settings = { out : "out/theme.wav", bars : 16, bpm : 132, sting : false };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+phrases = max( 4, int( int( settings.bars ) / 4 ) );
+bars = phrases * 4;
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+step = beat / 4;
+
+function sectionOf( b ){
+	var f = int( b / 4 ) / phrases;
+	if( f < 0.25 ){ return "intro"; }
+	if( f < 0.5 ){ return "groove"; }
+	if( f < 0.625 ){ return "build"; }
+	return "fanfare";
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: Dm, Bb, C, Am. Bass roots, chord notes (as MIDI numbers) and the arpeggio shape.
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ name : "Dm", bass : 38, notes : [ 62, 65, 69, 74 ] },
+	{ name : "Bb", bass : 34, notes : [ 58, 62, 65, 70 ] },
+	{ name : "C", bass : 36, notes : [ 60, 64, 67, 72 ] },
+	{ name : "Am", bass : 33, notes : [ 57, 60, 64, 69 ] }
+];
+// D major pentatonic for the harp run and the chime: D E F# A B
+pentatonic = [ 74, 76, 78, 81, 83, 86, 88, 90, 93 ];
+
+// The hero motif: [ step, MIDI note, length in steps ]. Rising fourths, then a dotted turn and a held top note. Two bars, answered by a
+// second two bars that end higher.
+motifA = [
+	[ 0, 69, 4 ], [ 4, 74, 6 ], [ 10, 76, 2 ], [ 12, 78, 4 ],
+	[ 16, 81, 8 ], [ 24, 78, 3 ], [ 27, 76, 1 ], [ 28, 74, 4 ]
+];
+motifB = [
+	[ 0, 69, 4 ], [ 4, 74, 6 ], [ 10, 76, 2 ], [ 12, 78, 4 ],
+	[ 16, 83, 6 ], [ 22, 81, 2 ], [ 24, 78, 4 ], [ 28, 81, 4 ]
+];
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------------------------
+kick = audioDrum( type="kick", pitch=0.95, decay=0.9, level=0.95 );
+snare = audioDrum( type="snare", seed=71, decay=0.9, level=0.8 );
+hat = audioDrum( type="hat", seed=72, level=0.35 );
+openHat = audioDrum( type="openhat", seed=73, decay=0.5, level=0.4 );
+tom = audioDrum( type="tom", pitch=1.0, level=0.7 );
+crash = audioDrum( type="crash", seed=74, decay=1.6, level=0.5 );
+
+bassCache = {};
+function bassNote( note ){
+	if( !bassCache.keyExists( note ) ){
+		var tone = audioFilter( audioOsc( "saw", audioFreq( note ), 0.3, sr, 24 ), "lowpass", 900, 2.4 );
+		bassCache[ note ] = audioEnvelope( audioMix( [ tone, audioGain( audioOsc( "square", audioFreq( note - 12 ), 0.3 ), -7 ) ] ), 0.003, 0.16 );
+	}
+	return bassCache[ note ];
+}
+
+padCache = {};
+function pad( chordIndex ){
+	if( !padCache.keyExists( chordIndex ) ){
+		var saws = [];
+		for( var note in chords[ chordIndex ].notes ){
+			saws.append( audioOsc( "saw", audioFreq( note - 0.2 ), bar + 1.5, sr, 12 ) );
+			saws.append( audioOsc( "saw", audioFreq( note + 0.2 ), bar + 1.5, sr, 12 ) );
+		}
+		padCache[ chordIndex ] = audioGain( audioFilter( audioEnvelope( audioMix( saws ), 0.4, 4 ), "lowpass", 2600, 0.9 ), -15 );
+	}
+	return padCache[ chordIndex ];
+}
+
+// The grid arpeggio: a bright square pluck whose filter opens over the intro
+arpCache = {};
+function pluck( note, cutoff ){
+	var id = note & "-" & cutoff;
+	if( !arpCache.keyExists( id ) ){
+		arpCache[ id ] = audioFilter( audioEnvelope( audioOsc( "square", audioFreq( note ), 0.25, sr, 14 ), 0.002, 0.1 ), "lowpass", cutoff, 1.4 );
+	}
+	return arpCache[ id ];
+}
+
+leadCache = {};
+function leadNote( note, length ){
+	var id = note & "-" & length;
+	if( !leadCache.keyExists( id ) ){
+		var seconds = length * step + 0.3;
+		var tone = audioMix( [
+			audioOsc( "saw", audioFreq( note - 0.1 ), seconds, sr, 20 ),
+			audioOsc( "saw", audioFreq( note + 0.1 ), seconds, sr, 20 ),
+			audioGain( audioOsc( "square", audioFreq( note ), seconds, sr, 16 ), -5 )
+		] );
+		leadCache[ id ] = audioGain( audioFilter( audioEnvelope( tone, 0.012, length * step * 0.85 ), "lowpass", 5200, 1.1 ), -14 );
+	}
+	return leadCache[ id ];
+}
+
+// The harp: a plucked triangle with a short, soft body, played in runs
+harpCache = {};
+function harp( note ){
+	if( !harpCache.keyExists( note ) ){
+		var tone = audioMix( [ audioOsc( "triangle", audioFreq( note ), 1.2, sr, 12 ), audioGain( audioOsc( "sine", audioFreq( note + 12 ), 1.2 ), -14 ) ] );
+		harpCache[ note ] = audioGain( audioEnvelope( tone, 0.002, 0.9 ), -10 );
+	}
+	return harpCache[ note ];
+}
+
+// The discovery chime: four rising bell tones
+function chime( stem, at, db ){
+	var notes = [ 86, 90, 93, 98 ];
+	for( var i = 1; i <= 4; i++ ){
+		var tone = audioMix( [ audioOsc( "sine", audioFreq( notes[ i ] ), 1.6, sr ), audioGain( audioOsc( "sine", audioFreq( notes[ i ] ) * 2.01, 1.6 ), -12 ) ] );
+		audioAdd( timeline=stem, sound=audioEnvelope( tone, 0.002, 1.2 ), at=at + ( i - 1 ) * 0.085, track="main", db=db - ( 4 - i ) * 2, pan=( i - 2.5 ) * 0.25 );
+	}
+}
+
+function newStem(){
+	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
+}
+function put( stem, sound, at, pan, db ){
+	audioAdd( timeline=stem, sound=sound, at=at, track="main", db=db, pan=pan );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The sting: the chime over a rising arpeggio and a soft hit, 3 seconds
+// ---------------------------------------------------------------------------------------------------------------------------------
+if( settings.sting == true || settings.sting == "true" ){
+	s = newStem();
+	for( i = 0; i < 8; i++ ){
+		put( s, pluck( chords[ 1 ].notes[ ( i mod 4 ) + 1 ] + 12 + int( i / 4 ) * 12, 3000 + i * 500 ), i * step, ( i mod 2 == 0 ? -0.3 : 0.3 ), -9 + i * 0.5 );
+	}
+	put( s, kick, 8 * step, 0, -4 );
+	chime( s, 8 * step, -6 );
+	put( s, harp( 86 ), 8 * step, 0, -6 );
+	body = audioRender( timeline=s, tail=1.2 );
+	body = audioReverb( audio=body, room=0.55, damp=0.5, mix=0.25 );
+	body = audioDelay( audio=body, time=beat * 0.75, feedback=0.3, mix=0.2, pingPong=true );
+	// The effect tails run long: keep the first 3.4 seconds and fade the rest out so it can sit on a button
+	body = audioTrim( body, 0, 3.4 );
+	body = audioFade( body, 0, 0.4, "smooth" );
+	body = audioNormalize( audioSaturate( body, 1.4, 0.9 ), -3 );
+	written = audioSave( body, settings.out );
+	println( "wrote " & written & " " & numberFormat( audioInfo( body ).seconds, "0.0" ) & " s (sting)" );
+	return;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Arrangement. Each part has its own timeline so it can have its own effects.
+// ---------------------------------------------------------------------------------------------------------------------------------
+drumStem = newStem();
+snareStem = newStem();
+bassStem = newStem();
+padStem = newStem();
+arpStem = newStem();
+leadStem = newStem();
+harpStem = newStem();
+fxStem = newStem();
+kickTimes = [];
+arpPattern = [ 1, 3, 2, 4, 3, 4, 2, 3, 1, 3, 2, 4, 3, 4, 2, 4 ];
+
+chime( fxStem, 0.05, -6 );
+
+for( b = 0; b < bars; b++ ){
+	t0 = b * bar;
+	section = sectionOf( b );
+	chordIndex = ( b mod 4 ) + 1;
+	chord = chords[ chordIndex ];
+	nextSection = ( b + 1 < bars ) ? sectionOf( b + 1 ) : "";
+
+	// Four on the floor from the groove on, and a soft heartbeat in the second half of the intro
+	if( section == "intro" ){
+		if( b >= phrases ){
+			put( drumStem, kick, t0, 0, -7 );
+		}
+	} else {
+		for( k = 0; k < 4; k++ ){
+			put( drumStem, kick, t0 + k * beat, 0, section == "fanfare" ? -1 : -2 );
+			kickTimes.append( t0 + k * beat );
+		}
+		for( s = 0; s < 8; s++ ){
+			put( drumStem, hat, t0 + s * beat / 2, s mod 2 == 0 ? -0.2 : 0.2, s mod 2 == 0 ? -15 : -11 );
+		}
+		put( snareStem, snare, t0 + beat, 0, -3 );
+		put( snareStem, snare, t0 + 3 * beat, 0, -3 );
+		if( section == "fanfare" ){
+			put( drumStem, openHat, t0 + 1.5 * beat, 0.25, -11 );
+			put( drumStem, openHat, t0 + 3.5 * beat, 0.25, -11 );
+		}
+	}
+	// A snare roll through the last bar of the build
+	if( section == "build" && nextSection == "fanfare" ){
+		for( k = 0; k < 8; k++ ){
+			put( snareStem, snare, t0 + 2 * beat + k * beat / 4, 0, -10 + k * 1.2 );
+		}
+		put( fxStem, audioDrum( type="riser", seconds=bar, seed=75, level=0.7 ), t0, 0, -8 );
+	}
+
+	// The pulsing bass: sixteenths, with the octave jumping in the groove and the fanfare
+	if( section != "intro" ){
+		for( s = 0; s < 16; s++ ){
+			octave = ( s mod 4 == 2 && section != "build" ) ? 12 : 0;
+			put( bassStem, bassNote( chord.bass + octave ), t0 + s * step, 0, s mod 4 == 0 ? -2 : -6 );
+		}
+	}
+
+	// Pads from the start, and the arpeggio too, with its filter opening over the intro
+	put( padStem, pad( chordIndex ), t0, 0, section == "fanfare" ? -3 : -5 );
+	cutoff = section == "intro" ? 500 + b * 700 : 3600;
+	for( s = 0; s < 16; s++ ){
+		put( arpStem, pluck( chord.notes[ arpPattern[ s + 1 ] ] + 12, cutoff ), t0 + s * step, s mod 2 == 0 ? -0.4 : 0.4, s mod 4 == 0 ? -9 : -14 );
+	}
+
+	// The fanfare: the hero motif for two bars, its answer for two, with a harp run that climbs the pentatonic scale at the end of each phrase
+	if( section == "fanfare" ){
+		pos = ( b mod 4 ) mod 2 == 0 ? 0 : 16;
+		notes = ( b mod 4 ) < 2 ? motifA : motifB;
+		for( n in notes ){
+			if( n[ 1 ] >= pos && n[ 1 ] < pos + 16 ){
+				put( leadStem, leadNote( n[ 2 ], n[ 3 ] ), t0 + ( n[ 1 ] - pos ) * step, 0, -1 );
+			}
+		}
+		if( b mod 4 == 3 ){
+			for( i = 1; i <= 8; i++ ){
+				put( harpStem, harp( pentatonic[ i ] ), t0 + 2 * beat + ( i - 1 ) * step * 0.75, ( i - 4.5 ) * 0.16, -4 );
+			}
+		}
+	}
+	if( section == "fanfare" && ( b == 0 || sectionOf( b - 1 ) != "fanfare" ) ){
+		put( fxStem, crash, t0, 0, -4 );
+	}
+}
+
+if( kickTimes.len() ){
+	audioPump( bassStem, "main", kickTimes, -5, 0.16 );
+	audioPump( padStem, "main", kickTimes, -4, 0.22 );
+}
+
+drums = audioRender( timeline=drumStem, tail=0.5 );
+snares = audioReverb( audio=audioRender( timeline=snareStem, tail=2.5 ), room=0.85, damp=0.35, mix=0.45 );
+bass = audioRender( timeline=bassStem, tail=0.3 );
+pads = audioChorus( audio=audioRender( timeline=padStem, tail=2 ), rate=0.45, depth=0.004, mix=0.5 );
+pads = audioReverb( audio=pads, room=0.8, damp=0.5, mix=0.3 );
+arp = audioRender( timeline=arpStem, tail=1 );
+arp = audioDelay( audio=arp, time=beat * 0.75, feedback=0.42, mix=0.32, pingPong=true );
+arp = audioReverb( audio=arp, room=0.4, damp=0.6, mix=0.15 );
+leadLine = audioRender( timeline=leadStem, tail=2 );
+leadLine = audioChorus( audio=leadLine, rate=0.7, depth=0.003, mix=0.4 );
+leadLine = audioDelay( audio=leadLine, time=beat * 0.75, feedback=0.33, mix=0.26, pingPong=true );
+leadLine = audioReverb( audio=leadLine, room=0.6, damp=0.5, mix=0.22 );
+harps = audioReverb( audio=audioRender( timeline=harpStem, tail=2 ), room=0.7, damp=0.4, mix=0.35 );
+fx = audioReverb( audio=audioRender( timeline=fxStem, tail=1.5 ), room=0.6, damp=0.4, mix=0.25 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Mix and master
+// ---------------------------------------------------------------------------------------------------------------------------------
+mix = audioMix( [
+	audioGain( drums, 0 ),
+	audioGain( snares, -1 ),
+	audioGain( bass, -1 ),
+	audioGain( pads, -1 ),
+	audioGain( arp, -3 ),
+	audioGain( leadLine, -1 ),
+	audioGain( harps, -2 ),
+	audioGain( fx, -2 )
+] );
+mix = audioFilter( mix, "highpass", 28, 0.7071 );
+mix = audioFade( mix, 0, beat * 2, "smooth" );
+mix = audioSaturate( mix, 1.8, 0.9 );
+mix = audioMaster( audio=mix, target="streaming" );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import ortus.boxlang.modules.audio.analysis.Loudness;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.types.Struct;
 
@@ -96,6 +97,33 @@ public class ExamplesGenresTest extends ExamplesTestBase {
 		assertThat( AudioMetrics.onsetStrength( synth ) ).isGreaterThan( 1.8 );
 		assertThat( AudioMetrics.tailRms( synth, 0.05 ) ).isLessThan( 0.001 );
 		assertRepeatable( dir, "06-synthwave/synthwave.bxs", 16 );
+	}
+
+	@DisplayName( "The BxAudio theme opens up from the intro to the fanfare, lands on the streaming target and renders the same twice" )
+	@Test
+	void testTheme( @TempDir Path dir ) throws Exception {
+		AudioBuffer	theme	= renderAudio( dir, "theme", "15-theme/theme.bxs", Struct.of( "bars", 16 ) );
+		double		bar		= 4 * 60.0 / 132;
+		assertThat( theme.getChannels() ).isEqualTo( 2 );
+		// 16 bars is a 4 bar intro, 4 bar groove, 2 bar build and a 6 bar fanfare, then the reverb and echoes ring on
+		assertThat( theme.getDurationSeconds() - 16 * bar ).isWithin( 1.5 ).of( 8.8 );
+		// the fanfare is fuller than the intro, and the beat shows at the bar
+		assertThat( rmsBetween( theme, 11 * bar, 15 * bar ) ).isGreaterThan( rmsBetween( theme, 0.5 * bar, 3.5 * bar ) * 1.3 );
+		assertThat( AudioMetrics.lowBandAutocorrelation( theme, 60.0 / 132 ) ).isGreaterThan( 0.5 );
+		assertThat( AudioMetrics.tailRms( theme, 0.05 ) ).isLessThan( 0.001 );
+		// mastered to the streaming target, -14 LUFS with a true peak under -1 dBFS
+		assertThat( Loudness.measure( theme ).integrated() ).isWithin( 0.5 ).of( -14.0 );
+		assertThat( Loudness.measure( theme ).truePeak() ).isLessThan( -1.0 );
+		assertRepeatable( dir, "15-theme/theme.bxs", 16 );
+	}
+
+	@DisplayName( "The BxAudio sting is a short jingle that ends quietly" )
+	@Test
+	void testThemeSting( @TempDir Path dir ) throws Exception {
+		AudioBuffer sting = renderAudio( dir, "sting", "15-theme/theme.bxs", Struct.of( "sting", true ) );
+		assertThat( sting.getDurationSeconds() ).isWithin( 0.05 ).of( 3.4 );
+		assertThat( sting.getPeak() ).isGreaterThan( 0.5f );
+		assertThat( AudioMetrics.tailRms( sting, 0.05 ) ).isLessThan( 0.001 );
 	}
 
 	@DisplayName( "Cinematic builds from quiet to loud, goes silent for a beat, then hits" )

@@ -4,6 +4,7 @@
 		"title": "Start here",
 		"children": [
 			"getting-started.md",
+			"try-it.md",
 			"examples/index.md",
 			"guides/explorer.md"
 		]
