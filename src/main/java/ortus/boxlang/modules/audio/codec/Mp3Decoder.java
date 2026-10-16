@@ -74,11 +74,30 @@ final class Mp3Decoder {
 		if ( channels == 0 || used == 0 ) {
 			throw new AudioException( AudioException.CORRUPT_AUDIO, "No MP3 audio was found in the file" );
 		}
-		int			frames	= used / channels;
-		float[][]	out		= new float[ channels ][ frames ];
+		int				total	= used / channels;
+		// The Info frame holds no sound. When it carries a LAME tag the delay at the start and the padding at the end are cut as well, so the
+		// sound has the length and the timing it was encoded with. Without a tag nothing is known about them and nothing more is cut.
+		Mp3Gapless.Info	info	= Mp3Gapless.read( bytes );
+		int				from	= 0;
+		int				to		= total;
+		if ( info.infoLength() > 0 ) {
+			from = info.samples();
+			if ( info.delay() >= 0 ) {
+				from += info.delay() + Mp3Gapless.DECODER_DELAY;
+				long end = info.frames() >= 0 ? info.samples() + info.frames() * info.samples() : total;
+				to = ( int ) Math.min( total, end - info.padding() + Mp3Gapless.DECODER_DELAY );
+			}
+			from	= Math.min( from, total );
+			to		= Math.max( from, to );
+		}
+		int frames = to - from;
+		if ( frames == 0 ) {
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "No MP3 audio was found in the file" );
+		}
+		float[][] out = new float[ channels ][ frames ];
 		for ( int i = 0; i < frames; i++ ) {
 			for ( int ch = 0; ch < channels; ch++ ) {
-				out[ ch ][ i ] = pcm[ i * channels + ch ] / 32768f;
+				out[ ch ][ i ] = pcm[ ( from + i ) * channels + ch ] / 32768f;
 			}
 		}
 		return new AudioBuffer( out, rate );

@@ -118,7 +118,13 @@ public final class Mp3Codec {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "Cannot make an MP3 from empty audio" );
 		}
 		requireAvailable();
-		return Mp3Encoder.encode( audio, kbps );
+		byte[]	stream	= Mp3Encoder.encode( audio, kbps );
+		// The Info frame in front says how much of the start and the end is not sound, so a decoder gives back the length and the timing that went in
+		byte[]	info	= Mp3Gapless.infoFrame( stream, audio.getFrames() );
+		byte[]	out		= new byte[ info.length + stream.length ];
+		System.arraycopy( info, 0, out, 0, info.length );
+		System.arraycopy( stream, 0, out, info.length, stream.length );
+		return out;
 	}
 
 	/**
