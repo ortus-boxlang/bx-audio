@@ -22,8 +22,8 @@ class {
 	 */
 	static {
 		commands = [
-			{ name : "info", usage : "info <file>", help : "Show the format, length and level of a WAV or MP3 file" },
-			{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV and MP3, and change the sample rate or channels" },
+			{ name : "info", usage : "info <file>", help : "Show the format, length and level of an audio file" },
+			{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV, MP3 and FLAC (and OGG, Opus and AAC with FFmpeg), and change the sample rate or channels" },
 			{ name : "normalize", usage : "normalize <in> <out> [--targetDb=-1]", help : "Scale the peak of a file to a level in decibels" },
 			{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
 			{ name : "loudness", usage : "loudness <file>", help : "Measure the loudness in LUFS (EBU R128), the loudness range and the true peak" },
@@ -73,9 +73,20 @@ class {
 			{ name : "probe", usage : "probe <file>", help : "Describe any audio or video file: length, size, video and audio streams" },
 			{ name : "mux", usage : "mux <video> <audio> <out> [--keep-original] [--offset=0]", help : "Put an audio file on a video, copying the picture without re-encoding" },
 			{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
-			{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to a WAV or MP3 file" },
+			{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to an audio file" },
 			{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
 			{ name : "doctor", usage : "doctor", help : "Check that MP3, FFmpeg, audio output, the examples and the explorer will work here" },
+			{ name : "completions", usage : "completions <bash|zsh|fish|powershell>", help : "Print the tab completion script of a shell",
+				details : [
+					"Load it for the current shell session:",
+					"",
+					"  bash        source <(bx-audio completions bash)",
+					"  zsh         source <(bx-audio completions zsh)",
+					"  fish        bx-audio completions fish > ~/.config/fish/completions/bx-audio.fish",
+					"  powershell  bx-audio completions powershell | Out-String | Invoke-Expression",
+					"",
+					"Installing the module with install-bx-module installs the bash script for you."
+				] },
 			{ name : "version", usage : "version", help : "Show the module version" },
 			{ name : "help", usage : "help [command]", help : "Show this help" }
 		];
@@ -169,6 +180,16 @@ class {
 		static.commands.each( ( c ) => out( "  " & pad( c.name, 11 ) & c.help ) );
 		out( "" );
 		out( "Run `bx-audio help <command>` for the options of one command." );
+	}
+
+	function cmdCompletions( required array args, required struct options ){
+		var shell = needArg( args, 1, "completions <bash|zsh|fish|powershell>" );
+		var pieces = catalog().map( ( p ) => { return { "id" : p.id, "settings" : p.params.map( ( x ) => x.name ) }; } );
+		var offered = audioVoices( status = "offered" );
+		// A name two voices share, such as ljspeech, is only understood as the full id
+		var voices = offered.map( ( v ) => offered.filter( ( o ) => o.name == v.name ).len() > 1 ? v.id : v.name );
+		var script = new bxModules.bxaudio.cli.Completions( static.commands, pieces, voices ).render( shell );
+		out( script.reReplace( "\n$", "" ) );
 	}
 
 	function cmdVersion( required array args, required struct options ){

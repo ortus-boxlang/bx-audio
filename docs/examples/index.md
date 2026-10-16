@@ -221,6 +221,7 @@ bx-audio render voiceover --out=voiceover.mp3
 | Setting | | Range | Default |
 |---|---|---|---|
 | `--voice` | Voice | text | `kristin` |
+| `--speed` | Speaking speed | 0.7 to 1.3 | `0.96` |
 | `--text` | Lines, separated by \| | text | `none` |
 | `--duck` | Music ducking in dB | -24 to 0 | `-12` |
 | `--bpm` | Tempo | 80 to 130 | `100` |
@@ -241,6 +242,7 @@ bx-audio render trailer --out=trailer.mp3
 |---|---|---|---|
 | `--seconds` | Length in seconds | 8 to 40 | `15` |
 | `--voice` | Voice | text | `kristin` |
+| `--speed` | Speaking speed | 0.7 to 1.3 | `0.96` |
 | `--text` | What the voice says | text | `none` |
 | `--target` | Loudness target | streaming, podcast, game, broadcast, cinema | `streaming` |
 
