@@ -27,7 +27,7 @@ import ortus.boxlang.runtime.context.IBoxContext;
 import ortus.boxlang.runtime.scopes.ArgumentsScope;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Save an audio buffer to a WAV or MP3 file" )
@@ -70,7 +70,8 @@ public class AudioSave extends BIF {
 	 */
 	public String _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		if ( ! ( arguments.get( KeyDictionary.audio ) instanceof AudioBuffer audio ) ) {
-			throw new BoxRuntimeException( "The audio argument must be an audio buffer, for example from audioLoad() or audioSilence()" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The audio argument must be an audio buffer, for example from audioLoad() or audioSilence()" );
 		}
 		Path path = FileSystemUtil.expandPath( context, arguments.getAsString( Key.path ) ).absolutePath();
 		AudioFiles.checkWritable( path );
@@ -80,7 +81,7 @@ public class AudioSave extends BIF {
 				Files.createDirectories( parent );
 			}
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not create the folder for [" + path + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not create the folder for [" + path + "]: " + e.getMessage(), e );
 		}
 		AudioFiles.write( audio, path, arguments.getAsInteger( KeyDictionary.bitDepth ), arguments.getAsInteger( KeyDictionary.bitrate ) );
 		return path.toString();

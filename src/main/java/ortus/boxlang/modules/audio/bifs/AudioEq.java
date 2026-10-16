@@ -27,7 +27,7 @@ import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 @BoxBIF( description = "Shape the tone of audio with parametric equalizer bands" )
 public class AudioEq extends BIF {
@@ -54,7 +54,7 @@ public class AudioEq extends BIF {
 	 *
 	 * @argument.audio The audio buffer.
 	 *
-	 * @argument.bands An array of structs, each with type (peak, lowshelf, highshelf, lowpass, highpass or notch), freq in Hz, gain in dB (peak and
+	 * @argument.bands An array of structs, each with type (peak, lowshelf, highshelf, lowpass, highpass or notch), freq in Hz, gainDb in dB (peak and
 	 *                 shelves) and optionally q (width, default 1 for a peak and 0.707 for others).
 	 *
 	 * @return A new audio buffer.
@@ -64,14 +64,14 @@ public class AudioEq extends BIF {
 		List<Eq.Band>	parsed	= new ArrayList<>();
 		for ( Object entry : list ) {
 			if ( ! ( entry instanceof IStruct band ) ) {
-				throw new BoxRuntimeException( "Each EQ band must be a struct such as { type: \"peak\", freq: 3000, gain: 3 }" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Each EQ band must be a struct such as { type: \"peak\", freq: 3000, gainDb: 3 }" );
 			}
 			String	kind	= String.valueOf( band.getOrDefault( Key.of( "type" ), "peak" ) );
 			Object	f		= band.get( Key.of( "freq" ) );
 			if ( f == null ) {
-				throw new BoxRuntimeException( "Each EQ band needs a freq in Hz" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Each EQ band needs a freq in Hz" );
 			}
-			Object	g	= band.getOrDefault( Key.of( "gain" ), 0 );
+			Object	g	= band.getOrDefault( Key.of( "gainDb" ), 0 );
 			Object	w	= band.get( Key.of( "q" ) );
 			parsed.add( new Eq.Band( kind, ( ( Number ) f ).doubleValue(), ( ( Number ) g ).doubleValue(),
 			    w == null ? ( kind.equalsIgnoreCase( "peak" ) ? 1.0 : 0.7071 ) : ( ( Number ) w ).doubleValue() ) );

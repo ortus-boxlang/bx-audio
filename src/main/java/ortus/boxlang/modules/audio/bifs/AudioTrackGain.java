@@ -34,7 +34,7 @@ public class AudioTrackGain extends BIF {
 		declaredArguments = new Argument[] {
 		    new Argument( true, "any", KeyDictionary.timeline ),
 		    new Argument( true, "string", KeyDictionary.track ),
-		    new Argument( true, "double", KeyDictionary.db )
+		    new Argument( true, "double", KeyDictionary.gainDb )
 		};
 	}
 
@@ -48,14 +48,14 @@ public class AudioTrackGain extends BIF {
 	 *
 	 * @argument.track The track name, created if it does not exist yet.
 	 *
-	 * @argument.db The track gain in decibels, applied when the timeline is rendered.
+	 * @argument.gainDb The track gain in decibels, applied when the timeline is rendered.
 	 *
 	 * @return The same timeline, so calls can be chained.
 	 */
 	public Timeline _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		return Audios.requireTimeline( arguments.get( KeyDictionary.timeline ) ).setTrackGain(
 		    arguments.getAsString( KeyDictionary.track ),
-		    arguments.getAsDouble( KeyDictionary.db )
+		    arguments.getAsDouble( KeyDictionary.gainDb )
 		);
 	}
 

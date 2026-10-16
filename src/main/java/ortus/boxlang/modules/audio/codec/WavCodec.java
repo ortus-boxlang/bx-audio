@@ -26,7 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Reads and writes RIFF/WAVE files without depending on {@code javax.sound}, so it also works on a JVM without the
@@ -102,7 +102,7 @@ public final class WavCodec {
 				}
 			} );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read audio file [" + path + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read audio file [" + path + "]: " + e.getMessage(), e );
 		}
 	}
 
@@ -138,7 +138,7 @@ public final class WavCodec {
 				}
 			} );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read audio file [" + path + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read audio file [" + path + "]: " + e.getMessage(), e );
 		}
 	}
 
@@ -151,7 +151,7 @@ public final class WavCodec {
 		try {
 			return decode( in.readAllBytes() );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read audio stream: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read audio stream: " + e.getMessage(), e );
 		}
 	}
 
@@ -194,7 +194,7 @@ public final class WavCodec {
 		long		length	= source.length();
 		ByteBuffer	head	= bytesAt( source, 0, 12 );
 		if ( length < 12 || head.remaining() < 12 || head.getInt( 0 ) != fourCC( "RIFF" ) || head.getInt( 8 ) != fourCC( "WAVE" ) ) {
-			throw new BoxRuntimeException( "Not a WAV file: missing the RIFF/WAVE header" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "Not a WAV file: missing the RIFF/WAVE header" );
 		}
 
 		int		formatTag		= -1;
@@ -214,7 +214,7 @@ public final class WavCodec {
 
 			if ( id == fourCC( "fmt " ) ) {
 				if ( size < 16 || body + 16 > length ) {
-					throw new BoxRuntimeException( "Corrupt WAV file: the fmt chunk is too short" );
+					throw new AudioException( AudioException.CORRUPT_AUDIO, "Corrupt WAV file: the fmt chunk is too short" );
 				}
 				ByteBuffer fmt = bytesAt( source, body, ( int ) Math.min( size, 40 ) );
 				formatTag		= fmt.getShort( 0 ) & 0xFFFF;
@@ -224,7 +224,7 @@ public final class WavCodec {
 				if ( formatTag == FORMAT_EXTENSIBLE ) {
 					// cbSize, validBits, channelMask, then the sub format GUID whose first two bytes are the real format tag
 					if ( size < 40 || fmt.limit() < 26 ) {
-						throw new BoxRuntimeException( "Corrupt WAV file: the extensible fmt chunk is too short" );
+						throw new AudioException( AudioException.CORRUPT_AUDIO, "Corrupt WAV file: the extensible fmt chunk is too short" );
 					}
 					formatTag = fmt.getShort( 24 ) & 0xFFFF;
 				}
@@ -249,21 +249,23 @@ public final class WavCodec {
 		}
 
 		if ( formatTag < 0 ) {
-			throw new BoxRuntimeException( "Corrupt WAV file: no fmt chunk found" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "Corrupt WAV file: no fmt chunk found" );
 		}
 		if ( dataStart < 0 ) {
-			throw new BoxRuntimeException( "Corrupt WAV file: no data chunk found" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "Corrupt WAV file: no data chunk found" );
 		}
 		if ( channels < 1 || channels > AudioBuffer.MAX_CHANNELS ) {
-			throw new BoxRuntimeException( "Unsupported WAV file: " + channels + " channels" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Unsupported WAV file: " + channels + " channels" );
 		}
 		boolean isFloat = formatTag == FORMAT_FLOAT;
 		if ( !isFloat && formatTag != FORMAT_PCM ) {
-			throw new BoxRuntimeException( "Unsupported WAV encoding (format tag " + formatTag + "). Only PCM and IEEE float are supported" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+			    "Unsupported WAV encoding (format tag " + formatTag + "). Only PCM and IEEE float are supported" );
 		}
 		if ( isFloat ? ( bitsPerSample != 32 && bitsPerSample != 64 )
 		    : ( bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24 && bitsPerSample != 32 ) ) {
-			throw new BoxRuntimeException( "Unsupported WAV bit depth: " + bitsPerSample + ( isFloat ? " bit float" : " bit PCM" ) );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+			    "Unsupported WAV bit depth: " + bitsPerSample + ( isFloat ? " bit float" : " bit PCM" ) );
 		}
 		long frameSize = ( long ) ( bitsPerSample / 8 ) * channels;
 		return new Info( formatTag, channels, sampleRate, bitsPerSample, dataStart, dataLength / frameSize );
@@ -273,7 +275,7 @@ public final class WavCodec {
 		try {
 			Info info = layout( source );
 			if ( info.frames() > Integer.MAX_VALUE - 16 ) {
-				throw new BoxRuntimeException( "This WAV file is too long to hold in memory (" + info.frames() + " frames)" );
+				throw new AudioException( AudioException.TOO_LARGE, "This WAV file is too long to hold in memory (" + info.frames() + " frames)" );
 			}
 			int			channels		= info.channels();
 			int			frames			= ( int ) info.frames();
@@ -282,7 +284,7 @@ public final class WavCodec {
 			try {
 				samples = new float[ channels ][ frames ];
 			} catch ( OutOfMemoryError e ) {
-				throw new BoxRuntimeException( "This WAV file is too long to hold in memory (" + frames + " frames)" );
+				throw new AudioException( AudioException.TOO_LARGE, "This WAV file is too long to hold in memory (" + frames + " frames)" );
 			}
 			int			blockFrames	= 16384;
 			ByteBuffer	block		= ByteBuffer.allocate( blockFrames * channels * bytesPerSample ).order( ByteOrder.LITTLE_ENDIAN );
@@ -291,7 +293,7 @@ public final class WavCodec {
 				block.clear();
 				block.limit( count * channels * bytesPerSample );
 				if ( source.read( info.dataStart() + ( long ) done * channels * bytesPerSample, block ) < block.limit() ) {
-					throw new BoxRuntimeException( "Corrupt WAV file: the data ends before its length" );
+					throw new AudioException( AudioException.CORRUPT_AUDIO, "Corrupt WAV file: the data ends before its length" );
 				}
 				int at = 0;
 				for ( int frame = 0; frame < count; frame++ ) {
@@ -303,7 +305,7 @@ public final class WavCodec {
 			}
 			return new AudioBuffer( samples, info.sampleRate() );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read the audio: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read the audio: " + e.getMessage(), e );
 		}
 	}
 
@@ -335,7 +337,7 @@ public final class WavCodec {
 		try ( OutputStream out = Files.newOutputStream( path ) ) {
 			write( audio, out, bitDepth );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not write audio file [" + path + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not write audio file [" + path + "]: " + e.getMessage(), e );
 		}
 	}
 
@@ -348,7 +350,7 @@ public final class WavCodec {
 	 */
 	public static void write( AudioBuffer audio, OutputStream out, int bitDepth ) {
 		if ( bitDepth != 16 && bitDepth != 24 && bitDepth != 32 ) {
-			throw new BoxRuntimeException( "Bit depth must be 16, 24 (integer PCM) or 32 (float) but was " + bitDepth );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Bit depth must be 16, 24 (integer PCM) or 32 (float) but was " + bitDepth );
 		}
 		boolean	isFloat			= bitDepth == 32;
 		int		channels		= audio.getChannels();
@@ -358,7 +360,7 @@ public final class WavCodec {
 		// Float files carry a longer fmt chunk and a fact chunk
 		int		headerExtra		= isFloat ? 14 : 0;
 		if ( dataBytes + 36 + headerExtra > 0xFFFFFFFFL ) {
-			throw new BoxRuntimeException( "Audio is too long for a WAV file (over 4 GB)" );
+			throw new AudioException( AudioException.TOO_LARGE, "Audio is too long for a WAV file (over 4 GB)" );
 		}
 
 		try {
@@ -390,7 +392,7 @@ public final class WavCodec {
 			}
 			bos.flush();
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not write audio: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not write audio: " + e.getMessage(), e );
 		}
 	}
 

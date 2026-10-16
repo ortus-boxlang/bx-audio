@@ -58,7 +58,7 @@ bass = audioFilter( audioEnvelope( audioOsc( "saw", audioFreq( "A1" ), 0.4 ), 0.
 for( at in audioBeats( t, 0, 16 ) ){
     audioAdd( timeline=t, sound=kick, at=at, track="drums" );
 }
-audioAdd( timeline=t, sound=bass, at=t.bar( 1 ), track="bass", db=-6 );
+audioAdd( timeline=t, sound=bass, at=t.bar( 1 ), track="bass", gainDb=-6 );
 audioPump( t, "bass", audioBeats( t, 0, 16 ), -5, 0.18 );
 
 audioSave( audioSaturate( audioRender( t ) ), "groove.mp3" );
@@ -143,7 +143,7 @@ kick = audioDrum( "kick" );
 for( at in audioBeats( t, 0, 16 ) ){
     audioAdd( timeline=t, sound=kick, at=at, track="drums" );
 }
-audioAdd( timeline=t, sound=pluck, at=t.bar( 1 ), track="bass", db=-6 );
+audioAdd( timeline=t, sound=pluck, at=t.bar( 1 ), track="bass", gainDb=-6 );
 audioSave( audioSaturate( audioRender( t ) ), "out/groove.wav" );
 ```
 
@@ -173,11 +173,11 @@ A timeline holds named tracks at one sample rate and a tempo grid. Sounds are pl
 | Function | Purpose |
 |---|---|
 | `audioTimeline( bpm=120, beatsPerBar=4, sampleRate=44100, channels=2 )` | Create a timeline. `t.beat( n )` and `t.bar( n )` turn beats and bars into seconds |
-| `audioAdd( timeline, sound, at=0, track="main", db=0, pan=0 )` | Place a sound at a time. Other sample rates are converted automatically, mono sounds are panned |
+| `audioAdd( timeline, sound, at=0, track="main", gainDb=0, pan=0 )` | Place a sound at a time. Other sample rates are converted automatically, mono sounds are panned |
 | `audioBeats( timeline, start=0, end, step=1 )` | List moments on the beat grid in seconds, ready for `audioAdd( at= )` or `audioPump( times= )` |
 | `audioTrackGain( timeline, track, db )` | Set the volume of a whole track |
 | `audioPump( timeline, track, times, amountDb=-5, recovery=0.18 )` | Dip a track at given moments, like a kick drum sidechain |
-| `audioDuck( timeline, track, trigger, amountDb=-12, thresholdDb=-40, attack=0.01, release=0.3 )` | Lower a track while another is loud, like music under a voice-over |
+| `audioDuck( timeline, track, trigger, amountDb=-12, thresholdDb=-40, attackMs=10, releaseMs=300 )` | Lower a track while another is loud, like music under a voice-over |
 | `audioRender( timeline, tail=0 )` | Mix all tracks down to one buffer. The timeline can be changed and rendered again |
 | `audioSaturate( audio, drive=2.2, level=0.9 )` | Peak-normalize and round off peaks with a tanh curve, a warm limiter for the final mix |
 
@@ -187,7 +187,7 @@ A timeline holds named tracks at one sample rate and a tempo grid. Sounds are pl
 t = audioTimeline( bpm=128 );
 voice = audioLoad( "voice.wav" );   // any sample rate, it is converted for you
 
-audioAdd( timeline=t, sound=music, at=0, track="music", db=-10 );
+audioAdd( timeline=t, sound=music, at=0, track="music", gainDb=-10 );
 audioAdd( timeline=t, sound=voice, at=t.bar( 2 ), track="voice" );
 
 audioPump( t, "music", audioBeats( t, 0, 64 ), -4, 0.15 );   // pump on every beat
@@ -216,11 +216,11 @@ Loudness is measured as ITU-R BS.1770 and EBU R128 define it (K-weighting, gated
 
 | Function | Purpose |
 |---|---|
-| `audioLoudness( audio )` | `integrated` LUFS, `range` LU, `truePeak` and `samplePeak` dBFS, `momentaryMax` and `shortTermMax` LUFS. Silence reads -120 |
-| `audioNormalizeLoudness( audio, targetLufs=-14, truePeak=-1 )` | Set the loudness, with a limiter keeping peaks under the ceiling |
-| `audioMaster( audio, target="streaming", truePeak=-1, glue=false )` | The same with presets: `streaming` -14, `podcast` -16, `game` -16, `broadcast` -23 (EBU R128), `cinema` -24, or a number. `glue` compresses lightly first |
-| `audioCompress( audio, thresholdDb=-18, ratio=4, attack=10, release=100, knee=6, makeupDb="auto" )` | A compressor. `auto` make-up matches the loudness of the input |
-| `audioLimit( audio, ceilingDb=-1, release=100, lookAhead=5 )` | A look-ahead limiter: no sample ends above the ceiling |
+| `audioLoudness( audio )` | `integrated` LUFS, `range` LU, `truePeakDb` and `samplePeakDb` dBFS, `momentaryMax` and `shortTermMax` LUFS. Silence reads -120 |
+| `audioNormalizeLoudness( audio, targetLufs=-14, truePeakDb=-1 )` | Set the loudness, with a limiter keeping peaks under the ceiling |
+| `audioMaster( audio, target="streaming", truePeakDb=-1, glue=false )` | The same with presets: `streaming` -14, `podcast` -16, `game` -16, `broadcast` -23 (EBU R128), `cinema` -24, or a number. `glue` compresses lightly first |
+| `audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, knee=6, makeupDb="auto" )` | A compressor. `auto` make-up matches the loudness of the input |
+| `audioLimit( audio, ceilingDb=-1, releaseMs=100, lookAheadMs=5 )` | A look-ahead limiter: no sample ends above the ceiling |
 | `audioEq( audio, bands )` | Parametric EQ. Each band is `{ type, freq, gain, q }` with `type` `peak`, `lowshelf`, `highshelf`, `lowpass`, `highpass` or `notch` |
 
 ```js
@@ -274,7 +274,7 @@ WAV, MP3 and FLAC are read and written by the module itself (FLAC lossless, in p
 | `mixer.setVolume( bus, volume )` / `mixer.setVolume( volume )` | Bus and master volume |
 | `audioPlay( audio, wait=true, volume=1 )` | Play one sound through the speakers |
 | `audioLoopify( audio, crossfade=0.25 )` | Blend the end into the start so a loop cannot click |
-| `audioVariations( audio, count=5, pitchRange=1, gainRange=2, seed=1 )` | Slightly different copies, so repeated effects do not sound alike |
+| `audioVariations( audio, count=5, pitchRange=1, gainRangeDb=2, seed=1 )` | Slightly different copies, so repeated effects do not sound alike |
 | `audioSprite( sounds, gap=0.1, path )` | Join named sounds into one file with a Howler.js map |
 
 Playing to the speakers needs a sound card and the JVM's `java.desktop` module. The [game audio example](examples/14-game-audio/) shows a scripted session, rendered to a file or played live. MIDI files are not rendered: the JDK's software synthesizer cannot be driven offline from outside the JDK.
@@ -300,7 +300,7 @@ Playing to the speakers needs a sound card and the JVM's `java.desktop` module. 
 voice = audioSpeak( text="Meet BoxLang. Fast, friendly and made for the JVM.", voice="joe" );
 
 t = audioTimeline( bpm=100 );
-audioAdd( timeline=t, sound=music, at=0, track="music", db=-10 );
+audioAdd( timeline=t, sound=music, at=0, track="music", gainDb=-10 );
 audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
 audioDuck( t, "music", "voice", -9 );
 audioSave( audioSaturate( audioRender( timeline=t, tail=1 ) ), "promo.mp3" );
@@ -328,7 +328,7 @@ Installing the module with `install-bx-module` also installs a `bx-audio` comman
 bx-audio render techno --bars=16 --out=techno.mp3   # synthesize an example piece
 bx-audio info techno.mp3                            # format, length, peak and RMS
 bx-audio convert song.wav song.mp3 --bitrate=160    # WAV to MP3, with --sampleRate and --channels
-bx-audio normalize voice.wav loud.wav --db=-3
+bx-audio normalize voice.wav loud.wav --targetDb=-3
 bx-audio trim song.wav intro.wav --start=0 --end=12
 bx-audio waveform song.wav                          # one line of loudness, add --unicode for blocks
 bx-audio voices                                     # the open license voices you can use
@@ -342,14 +342,14 @@ bx-audio doctor                                     # checks MP3, the examples a
 | `info <file>` | Format, channels, sample rate, length, peak and RMS of an audio file |
 | `convert <in> <out>` | Convert between WAV, MP3, FLAC and (with FFmpeg) OGG, Opus and M4A. Options: `--bitrate`, `--bitDepth`, `--sampleRate`, `--channels` |
 | `loudness <file>` | LUFS, loudness range and true peak |
-| `master <in> <out>` | Reach a loudness target: `--target=streaming` (or `podcast`, `broadcast`, a number), `--truePeak`, `--glue` |
+| `master <in> <out>` | Reach a loudness target: `--target=streaming` (or `podcast`, `broadcast`, a number), `--truePeakDb`, `--glue` |
 | `stretch <in> <out>` / `pitch <in> <out>` | `--rate` or `--seconds` for the speed, `--semitones` for the pitch |
 | `bpm <file>` / `silence <file>` | Tempo (with `--beats`), and the silent stretches or `--trim=OUT` |
 | `loopify <in> <out>` / `sprite <out> <files...>` / `play <file>` | Game audio: seamless loops, a sprite with a Howler map, playing to the speakers |
 | `ffmpeg [install]` / `probe <file>` / `mux <video> <audio> <out>` | FFmpeg status and download, media information, audio onto a video |
 | `where` / `clean [kind] --yes` | Where `~/.bxaudio` keeps its downloads and how big they are, and deleting them |
 | `licenses` | The voice licenses and what each asks of you |
-| `normalize <in> <out>` | Scale the peak to `--db` (default -1) |
+| `normalize <in> <out>` | Scale the peak to `--targetDb` (default -1) |
 | `trim <in> <out>` | Keep the section from `--start` to `--end`, in seconds |
 | `waveform <file>` | Draw the loudness on one line, `--width` characters wide |
 | `speak <text>` | Say a text with `--voice`, into `--out` (default `speech.wav`). Installs what is missing, unless `--no-install`. `--file` reads the text from a file, `--speed`, `--captions=FILE.srt`, `--by-clause` and the pause options time it for video |

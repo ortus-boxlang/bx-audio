@@ -25,7 +25,7 @@ import java.util.Map;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.loader.DynamicClassLoader;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Speaks text with the Voices library (Piper models on ONNX Runtime). The library is not a dependency of this module: its jars are
@@ -123,15 +123,15 @@ public final class PiperEngine {
 			return new AudioBuffer( new float[][] { samples }, rate );
 		} catch ( InvocationTargetException e ) {
 			Throwable cause = e.getCause() == null ? e : e.getCause();
-			throw new BoxRuntimeException( "The voice [" + voice.id() + "] could not speak that: " + cause, cause );
+			throw new AudioException( AudioException.SPEECH_FAILED, "The voice [" + voice.id() + "] could not speak that: " + cause, cause );
 		} catch ( ReflectiveOperationException e ) {
-			throw new BoxRuntimeException( "The text to speech engine could not be started: " + e, e );
+			throw new AudioException( AudioException.SPEECH_FAILED, "The text to speech engine could not be started: " + e, e );
 		}
 	}
 
 	private Object chorusFor( String language, Path voicesDir ) throws ReflectiveOperationException {
 		if ( !language.equals( "en_US" ) ) {
-			throw new BoxRuntimeException( "Only US English voices are supported so far, not [" + language + "]" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Only US English voices are supported so far, not [" + language + "]" );
 		}
 		Object chorus = this.choruses.get( language );
 		if ( chorus == null ) {

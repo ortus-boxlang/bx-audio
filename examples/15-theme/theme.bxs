@@ -130,7 +130,7 @@ function chime( stem, at, db ){
 	var notes = [ 86, 90, 93, 98 ];
 	for( var i = 1; i <= 4; i++ ){
 		var tone = audioMix( [ audioOsc( "sine", audioFreq( notes[ i ] ), 1.6, sr ), audioGain( audioOsc( "sine", audioFreq( notes[ i ] ) * 2.01, 1.6 ), -12 ) ] );
-		audioAdd( timeline=stem, sound=audioEnvelope( tone, 0.002, 1.2 ), at=at + ( i - 1 ) * 0.085, track="main", db=db - ( 4 - i ) * 2, pan=( i - 2.5 ) * 0.25 );
+		audioAdd( timeline=stem, sound=audioEnvelope( tone, 0.002, 1.2 ), at=at + ( i - 1 ) * 0.085, track="main", gainDb=db - ( 4 - i ) * 2, pan=( i - 2.5 ) * 0.25 );
 	}
 }
 
@@ -138,7 +138,7 @@ function newStem(){
 	return audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
 }
 function put( stem, sound, at, pan, db ){
-	audioAdd( timeline=stem, sound=sound, at=at, track="main", db=db, pan=pan );
+	audioAdd( timeline=stem, sound=sound, at=at, track="main", gainDb=db, pan=pan );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------

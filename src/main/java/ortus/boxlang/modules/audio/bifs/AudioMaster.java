@@ -30,7 +30,7 @@ public class AudioMaster extends BIF {
 
 	private static final Key	audio		= Key.of( "audio" );
 	private static final Key	target		= Key.of( "target" );
-	private static final Key	truePeak	= Key.of( "truePeak" );
+	private static final Key	truePeakDb	= Key.of( "truePeakDb" );
 	private static final Key	glue		= Key.of( "glue" );
 
 	/**
@@ -41,7 +41,7 @@ public class AudioMaster extends BIF {
 		declaredArguments = new Argument[] {
 		    new Argument( true, "any", audio ),
 		    new Argument( false, "any", target, "streaming" ),
-		    new Argument( false, "double", truePeak, -1.0 ),
+		    new Argument( false, "double", truePeakDb, -1.0 ),
 		    new Argument( false, "boolean", glue, false )
 		};
 	}
@@ -57,7 +57,7 @@ public class AudioMaster extends BIF {
 	 * @argument.target A preset name or a number in LUFS. streaming is -14, podcast -16, game -16, broadcast -23 (EBU R128), cinema -24. Defaults to
 	 *                  streaming.
 	 *
-	 * @argument.truePeak The highest peak in dBFS. Defaults to -1.
+	 * @argument.truePeakDb The highest peak in dBFS. Defaults to -1.
 	 *
 	 * @argument.glue True to compress lightly (2:1, slow) before normalizing so the mix sounds more even. Defaults to false.
 	 *
@@ -68,7 +68,7 @@ public class AudioMaster extends BIF {
 		if ( arguments.getAsBoolean( glue ) ) {
 			input = Dynamics.compress( input, -20, 2, 30, 200, 6, 0 );
 		}
-		return Mastering.toLoudness( input, Mastering.target( arguments.get( target ) ), arguments.getAsDouble( truePeak ) );
+		return Mastering.toLoudness( input, Mastering.target( arguments.get( target ) ), arguments.getAsDouble( truePeakDb ) );
 	}
 
 }

@@ -15,7 +15,7 @@
 package ortus.boxlang.modules.audio.dsp;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Making audio loop without a click
@@ -41,7 +41,8 @@ public final class Loops {
 			return audio.copy();
 		}
 		if ( fade * 2 > audio.getFrames() ) {
-			throw new BoxRuntimeException( "The crossfade of " + crossfade + " s is longer than half of the sound (" + audio.getDurationSeconds() + " s)" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The crossfade of " + crossfade + " s is longer than half of the sound (" + audio.getDurationSeconds() + " s)" );
 		}
 		int			outFrames	= audio.getFrames() - fade;
 		float[][]	out			= new float[ audio.getChannels() ][ outFrames ];

@@ -20,7 +20,7 @@ import java.util.Map;
 import ortus.boxlang.modules.audio.tts.Downloader.Progress;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.ModuleSettings;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Text to speech as the BIFs use it: where things are, what is installed, and speaking with installation on first use.
@@ -77,7 +77,7 @@ public final class Speech {
 		 */
 		public AudioBuffer say( String text, double speed, Map<String, String> pronunciations ) {
 			if ( speed < 0.25 || speed > 4 ) {
-				throw new BoxRuntimeException( "The speed must be between 0.25 and 4 but was " + speed );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "The speed must be between 0.25 and 4 but was " + speed );
 			}
 			return this.engine.speak( this.voice, this.store, Pronunciation.apply( text, pronunciations ), speed );
 		}
@@ -96,16 +96,18 @@ public final class Speech {
 		EngineInstaller	engine	= engine();
 		if ( !engine.isInstalled() ) {
 			if ( !allowInstall ) {
-				throw new BoxRuntimeException( "The text to speech engine is not installed (" + megabytes( engine.downloadSize() )
-				    + " MB). Run `bx-audio install engine`, or call audioVoiceInstall( \"engine\" ), or allow downloads with autoInstall=true." );
+				throw new AudioException( AudioException.ENGINE_NOT_INSTALLED,
+				    "The text to speech engine is not installed (" + megabytes( engine.downloadSize() )
+				        + " MB). Run `bx-audio install engine`, or call audioVoiceInstall( \"engine\" ), or allow downloads with autoInstall=true." );
 			}
 			engine.install( progress );
 		}
 		if ( !store.isInstalled( voice ) ) {
 			if ( !allowInstall ) {
-				throw new BoxRuntimeException( "The voice [" + voice.id() + "] is not installed (" + megabytes( voice.downloadSize() )
-				    + " MB). Run `bx-audio install " + voice.id() + "`, or call audioVoiceInstall( \"" + voice.id()
-				    + "\" ), or allow downloads with autoInstall=true." );
+				throw new AudioException( AudioException.VOICE_NOT_INSTALLED,
+				    "The voice [" + voice.id() + "] is not installed (" + megabytes( voice.downloadSize() )
+				        + " MB). Run `bx-audio install " + voice.id() + "`, or call audioVoiceInstall( \"" + voice.id()
+				        + "\" ), or allow downloads with autoInstall=true." );
 			}
 			Progress p = progress == null ? null : ( done, total ) -> progress.update( voice.id(), done, total );
 			store.install( voice, p );
@@ -140,7 +142,7 @@ public final class Speech {
 	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Map<String, String> pronunciations ) {
 		if ( text == null || text.isBlank() ) {
-			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "There is nothing to say: the text is empty" );
 		}
 		return prepare( voiceName, allowInstall, progress ).say( text, speed, pronunciations );
 	}
@@ -159,7 +161,7 @@ public final class Speech {
 	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Narration.Pauses pauses, boolean clauses, int maxChars, Map<String, String> pronunciations ) {
 		if ( text == null || text.isBlank() ) {
-			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "There is nothing to say: the text is empty" );
 		}
 		Ready ready = prepare( voiceName, allowInstall, progress );
 		return Narration.narrate( text, piece -> ready.say( piece, speed, pronunciations ), pauses, clauses, maxChars );

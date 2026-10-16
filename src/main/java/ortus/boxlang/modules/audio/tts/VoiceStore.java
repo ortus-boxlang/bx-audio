@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 
 import ortus.boxlang.modules.audio.tts.Downloader.Progress;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * The voices on disk: one folder per voice holding its model and configuration, laid out the way the Piper engine expects.
@@ -102,7 +102,7 @@ public final class VoiceStore {
 			}
 			return true;
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not remove voice [" + voice.id() + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not remove voice [" + voice.id() + "]: " + e.getMessage(), e );
 		}
 	}
 

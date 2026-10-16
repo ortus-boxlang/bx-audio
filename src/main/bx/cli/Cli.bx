@@ -24,14 +24,14 @@ class {
 		commands = [
 			{ name : "info", usage : "info <file>", help : "Show the format, length and level of a WAV or MP3 file" },
 			{ name : "convert", usage : "convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--channels=1|2]", help : "Convert between WAV and MP3, and change the sample rate or channels" },
-			{ name : "normalize", usage : "normalize <in> <out> [--db=-1]", help : "Scale the peak of a file to a level in decibels" },
+			{ name : "normalize", usage : "normalize <in> <out> [--targetDb=-1]", help : "Scale the peak of a file to a level in decibels" },
 			{ name : "trim", usage : "trim <in> <out> [--start=0] [--end=SECONDS]", help : "Cut a section out of a file" },
 			{ name : "loudness", usage : "loudness <file>", help : "Measure the loudness in LUFS (EBU R128), the loudness range and the true peak" },
-			{ name : "master", usage : "master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeak=-1] [--glue]", help : "Reach a loudness target with a true-peak ceiling, ready to publish" },
+			{ name : "master", usage : "master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeakDb=-1] [--glue]", help : "Reach a loudness target with a true-peak ceiling, ready to publish" },
 			{ name : "stretch", usage : "stretch <in> <out> --rate=1.1 | --seconds=30", help : "Change the speed or fit the length, keeping the pitch" },
 			{ name : "pitch", usage : "pitch <in> <out> --semitones=2", help : "Change the pitch, keeping the length" },
 			{ name : "bpm", usage : "bpm <file> [--beats]", help : "Detect the tempo, and with --beats list where the beats fall" },
-			{ name : "silence", usage : "silence <file> [--db=-50] [--min=0.3] [--trim=OUT]", help : "List the silent stretches, or write a copy with the silence cut off both ends" },
+			{ name : "silence", usage : "silence <file> [--thresholdDb=-50] [--min=0.3] [--trim=OUT]", help : "List the silent stretches, or write a copy with the silence cut off both ends" },
 			{ name : "waveform", usage : "waveform <file> [--width=60] [--unicode]", help : "Draw the loudness of a file on one line, with block characters if you add --unicode" },
 			{ name : "speak", usage : "speak <text> --voice=NAME [--out=FILE] [--file=TEXTFILE] [--speed=1] [--captions=FILE.srt|.vtt] [--no-install]", help : "Say a text with an open license voice, installing the engine and the voice the first time",
 				details : [
@@ -117,7 +117,31 @@ class {
 		if( options.keyExists( "help" ) ){
 			return cmdHelp( [ name ], options );
 		}
+		checkOptions( name, options );
 		return invoke( this, "cmd" & name.ucFirst(), [ rest, options ] );
+	}
+
+	/**
+	 * Refuse an option the command does not have, so a misspelled or renamed one is not silently ignored. The options of a command are the
+	 * ones its usage and details mention. `render` passes its options on to the piece, which checks them itself.
+	 */
+	private function checkOptions( required string name, required struct options ){
+		if( name == "render" ){
+			return;
+		}
+		var command = static.commands.filter( ( c ) => c.name == name ).first();
+		var text = command.usage & " " & ( command.keyExists( "details" ) ? command.details.toList( " " ) : "" );
+		var known = {};
+		reMatch( "--[!A-Za-z][A-Za-z0-9-]*", text ).each( ( o ) => {
+			var key = o.reReplace( "^--!?", "" ).reReplace( "^no-", "" ).replace( "-", "", "all" ).lcase();
+			known[ key ] = true;
+		} );
+		known[ "help" ] = true;
+		for( var option in options.keyArray() ){
+			if( !known.keyExists( option.replace( "-", "", "all" ).lcase() ) ){
+				throw( type = "bxaudio.cli", message = "Unknown option --#option# for `#name#`. Run `bx-audio help #name#` to see its options." );
+			}
+		}
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------------------
@@ -187,7 +211,7 @@ class {
 	function cmdNormalize( required array args, required struct options ){
 		var source = needFile( args, 1, "normalize <in> <out>" );
 		var target = absolute( needArg( args, 2, "normalize <in> <out>" ) );
-		var written = audioSave( audioNormalize( audioLoad( source ), options.db ?: -1 ), target );
+		var written = audioSave( audioNormalize( audioLoad( source ), options.targetDb ?: -1 ), target );
 		out( "wrote " & written );
 	}
 
@@ -280,8 +304,8 @@ class {
 		var r = audioLoudness( audioLoad( needFile( args, 1, "loudness <file>" ) ) );
 		out( "integrated     " & numberFormat( r.integrated, "0.0" ) & " LUFS" );
 		out( "range          " & numberFormat( r.range, "0.0" ) & " LU" );
-		out( "true peak      " & numberFormat( r.truePeak, "0.0" ) & " dBFS" );
-		out( "sample peak    " & numberFormat( r.samplePeak, "0.0" ) & " dBFS" );
+		out( "true peak      " & numberFormat( r.truePeakDb, "0.0" ) & " dBFS" );
+		out( "sample peak    " & numberFormat( r.samplePeakDb, "0.0" ) & " dBFS" );
 		out( "momentary max  " & numberFormat( r.momentaryMax, "0.0" ) & " LUFS" );
 		out( "short-term max " & numberFormat( r.shortTermMax, "0.0" ) & " LUFS" );
 		out( "Streaming services aim at -14 LUFS, podcasts -16, broadcast -23." );
@@ -291,10 +315,10 @@ class {
 		var source = needFile( args, 1, "master <in> <out>" );
 		var target = absolute( needArg( args, 2, "master <in> <out>" ) );
 		var goal = options.target ?: "streaming";
-		var mastered = audioMaster( audio = audioLoad( source ), target = isNumeric( goal ) ? val( goal ) : goal, truePeak = options.truePeak ?: -1, glue = options.keyExists( "glue" ) && options.glue != false );
+		var mastered = audioMaster( audio = audioLoad( source ), target = isNumeric( goal ) ? val( goal ) : goal, truePeakDb = options.truePeakDb ?: -1, glue = options.keyExists( "glue" ) && options.glue != false );
 		var r = audioLoudness( mastered );
 		var written = audioSave( mastered, target );
-		out( "wrote " & written & " (" & numberFormat( r.integrated, "0.0" ) & " LUFS, true peak " & numberFormat( r.truePeak, "0.0" ) & " dBFS)" );
+		out( "wrote " & written & " (" & numberFormat( r.integrated, "0.0" ) & " LUFS, true peak " & numberFormat( r.truePeakDb, "0.0" ) & " dBFS)" );
 	}
 
 	function cmdStretch( required array args, required struct options ){
@@ -336,10 +360,10 @@ class {
 		var source = needFile( args, 1, "silence <file>" );
 		var audio = audioLoad( source );
 		if( options.keyExists( "trim" ) ){
-			out( "wrote " & audioSave( audioTrimSilence( audio, val( options.db ?: -50 ) ), absolute( options.trim ) ) );
+			out( "wrote " & audioSave( audioTrimSilence( audio, val( options.thresholdDb ?: -50 ) ), absolute( options.trim ) ) );
 			return;
 		}
-		var found = audioDetectSilence( audio, val( options.db ?: -50 ), val( options.min ?: 0.3 ) );
+		var found = audioDetectSilence( audio, val( options.thresholdDb ?: -50 ), val( options.min ?: 0.3 ) );
 		if( !found.len() ){
 			out( "No silence found." );
 			return;

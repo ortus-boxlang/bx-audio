@@ -34,7 +34,7 @@ public class KeyDictionary {
 	public static final Key	source		= Key.of( "source" );
 	public static final Key	audios		= Key.of( "audios" );
 	public static final Key	curve		= Key.of( "curve" );
-	public static final Key	db			= Key.of( "db" );
+	public static final Key	gainDb		= Key.of( "gainDb" );
 	public static final Key	fadeIn		= Key.of( "fadeIn" );
 	public static final Key	fadeOut		= Key.of( "fadeOut" );
 	public static final Key	pan			= Key.of( "pan" );

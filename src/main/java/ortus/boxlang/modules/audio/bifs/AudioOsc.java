@@ -18,7 +18,7 @@ import ortus.boxlang.modules.audio.synth.Synth;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.dynamic.casters.DoubleCaster;
 import ortus.boxlang.runtime.types.Array;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.modules.audio.util.KeyDictionary;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
@@ -81,7 +81,7 @@ public class AudioOsc extends BIF {
 			partials = new double[ raw.size() ][];
 			for ( int i = 0; i < partials.length; i++ ) {
 				if ( ! ( raw.get( i ) instanceof Array pair ) || pair.size() != 2 ) {
-					throw new BoxRuntimeException( "Each partial must be a pair of [ frequency multiple, amplitude ]" );
+					throw new AudioException( AudioException.INVALID_ARGUMENT, "Each partial must be a pair of [ frequency multiple, amplitude ]" );
 				}
 				partials[ i ] = new double[] { DoubleCaster.cast( pair.get( 0 ) ), DoubleCaster.cast( pair.get( 1 ) ) };
 			}

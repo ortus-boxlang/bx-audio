@@ -17,6 +17,7 @@ package ortus.boxlang.modules.audio.ffmpeg;
 import ortus.boxlang.modules.audio.tts.EngineInstaller.NamedProgress;
 import ortus.boxlang.modules.audio.tts.Speech;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Getting hold of FFmpeg when a format needs it: use what is there, download it when that is allowed, or say how to get it
@@ -46,11 +47,12 @@ public final class FfmpegSupport {
 				return found;
 			}
 		}
-		throw new BoxRuntimeException( why + " needs FFmpeg, which was not found. "
-		    + ( installer.isSupported()
-		        ? "Run `bx-audio ffmpeg install` or audioFfmpegInstall() to download it (" + Speech.megabytes( installer.downloadSize() )
-		            + " MB, kept in " + Speech.home() + "), or allow downloads with autoInstall=true."
-		        : "There is no download for this computer, so install FFmpeg so it is on the PATH." ) );
+		throw new AudioException( AudioException.FFMPEG_MISSING,
+		    why + " needs FFmpeg, and FFmpeg is not installed on this computer (it was not found in the bx-audio home or on the PATH). "
+		        + ( installer.isSupported()
+		            ? "Run `bx-audio ffmpeg install` or audioFfmpegInstall() to download it (" + Speech.megabytes( installer.downloadSize() )
+		                + " MB, kept in " + Speech.home() + "), or allow downloads with autoInstall=true."
+		            : "There is no download for this computer, so install FFmpeg so it is on the PATH." ) );
 	}
 
 	/**

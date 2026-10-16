@@ -22,7 +22,7 @@ import java.util.function.Function;
 import ortus.boxlang.modules.audio.analysis.Silence;
 import ortus.boxlang.modules.audio.dsp.Dsp;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Speaking a longer text a piece at a time: control over the pauses, and the time each piece starts and ends so captions can follow the voice
@@ -59,7 +59,7 @@ public final class Narration {
 
 		public Pauses {
 			if ( sentence < 0 || clause < 0 || paragraph < 0 || sentence > 10 || clause > 10 || paragraph > 10 ) {
-				throw new BoxRuntimeException( "Pauses must be between 0 and 10 seconds" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Pauses must be between 0 and 10 seconds" );
 			}
 		}
 
@@ -100,10 +100,10 @@ public final class Narration {
 	 */
 	public static Result narrate( String text, Function<String, AudioBuffer> speaker, Pauses pauses, boolean clauses, int maxChars ) {
 		if ( text == null || text.isBlank() ) {
-			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "There is nothing to say: the text is empty" );
 		}
 		if ( maxChars < 10 || maxChars > 400 ) {
-			throw new BoxRuntimeException( "maxChars must be between 10 and 400 but was " + maxChars );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "maxChars must be between 10 and 400 but was " + maxChars );
 		}
 		List<AudioBuffer>	parts	= new ArrayList<>();
 		List<Cue>			cues	= new ArrayList<>();
@@ -127,7 +127,7 @@ public final class Narration {
 			}
 		}
 		if ( parts.isEmpty() ) {
-			throw new BoxRuntimeException( "There is nothing to say: the text has no words" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "There is nothing to say: the text has no words" );
 		}
 		return new Result( Dsp.concat( parts ), cues );
 	}

@@ -34,7 +34,7 @@ public class AudioGain extends BIF {
 		super();
 		declaredArguments = new Argument[] {
 		    new Argument( true, "any", KeyDictionary.audio ),
-		    new Argument( true, "double", KeyDictionary.db )
+		    new Argument( true, "double", KeyDictionary.gainDb )
 		};
 	}
 
@@ -46,12 +46,12 @@ public class AudioGain extends BIF {
 	 *
 	 * @argument.audio The audio buffer.
 	 *
-	 * @argument.db The gain in decibels. Negative values make it quieter, 6 roughly doubles the amplitude.
+	 * @argument.gainDb The gain in decibels. Negative values make it quieter, 6 roughly doubles the amplitude.
 	 *
 	 * @return A new audio buffer.
 	 */
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		return Dsp.gain( Audios.require( arguments.get( KeyDictionary.audio ), "audio" ), arguments.getAsDouble( KeyDictionary.db ) );
+		return Dsp.gain( Audios.require( arguments.get( KeyDictionary.audio ), "audio" ), arguments.getAsDouble( KeyDictionary.gainDb ) );
 	}
 
 }

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Downloads one file, checks its size and digest, and only then puts it in place. A download that is interrupted leaves a {@code .part}
@@ -173,7 +173,7 @@ public final class Downloader {
 				Storage.claim( absolute );
 			}
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not download " + url + ": " + e.getMessage(), e );
+			throw new AudioException( AudioException.DOWNLOAD_FAILED, "Could not download " + url + ": " + e.getMessage(), e );
 		} finally {
 			try {
 				Files.deleteIfExists( absolute.resolveSibling( absolute.getFileName() + ".lock" ) );
@@ -206,7 +206,8 @@ public final class Downloader {
 				HttpResponse<InputStream> response = client().send( request.build(), HttpResponse.BodyHandlers.ofInputStream() );
 				try ( InputStream body = response.body() ) {
 					if ( response.statusCode() != 200 && response.statusCode() != 206 ) {
-						throw new BoxRuntimeException( "Could not download " + url + ": the server answered " + response.statusCode() );
+						throw new AudioException( AudioException.DOWNLOAD_FAILED,
+						    "Could not download " + url + ": the server answered " + response.statusCode() );
 					}
 					// A server that ignores the range sends the whole file again, so start over
 					boolean resumed = response.statusCode() == 206 && have > 0;
@@ -217,7 +218,8 @@ public final class Downloader {
 							downloadLocked( url, target, expectedSize, algorithm, expectedHex, progress, false );
 							return;
 						}
-						throw new BoxRuntimeException( "Could not download " + url + ": the server did not resume where it was asked to" );
+						throw new AudioException( AudioException.DOWNLOAD_FAILED,
+						    "Could not download " + url + ": the server did not resume where it was asked to" );
 					}
 					if ( !resumed ) {
 						have = 0;
@@ -228,15 +230,15 @@ public final class Downloader {
 
 			if ( Files.size( part ) != expectedSize || !digest( part, algorithm ).equalsIgnoreCase( expectedHex ) ) {
 				Files.deleteIfExists( part );
-				throw new BoxRuntimeException( "The download of " + url + " is not the file that was expected (size or " + algorithm
+				throw new AudioException( AudioException.DOWNLOAD_FAILED, "The download of " + url + " is not the file that was expected (size or " + algorithm
 				    + " does not match). It was removed, try again." );
 			}
 			Files.move( part, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not download " + url + ": " + e.getMessage(), e );
+			throw new AudioException( AudioException.DOWNLOAD_FAILED, "Could not download " + url + ": " + e.getMessage(), e );
 		} catch ( InterruptedException e ) {
 			Thread.currentThread().interrupt();
-			throw new BoxRuntimeException( "The download of " + url + " was interrupted", e );
+			throw new AudioException( AudioException.DOWNLOAD_FAILED, "The download of " + url + " was interrupted", e );
 		}
 	}
 
@@ -316,7 +318,7 @@ public final class Downloader {
 			}
 			return HexFormat.of().formatHex( md.digest() );
 		} catch ( NoSuchAlgorithmException e ) {
-			throw new BoxRuntimeException( "This JVM has no " + algorithm + " digest", e );
+			throw new AudioException( AudioException.INTERNAL, "This JVM has no " + algorithm + " digest", e );
 		}
 	}
 

@@ -29,7 +29,7 @@ public class AudioNormalizeLoudness extends BIF {
 
 	private static final Key	audio		= Key.of( "audio" );
 	private static final Key	targetLufs	= Key.of( "targetLufs" );
-	private static final Key	truePeak	= Key.of( "truePeak" );
+	private static final Key	truePeakDb	= Key.of( "truePeakDb" );
 
 	/**
 	 * Constructor
@@ -39,7 +39,7 @@ public class AudioNormalizeLoudness extends BIF {
 		declaredArguments = new Argument[] {
 		    new Argument( true, "any", audio ),
 		    new Argument( false, "double", targetLufs, -14.0 ),
-		    new Argument( false, "double", truePeak, -1.0 )
+		    new Argument( false, "double", truePeakDb, -1.0 )
 		};
 	}
 
@@ -53,13 +53,13 @@ public class AudioNormalizeLoudness extends BIF {
 	 *
 	 * @argument.targetLufs The loudness to reach. -14 suits streaming and video platforms, -16 podcasts, -23 broadcast (EBU R128). Defaults to -14.
 	 *
-	 * @argument.truePeak The highest peak allowed in dBFS. A limiter catches what the gain pushes over it. Defaults to -1.
+	 * @argument.truePeakDb The highest peak allowed in dBFS. A limiter catches what the gain pushes over it. Defaults to -1.
 	 *
 	 * @return A new audio buffer.
 	 */
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		return Mastering.toLoudness( Audios.require( arguments.get( audio ), "audio" ), arguments.getAsDouble( targetLufs ),
-		    arguments.getAsDouble( truePeak ) );
+		    arguments.getAsDouble( truePeakDb ) );
 	}
 
 }

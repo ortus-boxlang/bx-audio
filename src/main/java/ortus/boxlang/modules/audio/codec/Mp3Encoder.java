@@ -19,7 +19,7 @@ import javax.sound.sampled.AudioFormat;
 
 import de.sciss.jump3r.lowlevel.LameEncoder;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * The part of the MP3 codec that uses jump3r, which describes its input with a {@code javax.sound.sampled.AudioFormat}. Only loaded when
@@ -60,7 +60,7 @@ final class Mp3Encoder {
 			mp3.write( out, 0, written );
 			return mp3.toByteArray();
 		} catch ( RuntimeException e ) {
-			throw new BoxRuntimeException( "Could not encode the MP3: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not encode the MP3: " + e.getMessage(), e );
 		} finally {
 			encoder.close();
 		}

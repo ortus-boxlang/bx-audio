@@ -14,7 +14,7 @@
  */
 package ortus.boxlang.modules.audio.dsp;
 
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * A radix-2 fast Fourier transform, and the window and frequency helpers the analysis code needs
@@ -31,7 +31,7 @@ public final class Fft {
 	 */
 	public Fft( int size ) {
 		if ( size < 2 || Integer.bitCount( size ) != 1 ) {
-			throw new BoxRuntimeException( "The FFT size must be a power of two, at least 2, but was " + size );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The FFT size must be a power of two, at least 2, but was " + size );
 		}
 		this.size		= size;
 		this.cos		= new double[ size / 2 ];

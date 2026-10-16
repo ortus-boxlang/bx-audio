@@ -20,21 +20,21 @@ audioLoudness( audio )
 |---|---|---|---|
 | `audio` | any | required | The audio buffer. |
 
-**Returns** A struct with integrated (LUFS, gated, the number streaming services use), range (LU), truePeak and samplePeak (dBFS), momentaryMax and shortTermMax (LUFS). Silence or audio shorter than 400 ms reads -120.
+**Returns** A struct with integrated (LUFS, gated, the number streaming services use), range (LU), truePeakDb and samplePeakDb (dBFS), momentaryMax and shortTermMax (LUFS). Silence or audio shorter than 400 ms reads -120.
 
 ## audioNormalizeLoudness
 
 Set the integrated loudness of audio to a target in LUFS, keeping peaks under a true-peak ceiling
 
 ```js
-audioNormalizeLoudness( audio, targetLufs=-14, truePeak=-1 )
+audioNormalizeLoudness( audio, targetLufs=-14, truePeakDb=-1 )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `audio` | any | required | The audio buffer. |
 | `targetLufs` | double | `-14` | The loudness to reach. -14 suits streaming and video platforms, -16 podcasts, -23 broadcast (EBU R128). Defaults to -14. |
-| `truePeak` | double | `-1` | The highest peak allowed in dBFS. A limiter catches what the gain pushes over it. Defaults to -1. |
+| `truePeakDb` | double | `-1` | The highest peak allowed in dBFS. A limiter catches what the gain pushes over it. Defaults to -1. |
 
 **Returns** A new audio buffer.
 
@@ -43,14 +43,14 @@ audioNormalizeLoudness( audio, targetLufs=-14, truePeak=-1 )
 Master audio for delivery: reach a loudness target with a true-peak ceiling, optionally gluing the mix with light compression
 
 ```js
-audioMaster( audio, target="streaming", truePeak=-1, glue=false )
+audioMaster( audio, target="streaming", truePeakDb=-1, glue=false )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `audio` | any | required | The audio buffer. |
 | `target` | any | `"streaming"` | A preset name or a number in LUFS. streaming is -14, podcast -16, game -16, broadcast -23 (EBU R128), cinema -24. Defaults to streaming. |
-| `truePeak` | double | `-1` | The highest peak in dBFS. Defaults to -1. |
+| `truePeakDb` | double | `-1` | The highest peak in dBFS. Defaults to -1. |
 | `glue` | boolean | `false` | True to compress lightly (2:1, slow) before normalizing so the mix sounds more even. Defaults to false. |
 
 **Returns** A new audio buffer.
@@ -60,7 +60,7 @@ audioMaster( audio, target="streaming", truePeak=-1, glue=false )
 Reduce the dynamic range of audio with a compressor
 
 ```js
-audioCompress( audio, thresholdDb=-18, ratio=4, attack=10, release=100, knee=6, makeupDb="auto" )
+audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, knee=6, makeupDb="auto" )
 ```
 
 | Argument | Type | Default | |
@@ -68,8 +68,8 @@ audioCompress( audio, thresholdDb=-18, ratio=4, attack=10, release=100, knee=6, 
 | `audio` | any | required | The audio buffer. |
 | `thresholdDb` | double | `-18` | Level above which the audio is turned down, in dB. Defaults to -18. |
 | `ratio` | double | `4` | How strongly: 4 means 4 dB over the threshold becomes 1 dB. Defaults to 4. |
-| `attack` | double | `10` | Milliseconds to turn down. Defaults to 10. |
-| `release` | double | `100` | Milliseconds to turn back up. Defaults to 100. |
+| `attackMs` | double | `10` | Milliseconds to turn down. Defaults to 10. |
+| `releaseMs` | double | `100` | Milliseconds to turn back up. Defaults to 100. |
 | `knee` | double | `6` | Width in dB of the soft knee. 0 is a hard knee. Defaults to 6. |
 | `makeupDb` | any | `"auto"` | Gain added after compression in dB, or "auto" to match the loudness (RMS) of the input. Defaults to auto. |
 
@@ -80,15 +80,15 @@ audioCompress( audio, thresholdDb=-18, ratio=4, attack=10, release=100, knee=6, 
 Stop audio from going above a ceiling with a look-ahead limiter
 
 ```js
-audioLimit( audio, ceilingDb=-1, release=100, lookAhead=5 )
+audioLimit( audio, ceilingDb=-1, releaseMs=100, lookAheadMs=5 )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `audio` | any | required | The audio buffer. |
-| `ceilingDb` | double | `-1` | The highest sample level in dB, at most 0. Defaults to -1. |
-| `release` | double | `100` | Milliseconds to recover after a peak. Defaults to 100. |
-| `lookAhead` | double | `5` | Milliseconds the limiter looks ahead. Defaults to 5. |
+| `ceilingDb` | double | `-1` | The highest level in dB, at most 0, counting the peaks between the samples (the true peak). Defaults to -1. |
+| `releaseMs` | double | `100` | Milliseconds to recover after a peak. Defaults to 100. |
+| `lookAheadMs` | double | `5` | Milliseconds the limiter looks ahead. Defaults to 5. |
 
 **Returns** A new audio buffer.
 
@@ -103,7 +103,7 @@ audioEq( audio, bands )
 | Argument | Type | Default | |
 |---|---|---|---|
 | `audio` | any | required | The audio buffer. |
-| `bands` | array | required | An array of structs, each with type (peak, lowshelf, highshelf, lowpass, highpass or notch), freq in Hz, gain in dB (peak and shelves) and optionally q (width, default 1 for a peak and 0.707 for others). |
+| `bands` | array | required | An array of structs, each with type (peak, lowshelf, highshelf, lowpass, highpass or notch), freq in Hz, gainDb in dB (peak and shelves) and optionally q (width, default 1 for a peak and 0.707 for others). |
 
 **Returns** A new audio buffer.
 

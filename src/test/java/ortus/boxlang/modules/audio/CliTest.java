@@ -108,7 +108,7 @@ public class CliTest extends BaseIntegrationTest {
 	void testNormalizeAndTrim( @TempDir Path dir ) {
 		String	source	= tone( dir, "tone.wav" );
 		String	loud	= dir.resolve( "loud.wav" ).toString();
-		run( "normalize", source, loud, "--db=-3" );
+		run( "normalize", source, loud, "--targetDb=-3" );
 		// -3 dB below full scale is 0.708
 		assertThat( run( "info", loud ) ).contains( "peak      0.708" );
 

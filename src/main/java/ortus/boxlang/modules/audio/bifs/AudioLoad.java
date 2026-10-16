@@ -25,7 +25,7 @@ import ortus.boxlang.runtime.context.IBoxContext;
 import ortus.boxlang.runtime.scopes.ArgumentsScope;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Load a WAV or MP3 file into an audio buffer" )
@@ -55,7 +55,7 @@ public class AudioLoad extends BIF {
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		Path path = FileSystemUtil.expandPath( context, arguments.getAsString( Key.path ) ).absolutePath();
 		if ( !Files.isRegularFile( path ) ) {
-			throw new BoxRuntimeException( "The audio file [" + path + "] does not exist" );
+			throw new AudioException( AudioException.FILE_NOT_FOUND, "The audio file [" + path + "] does not exist" );
 		}
 		return AudioFiles.read( path );
 	}

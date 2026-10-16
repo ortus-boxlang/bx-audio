@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.Random;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Sound generators: note names, oscillators, pitch sweeps, noise and envelopes. Every generator returns a mono
@@ -64,7 +64,8 @@ public final class Synth {
 	public static int noteNameToMidi( String name ) {
 		String s = name == null ? "" : name.trim();
 		if ( s.length() < 2 ) {
-			throw new BoxRuntimeException( "Not a note name: [" + name + "]. Use a letter, an optional # or b, and an octave, like C4 or F#3" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Not a note name: [" + name + "]. Use a letter, an optional # or b, and an octave, like C4 or F#3" );
 		}
 		int base;
 		switch ( Character.toUpperCase( s.charAt( 0 ) ) ) {
@@ -75,7 +76,7 @@ public final class Synth {
 			case 'G' -> base = 7;
 			case 'A' -> base = 9;
 			case 'B' -> base = 11;
-			default -> throw new BoxRuntimeException( "Not a note name: [" + name + "]. Notes start with a letter from A to G" );
+			default -> throw new AudioException( AudioException.INVALID_ARGUMENT, "Not a note name: [" + name + "]. Notes start with a letter from A to G" );
 		}
 		int pos = 1;
 		if ( s.charAt( pos ) == '#' ) {
@@ -89,11 +90,11 @@ public final class Synth {
 		try {
 			octave = Integer.parseInt( s.substring( pos ) );
 		} catch ( NumberFormatException e ) {
-			throw new BoxRuntimeException( "Not a note name: [" + name + "]. The octave must be a whole number, like C4" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Not a note name: [" + name + "]. The octave must be a whole number, like C4" );
 		}
 		int midi = ( octave + 1 ) * 12 + base;
 		if ( midi < 0 || midi > 127 ) {
-			throw new BoxRuntimeException( "The note [" + name + "] is outside the MIDI range C-1 to G9" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The note [" + name + "] is outside the MIDI range C-1 to G9" );
 		}
 		return midi;
 	}
@@ -116,17 +117,18 @@ public final class Synth {
 	    double phase ) {
 		String kind = shape == null ? "" : shape.toLowerCase( Locale.ROOT );
 		if ( !SHAPES.contains( kind ) ) {
-			throw new BoxRuntimeException( "Unknown shape [" + shape + "]. Use one of " + SHAPES );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown shape [" + shape + "]. Use one of " + SHAPES );
 		}
 		int		frames	= frameCount( seconds, sampleRate );
 		double	nyquist	= sampleRate / 2.0;
 		requireFinite( freq, "freq" );
 		requireFinite( phase, "phase" );
 		if ( freq <= 0 || freq >= nyquist ) {
-			throw new BoxRuntimeException( "The frequency must be above 0 and below " + nyquist + " Hz (half the sample rate) but was " + freq );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The frequency must be above 0 and below " + nyquist + " Hz (half the sample rate) but was " + freq );
 		}
 		if ( harmonics < 1 ) {
-			throw new BoxRuntimeException( "Harmonics must be at least 1 but was " + harmonics );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Harmonics must be at least 1 but was " + harmonics );
 		}
 		double[] out = new double[ frames ];
 
@@ -150,7 +152,7 @@ public final class Synth {
 			}
 			case "pulse" -> {
 				if ( Double.isNaN( width ) || width <= 0 || width >= 1 ) {
-					throw new BoxRuntimeException( "Pulse width must be between 0 and 1 but was " + width );
+					throw new AudioException( AudioException.INVALID_ARGUMENT, "Pulse width must be between 0 and 1 but was " + width );
 				}
 				for ( int i = 0; i < frames; i++ ) {
 					double cycle = ( freq * i / sampleRate + phase ) % 1.0;
@@ -159,11 +161,11 @@ public final class Synth {
 			}
 			default -> {
 				if ( partials == null || partials.length == 0 ) {
-					throw new BoxRuntimeException( "The additive shape needs partials, for example [ [ 1, 1.0 ], [ 2, 0.5 ] ]" );
+					throw new AudioException( AudioException.INVALID_ARGUMENT, "The additive shape needs partials, for example [ [ 1, 1.0 ], [ 2, 0.5 ] ]" );
 				}
 				for ( double[] partial : partials ) {
 					if ( partial == null || partial.length != 2 || partial[ 0 ] <= 0 || Double.isNaN( partial[ 1 ] ) || Double.isNaN( partial[ 0 ] ) ) {
-						throw new BoxRuntimeException( "Each partial must be a pair of [ frequency multiple above 0, amplitude ]" );
+						throw new AudioException( AudioException.INVALID_ARGUMENT, "Each partial must be a pair of [ frequency multiple above 0, amplitude ]" );
 					}
 					if ( freq * partial[ 0 ] < nyquist ) {
 						addPartial( out, freq * partial[ 0 ], partial[ 1 ], phase * partial[ 0 ], sampleRate );
@@ -191,10 +193,10 @@ public final class Synth {
 		requireFinite( speed, "speed" );
 		double nyquist = sampleRate / 2.0;
 		if ( startHz <= 0 || endHz <= 0 || startHz >= nyquist || endHz >= nyquist ) {
-			throw new BoxRuntimeException( "Sweep frequencies must be above 0 and below " + nyquist + " Hz" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Sweep frequencies must be above 0 and below " + nyquist + " Hz" );
 		}
 		if ( speed < 0 ) {
-			throw new BoxRuntimeException( "Sweep speed cannot be negative" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Sweep speed cannot be negative" );
 		}
 		double[]	out		= new double[ frames ];
 		double		phase	= 0;
@@ -219,7 +221,7 @@ public final class Synth {
 		int		frames	= frameCount( seconds, sampleRate );
 		String	kind	= color == null ? "" : color.toLowerCase( Locale.ROOT );
 		if ( !NOISE_COLORS.contains( kind ) ) {
-			throw new BoxRuntimeException( "Unknown noise color [" + color + "]. Use one of " + NOISE_COLORS );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown noise color [" + color + "]. Use one of " + NOISE_COLORS );
 		}
 		Random		rng	= new Random( seed );
 		double[]	out	= new double[ frames ];
@@ -275,7 +277,7 @@ public final class Synth {
 		requireFinite( attack, "attack" );
 		requireFinite( decay, "decay" );
 		if ( attack < 0 || decay < 0 ) {
-			throw new BoxRuntimeException( "Attack and decay cannot be negative" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Attack and decay cannot be negative" );
 		}
 		int			rate	= audio.getSampleRate();
 		float[][]	out		= new float[ audio.getChannels() ][ audio.getFrames() ];
@@ -294,12 +296,13 @@ public final class Synth {
 	 */
 	static int frameCount( double seconds, int sampleRate ) {
 		if ( sampleRate < AudioBuffer.MIN_SAMPLE_RATE || sampleRate > AudioBuffer.MAX_SAMPLE_RATE ) {
-			throw new BoxRuntimeException( "Sample rate must be between " + AudioBuffer.MIN_SAMPLE_RATE + " and " + AudioBuffer.MAX_SAMPLE_RATE
-			    + " Hz but was " + sampleRate );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Sample rate must be between " + AudioBuffer.MIN_SAMPLE_RATE + " and " + AudioBuffer.MAX_SAMPLE_RATE
+			        + " Hz but was " + sampleRate );
 		}
 		requireFinite( seconds, "seconds" );
 		if ( seconds < 0 || seconds > MAX_SECONDS ) {
-			throw new BoxRuntimeException( "Length must be between 0 and " + MAX_SECONDS + " seconds but was " + seconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Length must be between 0 and " + MAX_SECONDS + " seconds but was " + seconds );
 		}
 		return ( int ) Math.round( seconds * sampleRate );
 	}
@@ -314,7 +317,7 @@ public final class Synth {
 
 	static void requireFinite( double value, String name ) {
 		if ( Double.isNaN( value ) || Double.isInfinite( value ) ) {
-			throw new BoxRuntimeException( "The " + name + " argument must be a finite number but was " + value );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The " + name + " argument must be a finite number but was " + value );
 		}
 	}
 

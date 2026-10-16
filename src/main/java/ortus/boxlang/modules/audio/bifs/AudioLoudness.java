@@ -49,12 +49,13 @@ public class AudioLoudness extends BIF {
 	 *
 	 * @argument.audio The audio buffer.
 	 *
-	 * @return A struct with integrated (LUFS, gated, the number streaming services use), range (LU), truePeak and samplePeak (dBFS), momentaryMax and
+	 * @return A struct with integrated (LUFS, gated, the number streaming services use), range (LU), truePeakDb and samplePeakDb (dBFS), momentaryMax and
 	 *         shortTermMax (LUFS). Silence or audio shorter than 400 ms reads -120.
 	 */
 	public IStruct _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		Loudness.Result r = Loudness.measure( Audios.require( arguments.get( audio ), "audio" ) );
-		return Struct.ofNonConcurrent( "integrated", r.integrated(), "range", r.range(), "truePeak", r.truePeak(), "samplePeak", r.samplePeak(), "momentaryMax",
+		return Struct.ofNonConcurrent( "integrated", r.integrated(), "range", r.range(), "truePeakDb", r.truePeak(), "samplePeakDb", r.samplePeak(),
+		    "momentaryMax",
 		    r.momentaryMax(), "shortTermMax", r.shortTermMax() );
 	}
 

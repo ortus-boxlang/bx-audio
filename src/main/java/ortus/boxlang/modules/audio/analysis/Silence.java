@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Finding and trimming silence
@@ -49,10 +49,10 @@ public final class Silence {
 	 */
 	public static List<Range> detect( AudioBuffer audio, double thresholdDb, double minSeconds ) {
 		if ( thresholdDb > 0 || thresholdDb < -120 ) {
-			throw new BoxRuntimeException( "The threshold must be between -120 and 0 dB but was " + thresholdDb );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The threshold must be between -120 and 0 dB but was " + thresholdDb );
 		}
 		if ( minSeconds < 0 ) {
-			throw new BoxRuntimeException( "The minimum length cannot be negative" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The minimum length cannot be negative" );
 		}
 		int			rate		= audio.getSampleRate();
 		int			window		= Math.max( 1, rate / 100 );

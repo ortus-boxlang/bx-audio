@@ -19,7 +19,7 @@ import java.util.Map;
 
 import ortus.boxlang.modules.audio.analysis.Loudness;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Loudness targets and the gain-then-limit loop that reaches them
@@ -46,13 +46,14 @@ public final class Mastering {
 		try {
 			return check( Double.parseDouble( text ) );
 		} catch ( NumberFormatException e ) {
-			throw new BoxRuntimeException( "Unknown loudness target [" + value + "]. Use a number of LUFS or one of " + PRESETS.keySet() );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Unknown loudness target [" + value + "]. Use a number of LUFS or one of " + PRESETS.keySet() );
 		}
 	}
 
 	private static double check( double lufs ) {
 		if ( lufs > 0 || lufs < -70 ) {
-			throw new BoxRuntimeException( "The loudness target must be between -70 and 0 LUFS but was " + lufs );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The loudness target must be between -70 and 0 LUFS but was " + lufs );
 		}
 		return lufs;
 	}
@@ -65,7 +66,7 @@ public final class Mastering {
 	 */
 	public static AudioBuffer toLoudness( AudioBuffer audio, double target, double truePeakDb ) {
 		if ( truePeakDb > 0 || truePeakDb < -20 ) {
-			throw new BoxRuntimeException( "The true peak ceiling must be between -20 and 0 dBFS but was " + truePeakDb );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The true peak ceiling must be between -20 and 0 dBFS but was " + truePeakDb );
 		}
 		double measured = Loudness.integrated( audio );
 		if ( measured <= Loudness.FLOOR ) {

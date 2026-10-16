@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * The folders under the bx-audio home, what is in them and how to empty them
@@ -78,7 +78,7 @@ public final class Storage {
 	public static long clear( Path home, String kind ) {
 		String name = kind == null ? "" : kind.trim().toLowerCase( java.util.Locale.ROOT );
 		if ( !name.equals( "all" ) && !kinds().contains( name ) ) {
-			throw new BoxRuntimeException( "Unknown kind [" + kind + "]. Use one of: " + String.join( ", ", kinds() ) + ", all." );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown kind [" + kind + "]. Use one of: " + String.join( ", ", kinds() ) + ", all." );
 		}
 		requireOwned( home );
 		if ( name.equals( "all" ) ) {
@@ -89,7 +89,7 @@ public final class Storage {
 			return freed;
 		}
 		if ( !kinds().contains( name ) ) {
-			throw new BoxRuntimeException( "Unknown kind [" + kind + "]. Use one of: " + String.join( ", ", kinds() ) + ", all." );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown kind [" + kind + "]. Use one of: " + String.join( ", ", kinds() ) + ", all." );
 		}
 		Path	path	= folder( home, name );
 		long	bytes	= size( path );
@@ -133,8 +133,9 @@ public final class Storage {
 		if ( !Files.isDirectory( normal ) ) {
 			return;
 		}
-		throw new BoxRuntimeException( "[" + normal + "] is not known to be a bx-audio home (it has no " + MARKER + " file), so nothing was deleted. "
-		    + "Downloads write that file. If this is the folder you set as home and you want it cleared, create the file yourself." );
+		throw new AudioException( AudioException.INVALID_ARGUMENT,
+		    "[" + normal + "] is not known to be a bx-audio home (it has no " + MARKER + " file), so nothing was deleted. "
+		        + "Downloads write that file. If this is the folder you set as home and you want it cleared, create the file yourself." );
 	}
 
 	private static boolean isDefaultHome( Path home ) {
@@ -185,7 +186,7 @@ public final class Storage {
 				Files.delete( each );
 			}
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not delete " + path + ": " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not delete " + path + ": " + e.getMessage(), e );
 		}
 	}
 

@@ -31,7 +31,7 @@ import ortus.boxlang.runtime.scopes.ArgumentsScope;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.IStruct;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Write captions as SRT or WebVTT subtitles for a video" )
@@ -76,7 +76,8 @@ public class AudioSubtitles extends BIF {
 		for ( Object entry : arguments.getAsArray( cues ) ) {
 			if ( ! ( entry instanceof IStruct item ) || item.get( Key.of( "start" ) ) == null || item.get( Key.of( "end" ) ) == null
 			    || item.get( Key.of( "text" ) ) == null ) {
-				throw new BoxRuntimeException( "Each cue must be a struct with start, end and text, such as { start: 0, end: 2.5, text: \"Hello\" }" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT,
+				    "Each cue must be a struct with start, end and text, such as { start: 0, end: 2.5, text: \"Hello\" }" );
 			}
 			list.add( new Narration.Cue( Numbers.toDouble( item.get( Key.of( "start" ) ), "the start of a cue" ),
 			    Numbers.toDouble( item.get( Key.of( "end" ) ), "the end of a cue" ),
@@ -90,7 +91,7 @@ public class AudioSubtitles extends BIF {
 				Files.createDirectories( target.getParent() );
 				Files.writeString( target, result );
 			} catch ( IOException e ) {
-				throw new BoxRuntimeException( "Could not write [" + file + "]: " + e.getMessage(), e );
+				throw new AudioException( AudioException.IO, "Could not write [" + file + "]: " + e.getMessage(), e );
 			}
 		}
 		return result;

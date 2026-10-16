@@ -29,7 +29,7 @@ import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Get the format and level information of an audio buffer or file" )
@@ -67,7 +67,7 @@ public class AudioInfo extends BIF {
 		} else if ( source instanceof String pathString ) {
 			Path path = FileSystemUtil.expandPath( context, pathString ).absolutePath();
 			if ( !Files.isRegularFile( path ) ) {
-				throw new BoxRuntimeException( "The audio file [" + path + "] does not exist" );
+				throw new AudioException( AudioException.FILE_NOT_FOUND, "The audio file [" + path + "] does not exist" );
 			}
 			if ( !arguments.getAsBoolean( Key.of( "levels" ) ) ) {
 				WavCodec.Info header = WavCodec.info( path );
@@ -82,7 +82,7 @@ public class AudioInfo extends BIF {
 			}
 			audio = AudioFiles.read( path );
 		} else {
-			throw new BoxRuntimeException( "The source argument must be an audio buffer or the path of an audio file" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The source argument must be an audio buffer or the path of an audio file" );
 		}
 		return Struct.ofNonConcurrent(
 		    KeyDictionary.channels, audio.getChannels(),

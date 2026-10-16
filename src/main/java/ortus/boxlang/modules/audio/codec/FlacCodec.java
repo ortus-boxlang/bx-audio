@@ -19,7 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * FLAC, the lossless format, in plain Java. The encoder uses constant, fixed predictor (order 0 to 4) and verbatim subframes with
@@ -48,14 +48,14 @@ public final class FlacCodec {
 	 */
 	public static byte[] encode( AudioBuffer audio, int bitDepth ) {
 		if ( bitDepth != 16 && bitDepth != 24 ) {
-			throw new BoxRuntimeException( "FLAC output supports 16 or 24 bits but bitDepth was " + bitDepth );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "FLAC output supports 16 or 24 bits but bitDepth was " + bitDepth );
 		}
 		int channels = audio.getChannels();
 		if ( channels > 8 ) {
-			throw new BoxRuntimeException( "FLAC holds at most 8 channels but the audio has " + channels );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "FLAC holds at most 8 channels but the audio has " + channels );
 		}
 		if ( audio.getSampleRate() > 655350 ) {
-			throw new BoxRuntimeException( "FLAC holds sample rates up to 655350 Hz but the audio has " + audio.getSampleRate() );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "FLAC holds sample rates up to 655350 Hz but the audio has " + audio.getSampleRate() );
 		}
 		int			frames		= audio.getFrames();
 		int[][]		pcm			= new int[ channels ][ frames ];
@@ -70,7 +70,7 @@ public final class FlacCodec {
 		try {
 			md5 = MessageDigest.getInstance( "MD5" );
 		} catch ( NoSuchAlgorithmException e ) {
-			throw new BoxRuntimeException( "MD5 is not available: " + e.getMessage(), e );
+			throw new AudioException( AudioException.INTERNAL, "MD5 is not available: " + e.getMessage(), e );
 		}
 		int		bytesPerSample	= bitDepth / 8;
 		// The MD5 of the interleaved little endian samples, fed a block at a time instead of a frame at a time
@@ -349,7 +349,7 @@ public final class FlacCodec {
 	 */
 	public static AudioBuffer decode( byte[] bytes ) {
 		if ( !looksLikeFlac( bytes ) ) {
-			throw new BoxRuntimeException( "Not a FLAC file" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "Not a FLAC file" );
 		}
 		BitReader	r		= new BitReader( bytes, 4 );
 		int			rate	= 0, channels = 0, bps = 0;
@@ -374,10 +374,10 @@ public final class FlacCodec {
 			}
 		} while ( !last );
 		if ( rate == 0 ) {
-			throw new BoxRuntimeException( "The FLAC file has no stream info" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file has no stream info" );
 		}
 		if ( total > Integer.MAX_VALUE ) {
-			throw new BoxRuntimeException( "The FLAC file is too long to hold in memory" );
+			throw new AudioException( AudioException.TOO_LARGE, "The FLAC file is too long to hold in memory" );
 		}
 		// Streamed and live encoders cannot know the length, so they write 0: then frames are read until the data ends
 		boolean						unknownLength	= total == 0;
@@ -386,7 +386,7 @@ public final class FlacCodec {
 		try {
 			out = new float[ channels ][ ( int ) total ];
 		} catch ( OutOfMemoryError e ) {
-			throw new BoxRuntimeException( "The FLAC file is too long to hold in memory (" + total + " frames)" );
+			throw new AudioException( AudioException.TOO_LARGE, "The FLAC file is too long to hold in memory (" + total + " frames)" );
 		}
 		int		pos		= 0;
 		double	scale	= Math.pow( 2, bps - 1 );
@@ -395,7 +395,7 @@ public final class FlacCodec {
 				int	frameStart	= r.bytePosition();
 				int	sync		= ( int ) r.bits( 14 );
 				if ( sync != 0x3FFE ) {
-					throw new BoxRuntimeException( "The FLAC file is damaged: bad frame sync at byte " + frameStart );
+					throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file is damaged: bad frame sync at byte " + frameStart );
 				}
 				r.bits( 2 );
 				int	blockCode	= ( int ) r.bits( 4 );
@@ -466,7 +466,7 @@ public final class FlacCodec {
 				pos += size;
 			}
 		} catch ( ArrayIndexOutOfBoundsException | NegativeArraySizeException e ) {
-			throw new BoxRuntimeException( "The FLAC file is damaged: a frame does not decode" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file is damaged: a frame does not decode" );
 		}
 		if ( unknownLength ) {
 			out = new float[ channels ][ pos ];
@@ -536,7 +536,7 @@ public final class FlacCodec {
 				x[ i ] = ( sum >> shift ) + res[ i - order ];
 			}
 		} else {
-			throw new BoxRuntimeException( "The FLAC file uses a subframe type that is reserved (" + type + ")" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file uses a subframe type that is reserved (" + type + ")" );
 		}
 		if ( wasted > 0 ) {
 			for ( int i = 0; i < size; i++ ) {
@@ -699,7 +699,7 @@ public final class FlacCodec {
 			long v = 0;
 			for ( int i = 0; i < n; i++ ) {
 				if ( this.bytePos >= this.data.length ) {
-					throw new BoxRuntimeException( "The FLAC file ends in the middle of a frame" );
+					throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file ends in the middle of a frame" );
 				}
 				v = ( v << 1 ) | ( ( this.data[ this.bytePos ] >> ( 7 - this.bitPos ) ) & 1 );
 				if ( ++this.bitPos == 8 ) {

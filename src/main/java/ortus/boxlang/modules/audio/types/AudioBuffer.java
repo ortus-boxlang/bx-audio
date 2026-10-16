@@ -14,7 +14,7 @@
  */
 package ortus.boxlang.modules.audio.types;
 
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * An in-memory block of audio: one {@code float[]} of samples per channel, in the range -1.0 to 1.0, plus the sample rate.
@@ -47,12 +47,12 @@ public final class AudioBuffer {
 	public AudioBuffer( float[][] samples, int sampleRate ) {
 		validateSampleRate( sampleRate );
 		if ( samples == null || samples.length < 1 || samples.length > MAX_CHANNELS ) {
-			throw new BoxRuntimeException( "An audio buffer needs between 1 and " + MAX_CHANNELS + " channels" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "An audio buffer needs between 1 and " + MAX_CHANNELS + " channels" );
 		}
 		int frames = samples[ 0 ] == null ? -1 : samples[ 0 ].length;
 		for ( float[] channel : samples ) {
 			if ( channel == null || channel.length != frames ) {
-				throw new BoxRuntimeException( "All channels of an audio buffer must be present and have the same length" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "All channels of an audio buffer must be present and have the same length" );
 			}
 		}
 		// A NaN or an infinity in one sample would poison every filter that runs over it, so those samples become silence
@@ -76,10 +76,10 @@ public final class AudioBuffer {
 	 */
 	public static AudioBuffer silence( int channels, int frames, int sampleRate ) {
 		if ( channels < 1 || channels > MAX_CHANNELS ) {
-			throw new BoxRuntimeException( "Channels must be between 1 and " + MAX_CHANNELS + " but was " + channels );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Channels must be between 1 and " + MAX_CHANNELS + " but was " + channels );
 		}
 		if ( frames < 0 ) {
-			throw new BoxRuntimeException( "Frames cannot be negative but was " + frames );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Frames cannot be negative but was " + frames );
 		}
 		return new AudioBuffer( new float[ channels ][ frames ], sampleRate );
 	}
@@ -94,11 +94,12 @@ public final class AudioBuffer {
 	public static AudioBuffer silenceSeconds( double seconds, int channels, int sampleRate ) {
 		validateSampleRate( sampleRate );
 		if ( Double.isNaN( seconds ) || Double.isInfinite( seconds ) || seconds < 0 ) {
-			throw new BoxRuntimeException( "Seconds must be a finite number of zero or more but was " + seconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Seconds must be a finite number of zero or more but was " + seconds );
 		}
 		double frames = Math.rint( seconds * sampleRate );
 		if ( frames * Math.max( 1, channels ) > Integer.MAX_VALUE ) {
-			throw new BoxRuntimeException( "That much audio does not fit in memory: " + seconds + " seconds on " + channels + " channels" );
+			throw new AudioException( AudioException.TOO_LARGE,
+			    "That much audio does not fit in memory: " + seconds + " seconds on " + channels + " channels" );
 		}
 		return silence( channels, ( int ) frames, sampleRate );
 	}
@@ -138,7 +139,8 @@ public final class AudioBuffer {
 	 */
 	public float[] channel( int channel ) {
 		if ( channel < 0 || channel >= this.samples.length ) {
-			throw new BoxRuntimeException( "Channel " + channel + " is out of range, this buffer has " + this.samples.length + " channels" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Channel " + channel + " is out of range, this buffer has " + this.samples.length + " channels" );
 		}
 		return this.samples[ channel ];
 	}
@@ -195,7 +197,7 @@ public final class AudioBuffer {
 
 	private static void validateSampleRate( int sampleRate ) {
 		if ( sampleRate < MIN_SAMPLE_RATE || sampleRate > MAX_SAMPLE_RATE ) {
-			throw new BoxRuntimeException(
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
 			    "Sample rate must be between " + MIN_SAMPLE_RATE + " and " + MAX_SAMPLE_RATE + " Hz but was " + sampleRate );
 		}
 	}

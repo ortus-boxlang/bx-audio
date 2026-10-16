@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * A parametric equalizer made of RBJ biquads
@@ -55,17 +55,18 @@ public final class Eq {
 	private static AudioBuffer apply( AudioBuffer audio, Band band ) {
 		String type = band.type().toLowerCase( Locale.ROOT );
 		if ( !BAND_TYPES.contains( type ) ) {
-			throw new BoxRuntimeException( "Unknown EQ band type [" + band.type() + "]. Use one of " + BAND_TYPES );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown EQ band type [" + band.type() + "]. Use one of " + BAND_TYPES );
 		}
 		int rate = audio.getSampleRate();
 		if ( band.freq() <= 0 || band.freq() >= rate / 2.0 ) {
-			throw new BoxRuntimeException( "The band frequency must be above 0 and below " + rate / 2.0 + " Hz but was " + band.freq() );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The band frequency must be above 0 and below " + rate / 2.0 + " Hz but was " + band.freq() );
 		}
 		if ( band.q() <= 0 || band.q() > 100 ) {
-			throw new BoxRuntimeException( "Q must be above 0 and at most 100 but was " + band.q() );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Q must be above 0 and at most 100 but was " + band.q() );
 		}
 		if ( Math.abs( band.gainDb() ) > 36 ) {
-			throw new BoxRuntimeException( "The band gain must be between -36 and 36 dB but was " + band.gainDb() );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The band gain must be between -36 and 36 dB but was " + band.gainDb() );
 		}
 		double	w0		= 2 * Math.PI * band.freq() / rate;
 		double	cos		= Math.cos( w0 );

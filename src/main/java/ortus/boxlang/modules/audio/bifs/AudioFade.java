@@ -14,7 +14,7 @@
  */
 package ortus.boxlang.modules.audio.bifs;
 
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.modules.audio.dsp.Dsp;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.Audios;
@@ -60,7 +60,7 @@ public class AudioFade extends BIF {
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		String curve = arguments.getAsString( KeyDictionary.curve ).toLowerCase();
 		if ( !curve.equals( "linear" ) && !curve.equals( "smooth" ) ) {
-			throw new BoxRuntimeException( "The curve must be linear or smooth but was [" + curve + "]" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The curve must be linear or smooth but was [" + curve + "]" );
 		}
 		return Dsp.fade(
 		    Audios.require( arguments.get( KeyDictionary.audio ), "audio" ),

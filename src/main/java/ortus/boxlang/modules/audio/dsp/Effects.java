@@ -15,7 +15,7 @@
 package ortus.boxlang.modules.audio.dsp;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Time based effects: echo, reverb and chorus. Every effect returns a new buffer. Echo and reverb make the result longer than the input
@@ -64,14 +64,15 @@ public final class Effects {
 		requireFinite( feedback, "feedback" );
 		requireFinite( mix, "mix" );
 		if ( time < 0.001 || time > 5 ) {
-			throw new BoxRuntimeException( "The delay time must be between 0.001 and 5 seconds but was " + time );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The delay time must be between 0.001 and 5 seconds but was " + time );
 		}
 		if ( feedback < 0 || feedback > 0.95 ) {
-			throw new BoxRuntimeException( "Feedback must be between 0 and 0.95 but was " + feedback );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Feedback must be between 0 and 0.95 but was " + feedback );
 		}
 		requireMix( mix );
 		if ( pingPong && audio.getChannels() != 2 ) {
-			throw new BoxRuntimeException( "Ping pong needs stereo audio but this buffer has " + audio.getChannels() + " channel(s)" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Ping pong needs stereo audio but this buffer has " + audio.getChannels() + " channel(s)" );
 		}
 		int	rate	= audio.getSampleRate();
 		int	d		= ( int ) Math.max( 1, Math.round( time * rate ) );
@@ -136,11 +137,12 @@ public final class Effects {
 		requireFinite( damp, "damp" );
 		requireFinite( mix, "mix" );
 		if ( room < 0 || room > 1 || damp < 0 || damp > 1 ) {
-			throw new BoxRuntimeException( "Room and damp must be between 0 and 1 but were " + room + " and " + damp );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Room and damp must be between 0 and 1 but were " + room + " and " + damp );
 		}
 		requireMix( mix );
 		if ( audio.getChannels() > 2 ) {
-			throw new BoxRuntimeException( "Reverb works on mono or stereo audio but this buffer has " + audio.getChannels() + " channels" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Reverb works on mono or stereo audio but this buffer has " + audio.getChannels() + " channels" );
 		}
 		int			rate	= audio.getSampleRate();
 		int			tail	= tailSeconds != null ? tailFrames( tailSeconds, rate ) : ( int ) Math.round( ( 0.5 + 6 * room ) * rate );
@@ -183,10 +185,10 @@ public final class Effects {
 		requireFinite( depth, "depth" );
 		requireFinite( mix, "mix" );
 		if ( rate < 0.01 || rate > 20 ) {
-			throw new BoxRuntimeException( "The chorus rate must be between 0.01 and 20 Hz but was " + rate );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The chorus rate must be between 0.01 and 20 Hz but was " + rate );
 		}
 		if ( depth < 0 || depth > 0.01 ) {
-			throw new BoxRuntimeException( "The chorus depth must be between 0 and 0.01 seconds but was " + depth );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The chorus depth must be between 0 and 0.01 seconds but was " + depth );
 		}
 		requireMix( mix );
 		int			sr		= audio.getSampleRate();
@@ -256,7 +258,7 @@ public final class Effects {
 	private static int tailFrames( double seconds, int sampleRate ) {
 		requireFinite( seconds, "tail" );
 		if ( seconds < 0 || seconds > MAX_TAIL_SECONDS ) {
-			throw new BoxRuntimeException( "The tail must be between 0 and " + MAX_TAIL_SECONDS + " seconds but was " + seconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The tail must be between 0 and " + MAX_TAIL_SECONDS + " seconds but was " + seconds );
 		}
 		return ( int ) Math.round( seconds * sampleRate );
 	}
@@ -264,20 +266,20 @@ public final class Effects {
 	private static int outputFrames( AudioBuffer audio, int tail ) {
 		long frames = ( long ) audio.getFrames() + tail;
 		if ( frames * audio.getChannels() > Integer.MAX_VALUE - 8 ) {
-			throw new BoxRuntimeException( "The result would be too long to hold in memory" );
+			throw new AudioException( AudioException.TOO_LARGE, "The result would be too long to hold in memory" );
 		}
 		return ( int ) frames;
 	}
 
 	private static void requireMix( double mix ) {
 		if ( mix < 0 || mix > 1 ) {
-			throw new BoxRuntimeException( "Mix must be between 0 and 1 but was " + mix );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Mix must be between 0 and 1 but was " + mix );
 		}
 	}
 
 	private static void requireFinite( double value, String name ) {
 		if ( Double.isNaN( value ) || Double.isInfinite( value ) ) {
-			throw new BoxRuntimeException( "The " + name + " argument must be a finite number but was " + value );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The " + name + " argument must be a finite number but was " + value );
 		}
 	}
 

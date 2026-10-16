@@ -36,7 +36,7 @@ public class AudioAdd extends BIF {
 		    new Argument( true, "any", KeyDictionary.sound ),
 		    new Argument( false, "double", KeyDictionary.at, 0.0 ),
 		    new Argument( false, "string", KeyDictionary.track, Timeline.DEFAULT_TRACK ),
-		    new Argument( false, "double", KeyDictionary.db, 0.0 ),
+		    new Argument( false, "double", KeyDictionary.gainDb, 0.0 ),
 		    new Argument( false, "double", KeyDictionary.pan, 0.0 )
 		};
 	}
@@ -55,7 +55,7 @@ public class AudioAdd extends BIF {
 	 *
 	 * @argument.track The track name, created on first use. Defaults to main.
 	 *
-	 * @argument.db Gain in decibels. Defaults to 0.
+	 * @argument.gainDb Gain in decibels. Defaults to 0.
 	 *
 	 * @argument.pan From -1 (left) to 1 (right). Defaults to 0.
 	 *
@@ -66,7 +66,7 @@ public class AudioAdd extends BIF {
 		    Audios.require( arguments.get( KeyDictionary.sound ), "sound" ),
 		    arguments.getAsDouble( KeyDictionary.at ),
 		    arguments.getAsString( KeyDictionary.track ),
-		    arguments.getAsDouble( KeyDictionary.db ),
+		    arguments.getAsDouble( KeyDictionary.gainDb ),
 		    arguments.getAsDouble( KeyDictionary.pan )
 		);
 	}

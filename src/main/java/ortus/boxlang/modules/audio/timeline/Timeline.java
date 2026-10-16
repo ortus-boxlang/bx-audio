@@ -22,7 +22,7 @@ import java.util.Map;
 
 import ortus.boxlang.modules.audio.dsp.Dsp;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * A multi track mixing board with a tempo grid.
@@ -58,17 +58,18 @@ public final class Timeline {
 	 */
 	public Timeline( double bpm, int beatsPerBar, int sampleRate, int channels ) {
 		if ( Double.isNaN( bpm ) || Double.isInfinite( bpm ) || bpm < 1 || bpm > 999 ) {
-			throw new BoxRuntimeException( "Tempo must be between 1 and 999 bpm but was " + bpm );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Tempo must be between 1 and 999 bpm but was " + bpm );
 		}
 		if ( beatsPerBar < 1 || beatsPerBar > 64 ) {
-			throw new BoxRuntimeException( "Beats per bar must be between 1 and 64 but was " + beatsPerBar );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Beats per bar must be between 1 and 64 but was " + beatsPerBar );
 		}
 		if ( sampleRate < AudioBuffer.MIN_SAMPLE_RATE || sampleRate > AudioBuffer.MAX_SAMPLE_RATE ) {
-			throw new BoxRuntimeException( "Sample rate must be between " + AudioBuffer.MIN_SAMPLE_RATE + " and " + AudioBuffer.MAX_SAMPLE_RATE
-			    + " Hz but was " + sampleRate );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Sample rate must be between " + AudioBuffer.MIN_SAMPLE_RATE + " and " + AudioBuffer.MAX_SAMPLE_RATE
+			        + " Hz but was " + sampleRate );
 		}
 		if ( channels != 1 && channels != 2 ) {
-			throw new BoxRuntimeException( "A timeline is mono (1) or stereo (2) but channels was " + channels );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A timeline is mono (1) or stereo (2) but channels was " + channels );
 		}
 		this.bpm			= bpm;
 		this.beatsPerBar	= beatsPerBar;
@@ -134,25 +135,27 @@ public final class Timeline {
 	 */
 	public Timeline add( AudioBuffer sound, double atSeconds, String track, double db, double pan ) {
 		if ( Double.isNaN( atSeconds ) || Double.isInfinite( atSeconds ) || atSeconds < 0 ) {
-			throw new BoxRuntimeException( "A sound must start at zero or later but the start was " + atSeconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A sound must start at zero or later but the start was " + atSeconds );
 		}
 		if ( Double.isNaN( db ) || Double.isInfinite( db ) || Double.isNaN( pan ) || pan < -1 || pan > 1 ) {
-			throw new BoxRuntimeException( "Gain must be a finite number of decibels and pan between -1 and 1" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Gain must be a finite number of decibels and pan between -1 and 1" );
 		}
 		if ( track == null || track.isBlank() ) {
-			throw new BoxRuntimeException( "A track name cannot be empty" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "A track name cannot be empty" );
 		}
 		if ( atSeconds > MAX_SECONDS ) {
-			throw new BoxRuntimeException( "A start of " + atSeconds + " seconds is past the " + MAX_SECONDS + " second limit of a timeline" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "A start of " + atSeconds + " seconds is past the " + MAX_SECONDS + " second limit of a timeline" );
 		}
 		AudioBuffer source = sound.getSampleRate() == this.sampleRate ? sound : Dsp.resample( sound, this.sampleRate );
 		if ( source.getChannels() > 2 ) {
-			throw new BoxRuntimeException( "Only mono and stereo sounds can be placed on a timeline but this one has " + source.getChannels() );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Only mono and stereo sounds can be placed on a timeline but this one has " + source.getChannels() );
 		}
 		long	start	= Math.round( atSeconds * this.sampleRate );
 		long	end		= start + source.getFrames();
 		if ( end > ( long ) MAX_SECONDS * this.sampleRate ) {
-			throw new BoxRuntimeException( "The sound would end past the " + MAX_SECONDS + " second limit of a timeline" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The sound would end past the " + MAX_SECONDS + " second limit of a timeline" );
 		}
 		Track t = trackFor( track );
 		t.ensureCapacity( ( int ) end );
@@ -194,7 +197,7 @@ public final class Timeline {
 	 */
 	public Timeline setTrackGain( String track, double db ) {
 		if ( Double.isNaN( db ) || Double.isInfinite( db ) ) {
-			throw new BoxRuntimeException( "Track gain must be a finite number of decibels but was " + db );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Track gain must be a finite number of decibels but was " + db );
 		}
 		trackFor( track ).gain = ( float ) Dsp.dbToLinear( db );
 		return this;
@@ -211,16 +214,16 @@ public final class Timeline {
 	 */
 	public Timeline pump( String track, List<Double> timesSeconds, double amountDb, double recoverySeconds ) {
 		if ( Double.isNaN( amountDb ) || Double.isInfinite( amountDb ) || amountDb > 0 ) {
-			throw new BoxRuntimeException( "The ducking amount must be zero or a negative number of decibels but was " + amountDb );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ducking amount must be zero or a negative number of decibels but was " + amountDb );
 		}
 		if ( Double.isNaN( recoverySeconds ) || Double.isInfinite( recoverySeconds ) || recoverySeconds <= 0 ) {
-			throw new BoxRuntimeException( "The recovery time must be more than zero seconds but was " + recoverySeconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The recovery time must be more than zero seconds but was " + recoverySeconds );
 		}
 		int[] starts = new int[ timesSeconds.size() ];
 		for ( int i = 0; i < starts.length; i++ ) {
 			double time = timesSeconds.get( i );
 			if ( Double.isNaN( time ) || Double.isInfinite( time ) || time < 0 ) {
-				throw new BoxRuntimeException( "Every ducking time must be zero or later but one was " + time );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Every ducking time must be zero or later but one was " + time );
 			}
 			starts[ i ] = ( int ) Math.min( Integer.MAX_VALUE, Math.round( time * this.sampleRate ) );
 		}
@@ -242,17 +245,17 @@ public final class Timeline {
 	 */
 	public Timeline duck( String track, String trigger, double amountDb, double thresholdDb, double attackSeconds, double releaseSeconds ) {
 		if ( Double.isNaN( amountDb ) || Double.isInfinite( amountDb ) || amountDb > 0 ) {
-			throw new BoxRuntimeException( "The ducking amount must be zero or a negative number of decibels but was " + amountDb );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ducking amount must be zero or a negative number of decibels but was " + amountDb );
 		}
 		if ( Double.isNaN( thresholdDb ) || Double.isInfinite( thresholdDb ) || Double.isNaN( attackSeconds ) || attackSeconds < 0
 		    || Double.isNaN( releaseSeconds ) || releaseSeconds < 0 ) {
-			throw new BoxRuntimeException( "The threshold must be finite and the attack and release times cannot be negative" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The threshold must be finite and the attack and release times cannot be negative" );
 		}
 		if ( !this.tracks.containsKey( trigger ) ) {
-			throw new BoxRuntimeException( "The trigger track [" + trigger + "] does not exist, add some sound to it first" );
+			throw new AudioException( AudioException.FILE_NOT_FOUND, "The trigger track [" + trigger + "] does not exist, add some sound to it first" );
 		}
 		if ( track.equals( trigger ) ) {
-			throw new BoxRuntimeException( "A track cannot duck itself" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A track cannot duck itself" );
 		}
 		trackFor( track ).ducks.add( new SidechainDuck( trigger, ( float ) Dsp.dbToLinear( amountDb ), ( float ) Dsp.dbToLinear( thresholdDb ),
 		    attackSeconds, releaseSeconds ) );
@@ -266,11 +269,11 @@ public final class Timeline {
 	 */
 	public AudioBuffer render( double tailSeconds ) {
 		if ( Double.isNaN( tailSeconds ) || Double.isInfinite( tailSeconds ) || tailSeconds < 0 ) {
-			throw new BoxRuntimeException( "The tail must be zero or more seconds but was " + tailSeconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The tail must be zero or more seconds but was " + tailSeconds );
 		}
 		long frames = ( long ) usedFrames() + Math.round( tailSeconds * this.sampleRate );
 		if ( frames > ( long ) MAX_SECONDS * this.sampleRate ) {
-			throw new BoxRuntimeException( "The rendered audio would pass the " + MAX_SECONDS + " second limit of a timeline" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The rendered audio would pass the " + MAX_SECONDS + " second limit of a timeline" );
 		}
 		float[][] out = new float[ this.channels ][ ( int ) frames ];
 		for ( Track t : this.tracks.values() ) {

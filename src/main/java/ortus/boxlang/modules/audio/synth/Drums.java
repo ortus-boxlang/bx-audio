@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.Random;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Synthesised percussion. Every voice is built from sine sweeps and shaped noise, so it needs no samples and is the same on every
@@ -44,16 +44,16 @@ public final class Drums {
 	public static AudioBuffer drum( String type, int sampleRate, long seed, double pitch, double decay, double level, double seconds ) {
 		String kind = type == null ? "" : type.toLowerCase( Locale.ROOT );
 		if ( !TYPES.contains( kind ) ) {
-			throw new BoxRuntimeException( "Unknown drum type [" + type + "]. Use one of " + TYPES );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown drum type [" + type + "]. Use one of " + TYPES );
 		}
 		Synth.requireFinite( pitch, "pitch" );
 		Synth.requireFinite( decay, "decay" );
 		Synth.requireFinite( level, "level" );
 		if ( pitch <= 0 || pitch > 8 || decay <= 0 || decay > 8 ) {
-			throw new BoxRuntimeException( "Pitch and decay must be above 0 and at most 8 but were " + pitch + " and " + decay );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Pitch and decay must be above 0 and at most 8 but were " + pitch + " and " + decay );
 		}
 		if ( level < 0 || level > 1 ) {
-			throw new BoxRuntimeException( "Level must be between 0 and 1 but was " + level );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Level must be between 0 and 1 but was " + level );
 		}
 		double[] out = switch ( kind ) {
 			case "kick" -> kick( sampleRate, pitch, decay );
@@ -170,7 +170,7 @@ public final class Drums {
 	 */
 	private static double[] riser( int sampleRate, long seed, double seconds ) {
 		if ( Double.isNaN( seconds ) || seconds <= 0 ) {
-			throw new BoxRuntimeException( "A riser needs a length in seconds above 0 but was " + seconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A riser needs a length in seconds above 0 but was " + seconds );
 		}
 		int			frames	= Synth.frameCount( seconds, sampleRate );
 		Random		rng		= new Random( seed );

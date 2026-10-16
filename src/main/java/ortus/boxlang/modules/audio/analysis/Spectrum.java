@@ -16,7 +16,7 @@ package ortus.boxlang.modules.audio.analysis;
 
 import ortus.boxlang.modules.audio.dsp.Fft;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Frequency content of audio: raw FFT magnitudes, levels in log spaced bands, and a spectrogram of those bands
@@ -127,7 +127,7 @@ public final class Spectrum {
 	public static double[][] spectrogram( AudioBuffer audio, int bands, int frames, double minHz, double maxHz ) {
 		validate( bands, minHz, maxHz, audio );
 		if ( frames < 1 || frames > 10000 ) {
-			throw new BoxRuntimeException( "Frames must be between 1 and 10000 but was " + frames );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Frames must be between 1 and 10000 but was " + frames );
 		}
 		Analysis	analysis	= new Analysis( audio, bands, minHz, maxHz );
 		double[][]	out			= new double[ frames ][];
@@ -156,13 +156,13 @@ public final class Spectrum {
 
 	private static void validate( int bands, double minHz, double maxHz, AudioBuffer audio ) {
 		if ( bands < 1 || bands > 512 ) {
-			throw new BoxRuntimeException( "Bands must be between 1 and 512 but was " + bands );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Bands must be between 1 and 512 but was " + bands );
 		}
 		if ( minHz <= 0 || maxHz <= minHz ) {
-			throw new BoxRuntimeException( "Need 0 < minHz < maxHz but got " + minHz + " and " + maxHz );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Need 0 < minHz < maxHz but got " + minHz + " and " + maxHz );
 		}
 		if ( minHz >= audio.getSampleRate() / 2.0 ) {
-			throw new BoxRuntimeException( "minHz must be below half the sample rate, " + audio.getSampleRate() / 2.0 );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "minHz must be below half the sample rate, " + audio.getSampleRate() / 2.0 );
 		}
 	}
 

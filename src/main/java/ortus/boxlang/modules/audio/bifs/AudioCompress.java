@@ -30,8 +30,8 @@ public class AudioCompress extends BIF {
 	private static final Key	audio		= Key.of( "audio" );
 	private static final Key	thresholdDb	= Key.of( "thresholdDb" );
 	private static final Key	ratio		= Key.of( "ratio" );
-	private static final Key	attack		= Key.of( "attack" );
-	private static final Key	release		= Key.of( "release" );
+	private static final Key	attackMs	= Key.of( "attackMs" );
+	private static final Key	releaseMs	= Key.of( "releaseMs" );
 	private static final Key	knee		= Key.of( "knee" );
 	private static final Key	makeupDb	= Key.of( "makeupDb" );
 
@@ -44,8 +44,8 @@ public class AudioCompress extends BIF {
 		    new Argument( true, "any", audio ),
 		    new Argument( false, "double", thresholdDb, -18.0 ),
 		    new Argument( false, "double", ratio, 4.0 ),
-		    new Argument( false, "double", attack, 10.0 ),
-		    new Argument( false, "double", release, 100.0 ),
+		    new Argument( false, "double", attackMs, 10.0 ),
+		    new Argument( false, "double", releaseMs, 100.0 ),
 		    new Argument( false, "double", knee, 6.0 ),
 		    new Argument( false, "any", makeupDb, "auto" )
 		};
@@ -63,9 +63,9 @@ public class AudioCompress extends BIF {
 	 *
 	 * @argument.ratio How strongly: 4 means 4 dB over the threshold becomes 1 dB. Defaults to 4.
 	 *
-	 * @argument.attack Milliseconds to turn down. Defaults to 10.
+	 * @argument.attackMs Milliseconds to turn down. Defaults to 10.
 	 *
-	 * @argument.release Milliseconds to turn back up. Defaults to 100.
+	 * @argument.releaseMs Milliseconds to turn back up. Defaults to 100.
 	 *
 	 * @argument.knee Width in dB of the soft knee. 0 is a hard knee. Defaults to 6.
 	 *
@@ -77,12 +77,12 @@ public class AudioCompress extends BIF {
 		Object		makeup	= arguments.get( makeupDb );
 		AudioBuffer	input	= Audios.require( arguments.get( audio ), "audio" );
 		if ( makeup instanceof Number n ) {
-			return Dynamics.compress( input, arguments.getAsDouble( thresholdDb ), arguments.getAsDouble( ratio ), arguments.getAsDouble( attack ),
-			    arguments.getAsDouble( release ), arguments.getAsDouble( knee ), n.doubleValue() );
+			return Dynamics.compress( input, arguments.getAsDouble( thresholdDb ), arguments.getAsDouble( ratio ), arguments.getAsDouble( attackMs ),
+			    arguments.getAsDouble( releaseMs ), arguments.getAsDouble( knee ), n.doubleValue() );
 		}
 		if ( "auto".equalsIgnoreCase( String.valueOf( makeup ) ) ) {
-			return Dynamics.compressMatched( input, arguments.getAsDouble( thresholdDb ), arguments.getAsDouble( ratio ), arguments.getAsDouble( attack ),
-			    arguments.getAsDouble( release ), arguments.getAsDouble( knee ) );
+			return Dynamics.compressMatched( input, arguments.getAsDouble( thresholdDb ), arguments.getAsDouble( ratio ), arguments.getAsDouble( attackMs ),
+			    arguments.getAsDouble( releaseMs ), arguments.getAsDouble( knee ) );
 		}
 		throw new ortus.boxlang.runtime.types.exceptions.BoxRuntimeException( "makeupDb must be a number of dB or \"auto\" but was [" + makeup + "]" );
 	}

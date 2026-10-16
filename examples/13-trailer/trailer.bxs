@@ -96,17 +96,17 @@ function builtInCue( bars ){
 	var cue = audioTimeline( bpm = settings.bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
 	var kick = audioDrum( type = "kick", pitch = 0.9, decay = 0.9, level = 0.9 );
 	for( var b = 0; b < bars; b++ ){
-		audioAdd( timeline = cue, sound = padFor( ( b mod 4 ) + 1 ), at = b * bar, track = "music", db = -2 );
+		audioAdd( timeline = cue, sound = padFor( ( b mod 4 ) + 1 ), at = b * bar, track = "music", gainDb = -2 );
 		if( b >= 1 && b < bars - 1 ){
 			for( var k = 0; k < 4; k++ ){
-				audioAdd( timeline = cue, sound = kick, at = b * bar + k * beat, track = "drums", db = -6 );
+				audioAdd( timeline = cue, sound = kick, at = b * bar + k * beat, track = "drums", gainDb = -6 );
 			}
 		}
 	}
 	// A riser into the last bar and a boom on its first beat
 	var riser = audioFade( audioFilter( audioNoise( seconds = bar, sampleRate = sr, color = "white" ), "highpass", 1200, 0.9 ), bar * 0.9, 0.05, "smooth" );
-	audioAdd( timeline = cue, sound = riser, at = ( bars - 2 ) * bar, track = "music", db = -20, pan = 0 );
-	audioAdd( timeline = cue, sound = audioDrum( type = "kick", pitch = 0.5, decay = 3, level = 1 ), at = ( bars - 1 ) * bar, track = "drums", db = -2 );
+	audioAdd( timeline = cue, sound = riser, at = ( bars - 2 ) * bar, track = "music", gainDb = -20, pan = 0 );
+	audioAdd( timeline = cue, sound = audioDrum( type = "kick", pitch = 0.5, decay = 3, level = 1 ), at = ( bars - 1 ) * bar, track = "drums", gainDb = -2 );
 	return audioRender( timeline = cue, tail = 1 );
 }
 
@@ -122,8 +122,8 @@ println( "music fitted to " & numberFormat( total, "0.00" ) & " s" );
 // 4. Mix: the voice on its own track, the music ducking under it
 // ---------------------------------------------------------------------------------------------------------------------------------
 t = audioTimeline( bpm = settings.bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
-audioAdd( timeline = t, sound = music, at = 0, track = "music", db = -3 );
-audioAdd( timeline = t, sound = clip, at = lead, track = "voice", db = 0 );
+audioAdd( timeline = t, sound = music, at = 0, track = "music", gainDb = -3 );
+audioAdd( timeline = t, sound = clip, at = lead, track = "voice", gainDb = 0 );
 audioTrackGain( t, "music", -6 );
 audioDuck( t, "music", "voice", -9 );
 mix = audioTrim( audioRender( timeline = t, tail = 0 ), 0, total );
@@ -137,11 +137,11 @@ mix = audioFade( mix, 0.05, 1.2, "smooth" );
 // 5. Master: a loudness target with a true-peak ceiling, the way streaming services and broadcasters measure
 // ---------------------------------------------------------------------------------------------------------------------------------
 before = audioLoudness( mix );
-mastered = audioMaster( audio = mix, target = settings.target, truePeak = -1 );
+mastered = audioMaster( audio = mix, target = settings.target, truePeakDb = -1 );
 after = audioLoudness( mastered );
 written = audioSave( mastered, settings.out );
 println( "wrote " & written );
-println( "loudness " & numberFormat( before.integrated, "0.0" ) & " LUFS -> " & numberFormat( after.integrated, "0.0" ) & " LUFS (" & settings.target & "), true peak " & numberFormat( after.truePeak, "0.0" ) & " dBFS" );
+println( "loudness " & numberFormat( before.integrated, "0.0" ) & " LUFS -> " & numberFormat( after.integrated, "0.0" ) & " LUFS (" & settings.target & "), true peak " & numberFormat( after.truePeakDb, "0.0" ) & " dBFS" );
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // 6. Captions and chapter markers for the editor

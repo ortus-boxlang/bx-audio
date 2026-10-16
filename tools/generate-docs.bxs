@@ -262,7 +262,7 @@ for( piece in catalog ){
 	rows = [];
 	for( param in piece.params ){
 		range = param.type == "range" ? param.min & " to " & param.max : ( param.type == "select" ? param.options.toList( ", " ) : "text" );
-		rows.append( "| `--" & param.name & "` | " & param.label & " | " & range & " | `" & ( param.value == "" ? "none" : param.value ) & "` |" );
+		rows.append( "| `--" & param.name & "` | " & param.label.replace( "|", "\|", "all" ) & " | " & range & " | `" & ( param.value == "" ? "none" : param.value ) & "` |" );
 	}
 	page.append( "```bash" );
 	page.append( "bx-audio render " & piece.id & " --out=" & piece.id & ".mp3" );
