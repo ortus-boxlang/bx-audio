@@ -86,6 +86,24 @@ svg = audioWaveformImage( audio=beat, width=300, height=60 );
 println( svg.left( 40 ) );
 ```
 
+What the first two calls draw for the same beat (eight kicks with a hi-hat between, and a glide that settles slowly):
+
+![The waveform of a beat: eight kick drum hits as tall spikes that fade away, with a small tick from the hi-hat between them](../assets/images/waveform.svg)
+
+The peaks are the pale shape and the average level the solid one. The kick hits are loud and short, the hi-hat is the small tick between them, and the glide is the steady band that carries on underneath. As separate bars, and with a lane for each channel of the stereo mix:
+
+![The same beat as separate green bars](../assets/images/waveform-bars.svg)
+
+![The same beat with the left channel on top and the right channel below, in purple](../assets/images/waveform-split.svg)
+
+The spectrogram of the same sound. Each kick is a bright smear at the bottom that reaches up through the low frequencies, each hi-hat a short smear at the top, and the glide is the curve that rises and then settles:
+
+![A spectrogram in the magma color scale: bright vertical smears for the drum hits and a curved line that rises from the bottom left and flattens near the top](../assets/images/spectrogram.png)
+
+The `viridis` scale for the same sound:
+
+![The same spectrogram in the viridis color scale, from dark purple through green to yellow](../assets/images/spectrogram-viridis.png)
+
 Write colors without the `#`, as in `color="38bdf8"`. In a BoxLang string a `#` starts an interpolation, so `"#38bdf8"` would have to be written `"##38bdf8"`. Three digits (`fff`) and eight (`38bdf880`, the last two are the opacity) work too.
 
 | Argument | Waveform | Spectrogram |
