@@ -119,23 +119,26 @@ public final class Dynamics {
 		if ( releaseMs < 0 || lookAheadMs < 0 || lookAheadMs > 100 ) {
 			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Release cannot be negative and the look-ahead must be between 0 and 100 ms" );
 		}
-		int			rate	= audio.getSampleRate();
-		int			frames	= audio.getFrames();
-		int			n		= Math.max( 1, ( int ) Math.round( lookAheadMs / 1000 * rate ) );
-		double		ceiling	= Dsp.dbToLinear( ceilingDb );
-		double[]	need	= new double[ frames ];
+		int		rate	= audio.getSampleRate();
+		int		frames	= audio.getFrames();
+		int		n		= Math.max( 1, ( int ) Math.round( lookAheadMs / 1000 * rate ) );
+		double	ceiling	= Dsp.dbToLinear( ceilingDb );
+		// Floats are enough for gains between 0 and 1, and they halve the memory of the working arrays on a long file
+		float[]	need	= new float[ frames ];
+		int		chs		= audio.getChannels();
 		for ( int i = 0; i < frames; i++ ) {
 			double peak = 0;
-			for ( int ch = 0; ch < audio.getChannels(); ch++ ) {
+			for ( int ch = 0; ch < chs; ch++ ) {
 				peak = Math.max( peak, Math.abs( audio.channel( ch )[ i ] ) );
 			}
-			need[ i ] = peak > ceiling ? ceiling / peak : 1;
+			need[ i ] = peak > ceiling ? ( float ) ( ceiling / peak ) : 1f;
 		}
 		// The lowest gain needed in the next n frames, then averaged over the n frames before, so the gain ramps down ahead of a peak and
 		// never sits above what any frame in reach needs
-		double[]	ahead	= slidingMinAhead( need, n );
-		double[]	smooth	= new double[ frames ];
-		double		sum		= 0;
+		float[]	ahead	= slidingMinAhead( need, n );
+		// The needs are not used again, so the smoothed gain takes their place
+		float[]	smooth	= need;
+		double	sum		= 0;
 		for ( int i = 0; i < frames; i++ ) {
 			sum += ahead[ i ];
 			if ( i >= n ) {
@@ -143,8 +146,9 @@ public final class Dynamics {
 			}
 			int count = Math.min( i + 1, n );
 			// Before the start the missing frames count as no reduction
-			smooth[ i ] = ( sum + ( n - count ) ) / n;
+			smooth[ i ] = ( float ) ( ( sum + ( n - count ) ) / n );
 		}
+		ahead = null;
 		double		relCoef	= coefficient( releaseMs, rate );
 		float[][]	out		= new float[ audio.getChannels() ][ frames ];
 		double		gain	= 1;
@@ -175,6 +179,8 @@ public final class Dynamics {
 				break;
 			}
 			sampleCeiling	= Math.max( -60, sampleCeiling - ( truePeak - ceilingDb ) - 0.02 );
+			// the earlier pass is dropped first, so two copies of a long file are not held at once
+			out				= null;
 			out				= limit( audio, sampleCeiling, releaseMs, lookAheadMs );
 		}
 		return out;
@@ -183,18 +189,23 @@ public final class Dynamics {
 	/**
 	 * @return For each index the minimum of values[i .. i + n - 1], clipped at the end
 	 */
-	private static double[] slidingMinAhead( double[] values, int n ) {
-		double[]		out		= new double[ values.length ];
-		Deque<Integer>	window	= new ArrayDeque<>();
+	private static float[] slidingMinAhead( float[] values, int n ) {
+		float[]	out		= new float[ values.length ];
+		// A ring of indexes, at most n + 1 deep, in place of a deque of boxed integers
+		int[]	ring	= new int[ n + 1 ];
+		int		head	= 0;
+		int		size	= 0;
 		for ( int i = values.length - 1; i >= 0; i-- ) {
-			while ( !window.isEmpty() && values[ window.peekLast() ] >= values[ i ] ) {
-				window.pollLast();
+			while ( size > 0 && values[ ring[ ( head + size - 1 ) % ring.length ] ] >= values[ i ] ) {
+				size--;
 			}
-			window.addLast( i );
-			while ( window.peekFirst() > i + n - 1 ) {
-				window.pollFirst();
+			ring[ ( head + size ) % ring.length ] = i;
+			size++;
+			while ( ring[ head ] > i + n - 1 ) {
+				head = ( head + 1 ) % ring.length;
+				size--;
 			}
-			out[ i ] = values[ window.peekFirst() ];
+			out[ i ] = values[ ring[ head ] ];
 		}
 		return out;
 	}
