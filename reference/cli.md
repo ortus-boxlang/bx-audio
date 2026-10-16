@@ -36,7 +36,7 @@ summary: Every bx-audio command and its options.
 | [`mux`](#mux) | Put an audio file on a video, copying the picture without re-encoding |
 | [`pieces`](#pieces) | List the example pieces of music you can render |
 | [`render`](#render) | Synthesize an example piece to an audio file |
-| [`explorer`](#explorer) | Start the web explorer on the BoxLang MiniServer |
+| [`explorer`](#explorer) | Start the web explorer on the BoxLang MiniServer (this machine only unless you give a --host) |
 | [`doctor`](#doctor) | Check that MP3, FFmpeg, audio output, the examples and the explorer will work here |
 | [`completions`](#completions) | Print the tab completion script of a shell |
 | [`version`](#version) | Show the module version |
@@ -280,10 +280,10 @@ bx-audio render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...
 
 ## explorer
 
-Start the web explorer on the BoxLang MiniServer.
+Start the web explorer on the BoxLang MiniServer (this machine only unless you give a --host).
 
 ```bash
-bx-audio explorer [--port=8080]
+bx-audio explorer [--port=8080] [--host=127.0.0.1]
 ```
 
 ## doctor

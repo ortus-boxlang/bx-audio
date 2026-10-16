@@ -14,6 +14,10 @@ summary: WAV, MP3 and FLAC are built in. OGG, Opus, AAC and video use FFmpeg, wh
 
 Files are read by their content, not their extension, and written by the extension of the name you give. `audioSave( audio, "x.ogg", 16, 96 )` writes Ogg Vorbis at 96 kbps, and `audioLoad( "clip.mp4" )` reads the sound of a video.
 
+## MP3 and its length
+
+An MP3 encoder adds silence at the start (its delay) and pads the end to a whole frame, and a decoder adds a little delay of its own, so a plain round trip gives a sound that is longer and starts about 50 ms late. BxAudio writes the standard Info frame with a LAME tag that records the delay and the padding, and cuts them when it reads: `audioSave` to MP3 and `audioLoad` give back the same number of frames, with a sound where it was. FFmpeg and other players that read the tag play the file gapless too. A file from another LAME or FFmpeg encoder is cut by its own tag. A file with no tag (some older encoders) is read as it is, since nothing says how much is padding.
+
 ## FLAC
 
 The FLAC encoder and decoder are written for this module, in plain Java. Written files were checked against FFmpeg: it decodes them to identical samples, with the checksums valid. Music compresses to 40 to 55 percent of the size of the WAV. The decoder reads FLAC from other encoders too, including their LPC compression.

@@ -159,7 +159,7 @@ audioSave( session, "session.wav" );
 Every example renders from the command line, including the BxAudio theme.
 
 ```bash
-bx-audio pieces                                           # the 15 pieces
+bx-audio pieces                                           # the 16 pieces
 bx-audio render theme --out=theme.mp3
 bx-audio render techno --bars=16 --out=techno.mp3
 bx-audio explorer                                         # play them all in the browser
