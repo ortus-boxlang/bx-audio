@@ -22,6 +22,7 @@
 			"guides/games.md",
 			"guides/podcasts.md",
 			"guides/testing-audio.md",
+			"guides/web-apps.md",
 			"guides/analysis.md",
 			"guides/formats-and-ffmpeg.md",
 			"guides/storage.md"
@@ -48,6 +49,7 @@
 			"reference/functions/ffmpeg-and-video.md",
 			"reference/functions/speech.md",
 			"reference/functions/games.md",
+			"reference/functions/web.md",
 			"reference/functions/storage.md",
 			"reference/cli.md",
 			"reference/configuration.md",

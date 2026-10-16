@@ -21,6 +21,8 @@ Functions fall into five groups by what they return. Anything not listed here re
 | Function | Returns |
 |---|---|
 | `audioFreq` | Frequency in Hz, with A4 at 440. |
+| `audioEncode` | The bytes of the encoded file, as binary data. |
+| `audioDecode` | An audio buffer. |
 | `audioSave`, `audioMux` | The absolute path of the file that was written. |
 | `audioStorageClear` | Megabytes freed. |
 | `audioVoiceRemove` | `true` if something was deleted, `false` if it was not installed. |
@@ -33,6 +35,15 @@ Functions fall into five groups by what they return. Anything not listed here re
 ## Structs
 
 All keys below are always present unless marked optional.
+
+### `audioHttpResponse( source, request )`
+
+| Key | Type | Meaning |
+|---|---|---|
+| `status` | integer | `200`, `206` (a range), `304` (not modified), `405` (not GET or HEAD) or `416` (range past the end). |
+| `statusText` | string | The matching text, such as `Partial Content`. |
+| `headers` | struct | Response headers: `Content-Type`, `Accept-Ranges`, `ETag`, `Cache-Control`, `Content-Length`, and when they apply `Content-Range`, `Last-Modified` and `Content-Disposition`. A `304` has no `Content-Type`. |
+| `body` | binary | The bytes to send. Empty for `304`, `405`, `416` and `HEAD`. |
 
 ### `audioInfo( source, levels=false )`
 

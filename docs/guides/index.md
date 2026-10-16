@@ -15,6 +15,7 @@ summary: Task oriented guides, from making a first sound to scoring a video and 
 | [Game audio](games.md) | Play many sounds in real time, loop music, vary effects, and export audio sprites |
 | [Podcasts](podcasts.md) | Clean up a recording, level it to the podcast standard, add music that ducks under the voice, mark chapters |
 | [Testing audio](testing-audio.md) | Assert length, level, loudness, silence and pitch in a test, and keep it repeatable |
+| [Web apps](web-apps.md) | Serve audio from a web endpoint with range requests, ETag and 304, and accept uploads |
 | [Analysis](analysis.md) | Find the tempo and beats, look at the spectrum, find silence |
 | [Formats and FFmpeg](formats-and-ffmpeg.md) | Read and write WAV, MP3, FLAC, OGG, Opus and AAC, and read the audio of a video |
 | [Storage](storage.md) | See and clear what the module downloaded, and move it |
