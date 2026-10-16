@@ -322,7 +322,7 @@ To listen in a browser, start the [explorer](examples/explorer/) with the MiniSe
 
 ## Command Line
 
-Installing the module with `install-bx-module` also installs a `bx-audio` command and its bash tab completion, so you can work with audio from a shell without writing a script. Without the installer, the same commands run as `boxlang module:bxaudio <command>`.
+Installing the module with `install-bx-module` also installs a `bx-audio` command and its bash tab completion (`bx-audio completions zsh`, `fish` and `powershell` print the scripts for those shells), so you can work with audio from a shell without writing a script. Without the installer, the same commands run as `boxlang module:bxaudio <command>`.
 
 ```bash
 bx-audio render techno --bars=16 --out=techno.mp3   # synthesize an example piece

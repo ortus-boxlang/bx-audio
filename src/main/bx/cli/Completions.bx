@@ -1,0 +1,298 @@
+/**
+ * Tab completion scripts for bash, zsh, fish and PowerShell, built from the command definitions of the Cli class, so the scripts cannot
+ * drift away from the commands. `bx-audio completions <shell>` prints one, and tools/generate-docs.bxs writes them to completions/.
+ */
+class {
+
+	property name="commands";
+	property name="pieces";
+	property name="voices";
+
+	/**
+	 * @commands The command definitions of the Cli class
+	 * @pieces   The ids of the example pieces `render` knows, and for each the names of its settings: [ { id, settings : [] } ]
+	 * @voices   The short names of the voices the module offers
+	 */
+	function init( required array commands, required array pieces, required array voices ){
+		variables.commands = arguments.commands;
+		variables.pieces = arguments.pieces;
+		variables.voices = arguments.voices;
+		return this;
+	}
+
+	static function shells(){
+		return [ "bash", "zsh", "fish", "powershell" ];
+	}
+
+	/**
+	 * The completion script of a shell
+	 */
+	function render( required string shell ){
+		var model = buildModel();
+		switch( arguments.shell.lcase() ){
+			case "bash": return bash( model );
+			case "zsh": return zsh( model );
+			case "fish": return fish( model );
+			case "powershell": case "pwsh": return powershell( model );
+		}
+		throw( type = "bxaudio.cli", message = "Unknown shell [#arguments.shell#]. Use one of: #static.shells().toList( ', ' )#." );
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// The model: what can follow each command
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * For each command: its name, a short help, its options ({ name, value, choices }), the words that can follow it and whether it takes files
+	 */
+	function buildModel(){
+		var model = [];
+		for( var c in commands ){
+			var text = c.usage & " " & ( c.keyExists( "details" ) ? c.details.toList( " " ) : "" );
+			var options = [];
+			var index = {};
+			for( var found in reMatch( "--[A-Za-z][A-Za-z0-9-]*(=[^\s\]\[]*)?", text ) ){
+				var name = found.listFirst( "=" ).mid( 3, 100 );
+				var hasValue = found.find( "=" ) > 0;
+				var value = hasValue ? found.listRest( "=" ) : "";
+				var choices = [];
+				if( value.find( "|" ) ){
+					choices = value.listToArray( "|" ).filter( ( v ) => reFind( "^[A-Za-z][A-Za-z0-9]*$", v ) );
+				}
+				if( name == "help" ){
+					continue;
+				}
+				if( !index.keyExists( name ) ){
+					index[ name ] = { "name" : name, "value" : hasValue, "choices" : choices };
+					options.append( index[ name ] );
+				} else if( hasValue && !index[ name ].value ){
+					index[ name ].value = true;
+					index[ name ].choices = choices;
+				}
+			}
+			var words = [];
+			var plain = c.usage.reReplace( "--[^\s\]]*", "", "all" );
+			for( var group in reMatch( "[<\[][A-Za-z0-9|-]+[>\]]", plain ) ){
+				var inner = group.mid( 2, group.len() - 2 );
+				if( !inner.find( "|" ) ){
+					continue;
+				}
+				for( var part in inner.listToArray( "|" ) ){
+					if( part == "voice" ){
+						words.append( voices, true );
+					} else {
+						words.append( part );
+					}
+				}
+			}
+			if( c.name == "help" ){
+				words = commands.map( ( x ) => x.name );
+			}
+			if( c.name == "render" ){
+				words = pieces.map( ( p ) => p.id );
+				var known = {};
+				options = [ { "name" : "out", "value" : true, "choices" : [] } ];
+				for( var p in pieces ){
+					for( var s in p.settings ){
+						if( !known.keyExists( s ) && s != "out" ){
+							known[ s ] = true;
+							options.append( { "name" : s, "value" : true, "choices" : [] } );
+						}
+					}
+				}
+			}
+			model.append( {
+				"name" : c.name,
+				"help" : shortHelp( c.help ),
+				"options" : options,
+				"words" : words,
+				"files" : reFind( "<(file|in|out|video|audio)>", c.usage ) > 0
+			} );
+		}
+		return model;
+	}
+
+	/**
+	 * The first sentence of the help, with nothing that would need escaping in a shell
+	 */
+	private function shortHelp( required string help ){
+		var text = arguments.help.reReplace( "[`'""\\$]", "", "all" );
+		return text.listFirst( "." ).trim();
+	}
+
+	private function nl(){
+		return char( 10 );
+	}
+
+	private function optionWords( required struct command ){
+		return command.options.map( ( o ) => "--" & o.name & ( o.value ? "=" : "" ) );
+	}
+
+	/**
+	 * Everything that can be typed after the command: its words, its options and the values of the options that have a fixed set
+	 */
+	private function allWords( required struct command ){
+		var words = [];
+		words.append( command.words, true );
+		words.append( optionWords( command ), true );
+		for( var o in command.options ){
+			for( var v in o.choices ){
+				words.append( "--" & o.name & "=" & v );
+			}
+		}
+		return words;
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// bash
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	private function bash( required array model ){
+		var lines = [
+			"##",
+			"## Tab completion for bx-audio. Generated by tools/generate-docs.bxs, do not edit. Print it again with `bx-audio completions bash`.",
+			"## Load it with: source <(bx-audio completions bash)",
+			"##",
+			"_bx_audio_complete() {",
+			"    local current_word=""${COMP_WORDS[COMP_CWORD]}""",
+			"    local command=""${COMP_WORDS[1]}""",
+			"    local commands=""" & model.map( ( c ) => c.name ).toList( " " ) & """",
+			"    if [ ""$COMP_CWORD"" -eq 1 ]; then",
+			"        COMPREPLY=($(compgen -W ""$commands"" -- ""$current_word""))",
+			"        return",
+			"    fi",
+			"    case ""$command"" in"
+		];
+		for( var c in model ){
+			var words = allWords( c );
+			lines.append( "        " & c.name & ")" );
+			lines.append( "            COMPREPLY=($(compgen " & ( c.files ? "-f " : "" ) & "-W """ & words.toList( " " ) & """ -- ""$current_word"")) ;;" );
+		}
+		lines.append( "        *) COMPREPLY=($(compgen -f -- ""$current_word"")) ;;" );
+		lines.append( "    esac" );
+		lines.append( "}" );
+		lines.append( "complete -o filenames -F _bx_audio_complete bx-audio" );
+		return lines.toList( nl() ) & nl();
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// zsh
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	private function zsh( required array model ){
+		var lines = [
+			"##compdef bx-audio",
+			"## Tab completion for bx-audio. Generated by tools/generate-docs.bxs, do not edit. Print it again with `bx-audio completions zsh`.",
+			"## Load it with: bx-audio completions zsh > ""${fpath[1]}/_bx-audio"" and start a new shell, or: source <(bx-audio completions zsh)",
+			"_bx-audio() {",
+			"    local -a commands",
+			"    commands=("
+		];
+		for( var c in model ){
+			lines.append( "        '" & c.name & ":" & c.help.replace( ":", " -", "all" ) & "'" );
+		}
+		lines.append( "    )" );
+		lines.append( "    if (( CURRENT == 2 )); then" );
+		lines.append( "        _describe -t commands 'bx-audio command' commands" );
+		lines.append( "        return" );
+		lines.append( "    fi" );
+		lines.append( "    case $words[2] in" );
+		for( var c in model ){
+			var spec = [];
+			for( var o in c.options ){
+				if( o.value && o.choices.len() ){
+					spec.append( "'--" & o.name & "=[" & o.name & "]:" & o.name & ":(" & o.choices.toList( " " ) & ")'" );
+				} else if( o.value ){
+					spec.append( "'--" & o.name & "=[" & o.name & "]:" & o.name & ":'" );
+				} else {
+					spec.append( "'--" & o.name & "'" );
+				}
+			}
+			if( c.words.len() ){
+				spec.append( "'*:" & c.name & ":(" & c.words.toList( " " ) & ")'" );
+			} else if( c.files ){
+				spec.append( "'*:file:_files'" );
+			}
+			lines.append( "        " & c.name & ")" );
+			lines.append( "            " & ( spec.len() ? "_arguments " & spec.toList( " " ) : "_message 'no arguments'" ) & " ;;" );
+		}
+		lines.append( "    esac" );
+		lines.append( "}" );
+		lines.append( "if [ ""$funcstack[1]"" = ""_bx-audio"" ]; then" );
+		lines.append( "    _bx-audio ""$@""" );
+		lines.append( "else" );
+		lines.append( "    compdef _bx-audio bx-audio" );
+		lines.append( "fi" );
+		return lines.toList( nl() ) & nl();
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// fish
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	private function fish( required array model ){
+		var lines = [
+			"## Tab completion for bx-audio. Generated by tools/generate-docs.bxs, do not edit. Print it again with `bx-audio completions fish`.",
+			"## Load it with: bx-audio completions fish > ~/.config/fish/completions/bx-audio.fish",
+			"complete -c bx-audio -f"
+		];
+		for( var c in model ){
+			lines.append( "complete -c bx-audio -n '__fish_use_subcommand' -a " & c.name & " -d '" & c.help & "'" );
+		}
+		for( var c in model ){
+			var seen = "__fish_seen_subcommand_from " & c.name;
+			for( var o in c.options ){
+				var line = "complete -c bx-audio -n '" & seen & "' -l " & o.name;
+				if( o.value ){
+					line &= " -r";
+					if( o.choices.len() ){
+						line &= " -a '" & o.choices.toList( " " ) & "'";
+					}
+				}
+				lines.append( line );
+			}
+			if( c.words.len() ){
+				lines.append( "complete -c bx-audio -n '" & seen & "' -a '" & c.words.toList( " " ) & "'" );
+			}
+			if( c.files ){
+				lines.append( "complete -c bx-audio -n '" & seen & "' -F" );
+			}
+		}
+		return lines.toList( nl() ) & nl();
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------------------
+	// PowerShell
+	// ---------------------------------------------------------------------------------------------------------------------------
+
+	private function powershell( required array model ){
+		var lines = [
+			"## Tab completion for bx-audio. Generated by tools/generate-docs.bxs, do not edit. Print it again with `bx-audio completions powershell`.",
+			"## Load it with: bx-audio completions powershell | Out-String | Invoke-Expression, or add that line to your $PROFILE",
+			"$bxAudioCommands = [ordered]@{"
+		];
+		for( var c in model ){
+			var words = allWords( c );
+			lines.append( "    '" & c.name & "' = @(" & words.map( ( w ) => "'" & w & "'" ).toList( ", " ) & ")" );
+		}
+		lines.append( "}" );
+		lines.append( "Register-ArgumentCompleter -Native -CommandName bx-audio -ScriptBlock {" );
+		lines.append( "    param($wordToComplete, $commandAst, $cursorPosition)" );
+		lines.append( "    $words = @($commandAst.CommandElements | ForEach-Object { $_.ToString() })" );
+		lines.append( "    if ($words.Count -le 1 -or ($words.Count -eq 2 -and $wordToComplete -ne '')) {" );
+		lines.append( "        $bxAudioCommands.Keys | Where-Object { $_ -like ""$wordToComplete*"" } | ForEach-Object {" );
+		lines.append( "            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)" );
+		lines.append( "        }" );
+		lines.append( "        return" );
+		lines.append( "    }" );
+		lines.append( "    $command = $words[1]" );
+		lines.append( "    if ($bxAudioCommands.Contains($command)) {" );
+		lines.append( "        $bxAudioCommands[$command] | Where-Object { $_ -like ""$wordToComplete*"" } | ForEach-Object {" );
+		lines.append( "            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)" );
+		lines.append( "        }" );
+		lines.append( "    }" );
+		lines.append( "}" );
+		return lines.toList( nl() ) & nl();
+	}
+
+}

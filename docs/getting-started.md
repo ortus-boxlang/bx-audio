@@ -16,7 +16,7 @@ install-bx-module bx-audio
 box install bx-audio
 ```
 
-`install-bx-module` also installs the `bx-audio` command and its bash tab completion. Check the installation:
+`install-bx-module` also installs the `bx-audio` command and its bash tab completion (`bx-audio completions zsh`, `fish` and `powershell` print the scripts for those shells). Check the installation:
 
 ```bash
 bx-audio doctor

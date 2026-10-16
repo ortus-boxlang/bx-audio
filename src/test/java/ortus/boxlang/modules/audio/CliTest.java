@@ -15,6 +15,7 @@
 package ortus.boxlang.modules.audio;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Files;
@@ -57,6 +58,31 @@ public class CliTest extends BaseIntegrationTest {
 		variables.put( Key.of( "target" ), path );
 		runtime.executeSource( "audioSave( audioPan( audioGain( audioOsc( 'sine', 440, 1 ), -6 ), 0 ), target )", context );
 		return path;
+	}
+
+	@DisplayName( "completions prints a script per shell, and the committed scripts are what the command prints" )
+	@Test
+	void testCompletions() throws Exception {
+		String[][] shells = { { "bash", "bx-audio.bash" }, { "zsh", "_bx-audio" }, { "fish", "bx-audio.fish" }, { "powershell", "bx-audio.ps1" } };
+		for ( String[] shell : shells ) {
+			String	script		= run( "completions", shell[ 0 ] );
+			String	committed	= Files.readString( Path.of( "completions", shell[ 1 ] ) );
+			assertWithMessage( shell[ 0 ] ).that( script.replace( "\r\n", "\n" ).trim() ).isEqualTo( committed.replace( "\r\n", "\n" ).trim() );
+			for ( String command : new String[] { "normalize", "master", "render", "completions" } ) {
+				assertWithMessage( shell[ 0 ] + " " + command ).that( script ).contains( command );
+			}
+			assertWithMessage( shell[ 0 ] ).that( script ).contains( "targetDb" );
+		}
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "completions", "tcsh" ) ).getMessage() ).contains( "Unknown shell" );
+	}
+
+	@DisplayName( "A command refuses an option it does not have" )
+	@Test
+	void testUnknownOption( @TempDir Path dir ) {
+		String	source	= tone( dir, "in.wav" );
+		String	target	= dir.resolve( "out.wav" ).toString();
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "normalize", source, target, "--db=-3" ) ).getMessage() )
+		    .contains( "Unknown option --db" );
 	}
 
 	@DisplayName( "help lists every command and each command has its own usage" )
