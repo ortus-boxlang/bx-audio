@@ -25,21 +25,24 @@
 
 ## Introduction
 
-BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix tracks with ducking, add effects and save the result as WAV or MP3. It runs entirely on the JVM, so there is no Python or native tool to install, and a track made on your laptop renders the same on a server. WAV, MP3 and FLAC need nothing else; OGG, Opus, AAC and video files use FFmpeg, which the module finds on your computer or downloads for you.
+BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix tracks with ducking, add effects and save the result as WAV, MP3 or FLAC. It runs entirely on the JVM, so there is no Python or native tool to install, and a track made on your laptop renders the same on a server. WAV, MP3 and FLAC need nothing else; OGG, Opus, AAC and video files use FFmpeg, which the module finds on your computer or downloads for you.
 
 **Key Features:**
 
 - 🎹 Synthesis: band-limited oscillators, noise, envelopes, sweeps and a set of drums
 - 🎚️ Timeline mixer with a tempo grid, named tracks, automatic sample rate and channel conversion
 - 🔊 Kick-style pump and voice-over ducking for trailers and videos
-- 🎛️ Filters, delay (with ping pong), Freeverb reverb and chorus
+- 🎛️ Filters, delay (with ping pong), Freeverb reverb, convolution reverb from a real room, and chorus
+- 🌊 Curves and LFOs that move volume, position, filter or pitch while a sound plays: tremolo, auto pan, filter sweeps, vibrato, and track automation on the timeline
+- 🎹 Sampler: an instrument from any recording, with notes, chords and a looped sustain
 - ✂️ Edit: gain, pan, fade, normalize, trim, concat, reverse, resample
 - 💾 Read and write WAV (16/24 bit PCM, 32 bit float), MP3 and FLAC, and with FFmpeg OGG, Opus, AAC and the audio of any video
 - 📏 Loudness measured the EBU R128 way and mastering to a target (-14 LUFS for streaming), with a true-peak limiter
 - ⏱️ Time stretch and pitch shift, to cut music to the exact length of a video
 - 📝 Subtitles (SRT, WebVTT) timed to the text to speech voice, and chapter markers
 - 🎮 A real time mixer for games: buses, volume, pan, pitch, loops, crossfades, audio sprites
-- 🔬 Analysis: tempo and beats, spectrum, silence
+- 🔬 Analysis: tempo and beats, spectrum, silence, and waveform and spectrogram pictures as SVG or PNG
+- 🏷️ Tags, cover art and chapters for MP3, FLAC and WAV, and audio as bytes with an HTTP response that handles Range, ETag and 304
 - 🎼 A catalog of complete, original example songs with no samples to license
 - 🗣️ Text to speech with open license voices that download on first use, no API key or cloud service
 - 🔁 Repeatable: the same seed gives the same sound on any machine
@@ -102,9 +105,9 @@ Every function returns a new buffer and leaves its input untouched. BoxLang does
 | Function | Purpose |
 |---|---|
 | `audioSilence( seconds, channels=2, sampleRate=44100 )` | Create a blank audio buffer |
-| `audioLoad( path )` | Read a WAV (PCM 8/16/24/32 bit and 32/64 bit float) or MP3 file, detected by content |
-| `audioSave( audio, path, bitDepth=16, bitrate=0 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, default 192 or 128 below 32 kHz, mono or stereo) |
-| `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
+| `audioLoad( path )` | Read a WAV, MP3 or FLAC file, or any other format through FFmpeg, detected by content. An MP3 gives back the length it was saved with |
+| `audioSave( audio, path, bitDepth=16, bitrate=0 )` | Write by the extension: WAV (16, 24 or 32 bit float), MP3 (`bitrate` in kbps, default 192 or 128 below 32 kHz, mono or stereo), FLAC, or OGG, Opus, M4A and AAC through FFmpeg |
+| `audioInfo( source, levels=false )` | Channels, sample rate, frames and seconds of a buffer or a file, and with `levels=true` the peak and RMS |
 | `audioWaveform( audio, points=800 )` | The loudest level in each of `points` equal slices, as an array for drawing a waveform |
 | `audioGain( audio, gainDb )` | Change the volume in decibels |
 | `audioPan( audio, pan )` | Place a sound from -1 (left) to 1 (right) with a constant power law. Mono becomes stereo, stereo acts as a balance |
@@ -116,6 +119,9 @@ Every function returns a new buffer and leaves its input untouched. BoxLang does
 | `audioMix( audios )` | Add buffers together so they play at the same time, as long as the longest |
 | `audioChannels( audio, channels )` | Convert between mono and stereo |
 | `audioResample( audio, sampleRate )` | Change the sample rate with a windowed sinc filter, with anti-aliasing when lowering it |
+| `audioTags( path, tags )` | Read the tags of a WAV, MP3 or FLAC file, with the cover and chapters, or write them. Changes are atomic |
+| `audioEncode( audio, format="wav", bitDepth=16, bitrate=0 )` | Audio as the bytes of a file, without touching the disk |
+| `audioDecode( data, format="" )` | Audio from bytes in memory, such as an upload, the format found from the content |
 
 ### Synthesis
 
@@ -125,11 +131,13 @@ Sounds are made from code, with no samples to download or license. Generators re
 |---|---|
 | `audioFreq( note )` | A note name (`"C4"`, `"F#3"`, `"Bb2"`) or MIDI number to Hz, A4 = 440. `60.1` is ten cents sharp of C4 |
 | `audioOsc( shape, freq, seconds, sampleRate=44100, harmonics=16, partials, width=0.5, phase=0 )` | `sine`, `saw`, `square`, `triangle` (band limited, peak about 1), `pulse` (naive digital, `width` 0.125 / 0.25 / 0.5 / 0.75 for NES style) or `additive` from `[ multiple, amplitude ]` pairs |
-| `audioSweep( startHz, endHz, seconds, speed=28 )` | A sine that glides between pitches, the core of a kick or a laser |
+| `audioSweep( startHz, endHz, seconds, speed=28, sampleRate=44100 )` | A sine that glides between pitches, the core of a kick or a laser |
 | `audioNoise( seconds, sampleRate=44100, seed=1, color="white" )` | Repeatable noise: `white`, `pink`, `brown` or `blue`, at RMS 0.25 |
 | `audioEnvelope( audio, attack=0.005, decay=0 )` | Linear attack then exponential decay, `decay` is the time constant |
 | `audioDrum( type, sampleRate=44100, seed=1, pitch=1, decay=1, level=1, seconds )` | `kick`, `snare`, `hat`, `openhat`, `clap`, `tom`, `crash`, `riser`, peak-normalized to `level` |
 | `audioFilter( audio, type, cutoff, q=0.7071 )` | `lowpass`, `highpass`, `bandpass` or `notch` |
+| `audioSampler( audio, rootNote="C4", loop=false, loopStart=0, loopEnd=0, crossfade=0.02 )` | An instrument made from a recording, optionally with a looped sustain |
+| `audioNote( sampler, note, seconds=0, velocity=1, attack=0.003, release=0.05 )` | One note, or a chord from an array of notes, played from a sampler |
 
 The same seed always gives the same sound on any machine. It does not match numpy's random stream, so a port of a numpy script sounds the same but is not bit identical.
 
@@ -156,6 +164,19 @@ Echo and reverb return a longer buffer so the tail rings out instead of being cu
 | `audioDelay( audio, time=0.35, feedback=0.4, mix=0.35, pingPong=false, tail )` | Echo. Repeats run until 60 dB down (at most 10 s) unless `tail` is given. `pingPong` bounces them between stereo sides |
 | `audioReverb( audio, room=0.5, damp=0.5, mix=0.3, tail )` | Freeverb style reverb: 8 damped combs into 4 allpass filters, stereo spread. Large rooms build up level on sustained sounds, so lower the mix |
 | `audioChorus( audio, rate=0.8, depth=0.003, mix=0.5 )` | A slowly swinging short delay for width and thickness |
+| `audioConvolve( audio, impulse, mix=0.3 )` | Convolution reverb: the sound played through the recorded echo of a real space (an impulse response up to 20 seconds) |
+
+### Modulation and automation
+
+A curve is a value that changes over time. Point it at the volume, position, filter or pitch of a sound, or of a track on a timeline.
+
+| Function | Purpose |
+|---|---|
+| `audioLfo( shape="sine", rate=1, depth=1, center=0, phase=0, fadeIn=0, seed=0 )` | A curve that swings around `center` (`sine`, `triangle`, `saw`, `square` or `random`) |
+| `audioCurve( points, interpolation="linear" )` | A curve through points (`{ at, value }`), `linear`, `smooth` or `step` |
+| `audioCurveAt( curve, seconds )` | What a curve says at a time |
+| `audioModulate( audio, param, curve, filter="lowpass", q=0.7071 )` | Drive `gainDb`, `pan`, `cutoff` or `pitch` of a sound with a curve: tremolo, auto pan, filter sweeps, vibrato |
+| `audioAutomate( timeline, track, param, curve )` | Move a track's `gainDb` or `pan` during the render |
 
 ```js
 // A snare with a dotted eighth ping pong echo and a hall
@@ -245,10 +266,12 @@ This is WSOLA (waveform similarity overlap-add), written for this module: good o
 |---|---|
 | `audioBpm( audio, minBpm=60, maxBpm=200 )` | `bpm` (0 when there is no clear pulse), `confidence` and the `beats` in seconds |
 | `audioSpectrum( audio, bands=16, minHz=40, maxHz=16000, start=0, seconds=0 )` | Level in dB of log spaced bands |
-| `audioSpectrogram( audio, bands=16, frames=64 )` | Band levels over time, for drawing |
+| `audioSpectrogram( audio, bands=16, frames=64, minHz=40, maxHz=16000 )` | Band levels over time, for drawing |
 | `audioFft( audio, size=2048, start=0 )` | The raw `frequencies` and `magnitudes` of one window |
 | `audioDetectSilence( audio, thresholdDb=-50, minSeconds=0.3 )` | The silent stretches as `{ start, end, duration }` |
 | `audioTrimSilence( audio, thresholdDb=-50, pad=0 )` | Cut the silence off both ends |
+| `audioWaveformImage( audio, width=800, height=160, format="", path="", color="#3b82f6", background="", style="filled", split=false )` | The waveform as an SVG or PNG picture, written to a path or returned |
+| `audioSpectrogramImage( audio, width=800, height=256, format="", path="", minHz=40, maxHz=16000, rangeDb=80, scale="magma" )` | The spectrogram as a PNG, with `magma`, `viridis` or `gray` colors |
 
 ### Formats and FFmpeg
 
@@ -259,8 +282,9 @@ WAV, MP3 and FLAC are read and written by the module itself (FLAC lossless, in p
 | `audioFfmpeg()` | Is FFmpeg available, where from, which version and encoders, and what a download would be |
 | `audioFfmpegInstall( onProgress )` | Download it now |
 | `videoInfo( path )` | Length, size, video and audio streams of any media file |
-| `audioMux( video, audio, output, keepOriginal=false, originalDb=-12, offset=0 )` | Put audio on a video, copying the picture untouched; never longer than the video |
-| `audioMarkers( markers, format="json", path="" )` | Markers as `json`, `csv`, a Resolve `edl`, `srt`, `vtt`, FFmpeg chapters (`ffmetadata`) or a `youtube` chapter list |
+| `audioMux( video, audio, output, keepOriginal=false, originalDb=-12, offset=0, bitrate=0 )` | Put audio on a video, copying the picture untouched; never longer than the video |
+| `audioMarkers( markers, format="json", path="", fps=30, total=0 )` | Markers as `json`, `csv`, a Resolve `edl`, `srt`, `vtt`, FFmpeg chapters (`ffmetadata`) or a `youtube` chapter list |
+| `audioHttpResponse( source, request, format="", bitrate=0, bitDepth=16, maxAgeSeconds=3600, filename="", download=false )` | What to send for a request for audio: status, headers and body for Range, ETag and 304 |
 
 `audioSave( audio, "out.ogg", 16, 96 )` and `audioLoad( "clip.mp4" )` just work once FFmpeg is there. FFmpeg builds are third party programs with their own licenses (see [docs](docs/)); the module never bundles or links them.
 
@@ -272,7 +296,7 @@ WAV, MP3 and FLAC are read and written by the module itself (FLAC lossless, in p
 | `mixer.play( sound, { bus, volume, pan, pitch, loop, loopStart, loopEnd, start, fadeIn } )` | Play a sound, get a playback to `stop( fade )`, `pause()`, `resume()`, `setVolume()`, `setPan()`, `setPitch()`, `fadeTo( level, seconds )` |
 | `mixer.crossfade( playback, sound, seconds, options )` | Swap music smoothly |
 | `mixer.setVolume( bus, volume )` / `mixer.setVolume( volume )` | Bus and master volume |
-| `audioPlay( audio, wait=true, volume=1 )` | Play one sound through the speakers |
+| `audioPlay( audio, wait=true, volume=1, output="speakers" )` | Play one sound through the speakers, or with `output="memory"` or `"null"` where there is no sound card |
 | `audioLoopify( audio, crossfade=0.25 )` | Blend the end into the start so a loop cannot click |
 | `audioVariations( audio, count=5, pitchRange=1, gainRangeDb=2, seed=1 )` | Slightly different copies, so repeated effects do not sound alike |
 | `audioSprite( sounds, gap=0.1, path )` | Join named sounds into one file with a Howler.js map |
@@ -285,15 +309,16 @@ Playing to the speakers needs a sound card and the JVM's `java.desktop` module. 
 
 | Function | Purpose |
 |---|---|
-| `audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses )` | Speak a text, `speed` 1 is the voice's pace, `pauses` (`{ sentence, clause, paragraph }` in seconds) speaks it piece by piece. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
-| `audioSpeakCues( text, voice, speed, pauses, maxChars=80, split="sentence" )` | Speak piece by piece and get `audio`, `cues` (`start`, `end`, `text`) and `seconds`. Captions land on the words within about 10 ms |
+| `audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations )` | Speak a text, `speed` 1 is the voice's pace, `pauses` (`{ sentence, clause, paragraph }` in seconds) speaks it piece by piece. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
+| `audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", autoInstall, onProgress, pronunciations )` | Speak piece by piece and get `audio`, `cues` (`start`, `end`, `text`) and `seconds`. Captions land on the words within about 10 ms |
 | `audioSubtitles( cues, format="srt", path="", offset=0 )` | SRT or WebVTT text from cues, written to a file if you give a path |
 | `audioVoices( language="", installed=false, status="offered", license="" )` | The voices: id, name, language, quality, license, size, `status` (`installed`, `downloadable`, or `excluded` with `reason`). `status="excluded"` or `"all"` shows the voices that are not offered and why |
 | `audioLicenses()` | The licenses of the offered voices and what each asks of you |
 | `audioVoiceInstall( voice, onProgress )` | Download a voice ahead of time, or `"engine"` for the speech engine every voice needs |
 | `audioVoiceRemove( voice )` | Delete a voice, or `"engine"`, from disk |
 | `audioSpeechStatus()` | Where it all lives, whether the engine is installed, and which voices are |
-| `audioStorage()` / `audioStorageClear( kind )` | Where `~/.bxaudio` keeps the engine, voices, FFmpeg and caches and how big each is, and delete one kind (`engine`, `voices`, `ffmpeg`, `cache`) or `all` |
+| `audioStorage()` | Where `~/.bxaudio` keeps the engine, voices, FFmpeg and caches and how big each is |
+| `audioStorageClear( kind="all" )` | Delete one kind of download (`engine`, `voices`, `ffmpeg`, `cache`) or `all` |
 
 ```js
 // A voice-over, ducking music underneath it
@@ -349,6 +374,8 @@ bx-audio doctor                                     # checks MP3, the examples a
 | `ffmpeg [install]` / `probe <file>` / `mux <video> <audio> <out>` | FFmpeg status and download, media information, audio onto a video |
 | `where` / `clean [kind] --yes` | Where `~/.bxaudio` keeps its downloads and how big they are, and deleting them |
 | `licenses` | The voice licenses and what each asks of you |
+| `completions <shell>` | Print the tab completion script for `bash`, `zsh`, `fish` or `powershell` |
+| `version` | The module version |
 | `normalize <in> <out>` | Scale the peak to `--targetDb` (default -1) |
 | `trim <in> <out>` | Keep the section from `--start` to `--end`, in seconds |
 | `waveform <file>` | Draw the loudness on one line, `--width` characters wide |
@@ -357,7 +384,7 @@ bx-audio doctor                                     # checks MP3, the examples a
 | `install <voice>` / `remove <voice>` | Download or delete a voice, or `engine` for the speech engine |
 | `pieces` | List the example pieces |
 | `render <piece>` | Synthesize an example piece. Takes `--out` and the settings of that piece, such as `--bars` and `--bpm` |
-| `explorer` | Start the web explorer on `--port` (default 8080). Needs the BoxLang MiniServer on your PATH |
+| `explorer` | Start the web explorer on `--port` (default 8080) and `--host` (default `127.0.0.1`, this machine only). Needs the BoxLang MiniServer on your PATH |
 | `doctor` | Check MP3, FFmpeg, audio output, the examples and the explorer on this machine |
 
 Paths are relative to the folder you run the command in. Run `bx-audio help <command>` for the options of one command.
@@ -373,7 +400,9 @@ Paths are relative to the folder you run the command in. Run `bx-audio help <com
 7. ~~Loudness, mastering, compression, EQ, time stretch and pitch shift~~ done
 8. ~~Real time playback and mixing for games~~ done (needs a sound card to hear, headless modes for servers)
 9. ~~MP3 and FLAC read and write; OGG, Opus, AAC and video through FFmpeg~~ done
-10. MIDI file rendering, more languages for speech, formant-preserving pitch shift
+10. ~~Encode and decode in memory, an HTTP response with range requests, tags with cover art and chapters, waveform and spectrogram pictures~~ done
+11. ~~A sampler, LFOs and curves with modulation and track automation, convolution reverb, gapless MP3~~ done
+12. MIDI file rendering, more languages for speech, formant-preserving pitch shift
 
 ## Licensing
 
