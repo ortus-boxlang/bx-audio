@@ -129,7 +129,12 @@ class {
 	 * Called by the ModuleService on module deactivation
 	 */
 	function onUnload(){
-
+		// Close the mixers that are still open and the speech engine, so a reload starts clean
+		try {
+			createObject( "java", "ortus.boxlang.modules.audio.util.Lifecycle" ).shutdown();
+		} catch( any e ){
+			// nothing was started, or the classes are already gone
+		}
 	}
 
 	/**

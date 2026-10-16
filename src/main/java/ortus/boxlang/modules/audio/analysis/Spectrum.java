@@ -67,31 +67,54 @@ public final class Spectrum {
 	 */
 	public static double[] bands( AudioBuffer audio, int bands, double minHz, double maxHz, double start, double seconds ) {
 		validate( bands, minHz, maxHz, audio );
-		int			first	= ( int ) Math.round( start * audio.getSampleRate() );
-		int			last	= seconds <= 0 ? audio.getFrames() : Math.min( audio.getFrames(), first + ( int ) Math.round( seconds * audio.getSampleRate() ) );
-		float[]		mono	= mono( audio );
-		Fft			fft		= new Fft( DEFAULT_SIZE );
-		double[]	window	= Fft.hann( DEFAULT_SIZE );
-		double[]	power	= new double[ bands ];
-		int			frames	= 0;
-		int[]		edges	= edges( audio.getSampleRate(), bands, minHz, Math.min( maxHz, audio.getSampleRate() / 2.0 ) );
-		for ( int pos = first; pos < Math.max( last, first + 1 ); pos += DEFAULT_SIZE / 2 ) {
-			double[] mags = fft.magnitudes( mono, pos, window );
-			for ( int b = 0; b < bands; b++ ) {
-				double sum = 0;
-				for ( int bin = edges[ b ]; bin < edges[ b + 1 ]; bin++ ) {
-					sum += mags[ bin ] * mags[ bin ];
+		Analysis a = new Analysis( audio, bands, minHz, maxHz );
+		return a.levels( start, seconds );
+	}
+
+	/**
+	 * What the band analysis needs and can reuse for many stretches: the mixed down signal, the FFT, its window and the band edges. Making
+	 * these once matters for a spectrogram, which asks for hundreds of stretches of the same audio.
+	 */
+	private static final class Analysis {
+
+		private final AudioBuffer	audio;
+		private final int			bands;
+		private final float[]		mono;
+		private final Fft			fft		= new Fft( DEFAULT_SIZE );
+		private final double[]		window	= Fft.hann( DEFAULT_SIZE );
+		private final int[]			edges;
+
+		Analysis( AudioBuffer audio, int bands, double minHz, double maxHz ) {
+			this.audio	= audio;
+			this.bands	= bands;
+			this.mono	= mono( audio );
+			this.edges	= edges( audio.getSampleRate(), bands, minHz, Math.min( maxHz, audio.getSampleRate() / 2.0 ) );
+		}
+
+		double[] levels( double start, double seconds ) {
+			int			rate	= this.audio.getSampleRate();
+			int			first	= ( int ) Math.round( start * rate );
+			int			last	= seconds <= 0 ? this.audio.getFrames() : Math.min( this.audio.getFrames(), first + ( int ) Math.round( seconds * rate ) );
+			double[]	power	= new double[ this.bands ];
+			int			frames	= 0;
+			for ( int pos = first; pos < Math.max( last, first + 1 ); pos += DEFAULT_SIZE / 2 ) {
+				double[] mags = this.fft.magnitudes( this.mono, pos, this.window );
+				for ( int b = 0; b < this.bands; b++ ) {
+					double sum = 0;
+					for ( int bin = this.edges[ b ]; bin < this.edges[ b + 1 ]; bin++ ) {
+						sum += mags[ bin ] * mags[ bin ];
+					}
+					power[ b ] += sum;
 				}
-				power[ b ] += sum;
+				frames++;
 			}
-			frames++;
+			double[] out = new double[ this.bands ];
+			for ( int b = 0; b < this.bands; b++ ) {
+				double p = frames == 0 ? 0 : power[ b ] / frames;
+				out[ b ] = p <= 1e-12 ? FLOOR_DB : Math.max( FLOOR_DB, 10 * Math.log10( p ) );
+			}
+			return out;
 		}
-		double[] out = new double[ bands ];
-		for ( int b = 0; b < bands; b++ ) {
-			double p = frames == 0 ? 0 : power[ b ] / frames;
-			out[ b ] = p <= 1e-12 ? FLOOR_DB : Math.max( FLOOR_DB, 10 * Math.log10( p ) );
-		}
-		return out;
 	}
 
 	/**
@@ -106,10 +129,11 @@ public final class Spectrum {
 		if ( frames < 1 || frames > 10000 ) {
 			throw new BoxRuntimeException( "Frames must be between 1 and 10000 but was " + frames );
 		}
-		double[][]	out		= new double[ frames ][];
-		double		slice	= audio.getDurationSeconds() / frames;
+		Analysis	analysis	= new Analysis( audio, bands, minHz, maxHz );
+		double[][]	out			= new double[ frames ][];
+		double		slice		= audio.getDurationSeconds() / frames;
 		for ( int f = 0; f < frames; f++ ) {
-			out[ f ] = bands( audio, bands, minHz, maxHz, f * slice, Math.max( slice, 1.0 / audio.getSampleRate() ) );
+			out[ f ] = analysis.levels( f * slice, Math.max( slice, 1.0 / audio.getSampleRate() ) );
 		}
 		return out;
 	}

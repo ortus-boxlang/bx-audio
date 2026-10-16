@@ -98,7 +98,13 @@ public final class Stretch {
 		if ( Math.abs( factor - 1 ) < 1e-9 ) {
 			return audio.copy();
 		}
-		AudioBuffer relabeled = new AudioBuffer( copyChannels( audio ), ( int ) Math.round( audio.getSampleRate() * factor ) );
+		long newRate = Math.round( audio.getSampleRate() * factor );
+		if ( newRate < AudioBuffer.MIN_SAMPLE_RATE || newRate > AudioBuffer.MAX_SAMPLE_RATE ) {
+			throw new BoxRuntimeException( "Playing audio at " + audio.getSampleRate() + " Hz " + factor + " times as fast needs " + newRate
+			    + " Hz, which is outside the " + AudioBuffer.MIN_SAMPLE_RATE + " to " + AudioBuffer.MAX_SAMPLE_RATE
+			    + " Hz this module handles. Use a smaller factor." );
+		}
+		AudioBuffer relabeled = new AudioBuffer( copyChannels( audio ), ( int ) newRate );
 		return Dsp.resample( relabeled, audio.getSampleRate() );
 	}
 

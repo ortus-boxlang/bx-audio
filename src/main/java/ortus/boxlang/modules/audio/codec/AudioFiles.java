@@ -105,6 +105,9 @@ public final class AudioFiles {
 	 * Read a WAV, MP3 or FLAC file. The format is found from the content, so a file with the wrong extension still loads.
 	 */
 	public static AudioBuffer read( Path path ) {
+		if ( isWav( path ) ) {
+			return WavCodec.read( path );
+		}
 		byte[] bytes;
 		try {
 			bytes = Files.readAllBytes( path );
@@ -126,6 +129,19 @@ public final class AudioFiles {
 			    + "] is not an audio file this module can read: it is not WAV, MP3 or FLAC, and its extension is not one FFmpeg is asked to read" );
 		}
 		return FfmpegSupport.require( "Reading [" + path.getFileName() + "], which is not a WAV, MP3 or FLAC file," ).decode( path );
+	}
+
+	/**
+	 * Is the file a WAV file, from its first twelve bytes. A WAV is streamed from disk, the other formats are read whole.
+	 */
+	private static boolean isWav( Path path ) {
+		try ( java.io.InputStream in = Files.newInputStream( path ) ) {
+			byte[] head = in.readNBytes( 12 );
+			return head.length == 12 && head[ 0 ] == 'R' && head[ 1 ] == 'I' && head[ 2 ] == 'F' && head[ 3 ] == 'F' && head[ 8 ] == 'W'
+			    && head[ 9 ] == 'A' && head[ 10 ] == 'V' && head[ 11 ] == 'E';
+		} catch ( IOException e ) {
+			throw new BoxRuntimeException( "Could not read audio file [" + path + "]: " + e.getMessage(), e );
+		}
 	}
 
 	/**

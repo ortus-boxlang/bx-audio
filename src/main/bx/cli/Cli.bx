@@ -153,7 +153,7 @@ class {
 
 	function cmdInfo( required array args, required struct options ){
 		var file = needFile( args, 1, "info <file>" );
-		var info = audioInfo( file );
+		var info = audioInfo( file, true );
 		var dbfs = ( v ) => v > 0 ? numberFormat( 20 * log10( v ), "0.0" ) & " dBFS" : "silence";
 		out( file );
 		out( "  format    " & ( [ "wav", "wave", "" ].contains( file.listLast( "." ).lcase() ) || !file.find( "." ) ? "WAV" : file.listLast( "." ).ucase() ) );

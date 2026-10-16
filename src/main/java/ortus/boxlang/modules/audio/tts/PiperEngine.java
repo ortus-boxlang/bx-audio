@@ -64,6 +64,25 @@ public final class PiperEngine {
 	/**
 	 * The engine of this JVM, created on the first call from the jars of the installer
 	 */
+	/**
+	 * Close the engine, if one was started, so it can be started again. Called when the module unloads.
+	 */
+	public static synchronized void shutdown() {
+		if ( instance != null ) {
+			for ( Object chorus : instance.choruses.values() ) {
+				if ( chorus instanceof AutoCloseable closeable ) {
+					try {
+						closeable.close();
+					} catch ( Exception ignored ) {
+						// the engine is going away either way
+					}
+				}
+			}
+			instance.choruses.clear();
+			instance = null;
+		}
+	}
+
 	public static synchronized PiperEngine get( EngineInstaller installer ) {
 		if ( instance == null ) {
 			URL[] urls = installer.classpath();

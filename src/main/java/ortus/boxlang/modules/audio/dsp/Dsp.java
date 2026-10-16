@@ -138,7 +138,8 @@ public final class Dsp {
 	public static AudioBuffer normalize( AudioBuffer audio, double targetDb ) {
 		requireFinite( targetDb, "targetDb" );
 		float peak = audio.getPeak();
-		if ( peak == 0f ) {
+		// A peak this small is silence for every practical purpose, and scaling it up would overflow
+		if ( peak < 1e-12f ) {
 			return audio.copy();
 		}
 		return scale( audio, ( float ) ( dbToLinear( targetDb ) / peak ) );
@@ -404,13 +405,94 @@ public final class Dsp {
 		double		cutoff		= Math.min( 1.0, ratio );
 		double		halfWidth	= RESAMPLE_HALF_TAPS / cutoff;
 		float[][]	out			= new float[ audio.getChannels() ][ outFrames ];
-		double[]	w			= new double[ ( int ) ( 2 * halfWidth ) + 3 ];
 
+		// The position of output frame o in the input is o * q / p with p and q the rate ratio in lowest terms, so the fraction repeats every
+		// p frames. The filter weights for each of the p fractions are computed once instead of for every output frame.
+		long		g			= gcd( targetRate, audio.getSampleRate() );
+		long		p			= targetRate / g;
+		long		q			= audio.getSampleRate() / g;
+		int			taps		= ( int ) ( 2 * halfWidth ) + 3;
+		if ( p * taps > 4_000_000L ) {
+			resampleDirect( audio, out, ratio, cutoff, halfWidth );
+			return new AudioBuffer( out, targetRate );
+		}
+		int			phases		= ( int ) p;
+		double[][]	weights		= new double[ phases ][];
+		int[]		firstOffset	= new int[ phases ];
+		double[]	sums		= new double[ phases ];
+		for ( int phase = 0; phase < phases; phase++ ) {
+			double		frac	= ( double ) phase / phases;
+			int			first	= ( int ) Math.ceil( frac - halfWidth );
+			int			last	= ( int ) Math.floor( frac + halfWidth );
+			int			n		= last - first + 1;
+			double[]	w		= new double[ n ];
+			double		sum		= 0;
+			for ( int k = 0; k < n; k++ ) {
+				double x = ( first + k ) - frac;
+				w[ k ]	= cutoff * sinc( x * cutoff ) * window( x / halfWidth );
+				sum		+= w[ k ];
+			}
+			for ( int k = 0; k < n; k++ ) {
+				w[ k ] /= sum;
+			}
+			weights[ phase ]		= w;
+			firstOffset[ phase ]	= first;
+			sums[ phase ]			= sum;
+		}
+		for ( int ch = 0; ch < out.length; ch++ ) {
+			float[]	in		= audio.channel( ch );
+			float[]	result	= out[ ch ];
+			for ( int o = 0; o < outFrames; o++ ) {
+				long		position	= ( long ) o * q;
+				int			base		= ( int ) ( position / p );
+				int			phase		= ( int ) ( position % p );
+				double[]	w			= weights[ phase ];
+				int			first		= base + firstOffset[ phase ];
+				int			n			= w.length;
+				double		acc			= 0;
+				if ( first >= 0 && first + n <= inFrames ) {
+					for ( int k = 0; k < n; k++ ) {
+						acc += in[ first + k ] * w[ k ];
+					}
+				} else {
+					// Near the ends some taps fall outside the data: use the ones inside, scaled so a constant signal keeps its level
+					double inside = 0;
+					for ( int k = 0; k < n; k++ ) {
+						int idx = first + k;
+						if ( idx >= 0 && idx < inFrames ) {
+							acc		+= in[ idx ] * w[ k ];
+							inside	+= w[ k ];
+						}
+					}
+					acc = inside != 0 ? acc / inside : 0;
+				}
+				result[ o ] = ( float ) acc;
+			}
+		}
+		return new AudioBuffer( out, targetRate );
+	}
+
+	private static long gcd( long a, long b ) {
+		while ( b != 0 ) {
+			long t = a % b;
+			a	= b;
+			b	= t;
+		}
+		return a;
+	}
+
+	/**
+	 * The resampler without a table of weights, for rate ratios whose fractions repeat only after a very long time. It computes the weights
+	 * for every output frame.
+	 */
+	private static void resampleDirect( AudioBuffer audio, float[][] out, double ratio, double cutoff, double halfWidth ) {
+		int			inFrames	= audio.getFrames();
+		int			outFrames	= out[ 0 ].length;
+		double[]	w			= new double[ ( int ) ( 2 * halfWidth ) + 3 ];
 		for ( int o = 0; o < outFrames; o++ ) {
 			double	center	= o / ratio;
 			int		first	= ( int ) Math.ceil( center - halfWidth );
 			int		last	= ( int ) Math.floor( center + halfWidth );
-			// Precompute the weights once and share them across channels
 			double	sum		= 0;
 			int		n		= last - first + 1;
 			for ( int k = 0; k < n; k++ ) {
@@ -418,7 +500,6 @@ public final class Dsp {
 				w[ k ]	= cutoff * sinc( x * cutoff ) * window( x / halfWidth );
 				sum		+= w[ k ];
 			}
-			// Normalise so a constant signal keeps its level, including near the edges where taps fall outside the data
 			double inside = 0;
 			for ( int k = 0; k < n; k++ ) {
 				int idx = first + k;
@@ -439,7 +520,6 @@ public final class Dsp {
 				out[ ch ][ o ] = ( float ) ( acc * norm / sum );
 			}
 		}
-		return new AudioBuffer( out, targetRate );
 	}
 
 	private static AudioBuffer scale( AudioBuffer audio, float factor ) {

@@ -36,7 +36,7 @@ public abstract class ExamplesTestBase extends BaseIntegrationTest {
 		variables.put( Key.of( "overrides" ), overrides );
 		runtime.executeSource( Files.readString( EXAMPLES.resolve( script ) ), context );
 		variables.put( Key.of( "writtenTo" ), overrides.get( Key.of( "out" ) ) );
-		runtime.executeSource( "result = audioInfo( writtenTo )", context );
+		runtime.executeSource( "result = audioInfo( writtenTo, true )", context );
 		return ( IStruct ) variables.get( Key.of( "result" ) );
 	}
 

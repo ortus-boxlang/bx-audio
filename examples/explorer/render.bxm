@@ -31,7 +31,13 @@
 			if( !isNumeric( raw ) ){
 				fail( 400, "Setting [#param.name#] must be a number" );
 			}
-			settings[ param.name ] = max( param.min, min( param.max, raw + 0 ) );
+			value = max( param.min, min( param.max, raw + 0 ) );
+			// Snap to the steps the page offers, so near values like 8.0001 cannot each start a new render and a piece never gets 8.5 bars
+			if( ( param.step ?: 0 ) > 0 ){
+				value = param.min + round( ( value - param.min ) / param.step ) * param.step;
+				value = max( param.min, min( param.max, value ) );
+			}
+			settings[ param.name ] = value;
 		}
 	}
 

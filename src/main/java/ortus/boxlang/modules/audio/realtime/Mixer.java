@@ -328,7 +328,22 @@ public final class Mixer implements AutoCloseable {
 	// Device
 	// ---------------------------------------------------------------------------------------------------------------------------
 
-	private volatile boolean closed;
+	private volatile boolean					closed;
+
+	/**
+	 * Mixers that are open, so the module can close them when it is unloaded: a mixer nobody closed would otherwise keep its thread and the
+	 * sound device for the life of the JVM
+	 */
+	private static final java.util.Set<Mixer>	OPEN	= java.util.Collections.newSetFromMap( new java.util.concurrent.ConcurrentHashMap<>() );
+
+	/**
+	 * Close every mixer that is still open
+	 */
+	public static void closeAll() {
+		for ( Mixer mixer : java.util.List.copyOf( OPEN ) ) {
+			mixer.close();
+		}
+	}
 
 	private void start() {
 		if ( this.output.equals( "speakers" ) ) {
@@ -343,6 +358,7 @@ public final class Mixer implements AutoCloseable {
 				    e );
 			}
 		}
+		OPEN.add( this );
 		this.running	= true;
 		this.device		= new Thread( this::run, "bxaudio-mixer" );
 		this.device.setDaemon( true );
@@ -413,6 +429,7 @@ public final class Mixer implements AutoCloseable {
 
 	@Override
 	public void close() {
+		OPEN.remove( this );
 		this.closed		= true;
 		this.running	= false;
 		if ( this.device != null ) {
