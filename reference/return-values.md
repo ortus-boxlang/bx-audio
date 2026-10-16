@@ -13,6 +13,12 @@ Functions fall into five groups by what they return. Anything not listed here re
 | Almost every function that changes or makes sound | A new audio buffer. Methods of the buffer: `getChannels()`, `getSampleRate()`, `getFrames()`, `getDurationSeconds()`, `getPeak()`, `getRms()`. |
 | `audioSampler` | A sampler: an instrument to give to `audioNote()`. |
 | `audioNote` | An audio buffer with the note or the chord, as long as it is held plus the release. |
+| `audioConvolve` | An audio buffer as long as the sound plus the impulse response. |
+| `audioLfo` | A curve (opaque value for `audioModulate`, `audioAutomate` and `audioCurveAt`). |
+| `audioCurve` | A curve, as above. |
+| `audioCurveAt` | A number: the value of the curve at that time. |
+| `audioModulate` | A new audio buffer with the parameter following the curve. |
+| `audioAutomate` | The timeline, so calls can be chained. |
 | `audioTimeline` | A timeline. `timeline.beat( n )` and `timeline.bar( n )` turn beats and bars into seconds. |
 | `audioAdd`, `audioPump`, `audioDuck`, `audioTrackGain` | The same timeline, so calls can be chained. |
 | `audioVariations` | An array of audio buffers. |

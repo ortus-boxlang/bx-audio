@@ -1,6 +1,6 @@
 ---
 title: Loudness and dynamics
-order: 5
+order: 6
 summary: Measure loudness the EBU R128 way, master to a target, compress, limit and equalize.
 ---
 

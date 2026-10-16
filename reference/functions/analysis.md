@@ -1,6 +1,6 @@
 ---
 title: Analysis
-order: 7
+order: 8
 summary: Tempo and beats, spectrum, pictures of the waveform and the spectrogram, and silence.
 ---
 

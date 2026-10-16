@@ -14,32 +14,34 @@
 	<url><loc>https://bxaudio.boxlang.io/guides/synthesis-and-effects/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/configuration/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/contribute/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/effects/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/examples/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/modulation/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/mixing/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/try-it/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/conventions/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/timeline/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/effects/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/trailers-and-video/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/loudness-and-dynamics/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/loudness-and-mastering/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/return-values/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/timeline/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/errors/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/loudness-and-dynamics/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/time-and-pitch/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/guides/speech-and-subtitles/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/time-and-pitch/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/analysis/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/guides/speech-and-subtitles/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/ffmpeg-and-video/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/games/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/analysis/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/speech/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/ffmpeg-and-video/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/formats-and-ffmpeg/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/speech/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/games/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/storage/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/web/index.html</loc></url>
-	<url><loc>https://bxaudio.boxlang.io/reference/functions/storage/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/explorer/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/web/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/guides/modulation-and-automation/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/podcasts/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/functions/storage/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/testing-audio/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/web-apps/index.html</loc></url>
 </urlset>

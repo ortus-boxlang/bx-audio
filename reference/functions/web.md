@@ -1,6 +1,6 @@
 ---
 title: Web delivery
-order: 11
+order: 12
 summary: Audio as bytes, and the HTTP response that serves it with range requests, ETag and 304.
 ---
 

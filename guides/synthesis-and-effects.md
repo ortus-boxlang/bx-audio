@@ -83,6 +83,35 @@ audioSave( audioSaturate( wide ), "snare-hall.wav" );
 
 `audioDelay` repeats until they are 60 dB down, at most ten seconds, unless you give a `tail`. `audioReverb` is a Freeverb design: eight damped combs into four allpass filters with a stereo spread. A large room builds level on sustained sounds, so lower the mix. `audioSaturate` rounds off peaks with a tanh curve, a warm limiter for the final mix.
 
+## A real room
+
+`audioReverb` builds a room from delay lines. `audioConvolve` puts a sound in a room that was recorded: you give it an impulse response (the recording of a click or a sweep in a church, a stairwell or a plate) and the sound comes out as if it was made there. The impulse response is an audio buffer, mono or stereo, up to 20 seconds, at any sample rate. A mono sound with a stereo room becomes stereo.
+
+<!-- run -->
+```js
+// A made up room: dark noise that falls 60 dB in two seconds
+room = audioFilter( audioNoise( seconds=2, seed=7 ), "lowpass", 3500, 0.7071 );
+room = audioModulate( audio=room, param="gainDb", curve=audioCurve( points=[ { at:0, value:0 }, { at:2, value:-60 } ] ) );
+
+hit = audioDrum( type="snare", seconds=0.4 );
+wet = audioConvolve( audio=hit, impulse=room, mix=0.4 );
+println( wet.getDurationSeconds() );
+```
+
+The room (the noise falls away over two seconds), the hits dry, and the hits in the room, where each one now rings into the next:
+
+![The waveform of the room: noise that fades away over two seconds](../assets/images/convolve-room.png)
+
+![Two snare hits, dry, each ending sharply](../assets/images/convolve-dry.png)
+
+![The same two hits in the room, with a tail after each](../assets/images/convolve-wet.png)
+
+The clip plays the dry hits, then the same hits in the room:
+
+<audio controls preload="none" src="../assets/audio/convolve.mp3"></audio>
+
+The result is as long as the sound plus the room. The room is scaled to unit energy, so noisy material keeps about its level, and `mix` sets the balance of dry and wet. The work is done with the FFT in blocks, so a long room costs little more than a short one. Load a real one with `audioLoad( "church.wav" )`.
+
 ## Play a recording as an instrument
 
 `audioSampler` turns a recording into an instrument and `audioNote` plays it. A note is the recording played faster or slower, the way a tape keyboard does, so a higher note is also shorter. The notes are audio buffers, so they go on a timeline like any other sound.
