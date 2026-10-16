@@ -94,13 +94,23 @@ public final class Ffmpeg {
 				return found;
 			}
 		}
-		for ( String dir : System.getenv().getOrDefault( "PATH", "" ).split( java.io.File.pathSeparator ) ) {
+		for ( String entry : System.getenv().getOrDefault( "PATH", "" ).split( java.io.File.pathSeparator ) ) {
+			// Windows PATH entries are sometimes quoted, and a folder name that is not a valid path must not stop the search
+			String dir = entry.trim();
+			if ( dir.length() > 1 && dir.startsWith( "\"" ) && dir.endsWith( "\"" ) ) {
+				dir = dir.substring( 1, dir.length() - 1 );
+			}
 			if ( dir.isBlank() ) {
 				continue;
 			}
-			Ffmpeg found = fromPrograms( Path.of( dir ).resolve( exe( "ffmpeg" ) ), Path.of( dir ).resolve( exe( "ffprobe" ) ), "system" );
-			if ( found != null ) {
-				return found;
+			try {
+				Path	folder	= Path.of( dir );
+				Ffmpeg	found	= fromPrograms( folder.resolve( exe( "ffmpeg" ) ), folder.resolve( exe( "ffprobe" ) ), "system" );
+				if ( found != null ) {
+					return found;
+				}
+			} catch ( java.nio.file.InvalidPathException e ) {
+				// not a folder this computer can name, so there is no FFmpeg in it
 			}
 		}
 		return null;
@@ -124,13 +134,30 @@ public final class Ffmpeg {
 		return fromPrograms( path, probe, source );
 	}
 
+	/**
+	 * Programs already found to work, by their path, size and date, so FFmpeg is not started again to ask its version on every call
+	 */
+	private static final java.util.Map<String, Ffmpeg> VERIFIED = new java.util.concurrent.ConcurrentHashMap<>();
+
 	private static Ffmpeg fromPrograms( Path ffmpeg, Path ffprobe, String source ) {
 		if ( !Files.isRegularFile( ffmpeg ) || !Files.isExecutable( ffmpeg ) || !Files.isRegularFile( ffprobe ) || !Files.isExecutable( ffprobe ) ) {
 			return null;
 		}
+		String key;
+		try {
+			key = source + "|" + ffmpeg.toAbsolutePath() + "|" + Files.size( ffmpeg ) + "|" + Files.getLastModifiedTime( ffmpeg ).toMillis() + "|"
+			    + ffprobe.toAbsolutePath();
+		} catch ( java.io.IOException e ) {
+			return null;
+		}
+		Ffmpeg known = VERIFIED.get( key );
+		if ( known != null ) {
+			return known;
+		}
 		Ffmpeg candidate = new Ffmpeg( ffmpeg, ffprobe, source );
 		try {
 			candidate.version();
+			VERIFIED.put( key, candidate );
 			return candidate;
 		} catch ( BoxRuntimeException e ) {
 			return null;
@@ -193,11 +220,20 @@ public final class Ffmpeg {
 		}
 	}
 
+	/**
+	 * Threads that read what FFmpeg prints. Their own pool, so a busy common pool cannot leave FFmpeg blocked on a full pipe.
+	 */
+	private static final java.util.concurrent.ExecutorService IO = java.util.concurrent.Executors.newCachedThreadPool( task -> {
+		Thread thread = new Thread( task, "bxaudio-ffmpeg-io" );
+		thread.setDaemon( true );
+		return thread;
+	} );
+
 	static Result run( List<String> command ) {
 		try {
 			Process						process	= new ProcessBuilder( command ).redirectInput( ProcessBuilder.Redirect.from( nullFile() ) ).start();
-			CompletableFuture<byte[]>	out		= CompletableFuture.supplyAsync( () -> drain( process.getInputStream() ) );
-			CompletableFuture<byte[]>	err		= CompletableFuture.supplyAsync( () -> drain( process.getErrorStream() ) );
+			CompletableFuture<byte[]>	out		= CompletableFuture.supplyAsync( () -> drain( process.getInputStream() ), IO );
+			CompletableFuture<byte[]>	err		= CompletableFuture.supplyAsync( () -> drain( process.getErrorStream() ), IO );
 			if ( !process.waitFor( TIMEOUT_MINUTES, TimeUnit.MINUTES ) ) {
 				process.destroyForcibly();
 				throw new BoxRuntimeException( "FFmpeg took more than " + TIMEOUT_MINUTES + " minutes and was stopped" );
@@ -277,21 +313,58 @@ public final class Ffmpeg {
 		}
 		int		channels	= Math.min( AudioBuffer.MAX_CHANNELS, ( ( Number ) audio.get( "channels" ) ).intValue() );
 		int		rate		= Integer.parseInt( String.valueOf( audio.get( "sample_rate" ) ) );
-		Result	result		= ffmpeg(
-		    List.of( "-i", file.toString(), "-vn", "-map", "0:a:0", "-ac", String.valueOf( channels ), "-f", "f32le", "-acodec", "pcm_f32le", "-" ) );
-		byte[]	raw			= result.out();
-		if ( raw.length > MAX_DECODE_BYTES ) {
-			throw new BoxRuntimeException( "The audio of [" + file + "] is too long to hold in memory" );
-		}
-		int			frames	= raw.length / 4 / channels;
-		float[][]	data	= new float[ channels ][ frames ];
-		ByteBuffer	buffer	= ByteBuffer.wrap( raw ).order( ByteOrder.LITTLE_ENDIAN );
-		for ( int i = 0; i < frames; i++ ) {
-			for ( int ch = 0; ch < channels; ch++ ) {
-				data[ ch ][ i ] = buffer.getFloat();
+		// FFmpeg writes the raw samples to a file and they are read from there a block at a time, so memory holds the samples once, not
+		// the bytes and then the samples
+		Path	raw			= null;
+		try {
+			raw = Files.createTempFile( "bxaudio-decode-", ".f32" );
+			ffmpeg( List.of( "-y", "-i", file.toString(), "-vn", "-map", "0:a:0", "-ac", String.valueOf( channels ), "-f", "f32le", "-acodec", "pcm_f32le",
+			    raw.toString() ) );
+			long frameCount = Files.size( raw ) / 4 / channels;
+			if ( frameCount > Integer.MAX_VALUE - 16 || frameCount * channels * 4L > MAX_DECODE_BYTES ) {
+				throw new BoxRuntimeException( "The audio of [" + file + "] is too long to hold in memory" );
+			}
+			int			frames	= ( int ) frameCount;
+			float[][]	data;
+			try {
+				data = new float[ channels ][ frames ];
+			} catch ( OutOfMemoryError e ) {
+				throw new BoxRuntimeException( "The audio of [" + file + "] is too long to hold in memory" );
+			}
+			try ( java.nio.channels.FileChannel in = java.nio.channels.FileChannel.open( raw, java.nio.file.StandardOpenOption.READ ) ) {
+				ByteBuffer	block	= ByteBuffer.allocate( 4096 * channels * 4 ).order( ByteOrder.LITTLE_ENDIAN );
+				int			done	= 0;
+				while ( done < frames ) {
+					block.clear();
+					block.limit( Math.min( block.capacity(), ( frames - done ) * channels * 4 ) );
+					while ( block.hasRemaining() && in.read( block ) >= 0 ) {
+						// keep reading until the block is full or the file ends
+					}
+					block.flip();
+					int count = block.remaining() / ( channels * 4 );
+					if ( count == 0 ) {
+						break;
+					}
+					for ( int i = 0; i < count; i++ ) {
+						for ( int ch = 0; ch < channels; ch++ ) {
+							data[ ch ][ done + i ] = block.getFloat();
+						}
+					}
+					done += count;
+				}
+			}
+			return new AudioBuffer( data, rate );
+		} catch ( IOException e ) {
+			throw new BoxRuntimeException( "Could not read the audio of [" + file + "]: " + e.getMessage(), e );
+		} finally {
+			try {
+				if ( raw != null ) {
+					Files.deleteIfExists( raw );
+				}
+			} catch ( IOException ignored ) {
+				// a leftover temporary file is not worth hiding the result
 			}
 		}
-		return new AudioBuffer( data, rate );
 	}
 
 	/**
@@ -366,8 +439,20 @@ public final class Ffmpeg {
 				args.addAll( webm ? List.of( "-c:a", "libopus", "-b:a", ( bitrateKbps > 0 ? bitrateKbps : 160 ) + "k", "-ar", "48000" )
 				    : List.of( "-c:a", "aac", "-b:a", ( bitrateKbps > 0 ? bitrateKbps : 192 ) + "k" ) );
 				args.addAll( List.of( "-t", String.valueOf( videoSeconds( video ) ) ) );
-				args.add( target.toString() );
-				ffmpeg( args );
+				// Written next to the target and moved into place, so a failure never leaves a broken file where a good one was
+				Path part = target.toAbsolutePath()
+				    .resolveSibling( ".bxaudio-" + java.util.UUID.randomUUID().toString().substring( 0, 8 ) + "-" + target.getFileName() );
+				args.add( part.toString() );
+				try {
+					ffmpeg( args );
+					try {
+						Files.move( part, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE );
+					} catch ( java.nio.file.AtomicMoveNotSupportedException e ) {
+						Files.move( part, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING );
+					}
+				} finally {
+					Files.deleteIfExists( part );
+				}
 			} finally {
 				Files.deleteIfExists( temp );
 			}

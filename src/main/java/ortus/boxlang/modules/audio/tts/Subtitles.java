@@ -32,6 +32,14 @@ public final class Subtitles {
 	}
 
 	/**
+	 * A blank line would end the cue, an arrow would read as a time range, and WebVTT reads markup in the text
+	 */
+	private static String cueText( String text, boolean srt ) {
+		String clean = text.replace( "\r\n", "\n" ).replaceAll( "\\n{2,}", "\n" ).replace( "-->", "->" );
+		return srt ? clean : clean.replace( "&", "&amp;" ).replace( "<", "&lt;" );
+	}
+
+	/**
 	 * @param cues   The captions in order
 	 * @param format srt or vtt
 	 * @param offset Seconds added to every time, for audio that starts later in the video
@@ -49,7 +57,7 @@ public final class Subtitles {
 				out.append( n ).append( '\n' );
 			}
 			out.append( Timecode.clock( cue.start() + offset, srt ) ).append( " --> " ).append( Timecode.clock( cue.end() + offset, srt ) ).append( '\n' )
-			    .append( cue.text() ).append( "\n\n" );
+			    .append( cueText( cue.text(), srt ) ).append( "\n\n" );
 			n++;
 		}
 		return out.toString();

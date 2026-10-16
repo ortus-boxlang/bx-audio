@@ -73,6 +73,47 @@ public class DownloaderTest {
 				out.write( this.content, start, this.content.length - start );
 			}
 		} );
+		// Sends a few bytes and then goes quiet without closing the connection
+		this.server.createContext( "/stall", exchange -> {
+			exchange.sendResponseHeaders( 200, this.content.length );
+			OutputStream out = exchange.getResponseBody();
+			out.write( this.content, 0, 100 );
+			out.flush();
+			try {
+				Thread.sleep( 6000 );
+			} catch ( InterruptedException e ) {
+				Thread.currentThread().interrupt();
+			}
+			exchange.close();
+		} );
+		// Slow enough that two downloads of the same file overlap
+		this.server.createContext( "/slow", exchange -> {
+			this.requests++;
+			exchange.sendResponseHeaders( 200, this.content.length );
+			try ( OutputStream out = exchange.getResponseBody() ) {
+				for ( int at = 0; at < this.content.length; at += 50_000 ) {
+					out.write( this.content, at, Math.min( 50_000, this.content.length - at ) );
+					out.flush();
+					try {
+						Thread.sleep( 60 );
+					} catch ( InterruptedException e ) {
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+		} );
+		// Answers a range request with another part of the file than the one asked for
+		this.server.createContext( "/badrange", exchange -> {
+			if ( exchange.getRequestHeaders().getFirst( "Range" ) != null ) {
+				exchange.getResponseHeaders().add( "Content-Range", "bytes 0-999/" + this.content.length );
+				exchange.sendResponseHeaders( 206, this.content.length );
+			} else {
+				exchange.sendResponseHeaders( 200, this.content.length );
+			}
+			try ( OutputStream out = exchange.getResponseBody() ) {
+				out.write( this.content );
+			}
+		} );
 		this.server.createContext( "/moved", exchange -> {
 			exchange.getResponseHeaders().add( "Location", "/file" );
 			exchange.sendResponseHeaders( 302, -1 );
@@ -181,6 +222,54 @@ public class DownloaderTest {
 		String message = assertThrows( BoxRuntimeException.class, () -> Downloader.download( dead, dir.resolve( "out.bin" ), 10, "MD5", this.md5, null ) )
 		    .getMessage();
 		assertThat( message ).contains( "Could not download" );
+	}
+
+	@DisplayName( "a server that stops sending does not hold the download forever" )
+	@Test
+	void testStalledDownloadIsStopped( @TempDir Path dir ) {
+		System.setProperty( "bxaudio.download.stallSeconds", "1" );
+		try {
+			long				started	= System.nanoTime();
+			BoxRuntimeException	e		= assertThrows( BoxRuntimeException.class,
+			    () -> Downloader.download( url( "/stall" ), dir.resolve( "out.bin" ), this.content.length, "MD5", this.md5, null ) );
+			assertThat( e.getMessage() ).contains( "nothing was received" );
+			assertThat( ( System.nanoTime() - started ) / 1_000_000_000L ).isLessThan( 5L );
+		} finally {
+			System.clearProperty( "bxaudio.download.stallSeconds" );
+		}
+	}
+
+	@DisplayName( "two downloads of the same file at once share one download, and both end with the file" )
+	@Test
+	void testConcurrentDownloads( @TempDir Path dir ) throws Exception {
+		Path									target	= dir.resolve( "shared.bin" );
+		java.util.concurrent.Callable<Void>		job		= () -> {
+															Downloader.download( url( "/slow" ), target, this.content.length, "MD5", this.md5, null );
+															return null;
+														};
+		java.util.concurrent.ExecutorService	pool	= java.util.concurrent.Executors.newFixedThreadPool( 2 );
+		try {
+			var	first	= pool.submit( job );
+			var	second	= pool.submit( job );
+			first.get( 30, java.util.concurrent.TimeUnit.SECONDS );
+			second.get( 30, java.util.concurrent.TimeUnit.SECONDS );
+		} finally {
+			pool.shutdownNow();
+		}
+		assertThat( Files.readAllBytes( target ) ).isEqualTo( this.content );
+		assertThat( this.requests ).isEqualTo( 1 );
+		try ( var list = Files.list( dir ) ) {
+			assertThat( list.map( p -> p.getFileName().toString() ).toList() ).containsExactly( "shared.bin" );
+		}
+	}
+
+	@DisplayName( "a server that resumes at the wrong place makes the download start over" )
+	@Test
+	void testWrongRangeStartsOver( @TempDir Path dir ) throws Exception {
+		Path target = dir.resolve( "out.bin" );
+		Files.write( dir.resolve( "out.bin.part" ), java.util.Arrays.copyOf( this.content, 5000 ) );
+		Downloader.download( url( "/badrange" ), target, this.content.length, "MD5", this.md5, null );
+		assertThat( Files.readAllBytes( target ) ).isEqualTo( this.content );
 	}
 
 }

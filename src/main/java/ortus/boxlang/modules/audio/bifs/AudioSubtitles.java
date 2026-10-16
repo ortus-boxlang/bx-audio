@@ -23,6 +23,7 @@ import ortus.boxlang.modules.audio.tts.Narration;
 import ortus.boxlang.modules.audio.tts.Subtitles;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.Audios;
+import ortus.boxlang.modules.audio.util.Numbers;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
 import ortus.boxlang.runtime.context.IBoxContext;
@@ -31,6 +32,7 @@ import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Write captions as SRT or WebVTT subtitles for a video" )
 public class AudioSubtitles extends BIF {
@@ -76,14 +78,15 @@ public class AudioSubtitles extends BIF {
 			    || item.get( Key.of( "text" ) ) == null ) {
 				throw new BoxRuntimeException( "Each cue must be a struct with start, end and text, such as { start: 0, end: 2.5, text: \"Hello\" }" );
 			}
-			list.add( new Narration.Cue( ( ( Number ) item.get( Key.of( "start" ) ) ).doubleValue(), ( ( Number ) item.get( Key.of( "end" ) ) ).doubleValue(),
+			list.add( new Narration.Cue( Numbers.toDouble( item.get( Key.of( "start" ) ), "the start of a cue" ),
+			    Numbers.toDouble( item.get( Key.of( "end" ) ), "the end of a cue" ),
 			    String.valueOf( item.get( Key.of( "text" ) ) ) ) );
 		}
 		String	result	= Subtitles.format( list, arguments.getAsString( format ), arguments.getAsDouble( offset ) );
 		String	file	= arguments.getAsString( path );
 		if ( !file.isBlank() ) {
 			try {
-				Path target = Path.of( file ).toAbsolutePath();
+				Path target = FileSystemUtil.expandPath( context, file ).absolutePath();
 				Files.createDirectories( target.getParent() );
 				Files.writeString( target, result );
 			} catch ( IOException e ) {

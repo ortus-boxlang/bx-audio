@@ -100,7 +100,8 @@ public class MasteringTest {
 		AudioBuffer	gap		= AudioBuffer.silenceSeconds( 10, 2, RATE );
 		assertThat( Loudness.measure( Dsp.concat( List.of( loud, gap, quiet ) ) ).integrated() ).isWithin( 0.1 ).of( -23.0 );
 		assertThat( Loudness.measure( gap ).integrated() ).isEqualTo( Loudness.FLOOR );
-		assertThat( Loudness.measure( sine( 997, 0.2, -20, 2 ) ).integrated() ).isEqualTo( Loudness.FLOOR );
+		// A clip shorter than one 400 ms block is measured as a block of its own length, so it has a loudness like any other
+		assertThat( Loudness.measure( sine( 997, 0.2, -20, 2 ) ).integrated() ).isWithin( 0.5 ).of( Loudness.measure( sine( 997, 10, -20, 2 ) ).integrated() );
 	}
 
 	@DisplayName( "true peak sees peaks between samples, and loudness range is zero for a steady tone" )

@@ -83,7 +83,7 @@ public class AudioSpeak extends BIF {
 		Map<String, String>	spoken	= pronunciations( arguments );
 		if ( arguments.get( Key.of( "pauses" ) ) instanceof IStruct pauses ) {
 			Map<String, Object> values = new HashMap<>();
-			pauses.forEach( ( k, v ) -> values.put( k.getName().toLowerCase(), v ) );
+			pauses.forEach( ( k, v ) -> values.put( k.getName().toLowerCase( java.util.Locale.ROOT ), v ) );
 			return Speech
 			    .narrate( arguments.getAsString( KeyDictionary.text ), arguments.getAsString( KeyDictionary.voice ), allow, progress( context, arguments ),
 			        speed, Narration.Pauses.from( values ), false, 80, spoken )

@@ -146,6 +146,11 @@ public final class Stretch {
 		for ( int i = 0; i < size; i++ ) {
 			window[ i ] = 0.5 - 0.5 * Math.cos( 2 * Math.PI * i / size );
 		}
+		// The first frame has nothing before it to overlap with, so its rising half would only fade the start in: it starts at full level
+		double[] first = window.clone();
+		for ( int i = 0; i < hop; i++ ) {
+			first[ i ] = 1;
+		}
 		float[][]	out			= new float[ channels ][ outFrames + size ];
 		int			previous	= -1;
 		for ( int k = 0;; k++ ) {
@@ -168,7 +173,7 @@ public final class Stretch {
 				for ( int i = 0; i < size; i++ ) {
 					int s = chosen + i;
 					if ( s >= 0 && s < padded ) {
-						out[ ch ][ outPos + i ] += ( float ) ( src[ s ] * window[ i ] );
+						out[ ch ][ outPos + i ] += ( float ) ( src[ s ] * ( k == 0 ? first[ i ] : window[ i ] ) );
 					}
 				}
 			}

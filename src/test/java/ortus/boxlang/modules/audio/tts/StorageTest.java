@@ -57,6 +57,7 @@ public class StorageTest {
 	@DisplayName( "list reports every kind with its size, and clear removes only what was asked" )
 	@Test
 	void testListAndClear( @TempDir Path home ) throws IOException {
+		Files.writeString( home.resolve( Storage.MARKER ), "" );
 		fill( TtsHome.engine( home ).resolve( "v1/a.jar" ), 1000 );
 		fill( TtsHome.voices( home ).resolve( "joe/m.onnx" ), 500 );
 		fill( TtsHome.cache( home ).resolve( "x.wav" ), 20 );
@@ -80,9 +81,29 @@ public class StorageTest {
 	@DisplayName( "an unknown kind is refused and nothing is deleted" )
 	@Test
 	void testUnknownKind( @TempDir Path home ) throws IOException {
+		Files.writeString( home.resolve( Storage.MARKER ), "" );
 		fill( TtsHome.engine( home ).resolve( "a.jar" ), 10 );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> Storage.clear( home, "models" ) ).getMessage() ).contains( "Unknown kind [models]" );
 		assertThat( Files.exists( TtsHome.engine( home ).resolve( "a.jar" ) ) ).isTrue();
+	}
+
+	@DisplayName( "a folder that is not known to be a bx-audio home is never cleared, even when it has folders with the same names" )
+	@Test
+	void testForeignFolderIsSafe( @TempDir Path project ) throws IOException {
+		fill( project.resolve( "cache/their-own-file.txt" ), 100 );
+		fill( project.resolve( "voices/their-own-file.txt" ), 100 );
+		assertThrows( BoxRuntimeException.class, () -> Storage.clear( project, "all" ) );
+		assertThat( Files.exists( project.resolve( "cache/their-own-file.txt" ) ) ).isTrue();
+		assertThat( Files.exists( project.resolve( "voices/their-own-file.txt" ) ) ).isTrue();
+	}
+
+	@DisplayName( "a download marks its home as ours" )
+	@Test
+	void testClaim( @TempDir Path home ) throws IOException {
+		fill( home.resolve( "voices/joe/model.onnx" ), 10 );
+		Storage.claim( home.resolve( "voices/joe/model.onnx" ) );
+		assertThat( Files.exists( home.resolve( Storage.MARKER ) ) ).isTrue();
+		assertThat( Storage.clear( home, "voices" ) ).isEqualTo( 10L );
 	}
 
 }

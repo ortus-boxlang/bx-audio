@@ -57,13 +57,13 @@ public final class FlacCodec {
 		if ( audio.getSampleRate() > 655350 ) {
 			throw new BoxRuntimeException( "FLAC holds sample rates up to 655350 Hz but the audio has " + audio.getSampleRate() );
 		}
-		int		frames	= audio.getFrames();
-		int[][]	pcm		= new int[ channels ][ frames ];
-		double	scale	= Math.pow( 2, bitDepth - 1 );
+		int			frames		= audio.getFrames();
+		int[][]		pcm			= new int[ channels ][ frames ];
+		Quantizer	quantizer	= new Quantizer( audio, bitDepth );
 		for ( int ch = 0; ch < channels; ch++ ) {
 			float[] in = audio.channel( ch );
 			for ( int i = 0; i < frames; i++ ) {
-				pcm[ ch ][ i ] = ( int ) Math.max( -scale, Math.min( scale - 1, Math.round( in[ i ] * scale ) ) );
+				pcm[ ch ][ i ] = quantizer.next( in[ i ] );
 			}
 		}
 		MessageDigest md5;
@@ -72,15 +72,21 @@ public final class FlacCodec {
 		} catch ( NoSuchAlgorithmException e ) {
 			throw new BoxRuntimeException( "MD5 is not available: " + e.getMessage(), e );
 		}
-		int bytesPerSample = bitDepth / 8;
-		for ( int i = 0; i < frames; i++ ) {
-			byte[] one = new byte[ channels * bytesPerSample ];
-			for ( int ch = 0; ch < channels; ch++ ) {
-				for ( int b = 0; b < bytesPerSample; b++ ) {
-					one[ ch * bytesPerSample + b ] = ( byte ) ( pcm[ ch ][ i ] >> ( 8 * b ) );
+		int		bytesPerSample	= bitDepth / 8;
+		// The MD5 of the interleaved little endian samples, fed a block at a time instead of a frame at a time
+		int		blockFrames		= 4096;
+		byte[]	chunk			= new byte[ blockFrames * channels * bytesPerSample ];
+		for ( int start = 0; start < frames; start += blockFrames ) {
+			int	count	= Math.min( blockFrames, frames - start );
+			int	at		= 0;
+			for ( int i = 0; i < count; i++ ) {
+				for ( int ch = 0; ch < channels; ch++ ) {
+					for ( int b = 0; b < bytesPerSample; b++ ) {
+						chunk[ at++ ] = ( byte ) ( pcm[ ch ][ start + i ] >> ( 8 * b ) );
+					}
 				}
 			}
-			md5.update( one );
+			md5.update( chunk, 0, at );
 		}
 		ByteArrayOutputStream	body		= new ByteArrayOutputStream();
 		int						minFrame	= Integer.MAX_VALUE, maxFrame = 0, minBlock = Integer.MAX_VALUE, maxBlock = 0;
@@ -373,72 +379,104 @@ public final class FlacCodec {
 		if ( total > Integer.MAX_VALUE ) {
 			throw new BoxRuntimeException( "The FLAC file is too long to hold in memory" );
 		}
-		float[][]	out		= new float[ channels ][ ( int ) total ];
-		int			pos		= 0;
-		double		scale	= Math.pow( 2, bps - 1 );
-		while ( pos < total && r.hasMore() ) {
-			int	frameStart	= r.bytePosition();
-			int	sync		= ( int ) r.bits( 14 );
-			if ( sync != 0x3FFE ) {
-				throw new BoxRuntimeException( "The FLAC file is damaged: bad frame sync at byte " + frameStart );
-			}
-			r.bits( 2 );
-			int	blockCode	= ( int ) r.bits( 4 );
-			int	rateCode	= ( int ) r.bits( 4 );
-			int	assignment	= ( int ) r.bits( 4 );
-			int	sizeCode	= ( int ) r.bits( 3 );
-			r.bits( 1 );
-			r.utf8();
-			int size = switch ( blockCode ) {
-				case 1 -> 192;
-				case 2, 3, 4, 5 -> 576 << ( blockCode - 2 );
-				case 6 -> ( int ) r.bits( 8 ) + 1;
-				case 7 -> ( int ) r.bits( 16 ) + 1;
-				default -> 256 << ( blockCode - 8 );
-			};
-			if ( rateCode == 12 ) {
+		// Streamed and live encoders cannot know the length, so they write 0: then frames are read until the data ends
+		boolean						unknownLength	= total == 0;
+		java.util.List<float[][]>	parts			= unknownLength ? new java.util.ArrayList<>() : null;
+		float[][]					out;
+		try {
+			out = new float[ channels ][ ( int ) total ];
+		} catch ( OutOfMemoryError e ) {
+			throw new BoxRuntimeException( "The FLAC file is too long to hold in memory (" + total + " frames)" );
+		}
+		int		pos		= 0;
+		double	scale	= Math.pow( 2, bps - 1 );
+		try {
+			while ( ( unknownLength || pos < total ) && r.hasMore() ) {
+				int	frameStart	= r.bytePosition();
+				int	sync		= ( int ) r.bits( 14 );
+				if ( sync != 0x3FFE ) {
+					throw new BoxRuntimeException( "The FLAC file is damaged: bad frame sync at byte " + frameStart );
+				}
+				r.bits( 2 );
+				int	blockCode	= ( int ) r.bits( 4 );
+				int	rateCode	= ( int ) r.bits( 4 );
+				int	assignment	= ( int ) r.bits( 4 );
+				int	sizeCode	= ( int ) r.bits( 3 );
+				r.bits( 1 );
+				r.utf8();
+				int size = switch ( blockCode ) {
+					case 1 -> 192;
+					case 2, 3, 4, 5 -> 576 << ( blockCode - 2 );
+					case 6 -> ( int ) r.bits( 8 ) + 1;
+					case 7 -> ( int ) r.bits( 16 ) + 1;
+					default -> 256 << ( blockCode - 8 );
+				};
+				if ( rateCode == 12 ) {
+					r.bits( 8 );
+				} else if ( rateCode == 13 || rateCode == 14 ) {
+					r.bits( 16 );
+				}
+				int frameBps = switch ( sizeCode ) {
+					case 1 -> 8;
+					case 2 -> 12;
+					case 4 -> 16;
+					case 5 -> 20;
+					case 6 -> 24;
+					default -> bps;
+				};
 				r.bits( 8 );
-			} else if ( rateCode == 13 || rateCode == 14 ) {
+				int			frameChannels	= assignment < 8 ? assignment + 1 : 2;
+				long[][]	signals			= new long[ frameChannels ][];
+				for ( int ch = 0; ch < frameChannels; ch++ ) {
+					int bits = frameBps + ( ( assignment == 8 && ch == 1 ) || ( assignment == 9 && ch == 0 ) || ( assignment == 10 && ch == 1 ) ? 1 : 0 );
+					signals[ ch ] = readSubframe( r, size, bits );
+				}
+				r.align();
 				r.bits( 16 );
-			}
-			int frameBps = switch ( sizeCode ) {
-				case 1 -> 8;
-				case 2 -> 12;
-				case 4 -> 16;
-				case 5 -> 20;
-				case 6 -> 24;
-				default -> bps;
-			};
-			r.bits( 8 );
-			int			frameChannels	= assignment < 8 ? assignment + 1 : 2;
-			long[][]	signals			= new long[ frameChannels ][];
-			for ( int ch = 0; ch < frameChannels; ch++ ) {
-				int bits = frameBps + ( ( assignment == 8 && ch == 1 ) || ( assignment == 9 && ch == 0 ) || ( assignment == 10 && ch == 1 ) ? 1 : 0 );
-				signals[ ch ] = readSubframe( r, size, bits );
-			}
-			r.align();
-			r.bits( 16 );
-			if ( assignment == 8 ) {
-				for ( int i = 0; i < size; i++ ) {
-					signals[ 1 ][ i ] = signals[ 0 ][ i ] - signals[ 1 ][ i ];
+				if ( assignment == 8 ) {
+					for ( int i = 0; i < size; i++ ) {
+						signals[ 1 ][ i ] = signals[ 0 ][ i ] - signals[ 1 ][ i ];
+					}
+				} else if ( assignment == 9 ) {
+					for ( int i = 0; i < size; i++ ) {
+						signals[ 0 ][ i ] = signals[ 0 ][ i ] + signals[ 1 ][ i ];
+					}
+				} else if ( assignment == 10 ) {
+					for ( int i = 0; i < size; i++ ) {
+						long side = signals[ 1 ][ i ], mid = ( signals[ 0 ][ i ] << 1 ) | ( side & 1 );
+						signals[ 0 ][ i ]	= ( mid + side ) >> 1;
+						signals[ 1 ][ i ]	= ( mid - side ) >> 1;
+					}
 				}
-			} else if ( assignment == 9 ) {
-				for ( int i = 0; i < size; i++ ) {
-					signals[ 0 ][ i ] = signals[ 0 ][ i ] + signals[ 1 ][ i ];
+				if ( unknownLength ) {
+					float[][] part = new float[ channels ][ size ];
+					for ( int ch = 0; ch < Math.min( channels, frameChannels ); ch++ ) {
+						for ( int i = 0; i < size; i++ ) {
+							part[ ch ][ i ] = ( float ) ( signals[ ch ][ i ] / scale );
+						}
+					}
+					parts.add( part );
+				} else {
+					for ( int ch = 0; ch < Math.min( channels, frameChannels ); ch++ ) {
+						for ( int i = 0; i < size && pos + i < total; i++ ) {
+							out[ ch ][ pos + i ] = ( float ) ( signals[ ch ][ i ] / scale );
+						}
+					}
 				}
-			} else if ( assignment == 10 ) {
-				for ( int i = 0; i < size; i++ ) {
-					long side = signals[ 1 ][ i ], mid = ( signals[ 0 ][ i ] << 1 ) | ( side & 1 );
-					signals[ 0 ][ i ]	= ( mid + side ) >> 1;
-					signals[ 1 ][ i ]	= ( mid - side ) >> 1;
-				}
+				pos += size;
 			}
-			for ( int ch = 0; ch < Math.min( channels, frameChannels ); ch++ ) {
-				for ( int i = 0; i < size && pos + i < total; i++ ) {
-					out[ ch ][ pos + i ] = ( float ) ( signals[ ch ][ i ] / scale );
+		} catch ( ArrayIndexOutOfBoundsException | NegativeArraySizeException e ) {
+			throw new BoxRuntimeException( "The FLAC file is damaged: a frame does not decode" );
+		}
+		if ( unknownLength ) {
+			out = new float[ channels ][ pos ];
+			int at = 0;
+			for ( float[][] part : parts ) {
+				for ( int ch = 0; ch < channels; ch++ ) {
+					System.arraycopy( part[ ch ], 0, out[ ch ], at, part[ ch ].length );
 				}
+				at += part[ 0 ].length;
 			}
-			pos += size;
 		}
 		return new AudioBuffer( out, rate );
 	}

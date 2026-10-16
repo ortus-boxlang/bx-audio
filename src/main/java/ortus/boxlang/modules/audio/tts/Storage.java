@@ -76,7 +76,11 @@ public final class Storage {
 	 * @return The bytes freed
 	 */
 	public static long clear( Path home, String kind ) {
-		String name = kind == null ? "" : kind.trim().toLowerCase();
+		String name = kind == null ? "" : kind.trim().toLowerCase( java.util.Locale.ROOT );
+		if ( !name.equals( "all" ) && !kinds().contains( name ) ) {
+			throw new BoxRuntimeException( "Unknown kind [" + kind + "]. Use one of: " + String.join( ", ", kinds() ) + ", all." );
+		}
+		requireOwned( home );
 		if ( name.equals( "all" ) ) {
 			long freed = 0;
 			for ( String each : kinds() ) {
@@ -91,6 +95,50 @@ public final class Storage {
 		long	bytes	= size( path );
 		delete( path );
 		return bytes;
+	}
+
+	/**
+	 * The name of the file that says a folder is a bx-audio home, written when the first download lands in it
+	 */
+	public static final String MARKER = ".bxaudio-home";
+
+	/**
+	 * Mark the home that holds a downloaded file as ours, so a later clear knows it may delete there. Called after a download.
+	 *
+	 * @param downloaded A file that was downloaded into the home, in one of its subfolders
+	 */
+	public static void claim( Path downloaded ) {
+		for ( Path dir = downloaded.toAbsolutePath().getParent(); dir != null && dir.getParent() != null; dir = dir.getParent() ) {
+			if ( kinds().contains( dir.getFileName().toString() ) ) {
+				try {
+					Files.writeString( dir.getParent().resolve( MARKER ),
+					    "This folder is a bx-audio home. `bx-audio clean` may delete its engine, voices, ffmpeg and cache folders.\n" );
+				} catch ( IOException e ) {
+					// not being able to write the marker only means a later clear will refuse, which is the safe side
+				}
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Refuse to delete in a folder that is not known to be a bx-audio home: a home setting that points at a project folder which happens to
+	 * have a cache or voices folder of its own must not lose it. The default home counts as ours, and so does any folder with the marker.
+	 */
+	private static void requireOwned( Path home ) {
+		Path normal = home.toAbsolutePath().normalize();
+		if ( Files.exists( normal.resolve( MARKER ) ) || normal.equals( TtsHome.home().toAbsolutePath().normalize() ) && isDefaultHome( normal ) ) {
+			return;
+		}
+		if ( !Files.isDirectory( normal ) ) {
+			return;
+		}
+		throw new BoxRuntimeException( "[" + normal + "] is not known to be a bx-audio home (it has no " + MARKER + " file), so nothing was deleted. "
+		    + "Downloads write that file. If this is the folder you set as home and you want it cleared, create the file yourself." );
+	}
+
+	private static boolean isDefaultHome( Path home ) {
+		return home.equals( Path.of( System.getProperty( "user.home" ) ).resolve( ".bxaudio" ).toAbsolutePath().normalize() );
 	}
 
 	private static Path folder( Path home, String kind ) {

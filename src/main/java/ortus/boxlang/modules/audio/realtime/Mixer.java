@@ -117,6 +117,10 @@ public final class Mixer implements AutoCloseable {
 		if ( loop && loopEnd - loopStart < 64 ) {
 			throw new BoxRuntimeException( "The loop must be at least 64 frames long: check loopStart and loopEnd" );
 		}
+		double start = number( options, "start", 0 );
+		if ( start < 0 ) {
+			throw new BoxRuntimeException( "The play option [start] cannot be negative but was " + start );
+		}
 		double pitch = number( options, "pitch", 1 );
 		if ( pitch <= 0 || pitch > 16 ) {
 			throw new BoxRuntimeException( "The pitch must be above 0 and at most 16 but was " + pitch );
@@ -125,7 +129,7 @@ public final class Mixer implements AutoCloseable {
 		String		bus		= given == null ? "main" : String.valueOf( given );
 		Playback	p		= new Playback( data, bus, Math.max( 0, number( options, "volume", 1 ) ),
 		    Math.max( -1, Math.min( 1, number( options, "pan", 0 ) ) ), pitch, loop,
-		    loopStart, loopEnd, Math.min( frames, number( options, "start", 0 ) * this.rate ) );
+		    loopStart, loopEnd, Math.min( frames, start * this.rate ) );
 		p.rate = this.rate;
 		double fadeIn = number( options, "fadeIn", 0 );
 		if ( fadeIn > 0 ) {
@@ -231,7 +235,13 @@ public final class Mixer implements AutoCloseable {
 			if ( v.paused ) {
 				continue;
 			}
-			mixVoice( v, out, frames );
+			try {
+				mixVoice( v, out, frames );
+			} catch ( RuntimeException e ) {
+				// One sound that cannot be mixed must not stop the rest, nor the thread that keeps time: drop it and say why
+				v.finished = true;
+				logError( "A sound was dropped from the mixer: " + e );
+			}
 		}
 		for ( float[] channel : out ) {
 			for ( int i = 0; i < frames; i++ ) {
@@ -339,13 +349,26 @@ public final class Mixer implements AutoCloseable {
 		this.device.start();
 	}
 
+	private static void logError( String message ) {
+		try {
+			ortus.boxlang.runtime.logging.LoggingService.getInstance().RUNTIME_LOGGER.error( message );
+		} catch ( RuntimeException | LinkageError e ) {
+			// no logger available, as in a plain Java program: the failure has already been handled
+		}
+	}
+
 	private void run() {
 		float[][]	block	= new float[ this.channels ][ BLOCK ];
 		byte[]		bytes	= new byte[ BLOCK * this.channels * 2 ];
 		long		next	= System.nanoTime();
 		long		period	= ( long ) ( 1e9 * BLOCK / this.rate );
 		while ( this.running ) {
-			mix( block, BLOCK );
+			try {
+				mix( block, BLOCK );
+			} catch ( RuntimeException e ) {
+				logError( "The mixer could not mix a block of audio: " + e );
+				java.util.Arrays.fill( block[ 0 ], 0f );
+			}
 			if ( this.line != null ) {
 				int k = 0;
 				for ( int i = 0; i < BLOCK; i++ ) {
@@ -421,7 +444,14 @@ public final class Mixer implements AutoCloseable {
 	}
 
 	private static double number( Map<?, ?> options, String key, double fallback ) {
-		return lookup( options, key ) instanceof Number n ? n.doubleValue() : fallback;
+		if ( lookup( options, key ) instanceof Number n ) {
+			double value = n.doubleValue();
+			if ( Double.isNaN( value ) || Double.isInfinite( value ) ) {
+				throw new BoxRuntimeException( "The play option [" + key + "] must be a finite number but was " + value );
+			}
+			return value;
+		}
+		return fallback;
 	}
 
 	private static boolean bool( Map<?, ?> options, String key, boolean fallback ) {

@@ -113,11 +113,16 @@ public final class WavCodec {
 					}
 					formatTag = buf.getShort( body + 24 ) & 0xFFFF;
 				}
-			} else if ( id == fourCC( "data" ) ) {
-				dataStart	= body;
-				// Streaming writers leave 0 or 0xFFFFFFFF here, so never trust it past the end of the file
-				dataLength	= Math.min( size, ( long ) bytes.length - body );
-				break;
+			} else if ( id == fourCC( "data" ) && dataStart < 0 ) {
+				dataStart = body;
+				long	remaining	= ( long ) bytes.length - body;
+				// Streaming writers leave 0 or 0xFFFFFFFF here because they do not know the length yet: the audio then runs to the end of the
+				// file. A size of 0 followed by another chunk is a real empty data chunk.
+				boolean	toTheEnd	= size == 0xFFFFFFFFL || size > remaining || ( size == 0 && remaining > 0 && !looksLikeChunk( buf, bytes.length, body ) );
+				dataLength = toTheEnd ? remaining : size;
+				if ( toTheEnd ) {
+					break;
+				}
 			}
 
 			// Chunks are padded to an even length
@@ -146,12 +151,16 @@ public final class WavCodec {
 			throw new BoxRuntimeException( "Unsupported WAV bit depth: " + bitsPerSample + ( isFloat ? " bit float" : " bit PCM" ) );
 		}
 
-		int			bytesPerSample	= bitsPerSample / 8;
-		long		frameSize		= ( long ) bytesPerSample * channels;
-		int			frames			= ( int ) ( dataLength / frameSize );
-		float[][]	samples			= new float[ channels ][ frames ];
+		int		bytesPerSample	= bitsPerSample / 8;
+		long	frameSize		= ( long ) bytesPerSample * channels;
+		long	frameCount		= dataLength / frameSize;
+		if ( frameCount > Integer.MAX_VALUE - 16 ) {
+			throw new BoxRuntimeException( "This WAV file is too long to hold in memory (" + frameCount + " frames)" );
+		}
+		int			frames	= ( int ) frameCount;
+		float[][]	samples	= new float[ channels ][ frames ];
 
-		int			at				= dataStart;
+		int			at		= dataStart;
 		for ( int frame = 0; frame < frames; frame++ ) {
 			for ( int ch = 0; ch < channels; ch++ ) {
 				samples[ ch ][ frame ]	= readSample( buf, at, bitsPerSample, isFloat );
@@ -159,6 +168,22 @@ public final class WavCodec {
 			}
 		}
 		return new AudioBuffer( samples, sampleRate );
+	}
+
+	/**
+	 * @return Whether a chunk header that makes sense starts at {@code at}: a four letter id and a size that fits in the file
+	 */
+	private static boolean looksLikeChunk( ByteBuffer buf, int length, int at ) {
+		if ( at + 8 > length ) {
+			return false;
+		}
+		for ( int i = 0; i < 4; i++ ) {
+			int c = buf.get( at + i ) & 0xFF;
+			if ( c < 0x20 || c > 0x7E ) {
+				return false;
+			}
+		}
+		return ( buf.getInt( at + 4 ) & 0xFFFFFFFFL ) <= length - at - 8;
 	}
 
 	/**
@@ -213,13 +238,14 @@ public final class WavCodec {
 			header.putInt( fourCC( "data" ) ).putInt( ( int ) dataBytes );
 			bos.write( header.array(), 0, header.position() );
 
-			ByteBuffer block = ByteBuffer.allocate( WRITE_BLOCK_FRAMES * channels * bytesPerSample ).order( ByteOrder.LITTLE_ENDIAN );
+			Quantizer	quantizer	= isFloat ? null : new Quantizer( audio, bitDepth );
+			ByteBuffer	block		= ByteBuffer.allocate( WRITE_BLOCK_FRAMES * channels * bytesPerSample ).order( ByteOrder.LITTLE_ENDIAN );
 			for ( int start = 0; start < frames; start += WRITE_BLOCK_FRAMES ) {
 				int end = Math.min( frames, start + WRITE_BLOCK_FRAMES );
 				block.clear();
 				for ( int frame = start; frame < end; frame++ ) {
 					for ( int ch = 0; ch < channels; ch++ ) {
-						writeSample( block, audio.channel( ch )[ frame ], bitDepth );
+						writeSample( block, audio.channel( ch )[ frame ], bitDepth, quantizer );
 					}
 				}
 				bos.write( block.array(), 0, block.position() );
@@ -246,16 +272,15 @@ public final class WavCodec {
 		};
 	}
 
-	private static void writeSample( ByteBuffer block, float sample, int bitDepth ) {
+	private static void writeSample( ByteBuffer block, float sample, int bitDepth, Quantizer quantizer ) {
 		if ( bitDepth == 32 ) {
 			block.putFloat( sample );
 			return;
 		}
-		float clamped = Math.max( -1f, Math.min( 1f, sample ) );
+		int v = quantizer.next( sample );
 		if ( bitDepth == 16 ) {
-			block.putShort( ( short ) Math.round( clamped * 32767f ) );
+			block.putShort( ( short ) v );
 		} else {
-			int v = Math.round( clamped * 8388607f );
 			block.put( ( byte ) v ).put( ( byte ) ( v >> 8 ) ).put( ( byte ) ( v >> 16 ) );
 		}
 	}

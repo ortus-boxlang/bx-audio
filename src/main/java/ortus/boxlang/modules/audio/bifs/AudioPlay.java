@@ -65,7 +65,7 @@ public class AudioPlay extends BIF {
 	 * @return The playback, which can be stopped with stop().
 	 */
 	public Playback _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		String where = arguments.getAsString( output ).toLowerCase();
+		String where = arguments.getAsString( output ).toLowerCase( java.util.Locale.ROOT );
 		if ( where.equals( "memory" ) ) {
 			throw new BoxRuntimeException(
 			    "audioPlay needs a mixer that runs: use speakers or null, or audioMixer( output=\"memory\" ) and render() for the audio" );

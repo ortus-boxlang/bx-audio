@@ -55,17 +55,24 @@ public final class Drums {
 		if ( level < 0 || level > 1 ) {
 			throw new BoxRuntimeException( "Level must be between 0 and 1 but was " + level );
 		}
-		double[]	out		= switch ( kind ) {
-								case "kick" -> kick( sampleRate, pitch, decay );
-								case "snare" -> snare( sampleRate, seed, pitch, decay );
-								case "hat" -> burst( sampleRate, seed, 0.06 * decay, 70 / decay );
-								case "openhat" -> burst( sampleRate, seed, 0.22 * decay, 18 / decay );
-								case "clap" -> clap( sampleRate, seed, decay );
-								case "tom" -> tom( sampleRate, pitch, decay );
-								case "crash" -> burst( sampleRate, seed, 1.5 * decay, 3 / decay );
-								default -> riser( sampleRate, seed, seconds );
-							};
-		double		peak	= 0;
+		double[] out = switch ( kind ) {
+			case "kick" -> kick( sampleRate, pitch, decay );
+			case "snare" -> snare( sampleRate, seed, pitch, decay );
+			case "hat" -> burst( sampleRate, seed, 0.06 * decay, 70 / decay );
+			case "openhat" -> burst( sampleRate, seed, 0.22 * decay, 18 / decay );
+			case "clap" -> clap( sampleRate, seed, decay );
+			case "tom" -> tom( sampleRate, pitch, decay );
+			case "crash" -> burst( sampleRate, seed, 1.5 * decay, 3 / decay );
+			default -> riser( sampleRate, seed, seconds );
+		};
+		// A hit that is cut off while it still rings ends in a click, so the last few milliseconds fade out (the riser fades by its own envelope)
+		if ( !kind.equals( "riser" ) ) {
+			int fade = Math.min( out.length / 4, Math.max( 1, ( int ) Math.round( 0.012 * sampleRate ) ) );
+			for ( int i = 0; i < fade; i++ ) {
+				out[ out.length - 1 - i ] *= 0.5 - 0.5 * Math.cos( Math.PI * i / fade );
+			}
+		}
+		double peak = 0;
 		for ( double v : out ) {
 			peak = Math.max( peak, Math.abs( v ) );
 		}

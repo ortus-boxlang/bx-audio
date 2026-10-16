@@ -30,6 +30,7 @@ import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
+import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Describe any audio or video file with FFprobe: length, size, and the video and audio streams" )
 public class VideoInfo extends BIF {
@@ -59,7 +60,7 @@ public class VideoInfo extends BIF {
 	 */
 	@SuppressWarnings( "unchecked" )
 	public IStruct _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		Path				file		= Path.of( arguments.getAsString( path ) ).toAbsolutePath();
+		Path				file		= FileSystemUtil.expandPath( context, arguments.getAsString( path ) ).absolutePath();
 		Ffmpeg				tools		= FfmpegSupport.require( "Reading media information" );
 		Map<String, Object>	info		= tools.probe( file );
 		Map<String, Object>	format		= ( Map<String, Object> ) info.getOrDefault( "format", Map.of() );

@@ -94,9 +94,9 @@ public class AudioSpeakCues extends BIF {
 		boolean				allow	= arguments.get( autoInstall ) != null ? arguments.getAsBoolean( autoInstall ) : Speech.autoInstall();
 		Map<String, Object>	values	= new HashMap<>();
 		if ( arguments.get( pauses ) instanceof IStruct given ) {
-			given.forEach( ( k, v ) -> values.put( k.getName().toLowerCase(), v ) );
+			given.forEach( ( k, v ) -> values.put( k.getName().toLowerCase( java.util.Locale.ROOT ), v ) );
 		}
-		String mode = arguments.getAsString( split ).toLowerCase();
+		String mode = arguments.getAsString( split ).toLowerCase( java.util.Locale.ROOT );
 		if ( !mode.equals( "sentence" ) && !mode.equals( "clause" ) ) {
 			throw new BoxRuntimeException( "split must be sentence or clause but was [" + mode + "]" );
 		}

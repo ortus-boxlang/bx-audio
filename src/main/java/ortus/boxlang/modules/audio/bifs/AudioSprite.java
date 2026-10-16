@@ -36,6 +36,7 @@ import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Join named sounds into one audio sprite with a map of where each starts, the way Howler.js and game engines load effects" )
 public class AudioSprite extends BIF {
@@ -106,7 +107,7 @@ public class AudioSprite extends BIF {
 		IStruct		result	= Struct.ofNonConcurrent( "audio", joined, "sprites", sprites );
 		String		file	= arguments.getAsString( path );
 		if ( !file.isBlank() ) {
-			Path target = Path.of( file ).toAbsolutePath();
+			Path target = FileSystemUtil.expandPath( context, file ).absolutePath();
 			try {
 				Files.createDirectories( target.getParent() );
 			} catch ( IOException e ) {

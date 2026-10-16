@@ -454,7 +454,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSave( audioSilence( 1 ), mp3, 16, 100 )", context ) );
 		BoxRuntimeException notAudio = assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioLoad( text )", context ) );
 		// Without FFmpeg the message says which formats are read natively, with it FFprobe says it is not media
-		assertThat( notAudio.getMessage() ).containsMatch( "not a WAV, MP3 or FLAC|could not read" );
+		assertThat( notAudio.getMessage() ).containsMatch( "not a WAV, MP3 or FLAC|could not read|not an audio file" );
 		assertThat( Files.exists( dir.resolve( "x.xyz" ) ) ).isFalse();
 	}
 

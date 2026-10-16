@@ -28,6 +28,7 @@ import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
+import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
 @BoxBIF( description = "Find FFmpeg on this computer and say what it can do: OGG, Opus, AAC and video files need it" )
 public class AudioFfmpeg extends BIF {
@@ -50,14 +51,25 @@ public class AudioFfmpeg extends BIF {
 	 *
 	 * 
 	 * @return A struct with available, source (configured, installed or system), path, probePath, version, encoders (libvorbis, libopus, aac, libmp3lame,
-	 *         flac that it has), platform, installable (is there a download for this computer), downloadSizeMB and installDir.
+	 *         flac that it has), platform, installable (is there a download for this computer), autoInstall (may the module download it by itself),
+	 *         downloadSizeMB and installDir. When the ffmpeg setting points at something that does not run, available is false and problem says why.
 	 */
 	public IStruct _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		Ffmpeg			found		= Ffmpeg.locate();
+		Ffmpeg	found	= null;
+		String	problem	= null;
+		try {
+			found = Ffmpeg.locate();
+		} catch ( BoxRuntimeException e ) {
+			// A wrong ffmpeg setting is something to report here, since this function is how you find out what is wrong
+			problem = e.getMessage();
+		}
 		FfmpegInstaller	installer	= Ffmpeg.installer();
 		IStruct			result		= Struct.ofNonConcurrent( "available", found != null, "platform", installer.getPlatform(), "installable",
-		    installer.isSupported(), "downloadSizeMB",
+		    installer.isSupported(), "autoInstall", Speech.autoInstall(), "downloadSizeMB",
 		    Speech.megabytes( installer.downloadSize() ), "installDir", installer.getDir().toString() );
+		if ( problem != null ) {
+			result.put( Key.of( "problem" ), problem );
+		}
 		if ( found != null ) {
 			result.put( Key.of( "source" ), found.getSource() );
 			result.put( Key.of( "path" ), found.getFfmpeg().toString() );

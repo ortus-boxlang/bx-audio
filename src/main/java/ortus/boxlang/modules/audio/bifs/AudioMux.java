@@ -25,6 +25,7 @@ import ortus.boxlang.runtime.context.IBoxContext;
 import ortus.boxlang.runtime.scopes.ArgumentsScope;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
+import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Put audio on a video file, copying the picture without re-encoding it" )
 public class AudioMux extends BIF {
@@ -76,9 +77,9 @@ public class AudioMux extends BIF {
 	 * @return The absolute path of the written file. The result is never longer than the video.
 	 */
 	public String _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		Path	out		= Path.of( arguments.getAsString( output ) ).toAbsolutePath();
+		Path	out		= FileSystemUtil.expandPath( context, arguments.getAsString( output ) ).absolutePath();
 		Ffmpeg	tools	= FfmpegSupport.require( "Adding audio to a video" );
-		tools.mux( Path.of( arguments.getAsString( video ) ).toAbsolutePath(), Audios.require( arguments.get( audio ), "audio" ), out,
+		tools.mux( FileSystemUtil.expandPath( context, arguments.getAsString( video ) ).absolutePath(), Audios.require( arguments.get( audio ), "audio" ), out,
 		    arguments.getAsBoolean( keepOriginal ), arguments.getAsDouble( originalDb ),
 		    arguments.getAsDouble( offset ), arguments.getAsInteger( bitrate ) );
 		return out.toString();
