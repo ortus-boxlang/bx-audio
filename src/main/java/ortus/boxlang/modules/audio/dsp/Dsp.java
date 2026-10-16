@@ -282,28 +282,17 @@ public final class Dsp {
 	public static final java.util.List<String> FILTER_TYPES = java.util.List.of( "lowpass", "highpass", "bandpass", "notch" );
 
 	/**
-	 * Run the audio through a second order filter (the RBJ "audio EQ cookbook" biquads).
+	 * The coefficients of a second order filter (the RBJ "audio EQ cookbook" biquads), divided by a0
 	 *
-	 * @param audio  The input
-	 * @param type   lowpass, highpass, bandpass (constant peak gain) or notch
-	 * @param cutoff The corner or center frequency in Hz, above 0 and below half the sample rate
-	 * @param q      Resonance. 0.7071 is flat, higher peaks at the cutoff, for bandpass and notch it sets the narrowness.
+	 * @param kind   lowpass, highpass, bandpass (constant peak gain) or notch
+	 * @param cutoff The corner or center frequency in Hz
+	 * @param q      Resonance
+	 * @param rate   The sample rate
+	 *
+	 * @return b0, b1, b2, a1 and a2
 	 */
-	public static AudioBuffer filter( AudioBuffer audio, String type, double cutoff, double q ) {
-		String kind = type == null ? "" : type.toLowerCase( java.util.Locale.ROOT );
-		if ( !FILTER_TYPES.contains( kind ) ) {
-			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown filter type [" + type + "]. Use one of " + FILTER_TYPES );
-		}
-		requireFinite( cutoff, "cutoff" );
-		requireFinite( q, "q" );
-		if ( cutoff <= 0 || cutoff >= audio.getSampleRate() / 2.0 ) {
-			throw new AudioException( AudioException.INVALID_ARGUMENT,
-			    "The cutoff must be above 0 and below " + audio.getSampleRate() / 2.0 + " Hz but was " + cutoff );
-		}
-		if ( q <= 0 || q > 100 ) {
-			throw new AudioException( AudioException.INVALID_ARGUMENT, "Q must be above 0 and at most 100 but was " + q );
-		}
-		double	w0		= 2 * Math.PI * cutoff / audio.getSampleRate();
+	public static double[] biquad( String kind, double cutoff, double q, int rate ) {
+		double	w0		= 2 * Math.PI * cutoff / rate;
 		double	cos		= Math.cos( w0 );
 		double	alpha	= Math.sin( w0 ) / ( 2 * q );
 		double	b0, b1, b2;
@@ -329,13 +318,35 @@ public final class Dsp {
 				b2	= 1;
 			}
 		}
-		double	a0	= 1 + alpha;
-		double	a1	= -2 * cos / a0;
-		double	a2	= ( 1 - alpha ) / a0;
-		b0	/= a0;
-		b1	/= a0;
-		b2	/= a0;
-		float[][] out = new float[ audio.getChannels() ][ audio.getFrames() ];
+		double a0 = 1 + alpha;
+		return new double[] { b0 / a0, b1 / a0, b2 / a0, -2 * cos / a0, ( 1 - alpha ) / a0 };
+	}
+
+	/**
+	 * Run the audio through a second order filter (the RBJ "audio EQ cookbook" biquads).
+	 *
+	 * @param audio  The input
+	 * @param type   lowpass, highpass, bandpass (constant peak gain) or notch
+	 * @param cutoff The corner or center frequency in Hz, above 0 and below half the sample rate
+	 * @param q      Resonance. 0.7071 is flat, higher peaks at the cutoff, for bandpass and notch it sets the narrowness.
+	 */
+	public static AudioBuffer filter( AudioBuffer audio, String type, double cutoff, double q ) {
+		String kind = type == null ? "" : type.toLowerCase( java.util.Locale.ROOT );
+		if ( !FILTER_TYPES.contains( kind ) ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown filter type [" + type + "]. Use one of " + FILTER_TYPES );
+		}
+		requireFinite( cutoff, "cutoff" );
+		requireFinite( q, "q" );
+		if ( cutoff <= 0 || cutoff >= audio.getSampleRate() / 2.0 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The cutoff must be above 0 and below " + audio.getSampleRate() / 2.0 + " Hz but was " + cutoff );
+		}
+		if ( q <= 0 || q > 100 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Q must be above 0 and at most 100 but was " + q );
+		}
+		double[]	c	= biquad( kind, cutoff, q, audio.getSampleRate() );
+		double		b0	= c[ 0 ], b1 = c[ 1 ], b2 = c[ 2 ], a1 = c[ 3 ], a2 = c[ 4 ];
+		float[][]	out	= new float[ audio.getChannels() ][ audio.getFrames() ];
 		for ( int ch = 0; ch < out.length; ch++ ) {
 			float[]	in	= audio.channel( ch );
 			double	x1	= 0, x2 = 0, y1 = 0, y2 = 0;

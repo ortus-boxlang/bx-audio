@@ -7,6 +7,7 @@ summary: Task oriented guides, from making a first sound to scoring a video and 
 | Guide | You want to |
 |---|---|
 | [Synthesis and effects](synthesis-and-effects.md) | Make sounds from nothing: oscillators, noise, drums, filters, echo and reverb |
+| [Modulation and automation](modulation-and-automation.md) | Move volume, position, filter or pitch while a sound plays: tremolo, sweeps, vibrato, auto pan |
 | [Timeline mixing](mixing.md) | Arrange sounds on a beat grid, pump a bass to the kick, duck music under a voice |
 | [Trailers and video](trailers-and-video.md) | Score a video: fit music to its length, add a voice-over and captions, master, put the sound on the picture |
 | [Loudness and mastering](loudness-and-mastering.md) | Measure loudness and deliver to streaming, podcast or broadcast levels |

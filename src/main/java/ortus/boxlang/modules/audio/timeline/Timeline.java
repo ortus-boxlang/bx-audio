@@ -20,7 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ortus.boxlang.modules.audio.curve.Curve;
 import ortus.boxlang.modules.audio.dsp.Dsp;
+import ortus.boxlang.modules.audio.dsp.Modulation;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.AudioException;
 
@@ -263,6 +265,30 @@ public final class Timeline {
 	}
 
 	/**
+	 * Make a track's volume or balance follow a curve over the time of the timeline. A second call for the same parameter of the track replaces the
+	 * first. The volume follows on top of the track gain and the ducks.
+	 *
+	 * @param track The track
+	 * @param param gainDb (the curve is a gain in dB) or pan (-1 left to 1 right, applied as a balance control, so the timeline must be stereo)
+	 * @param curve The curve, in seconds of the timeline
+	 */
+	public Timeline automate( String track, String param, Curve curve ) {
+		String kind = param == null ? "" : param.trim();
+		if ( !kind.equalsIgnoreCase( "gainDb" ) && !kind.equalsIgnoreCase( "pan" ) ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A track can automate gainDb or pan, not [" + param + "]" );
+		}
+		if ( kind.equalsIgnoreCase( "pan" ) && this.channels != 2 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Pan can only be automated on a stereo timeline, this one has " + this.channels + " channel(s)" );
+		}
+		if ( curve == null ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The curve cannot be empty" );
+		}
+		trackFor( track ).automation.put( kind.equalsIgnoreCase( "pan" ) ? "pan" : "gainDb", curve );
+		return this;
+	}
+
+	/**
 	 * Mix all tracks down into one buffer.
 	 *
 	 * @param tailSeconds Extra silence to leave after the last sound, for example to let a fade out finish
@@ -277,17 +303,42 @@ public final class Timeline {
 		}
 		float[][] out = new float[ this.channels ][ ( int ) frames ];
 		for ( Track t : this.tracks.values() ) {
-			float[] curve = duckCurve( t );
+			float[]	curve	= duckCurve( t );
+			Curve	volume	= t.automation.get( "gainDb" );
+			Curve	pan		= t.automation.get( "pan" );
+			if ( volume != null && t.used > 0 ) {
+				if ( curve == null ) {
+					curve = new float[ t.used ];
+					Arrays.fill( curve, 1f );
+				}
+				for ( int i = 0; i < t.used; i++ ) {
+					curve[ i ] *= ( float ) Modulation.linear( volume.at( ( double ) i / this.sampleRate ) );
+				}
+			}
+			// the balance of each sample, worked out once for both channels
+			float[][] balance = null;
+			if ( pan != null && t.used > 0 ) {
+				balance = new float[ 2 ][ t.used ];
+				for ( int i = 0; i < t.used; i++ ) {
+					float[] g = Modulation.balanceGains( pan.at( ( double ) i / this.sampleRate ) );
+					balance[ 0 ][ i ]	= g[ 0 ];
+					balance[ 1 ][ i ]	= g[ 1 ];
+				}
+			}
 			for ( int ch = 0; ch < this.channels; ch++ ) {
 				float[]	src	= t.data[ ch ];
 				float[]	dst	= out[ ch ];
-				if ( curve == null ) {
+				if ( curve == null && balance == null ) {
 					for ( int i = 0; i < t.used; i++ ) {
 						dst[ i ] += src[ i ] * t.gain;
 					}
 				} else {
 					for ( int i = 0; i < t.used; i++ ) {
-						dst[ i ] += src[ i ] * t.gain * curve[ i ];
+						float g = t.gain * ( curve == null ? 1f : curve[ i ] );
+						if ( balance != null ) {
+							g *= balance[ ch ][ i ];
+						}
+						dst[ i ] += src[ i ] * g;
 					}
 				}
 			}
@@ -356,10 +407,11 @@ public final class Timeline {
 	 */
 	private static final class Track {
 
-		float[][]	data;
-		int			used	= 0;
-		float		gain	= 1f;
-		List<Duck>	ducks	= new ArrayList<>();
+		float[][]			data;
+		int					used		= 0;
+		float				gain		= 1f;
+		List<Duck>			ducks		= new ArrayList<>();
+		Map<String, Curve>	automation	= new LinkedHashMap<>();
 
 		Track( int channels ) {
 			this.data = new float[ channels ][ 0 ];

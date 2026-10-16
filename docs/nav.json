@@ -14,6 +14,7 @@
 		"children": [
 			"guides/index.md",
 			"guides/synthesis-and-effects.md",
+			"guides/modulation-and-automation.md",
 			"guides/mixing.md",
 			"guides/trailers-and-video.md",
 			"guides/loudness-and-mastering.md",

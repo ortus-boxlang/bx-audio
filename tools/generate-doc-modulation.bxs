@@ -1,0 +1,43 @@
+/**
+ * Draws the pictures and renders the clips of the modulation guide (docs/assets/images/mod-*.png, docs/assets/audio/mod-*.mp3). Run it when
+ * the modulation changes, and commit the files it writes. Everything is made from oscillators and noise with fixed seeds, so the output is the
+ * same every time.
+ *
+ * Usage:
+ *   boxlang tools/generate-doc-modulation.bxs
+ */
+
+root = expandPath( "../" );
+images = root & "docs/assets/images";
+clips = root & "docs/assets/audio";
+directoryCreate( images, true, true );
+directoryCreate( clips, true, true );
+
+function clip( name, audio ){
+	audioSave( audioNormalizeLoudness( audio, -16 ), clips & "/mod-" & name & ".mp3", 16, 96 );
+}
+
+tone = audioEnvelope( audio = audioOsc( "saw", 220, 4 ), attack = 0.01, release = 0.1 );
+
+// Tremolo: the volume follows a sine
+tremolo = audioModulate( audio = tone, param = "gainDb", curve = audioLfo( shape = "sine", rate = 4, depth = 8, center = -8 ) );
+audioWaveformImage( audio = tremolo, width = 720, height = 140, path = images & "/mod-tremolo.png", color = "3b82f6", background = "ffffff" );
+clip( "tremolo", tremolo );
+
+// A filter sweep: white noise through a low pass that opens from 200 Hz to 8 kHz
+noise = audioNoise( seconds = 4 );
+sweep = audioModulate( audio = noise, param = "cutoff", curve = audioCurve( points = [ { at : 0, value : 200 }, { at : 4, value : 8000 } ], interpolation = "smooth" ) );
+audioSpectrogramImage( audio = sweep, width = 720, height = 240, path = images & "/mod-sweep.png", scale = "magma" );
+clip( "sweep", sweep );
+
+// Vibrato: the pitch swings 0.4 of a semitone, five times a second, and fades in
+vibrato = audioModulate( audio = tone, param = "pitch", curve = audioLfo( shape = "sine", rate = 5.5, depth = 0.4, fadeIn = 1.5 ) );
+audioSpectrogramImage( audio = vibrato, width = 720, height = 240, path = images & "/mod-vibrato.png", scale = "magma" );
+clip( "vibrato", vibrato );
+
+// Auto pan: a mono sound moves left to right and back once a second
+autoPan = audioModulate( audio = tone, param = "pan", curve = audioLfo( shape = "sine", rate = 0.5, depth = 1 ) );
+audioWaveformImage( audio = autoPan, width = 720, height = 200, path = images & "/mod-autopan.png", split = true, color = "7c3aed", background = "ffffff" );
+clip( "autopan", autoPan );
+
+println( "Wrote the modulation pictures and clips" );

@@ -1,6 +1,6 @@
 ---
 title: Time and pitch
-order: 6
+order: 7
 summary: Change speed without pitch and pitch without speed, and fit audio to a length.
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Effects
-order: 3
+order: 4
 summary: Echo, reverb, chorus and saturation.
 ---
 
