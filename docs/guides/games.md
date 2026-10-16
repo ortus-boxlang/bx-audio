@@ -62,7 +62,7 @@ bx-audio play fanfare.wav
 
 ## Seamless loops
 
-A loop clicks when its end does not meet its start. `audioLoopify` folds the end into the start with an equal power crossfade, so the join is smooth, and returns a buffer shorter by the crossfade.
+A loop clicks when its end does not meet its start. `audioLoopify` folds the end into the start with a crossfade, so the join is smooth, and returns a buffer shorter by the crossfade. The fade keeps the level steady: a held pad does not swell in the middle of the join, and two unrelated sounds do not dip.
 
 <!-- run -->
 ```js
