@@ -26,6 +26,7 @@ categories = [
 	{ slug : "ffmpeg-and-video", title : "FFmpeg and video", blurb : "Find or download FFmpeg, read video, put sound on a video, write markers.", functions : [ "audioFfmpeg", "audioFfmpegInstall", "videoInfo", "audioMux", "audioMarkers" ] },
 	{ slug : "speech", title : "Speech and subtitles", blurb : "Text to speech with open license voices, captions timed to the voice, and the voice catalog.", functions : [ "audioSpeak", "audioSpeakCues", "audioSubtitles", "audioVoices", "audioLicenses", "audioVoiceInstall", "audioVoiceRemove", "audioSpeechStatus" ] },
 	{ slug : "games", title : "Game audio", blurb : "A real time mixer, loops, variations and audio sprites.", functions : [ "audioMixer", "audioPlay", "audioLoopify", "audioVariations", "audioSprite" ] },
+	{ slug : "web", title : "Web delivery", blurb : "Audio as bytes, and the HTTP response that serves it with range requests, ETag and 304.", functions : [ "audioEncode", "audioDecode", "audioHttpResponse" ] },
 	{ slug : "storage", title : "Storage", blurb : "Where the module keeps what it downloads.", functions : [ "audioStorage", "audioStorageClear" ] }
 ];
 

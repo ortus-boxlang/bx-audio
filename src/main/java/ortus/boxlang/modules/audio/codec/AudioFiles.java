@@ -46,7 +46,11 @@ public final class AudioFiles {
 	 * @return The extension of a file name with its dot, in lower case, or an empty string
 	 */
 	static String extension( Path path ) {
-		String	name	= path.getFileName().toString().toLowerCase( Locale.ROOT );
+		return extension( path.getFileName().toString() );
+	}
+
+	static String extension( String fileName ) {
+		String	name	= fileName.toLowerCase( Locale.ROOT );
 		int		dot		= name.lastIndexOf( '.' );
 		return dot < 0 ? "" : name.substring( dot );
 	}
@@ -116,6 +120,21 @@ public final class AudioFiles {
 		} catch ( IOException e ) {
 			throw new AudioException( AudioException.IO, "Could not read audio file [" + path + "]: " + e.getMessage(), e );
 		}
+		return decodeBytes( bytes, path.getFileName().toString(), path );
+	}
+
+	/**
+	 * Decode audio held in memory. The format is found from the content, so no file name or extension is needed. A format only FFmpeg reads is
+	 * written to a temporary file for it.
+	 *
+	 * @param bytes The whole file
+	 * @param hint  A file name or extension that helps to recognise formats that have no signature, may be empty
+	 */
+	public static AudioBuffer decode( byte[] bytes, String hint ) {
+		return decodeBytes( bytes, hint == null ? "" : hint, null );
+	}
+
+	private static AudioBuffer decodeBytes( byte[] bytes, String name, Path onDisk ) {
 		bytes = withoutId3BeforeFlac( bytes );
 		if ( bytes.length >= 12 && bytes[ 0 ] == 'R' && bytes[ 1 ] == 'I' && bytes[ 2 ] == 'F' && bytes[ 3 ] == 'F' ) {
 			return WavCodec.decode( bytes );
@@ -126,11 +145,30 @@ public final class AudioFiles {
 		if ( FlacCodec.looksLikeFlac( bytes ) ) {
 			return FlacCodec.decode( bytes );
 		}
-		if ( !FFMPEG_READABLE.contains( extension( path ) ) && !looksLikeFfmpegContainer( bytes ) ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "[" + path.getFileName()
-			    + "] is not an audio file this module can read: it is not WAV, MP3 or FLAC, and its extension is not one FFmpeg is asked to read" );
+		if ( !FFMPEG_READABLE.contains( extension( name ) ) && !looksLikeFfmpegContainer( bytes ) ) {
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "[" + ( name.isEmpty() ? "the data" : name )
+			    + "] is not an audio file this module can read: it is not WAV, MP3 or FLAC, and it is not a container FFmpeg is asked to read" );
 		}
-		return FfmpegSupport.require( "Reading [" + path.getFileName() + "], which is not a WAV, MP3 or FLAC file," ).decode( path );
+		var ffmpeg = FfmpegSupport.require( "Reading [" + ( name.isEmpty() ? "the data" : name ) + "], which is not WAV, MP3 or FLAC," );
+		if ( onDisk != null ) {
+			return ffmpeg.decode( onDisk );
+		}
+		Path temp = null;
+		try {
+			temp = Files.createTempFile( "bxaudio-decode-", ".bin" );
+			Files.write( temp, bytes );
+			return ffmpeg.decode( temp );
+		} catch ( IOException e ) {
+			throw new AudioException( AudioException.IO, "Could not decode the audio: " + e.getMessage(), e );
+		} finally {
+			if ( temp != null ) {
+				try {
+					Files.deleteIfExists( temp );
+				} catch ( IOException ignored ) {
+					// a leftover temp file is cleaned by the operating system
+				}
+			}
+		}
 	}
 
 	/**
@@ -183,6 +221,88 @@ public final class AudioFiles {
 				throw new AudioException( AudioException.IO, "Could not write audio file [" + path + "]: " + e.getMessage(), e );
 			}
 		} );
+	}
+
+	/**
+	 * The formats {@link #encode} writes, without the dot
+	 */
+	public static final java.util.List<String> FORMATS = java.util.List.of( "wav", "mp3", "flac", "ogg", "opus", "m4a", "aac" );
+
+	/**
+	 * @return The format name for a format or an extension such as {@code .WAV}, {@code wave} or {@code mp3}, or null when it is not one we write
+	 */
+	public static String formatName( String formatOrExtension ) {
+		String f = formatOrExtension == null ? "" : formatOrExtension.trim().toLowerCase( Locale.ROOT );
+		if ( f.startsWith( "." ) ) {
+			f = f.substring( 1 );
+		}
+		if ( f.equals( "wave" ) ) {
+			f = "wav";
+		}
+		return FORMATS.contains( f ) ? f : null;
+	}
+
+	/**
+	 * @return The media type of a format, {@code application/octet-stream} for one we do not know
+	 */
+	public static String mimeType( String formatOrExtension ) {
+		String f = formatName( formatOrExtension );
+		if ( f == null ) {
+			return "application/octet-stream";
+		}
+		return switch ( f ) {
+			case "wav" -> "audio/wav";
+			case "mp3" -> "audio/mpeg";
+			case "flac" -> "audio/flac";
+			case "ogg", "opus" -> "audio/ogg";
+			case "m4a" -> "audio/mp4";
+			default -> "audio/aac";
+		};
+	}
+
+	/**
+	 * Encode audio to the bytes of a file in memory. WAV, MP3 and FLAC are written by the module, the other formats by FFmpeg.
+	 *
+	 * @param audio       The audio to encode
+	 * @param format      wav, mp3, flac, ogg, opus, m4a or aac
+	 * @param bitDepth    For WAV: 16, 24 or 32 (float). For FLAC: 16 or 24
+	 * @param bitrateKbps For MP3, OGG, Opus and AAC, 0 for the format's default
+	 */
+	public static byte[] encode( AudioBuffer audio, String format, int bitDepth, int bitrateKbps ) {
+		String f = formatName( format );
+		if ( f == null ) {
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+			    "Cannot encode [" + format + "]. Use one of " + String.join( ", ", FORMATS ) );
+		}
+		switch ( f ) {
+			case "wav" : {
+				var out = new java.io.ByteArrayOutputStream();
+				WavCodec.write( audio, out, bitDepth );
+				return out.toByteArray();
+			}
+			case "mp3" :
+				return Mp3Codec.encode( audio, bitrateKbps );
+			case "flac" :
+				return FlacCodec.encode( audio, bitDepth == 24 ? 24 : 16 );
+			default :
+		}
+		Path temp = null;
+		try {
+			var ffmpeg = FfmpegSupport.require( "Encoding " + f );
+			temp = Files.createTempFile( "bxaudio-encode-", "." + f );
+			ffmpeg.encode( audio, temp, bitrateKbps );
+			return Files.readAllBytes( temp );
+		} catch ( IOException e ) {
+			throw new AudioException( AudioException.IO, "Could not encode the audio: " + e.getMessage(), e );
+		} finally {
+			if ( temp != null ) {
+				try {
+					Files.deleteIfExists( temp );
+				} catch ( IOException ignored ) {
+					// a leftover temp file is cleaned by the operating system
+				}
+			}
+		}
 	}
 
 }
