@@ -13,6 +13,8 @@ summary: Task oriented guides, from making a first sound to scoring a video and 
 | [Time and pitch](time-and-pitch.md) | Make music longer or shorter without changing its pitch, or change pitch without changing length |
 | [Speech and subtitles](speech-and-subtitles.md) | Speak text with open license voices, control the pace, and write captions timed to the words |
 | [Game audio](games.md) | Play many sounds in real time, loop music, vary effects, and export audio sprites |
+| [Podcasts](podcasts.md) | Clean up a recording, level it to the podcast standard, add music that ducks under the voice, mark chapters |
+| [Testing audio](testing-audio.md) | Assert length, level, loudness, silence and pitch in a test, and keep it repeatable |
 | [Analysis](analysis.md) | Find the tempo and beats, look at the spectrum, find silence |
 | [Formats and FFmpeg](formats-and-ffmpeg.md) | Read and write WAV, MP3, FLAC, OGG, Opus and AAC, and read the audio of a video |
 | [Storage](storage.md) | See and clear what the module downloaded, and move it |
