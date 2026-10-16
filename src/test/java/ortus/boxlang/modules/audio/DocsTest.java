@@ -141,7 +141,7 @@ public class DocsTest extends BaseIntegrationTest {
 			assertThat( Files.size( DOCS.resolve( "assets/audio" ).resolve( clips.group( 1 ) ) ) ).isGreaterThan( 10_000L );
 			count++;
 		}
-		assertThat( count ).isEqualTo( 14 );
+		assertThat( count ).isEqualTo( 15 );
 	}
 
 	@DisplayName( "the examples marked to run in the guides run" )

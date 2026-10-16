@@ -15,25 +15,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BoxLang Audio Explorer</title>
-<link rel="icon" type="image/svg+xml" href="assets/boxlang-icon-full.svg">
+<link rel="icon" type="image/svg+xml" href="assets/bxaudio-icon-full.svg">
 <style>
-	/* BoxLang brand: green #00FF75 to cyan #00DBFF, ink #303446, blue-gray neutrals from the BoxLang MiniServer pages */
+	/* BxAudio brand: teal #00EFD0 to cyan #00D4EF to blue #0074FF on deep ink #001019 */
 	:root {
-		--green: #00FF75; --cyan: #00DBFF;
-		--brand: linear-gradient(90deg, #00FF75, #00DBFF);
+		--green: #00EFD0; --cyan: #00D4EF;
+		--brand: linear-gradient(90deg, #00EFD0, #00D4EF 55%, #0074FF);
 		--bg: #F2F2F3; --panel: #ffffff; --ink: #303446; --muted: #494B56; --line: #dcdfe9; --soft: #EDEEF4;
 		--on-brand: #1B1E2C; --wave: #999EAF; --focus: #303446; --shadow: 0 1px 3px rgba(27,30,44,.10);
 		--logo-light: block; --logo-dark: none;
 	}
 	@media (prefers-color-scheme: dark) {
 		:root:not([data-theme="light"]) {
-			--bg: #1B1E2C; --panel: #252839; --ink: #EDEEF4; --muted: #999EAF; --line: #3a3f55; --soft: #1B1E2C;
-			--wave: #494B56; --focus: #00DBFF; --shadow: none; --logo-light: none; --logo-dark: block;
+			--bg: #001019; --panel: #06202e; --ink: #E6F5FA; --muted: #8FB3C2; --line: #123647; --soft: #001019;
+			--wave: #494B56; --focus: #00D4EF; --shadow: none; --logo-light: none; --logo-dark: block;
 		}
 	}
 	:root[data-theme="dark"] {
-		--bg: #1B1E2C; --panel: #252839; --ink: #EDEEF4; --muted: #999EAF; --line: #3a3f55; --soft: #1B1E2C;
-		--wave: #494B56; --focus: #00DBFF; --shadow: none; --logo-light: none; --logo-dark: block;
+		--bg: #001019; --panel: #06202e; --ink: #E6F5FA; --muted: #8FB3C2; --line: #123647; --soft: #001019;
+		--wave: #494B56; --focus: #00D4EF; --shadow: none; --logo-light: none; --logo-dark: block;
 	}
 	* { box-sizing: border-box; }
 	body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -83,8 +83,8 @@
 <body>
 <header>
 	<div class="brand">
-		<img class="logo-light" src="assets/boxlang-logo-full-light.svg" alt="BoxLang">
-		<img class="logo-dark" src="assets/boxlang-logo-full-dark.svg" alt="BoxLang">
+		<img class="logo-light" src="assets/bxaudio-logo-full-light.svg" alt="BxAudio">
+		<img class="logo-dark" src="assets/bxaudio-logo-full-dark.svg" alt="BxAudio">
 		<h1 class="product">Audio Explorer</h1>
 	</div>
 	<p>Every piece here is synthesized by a BoxLang script when you press play.</p>
@@ -109,7 +109,7 @@
 	</section>
 </main>
 <footer>
-	<img src="assets/boxlang-icon-full.svg" alt="" width="22" height="22">
+	<img src="assets/bxaudio-icon-full.svg" alt="" width="22" height="22">
 	<span>Rendered by <code>render.bxm</code> with the module's <code>audioRender</code>, <code>audioSave</code> and <code>audioWaveform</code>. Results are cached in <code>cache/</code> by piece and settings, so the same settings play instantly.</span>
 </footer>
 <bx:output>

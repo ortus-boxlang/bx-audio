@@ -38,7 +38,8 @@ clips = [
 	{ id : "rock", args : [ "--bars=12" ] },
 	{ id : "voiceover", args : [], voice : true },
 	{ id : "trailer", args : [ "--seconds=15" ], voice : true },
-	{ id : "game-audio", args : [] }
+	{ id : "game-audio", args : [] },
+	{ id : "theme", args : [ "--bars=16" ] }
 ];
 
 for( clip in clips ){
@@ -54,6 +55,15 @@ for( clip in clips ){
 	audio = audioLoad( wav );
 	audioSave( audio, target & "/" & clip.id & ".mp3", 16, 96 );
 	println( clip.id & ": " & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s" );
+}
+
+// The short jingle for buttons and the player: the same script with --sting
+if( !only.len() || only.contains( "theme" ) ){
+	overrides = { out : temp & "/sting.wav", sting : true };
+	include "../examples/15-theme/theme.bxs";
+	sting = audioLoad( temp & "/sting.wav" );
+	audioSave( sting, target & "/sting.mp3", 16, 96 );
+	println( "sting: " & numberFormat( sting.getDurationSeconds(), "0.0" ) & " s" );
 }
 
 if( options.keyExists( "voice-samples" ) && options[ "voice-samples" ] != false ){

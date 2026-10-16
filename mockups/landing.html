@@ -3,30 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BoxLang Audio Landing Mockup</title>
+<title>BxAudio Landing Mockup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --brand1:#00e676; --brand2:#1de9b6; --brand3:#00d4ff; --violet:#7c5cff;
-  --grad:linear-gradient(90deg,#00e676,#1de9b6 55%,#00d4ff);
-  --grad-diag:linear-gradient(135deg,#00e676,#1de9b6 55%,#00d4ff);
-  --bg:#f4fbf8; --surface:#fff; --surface-2:#e6f6ef; --text:#06231a; --muted:#47675a;
+  --brand1:#00efd0; --brand2:#00d4ef; --brand3:#0074ff; --violet:#7c5cff;
+  --grad:linear-gradient(90deg,#00efd0,#00d4ef 55%,#0074ff);
+  --grad-diag:linear-gradient(135deg,#00efd0,#00d4ef 55%,#0074ff);
+  --bg:#f4fbfd; --surface:#fff; --surface-2:#e4f4f9; --text:#031a26; --muted:#4a6877;
   --border:rgba(6,35,26,.10); --border-strong:rgba(6,35,26,.2);
-  --code-bg:#07150f; --code-text:#d7f5e8;
+  --code-bg:#031a26; --code-text:#d7f5e8;
 }
 :root[data-theme="dark"]{
-  --bg:#050f0b; --surface:#0a1a13; --surface-2:#0e2419; --text:#e6f5ee; --muted:#8fb0a2;
+  --bg:#001019; --surface:#04202d; --surface-2:#082d3e; --text:#e6f5fa; --muted:#8fb3c2;
   --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.17);
-  --code-bg:#030a07;
+  --code-bg:#000a10;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:Poppins,ui-sans-serif,system-ui,sans-serif;color:var(--text);line-height:1.6;
   background:
-   radial-gradient(1000px 520px at 85% -8%,rgba(29,233,182,.16),transparent 60%),
-   radial-gradient(800px 520px at 5% 6%,rgba(0,230,118,.10),transparent 55%),
+   radial-gradient(1000px 520px at 85% -8%,rgba(0,212,239,.16),transparent 60%),
+   radial-gradient(800px 520px at 5% 6%,rgba(0,239,208,.10),transparent 55%),
    radial-gradient(900px 600px at 60% 110%,rgba(0,212,255,.12),transparent 60%),var(--bg);}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
@@ -49,15 +49,15 @@ nav.main a:hover{color:var(--text)}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;font-weight:600;font-size:.95rem;border:1px solid var(--border-strong);cursor:pointer;transition:.15s}
-.btn-primary{background:var(--grad-diag);color:#03140c;border:0;box-shadow:0 8px 28px rgba(29,233,182,.28)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 34px rgba(0,230,118,.36)}
+.btn-primary{background:var(--grad-diag);color:#03140c;border:0;box-shadow:0 8px 28px rgba(0,212,239,.28)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 34px rgba(0,239,208,.36)}
 .btn-ghost{background:transparent;color:var(--text)}
 .btn-ghost:hover{background:var(--surface-2)}
 
 /* hero */
 .hero{position:relative;padding:76px 0 56px;overflow:hidden}
 .aurora{position:absolute;inset:-20% -10% auto -10%;height:70%;pointer-events:none;opacity:.5;filter:blur(70px);
-  background:conic-gradient(from 210deg at 70% 40%,rgba(0,230,118,0),rgba(29,233,182,.35),rgba(0,212,255,.3),rgba(0,230,118,0) 60%);
+  background:conic-gradient(from 210deg at 70% 40%,rgba(0,239,208,0),rgba(0,212,239,.35),rgba(0,212,255,.3),rgba(0,239,208,0) 60%);
   animation:drift 18s ease-in-out infinite alternate}
 @keyframes drift{to{transform:translate3d(-4%,3%,0) rotate(6deg) scale(1.06)}}
 .hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.15fr);gap:44px;align-items:center}
@@ -70,7 +70,7 @@ nav.main a:hover{color:var(--text)}
 .install button:hover{background:rgba(255,255,255,.16)}
 .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
 .trust{list-style:none;display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 0;padding:0;font-size:.84rem}
-.trust li{padding:7px 14px;border-radius:999px;border:1px solid rgba(29,233,182,.35);background:rgba(29,233,182,.06)}
+.trust li{padding:7px 14px;border-radius:999px;border:1px solid rgba(0,212,239,.35);background:rgba(0,212,239,.06)}
 
 /* hero card: code + player */
 .stage{border:1px solid var(--border-strong);border-radius:18px;overflow:hidden;background:var(--surface);box-shadow:0 30px 80px rgba(0,0,0,.35)}
@@ -78,15 +78,15 @@ nav.main a:hover{color:var(--text)}
 .dot{width:10px;height:10px;border-radius:50%;background:#ff5f56}.dot:nth-child(2){background:#ffbd2e}.dot:nth-child(3){background:#27c93f}
 .stage-bar span{margin-left:8px}
 pre.code{margin:0;padding:18px 20px;background:var(--code-bg);color:var(--code-text);font-size:.8rem;line-height:1.7;overflow:auto}
-.k{color:#7aa2ff}.f{color:#1de9b6}.s{color:#ffd479}.n{color:#ff9e64}.c{color:#587a6b}
+.k{color:#7aa2ff}.f{color:#00d4ef}.s{color:#ffd479}.n{color:#ff9e64}.c{color:#587a6b}
 .player{padding:16px 20px 18px;border-top:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
-.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--grad-diag);color:#03140c;font-size:1.15rem;cursor:pointer;box-shadow:0 6px 20px rgba(29,233,182,.35)}
+.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--grad-diag);color:#03140c;font-size:1.15rem;cursor:pointer;box-shadow:0 6px 20px rgba(0,212,239,.35)}
 .wave{height:54px;display:flex;align-items:center;gap:3px}
 .wave i{flex:1;background:linear-gradient(var(--brand2),var(--brand1));border-radius:2px;opacity:.45;height:20%;transition:height .12s}
 .playing .wave i{opacity:1}
 .meta{grid-column:1/-1;display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted)}
 .meta b{color:var(--text)}
-.meta .pill{border:1px solid rgba(29,233,182,.4);color:var(--brand2);border-radius:999px;padding:0 10px}
+.meta .pill{border:1px solid rgba(0,212,239,.4);color:var(--brand2);border-radius:999px;padding:0 10px}
 
 /* sections */
 section{padding:64px 0}
@@ -98,7 +98,7 @@ section{padding:64px 0}
 .listen{padding-top:20px}
 .clips{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
 .clip{display:flex;align-items:center;gap:12px;border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:12px 14px;cursor:pointer;text-align:left;color:var(--text);font:inherit;transition:.15s}
-.clip:hover{border-color:rgba(29,233,182,.5);transform:translateY(-2px)}
+.clip:hover{border-color:rgba(0,212,239,.5);transform:translateY(-2px)}
 .clip .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--brand2);flex:none;font-size:.8rem}
 .clip.on .ic{background:var(--grad-diag);color:#03140c}
 .clip b{display:block;font-size:.88rem;line-height:1.2}
@@ -107,8 +107,8 @@ section{padding:64px 0}
 /* features */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .card{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:24px;transition:.15s;position:relative;overflow:hidden}
-.card:hover{border-color:rgba(29,233,182,.45);transform:translateY(-3px)}
-.card .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(29,233,182,.1);color:var(--brand2);font-size:1.3rem;margin-bottom:14px}
+.card:hover{border-color:rgba(0,212,239,.45);transform:translateY(-3px)}
+.card .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(0,212,239,.1);color:var(--brand2);font-size:1.3rem;margin-bottom:14px}
 .card h3{font-size:1.05rem;margin-bottom:6px}
 .card p{margin:0;color:var(--muted);font-size:.9rem}
 .card code{font-size:.78rem;color:var(--brand2)}
@@ -121,7 +121,7 @@ section{padding:64px 0}
 .meter b{color:var(--text);width:70px;text-align:right}
 
 /* voices band */
-.voices{background:linear-gradient(180deg,transparent,rgba(29,233,182,.05),transparent)}
+.voices{background:linear-gradient(180deg,transparent,rgba(0,212,239,.05),transparent)}
 .vgrid{display:grid;grid-template-columns:1fr 1.1fr;gap:34px;align-items:center}
 .vgrid h2{font-size:clamp(1.6rem,2.4vw,2.2rem);margin:10px 0 14px}
 .vgrid p{color:var(--muted)}
@@ -135,31 +135,31 @@ section{padding:64px 0}
 .lic th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
 .lic tr:last-child td{border-bottom:0}
 .tag{font-size:.72rem;border-radius:999px;padding:2px 10px;border:1px solid}
-.tag.ok{color:var(--brand1);border-color:rgba(0,230,118,.45);background:rgba(0,230,118,.08)}
+.tag.ok{color:var(--brand1);border-color:rgba(0,239,208,.45);background:rgba(0,239,208,.08)}
 .tag.no{color:#ff8a80;border-color:rgba(255,138,128,.4);background:rgba(255,138,128,.07)}
 .vplay{border:0;background:var(--surface-2);color:var(--brand2);width:28px;height:28px;border-radius:50%;cursor:pointer}
 
 /* ecosystem */
 .eco{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .eco a{border:1px solid var(--border);background:var(--surface);border-radius:14px;padding:18px;display:block;transition:.15s}
-.eco a:hover{border-color:rgba(29,233,182,.5);transform:translateY(-2px)}
+.eco a:hover{border-color:rgba(0,212,239,.5);transform:translateY(-2px)}
 .eco .ic{width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;margin-bottom:10px;font-weight:700;color:var(--brand2)}
 .eco b{display:block;font-size:.95rem}
 .eco span{color:var(--muted);font-size:.82rem;line-height:1.4;display:block;margin-top:2px}
 
 /* consulting CTA */
 .support{display:grid;grid-template-columns:1.25fr 1fr;gap:0;border:1px solid var(--border-strong);border-radius:22px;overflow:hidden;background:var(--surface)}
-.support .l{padding:40px;background:radial-gradient(500px 300px at 0% 0%,rgba(29,233,182,.18),transparent 70%)}
+.support .l{padding:40px;background:radial-gradient(500px 300px at 0% 0%,rgba(0,212,239,.18),transparent 70%)}
 .support h2{font-size:clamp(1.5rem,2.2vw,2rem);margin:10px 0 12px}
 .support p{color:var(--muted);margin:0 0 22px}
 .support .r{padding:34px 40px;border-left:1px solid var(--border);display:grid;gap:16px;align-content:center}
 .perk{display:flex;gap:14px;align-items:flex-start;font-size:.9rem}
-.perk i{font-style:normal;width:34px;height:34px;border-radius:10px;background:rgba(29,233,182,.1);color:var(--brand2);display:grid;place-items:center;flex:none}
+.perk i{font-style:normal;width:34px;height:34px;border-radius:10px;background:rgba(0,212,239,.1);color:var(--brand2);display:grid;place-items:center;flex:none}
 .perk b{display:block}
 .perk span{color:var(--muted);font-size:.82rem}
 
 /* final cta */
-.cta{text-align:center;border-radius:22px;padding:54px 24px;border:1px solid rgba(29,233,182,.35);background:radial-gradient(700px 300px at 50% 0%,rgba(29,233,182,.16),transparent 70%),var(--surface)}
+.cta{text-align:center;border-radius:22px;padding:54px 24px;border:1px solid rgba(0,212,239,.35);background:radial-gradient(700px 300px at 50% 0%,rgba(0,212,239,.16),transparent 70%),var(--surface)}
 .cta h2{font-size:clamp(1.6rem,2.6vw,2.3rem);margin:10px 0 10px}
 .cta p{color:var(--muted);margin:0 auto 24px;max-width:36em}
 .cta .actions{justify-content:center}
@@ -195,16 +195,16 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
 .seq{display:grid;grid-template-columns:repeat(16,1fr);gap:5px;padding:12px 20px 14px;border-top:1px solid var(--border);background:var(--surface)}
 .seq .row{display:contents}
 .seq b{height:14px;border-radius:4px;background:var(--surface-2);transition:background .08s,transform .08s,box-shadow .08s}
-.seq b.on{background:rgba(29,233,182,.28)}
-.seq b.hit{background:var(--brand1);transform:scaleY(1.35);box-shadow:0 0 14px rgba(0,230,118,.7)}
+.seq b.on{background:rgba(0,212,239,.28)}
+.seq b.hit{background:var(--brand1);transform:scaleY(1.35);box-shadow:0 0 14px rgba(0,239,208,.7)}
 .seq b.off.hit{background:var(--surface-2);transform:scaleY(1.1);box-shadow:none}
 .seq-label{grid-column:1/-1;display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:2px}
 .seq-label span:first-child{display:inline-flex;gap:6px;align-items:center}
 .bpm{font-variant-numeric:tabular-nums}
 .stage{transition:transform .25s ease-out,box-shadow .25s}
-.stage:hover{box-shadow:0 40px 100px rgba(0,230,118,.14),0 30px 80px rgba(0,0,0,.35)}
+.stage:hover{box-shadow:0 40px 100px rgba(0,239,208,.14),0 30px 80px rgba(0,0,0,.35)}
 .play{position:relative}
-.play::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(29,233,182,.5);animation:ring 2s ease-out infinite}
+.play::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(0,212,239,.5);animation:ring 2s ease-out infinite}
 .playing .play::after{animation-duration:.94s}
 @keyframes ring{from{transform:scale(.9);opacity:.9}to{transform:scale(1.5);opacity:0}}
 .btn-primary .ph-duotone{transition:transform .2s}
@@ -235,8 +235,8 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
 .clip.on .bars{display:flex}
 .clip .bars i{width:3px;background:var(--brand2);border-radius:2px;animation:eqb .5s ease-in-out infinite alternate;--h:100%}
 .clip .bars i:nth-child(2){animation-delay:.12s}.clip .bars i:nth-child(3){animation-delay:.24s}.clip .bars i:nth-child(4){animation-delay:.07s}
-.clip.on{border-color:rgba(29,233,182,.7);box-shadow:0 0 0 1px rgba(29,233,182,.25),0 10px 30px rgba(0,230,118,.12)}
-.card::before,.eco a::before,.clip::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(29,233,182,.14),transparent 60%);opacity:0;transition:opacity .25s;pointer-events:none}
+.clip.on{border-color:rgba(0,212,239,.7);box-shadow:0 0 0 1px rgba(0,212,239,.25),0 10px 30px rgba(0,239,208,.12)}
+.card::before,.eco a::before,.clip::before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0%),rgba(0,212,239,.14),transparent 60%);opacity:0;transition:opacity .25s;pointer-events:none}
 .card:hover::before,.eco a:hover::before,.clip:hover::before{opacity:1}
 .eco a,.clip{position:relative;overflow:hidden}
 .card .ico .ph-duotone,.perk i .ph-duotone{transition:transform .3s}
@@ -261,7 +261,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
 <body>
 
 <header class="top"><div class="wrap">
-  <a class="brand" href="#"><svg viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e676"/><stop offset="1" stop-color="#00d4ff"/></linearGradient></defs><path d="M30 6a26 26 0 0 1 4 52 26 26 0 0 1-22-12l6-3a19 19 0 1 0 12-35z" fill="url(#g)"/><path d="M30 18a14 14 0 0 1 0 28 14 14 0 0 1-9-3l7-5a7 7 0 0 0 4-12z" fill="url(#g)"/><circle cx="11" cy="48" r="4" fill="#00d4ff"/></svg>BoxLang <span class="grad">Audio</span></a>
+  <a class="brand" href="#"><img src="assets/bxaudio-icon-full.svg" alt="" width="30" height="30">BxAudio</a>
   <nav class="main"><a href="#">Get started</a><a href="#listen">Examples</a><a href="#">Guides</a><a href="#">Reference</a><a href="#voices">Voices</a></nav>
   <div class="spacer"></div>
   <div class="search">Search the docs <kbd>/</kbd></div>
@@ -315,7 +315,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
   <div class="clips" id="clips"></div>
 </div></section>
 
-<svg class="wavesvg" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wg" x1="0" x2="1"><stop offset="0" stop-color="#00e676"/><stop offset=".6" stop-color="#1de9b6"/><stop offset="1" stop-color="#00d4ff"/></linearGradient></defs><path class="a" d="M-100 45 Q -55 5 -10 45 T 80 45 T 170 45 T 260 45 T 350 45 T 440 45 T 530 45 T 620 45 T 710 45 T 800 45 T 890 45 T 980 45 T 1070 45 T 1160 45 T 1250 45 T 1340 45 T 1430 45 T 1520 45"/><path class="b" d="M-100 45 Q -55 80 -10 45 T 80 45 T 170 45 T 260 45 T 350 45 T 440 45 T 530 45 T 620 45 T 710 45 T 800 45 T 890 45 T 980 45 T 1070 45 T 1160 45 T 1250 45 T 1340 45 T 1430 45 T 1520 45"/></svg>
+<svg class="wavesvg" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wg" x1="0" x2="1"><stop offset="0" stop-color="#00efd0"/><stop offset=".6" stop-color="#00d4ef"/><stop offset="1" stop-color="#00d4ff"/></linearGradient></defs><path class="a" d="M-100 45 Q -55 5 -10 45 T 80 45 T 170 45 T 260 45 T 350 45 T 440 45 T 530 45 T 620 45 T 710 45 T 800 45 T 890 45 T 980 45 T 1070 45 T 1160 45 T 1250 45 T 1340 45 T 1430 45 T 1520 45"/><path class="b" d="M-100 45 Q -55 80 -10 45 T 80 45 T 170 45 T 260 45 T 350 45 T 440 45 T 530 45 T 620 45 T 710 45 T 800 45 T 890 45 T 980 45 T 1070 45 T 1160 45 T 1250 45 T 1340 45 T 1430 45 T 1520 45"/></svg>
 <!-- FEATURES -->
 <section><div class="wrap">
   <div class="head reveal"><span class="eyebrow"><i class="ph-duotone ph-cpu"></i> Everything on the JVM</span><h2>One module. The whole <span class="grad">audio pipeline</span>.</h2></div>
@@ -343,7 +343,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
 <section class="voices" id="voices"><div class="wrap vgrid">
   <div>
     <span class="eyebrow"><i class="ph-duotone ph-scales"></i> Voices and licenses</span>
-    <h2>Only voices you can <span class="grad">legally ship</span>.</h2>
+    <h2>Voices with the <span class="grad">paperwork done</span>.</h2>
     <p>We checked the license of every voice in the collection and its training data. Only CC0, Public Domain and Apache-2.0 voices are offered. The rest are listed with the reason they are not.</p>
     <div class="big"><div><b class="grad">177</b><small>voices reviewed</small></div><div><b class="grad">11</b><small>offered</small></div><div><b>166</b><small>excluded, with reasons</small></div></div>
     <div class="actions"><a class="btn btn-ghost" href="#">Read the license guide <i class="ph-duotone ph-arrow-right"></i></a></div>
@@ -353,8 +353,8 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
     <tr><td>en_US joe</td><td>CC0</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-joe-medium.mp3"><i class="ph-duotone ph-play"></i></button></td></tr>
     <tr><td>en_US bryce</td><td>CC0</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-bryce-medium.mp3"><i class="ph-duotone ph-play"></i></button></td></tr>
     <tr><td>en_US kristin</td><td>Public Domain</td><td><span class="tag ok">Offered</span></td><td><button class="vplay" data-src="../docs/assets/audio/voices/en_US-kristin-medium.mp3"><i class="ph-duotone ph-play"></i></button></td></tr>
-    <tr><td>en_GB (dictionary)</td><td>GPL data</td><td><span class="tag no">Excluded</span></td><td></td></tr>
-    <tr><td>Non-commercial set</td><td>CC BY-NC</td><td><span class="tag no">Excluded</span></td><td></td></tr>
+    <tr><td>en_GB (dictionary)</td><td>GPL data</td><td><span class="tag no">Not offered</span></td><td></td></tr>
+    <tr><td>Non-commercial set</td><td>CC BY-NC</td><td><span class="tag no">Not offered</span></td><td></td></tr>
   </table></div>
 </div></section>
 
@@ -403,7 +403,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 24px;margin-top:40px}
 
 <footer><div class="wrap">
   <div class="ft">
-    <div><a class="brand" href="#" style="opacity:1">BoxLang <span class="grad">Audio</span></a><p>Make, mix, master and speak audio from BoxLang, on the JVM.</p><div class="madeby">Developed by <b>Ortus Solutions</b></div></div>
+    <div><a class="brand" href="#" style="opacity:1"><img src="assets/bxaudio-icon-full.svg" alt="" width="26" height="26">BxAudio</a><p>Make, mix, master and speak audio from BoxLang, on the JVM.</p><div class="madeby">Developed by <b>Ortus Solutions</b></div></div>
     <div><h4>Learn</h4><a href="#">Getting started</a><a href="#">Guides</a><a href="#">Examples</a><a href="#">Voices</a></div>
     <div><h4>Reference</h4><a href="#">Functions</a><a href="#">Command line</a><a href="#">Configuration</a><a href="#">Licenses</a></div>
     <div><h4>Project</h4><a href="#">Roadmap</a><a href="#">Contribute</a><a href="#">Troubleshooting</a><a href="#">llms.txt</a></div>

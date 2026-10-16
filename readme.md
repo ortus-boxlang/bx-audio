@@ -1,3 +1,10 @@
+<p align="center">
+	<picture>
+		<source media="(prefers-color-scheme: dark)" srcset="docs/assets/bxaudio-logo-full-dark.svg">
+		<img alt="BxAudio" src="docs/assets/bxaudio-logo-full-light.svg" width="420">
+	</picture>
+</p>
+
 # ⚡︎ BoxLang Module: BoxLang Audio
 
 ```
