@@ -79,7 +79,7 @@ It works best on content that continues across the join: pads, ambience, music w
 <!-- run -->
 ```js
 step = audioEnvelope( audioNoise( seconds=0.15, seed=4, color="brown" ), 0.002, 0.05 );
-steps = audioVariations( audio=step, count=5, pitchRange=1.5, gainRange=2, seed=1 );
+steps = audioVariations( audio=step, count=5, pitchRange=1.5, gainRangeDb=2, seed=1 );
 println( steps.len() & " footsteps" );
 ```
 

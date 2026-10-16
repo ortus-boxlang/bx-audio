@@ -18,10 +18,13 @@
 	<url><loc>https://bxaudio.boxlang.io/examples/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/mixing/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/try-it/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/conventions/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/timeline/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/trailers-and-video/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/loudness-and-dynamics/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/loudness-and-mastering/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/return-values/index.html</loc></url>
+	<url><loc>https://bxaudio.boxlang.io/reference/errors/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/guides/time-and-pitch/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/time-and-pitch/index.html</loc></url>
 	<url><loc>https://bxaudio.boxlang.io/reference/functions/analysis/index.html</loc></url>

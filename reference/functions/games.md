@@ -62,7 +62,7 @@ audioLoopify( audio, crossfade=0.25 )
 Make several slightly different copies of a sound, so repeated effects do not sound the same
 
 ```js
-audioVariations( audio, count=5, pitchRange=1, gainRange=2, seed=1 )
+audioVariations( audio, count=5, pitchRange=1, gainRangeDb=2, seed=1 )
 ```
 
 | Argument | Type | Default | |
@@ -70,7 +70,7 @@ audioVariations( audio, count=5, pitchRange=1, gainRange=2, seed=1 )
 | `audio` | any | required | The audio buffer. |
 | `count` | integer | `5` | How many variations. Defaults to 5. |
 | `pitchRange` | double | `1` | Random change of pitch, plus or minus this many semitones; the speed changes with it, like a tape. Defaults to 1. |
-| `gainRange` | double | `2` | Random change of level, plus or minus this many dB. Defaults to 2. |
+| `gainRangeDb` | double | `2` | Random change of level, plus or minus this many dB. Defaults to 2. |
 | `seed` | long | `1` | Seed of the random numbers, so the same call gives the same variations. Defaults to 1. |
 
 **Returns** An array of audio buffers.

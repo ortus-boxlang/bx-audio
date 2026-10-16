@@ -30,7 +30,7 @@ audioTimeline( bpm=120, beatsPerBar=4, sampleRate=44100, channels=2 )
 Place a sound on a timeline track
 
 ```js
-audioAdd( timeline, sound, at=0, track="main", db=0, pan=0 )
+audioAdd( timeline, sound, at=0, track="main", gainDb=0, pan=0 )
 ```
 
 | Argument | Type | Default | |
@@ -39,7 +39,7 @@ audioAdd( timeline, sound, at=0, track="main", db=0, pan=0 )
 | `sound` | any | required | The audio buffer to place. A different sample rate is converted automatically, mono is panned in a stereo timeline. |
 | `at` | double | `0` | Where the sound starts, in seconds. Use timeline.beat( n ) or timeline.bar( n ) to place it on the grid. Defaults to 0. |
 | `track` | string | `"main"` | The track name, created on first use. Defaults to main. |
-| `db` | double | `0` | Gain in decibels. Defaults to 0. |
+| `gainDb` | double | `0` | Gain in decibels. Defaults to 0. |
 | `pan` | double | `0` | From -1 (left) to 1 (right). Defaults to 0. |
 
 **Returns** The same timeline, so calls can be chained.
@@ -66,14 +66,14 @@ audioBeats( timeline, start=0, end, step=1 )
 Set the volume of a whole timeline track
 
 ```js
-audioTrackGain( timeline, track, db )
+audioTrackGain( timeline, track, gainDb )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `timeline` | any | required | The timeline from audioTimeline(). |
 | `track` | string | required | The track name, created if it does not exist yet. |
-| `db` | double | required | The track gain in decibels, applied when the timeline is rendered. |
+| `gainDb` | double | required | The track gain in decibels, applied when the timeline is rendered. |
 
 **Returns** The same timeline, so calls can be chained.
 
@@ -100,7 +100,7 @@ audioPump( timeline, track, times, amountDb=-5, recovery=0.18 )
 Duck a timeline track while another track is loud, like music under a voice-over
 
 ```js
-audioDuck( timeline, track, trigger, amountDb=-12, thresholdDb=-40, attack=0.01, release=0.3 )
+audioDuck( timeline, track, trigger, amountDb=-12, thresholdDb=-40, attackMs=10, releaseMs=300 )
 ```
 
 | Argument | Type | Default | |
@@ -110,8 +110,8 @@ audioDuck( timeline, track, trigger, amountDb=-12, thresholdDb=-40, attack=0.01,
 | `trigger` | string | required | The track whose level controls the ducking, for example the voice. It must already have sound on it. |
 | `amountDb` | double | `-12` | How far to lower the track, a negative number of decibels. Defaults to -12. |
 | `thresholdDb` | double | `-40` | The trigger level above which ducking starts, relative to full scale. Defaults to -40. |
-| `attack` | double | `0.01` | Seconds taken to lower the track. Defaults to 0.01. |
-| `release` | double | `0.3` | Seconds taken to bring the track back. Defaults to 0.3. |
+| `attackMs` | double | `10` | Milliseconds taken to lower the track. Defaults to 10. |
+| `releaseMs` | double | `300` | Milliseconds taken to bring the track back. Defaults to 300. |
 
 **Returns** The same timeline, so calls can be chained.
 
