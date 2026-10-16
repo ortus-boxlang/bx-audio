@@ -35,28 +35,21 @@ public final class Pronunciation {
 	private static final Map<String, String>	BUILT_IN	= new LinkedHashMap<>();
 
 	/**
-	 * Names written as one word that are really two: ColdBox, CommandBox, TestBox, MiniServer, and the Bx products such as BxAudio and BxLens
+	 * Products of the Bx family written as one word (BxLens, BxSites), said as the letters B and X and then the name. BxAudio is in the voice's
+	 * dictionary as one word, see {@link PronunciationDictionary}.
 	 */
-	private static final Pattern				BOX_NAMES	= Pattern
-	    .compile( "\\b(Cold|Command|Test|Wire|Log|Cache|Forge|Mock|Mega|Stache|Time|Rule|Socket)Box\\b" );
-	private static final Pattern				BX_NAMES	= Pattern.compile( "\\b[Bb][Xx]([A-Z][a-z]+)\\b" );
+	private static final Pattern				BX_NAMES	= Pattern.compile( "\\b[Bb][Xx](?!Audio\\b|audio\\b)([A-Z][a-z]+)\\b" );
 
 	static {
-		BUILT_IN.put( "BoxLang+", "Box Lang Plus" );
-		BUILT_IN.put( "BoxLang", "Box Lang" );
-		BUILT_IN.put( "bx-audio", "B X Audio" );
-		BUILT_IN.put( "BxAudio", "B X Audio" );
-		BUILT_IN.put( "bxSites", "B X Sites" );
+		// BoxLang, BxAudio, ColdBox, Ortus, JVM, FLAC, LUFS and WAV are added to the voice's dictionary as phonemes, see PronunciationDictionary.
+		BUILT_IN.put( "BoxLang+", "BoxLang Plus" );
+		BUILT_IN.put( "bx-audio", "BxAudio" );
+		BUILT_IN.put( "bxSites", "Bee Ex Sites" );
 		BUILT_IN.put( "MiniServer", "Mini Server" );
-		BUILT_IN.put( "Ortus", "Or tus" );
-		BUILT_IN.put( "JVM", "J V M" );
 		BUILT_IN.put( "MP3", "M P 3" );
-		BUILT_IN.put( "FLAC", "flack" );
 		BUILT_IN.put( "FFmpeg", "F F M peg" );
-		BUILT_IN.put( "LUFS", "loofs" );
 		BUILT_IN.put( "EBU", "E B U" );
 		BUILT_IN.put( "CFML", "C F M L" );
-		BUILT_IN.put( "WAV", "wave" );
 		BUILT_IN.put( "BPM", "B P M" );
 		BUILT_IN.put( "API", "A P I" );
 		BUILT_IN.put( "CLI", "C L I" );
@@ -78,8 +71,7 @@ public final class Pronunciation {
 				result = replaceWord( result, rule.getKey(), rule.getValue() );
 			}
 		}
-		result	= BOX_NAMES.matcher( result ).replaceAll( "$1 Box" );
-		result	= BX_NAMES.matcher( result ).replaceAll( "B X $1" );
+		result = BX_NAMES.matcher( result ).replaceAll( "Bee Ex $1" );
 		for ( Map.Entry<String, String> rule : BUILT_IN.entrySet() ) {
 			result = replaceWord( result, rule.getKey(), rule.getValue() );
 		}

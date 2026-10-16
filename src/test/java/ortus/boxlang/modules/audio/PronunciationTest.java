@@ -28,12 +28,11 @@ import ortus.boxlang.modules.audio.tts.Pronunciation;
  */
 public class PronunciationTest {
 
-	@DisplayName( "BoxLang is spoken as two words, in any case and with an apostrophe" )
+	@DisplayName( "BoxLang and BxAudio are left for the voice's dictionary, which says them as one word" )
 	@Test
-	void testBoxLang() {
-		assertThat( Pronunciation.apply( "Welcome to BoxLang.", null ) ).isEqualTo( "Welcome to Box Lang." );
-		assertThat( Pronunciation.apply( "boxlang's speed", null ) ).isEqualTo( "Box Lang's speed" );
-		assertThat( Pronunciation.apply( "BoxLang+ plans", null ) ).isEqualTo( "Box Lang Plus plans" );
+	void testDictionaryWords() {
+		assertThat( Pronunciation.apply( "Welcome to BoxLang and BxAudio.", null ) ).isEqualTo( "Welcome to BoxLang and BxAudio." );
+		assertThat( Pronunciation.apply( "bx-audio and BoxLang+", null ) ).isEqualTo( "BxAudio and BoxLang Plus" );
 	}
 
 	@DisplayName( "A longer word that contains a name is left alone" )
@@ -42,17 +41,16 @@ public class PronunciationTest {
 		assertThat( Pronunciation.apply( "BoxLanguage and MP3s", null ) ).isEqualTo( "BoxLanguage and MP3s" );
 	}
 
-	@DisplayName( "The family names are split: ColdBox, CommandBox, BxAudio, BxLens" )
+	@DisplayName( "Other Bx products are said as Bee Ex and the name" )
 	@Test
-	void testFamily() {
-		assertThat( Pronunciation.apply( "ColdBox and CommandBox", null ) ).isEqualTo( "Cold Box and Command Box" );
-		assertThat( Pronunciation.apply( "BxAudio and BxLens", null ) ).isEqualTo( "B X Audio and B X Lens" );
+	void testBxProducts() {
+		assertThat( Pronunciation.apply( "BxLens and bxSites", null ) ).isEqualTo( "Bee Ex Lens and Bee Ex Sites" );
 	}
 
-	@DisplayName( "Audio terms are respelled" )
+	@DisplayName( "Terms with digits or letters are respelled" )
 	@Test
 	void testTerms() {
-		assertThat( Pronunciation.apply( "Loudness in LUFS on the JVM, saved as MP3", null ) ).isEqualTo( "Loudness in loofs on the J V M, saved as M P 3" );
+		assertThat( Pronunciation.apply( "Saved as MP3 with FFmpeg", null ) ).isEqualTo( "Saved as M P 3 with F F M peg" );
 	}
 
 	@DisplayName( "A caller's rule wins over a built in one" )

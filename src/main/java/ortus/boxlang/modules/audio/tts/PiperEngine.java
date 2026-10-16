@@ -116,8 +116,10 @@ public final class PiperEngine {
 		}
 		Object chorus = this.choruses.get( language );
 		if ( chorus == null ) {
-			Object	dictionary	= callStatic( "org.pitest.voices.us.EnUsDictionary", "en_us" );
-			Object	config		= callStatic( "org.pitest.voices.ChorusConfig", "chorusConfig", dictionary );
+			Object dictionary = callStatic( "org.pitest.voices.us.EnUsDictionary", "en_us" );
+			// Our own words, such as BoxLang, as phonemes so they are said as one word
+			dictionary = PronunciationDictionary.extend( this.loader, dictionary );
+			Object config = callStatic( "org.pitest.voices.ChorusConfig", "chorusConfig", dictionary );
 			config = call( config, "withBase", voicesDir );
 			Class<?>		chorusClass	= this.loader.loadClass( "org.pitest.voices.Chorus" );
 			Constructor<?>	constructor	= chorusClass.getConstructor( this.loader.loadClass( "org.pitest.voices.ChorusConfig" ) );
