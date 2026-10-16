@@ -382,6 +382,7 @@
 					<div class="hero-actions">
 						<a class="bxh-btn bxh-btn-primary" href="https://www.ortussolutions.com/services" target="_blank" rel="noopener noreferrer">Talk to Ortus <i class="ph-duotone ph-arrow-right"></i></a>
 						<a class="bxh-btn bxh-btn-ghost" href="https://boxlang.io/plans" target="_blank" rel="noopener noreferrer">See BoxLang+ plans</a>
+						<a class="bxh-btn bxh-btn-ghost" href="mailto:consulting@ortussolutions.com"><i class="ph-duotone ph-envelope-simple"></i> consulting@ortussolutions.com</a>
 					</div>
 				</div>
 				<div class="r">
