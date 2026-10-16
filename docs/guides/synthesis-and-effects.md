@@ -106,6 +106,12 @@ mix = audioRender( timeline=t );
 println( numberFormat( mix.getDurationSeconds(), "0.0" ) & " s, peak " & numberFormat( mix.getPeak(), "0.00" ) );
 ```
 
+The sampler example plays this way for 23 seconds, with a plucked melody and bass and a looped pad that holds each chord for a bar. Its waveform, and its spectrogram, where every note is a stack of lines (the harmonics of the saw recording) that moves up and down with the melody and shifts at each chord change:
+
+![The waveform of the sampler example: a steady level with a small peak at the start of every bar](../assets/images/sampler-waveform.svg)
+
+![The spectrogram of the sampler example: stacks of horizontal lines, the harmonics of each note, with the melody notes reaching the top and the whole picture changing at every bar](../assets/images/sampler-spectrogram.png)
+
 | Argument | What it does |
 |---|---|
 | `rootNote` | The note the recording sounds at: a name such as `C4` (middle C) or a MIDI number where 69 is A4. Fractions detune, `60.1` is ten cents above C4. |

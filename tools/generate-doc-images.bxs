@@ -37,4 +37,13 @@ audioWaveformImage( audio = mix, width = 720, height = 140, path = target & "/wa
 audioSpectrogramImage( audio = mix, width = 720, height = 240, path = target & "/spectrogram.png", scale = "magma" );
 audioSpectrogramImage( audio = mix, width = 720, height = 240, path = target & "/spectrogram-viridis.png", scale = "viridis" );
 
+// The sampler example, drawn from the clip the examples page plays
+clip = root & "docs/assets/audio/sampler.mp3";
+if( fileExists( clip ) ){
+	sampler = audioLoad( clip );
+	audioWaveformImage( audio = sampler, width = 720, height = 140, path = target & "/sampler-waveform.svg", color = "3b82f6" );
+	audioWaveformImage( audio = sampler, width = 720, height = 140, path = target & "/sampler-waveform.png", color = "3b82f6", background = "ffffff" );
+	audioSpectrogramImage( audio = sampler, width = 720, height = 260, path = target & "/sampler-spectrogram.png", scale = "magma" );
+}
+
 println( "Wrote the pictures to docs/assets/images/" );
