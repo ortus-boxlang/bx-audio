@@ -1,0 +1,87 @@
+/**
+ * Sampler: recordings turned into instruments. Two short recordings are made here (a plucked saw, and a steady pad), each is given to
+ * audioSampler(), and audioNote() plays them at any pitch: the pluck plays a melody and a bass, the pad plays the chords and holds each one for
+ * a whole bar by looping its steady middle. It is how a piano, a choir or a sampled synth is played from a script.
+ *
+ * To play a recording of your own instead, load it, say what note it sounds at and use it in place of `pluck` or `pad`:
+ *   pluck = audioLoad( "piano-c4.wav" );
+ *
+ * The melody wanders over an A minor pentatonic scale and lands where a seeded random choice says, so the same settings always make the same file.
+ *
+ * Usage:
+ *   boxlang sampler.bxs [--out=out/sampler.wav] [--bars=8] [--bpm=96] [--seed=7]
+ */
+
+settings = { out : "out/sampler.wav", bars : 8, bpm : 96, seed : 7 };
+settings.append( cliGetArgs().options );
+// Settings preset by whoever runs the script from code (tests, the explorer, the bx-audio CLI) win over the command line
+if( isDefined( "overrides" ) ){
+	settings.append( overrides );
+}
+
+sr = 44100;
+bars = max( 4, int( settings.bars ) );
+bpm = settings.bpm * 1.0;
+beat = 60 / bpm;
+bar = beat * 4;
+
+rngState = int( settings.seed ) + 1;
+function rnd(){
+	rngState = ( rngState * 48271 ) mod 2147483647;
+	return rngState / 2147483647;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The recordings, both at C4. A real project would load them from files.
+// ---------------------------------------------------------------------------------------------------------------------------------
+// A pluck: a bright saw that dies away
+pluck = audioFilter( audioEnvelope( audioOsc( shape = "saw", freq = audioFreq( "C4" ), seconds = 0.9, sampleRate = sr, harmonics = 12 ), 0.002, 0.22 ), "lowpass", 4200, 0.9 );
+// A pad: three slightly detuned saws that swell in and then stay the same, which is what makes the middle of it loopable
+padLayers = [ -0.12, 0, 0.12 ].map( ( detune ) => audioOsc( shape = "saw", freq = audioFreq( 60 + detune ), seconds = 1.8, sampleRate = sr, harmonics = 10 ) );
+pad = audioFade( audioFilter( audioMix( padLayers ), "lowpass", 1700, 0.8 ), 0.3, 0.0, "smooth" );
+
+keys = audioSampler( audio = pluck, rootNote = "C4" );
+strings = audioSampler( audio = pad, rootNote = "C4", loop = true, loopStart = 0.6, loopEnd = 1.5, crossfade = 0.15 );
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Harmony: Am F C G, a bar each. The melody scale is A minor pentatonic.
+// ---------------------------------------------------------------------------------------------------------------------------------
+chords = [
+	{ pad : [ 57, 60, 64 ], bass : 45 },
+	{ pad : [ 53, 57, 60 ], bass : 41 },
+	{ pad : [ 60, 64, 67 ], bass : 48 },
+	{ pad : [ 55, 59, 62 ], bass : 43 }
+];
+scale = [ 69, 72, 74, 76, 79, 81, 84 ];
+
+t = audioTimeline( bpm = bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
+position = 3;
+for( b = 0; b < bars; b++ ){
+	chord = chords[ ( b mod 4 ) + 1 ];
+	at = b * bar;
+
+	// The chord, held for the whole bar and a little into the next so the chords overlap
+	audioAdd( timeline = t, sound = audioNote( sampler = strings, note = chord.pad, seconds = bar, velocity = 0.3, attack = 0.25, release = 0.5 ), at = at, track = "pad", gainDb = -3 );
+
+	// The bass: the root on the first beat and the third beat, an octave and a half under the pluck's own pitch
+	audioAdd( timeline = t, sound = audioNote( sampler = keys, note = chord.bass, seconds = beat * 1.5, velocity = 0.9, release = 0.2 ), at = at, track = "bass", gainDb = -3, pan = -0.15 );
+	audioAdd( timeline = t, sound = audioNote( sampler = keys, note = chord.bass, seconds = beat, velocity = 0.7, release = 0.15 ), at = at + beat * 2, track = "bass", gainDb = -5, pan = -0.15 );
+
+	// The melody: eight steps a bar, a random walk up and down the scale, with rests, louder on the beat
+	for( s = 0; s < 8; s++ ){
+		if( rnd() < 0.25 ){
+			continue;
+		}
+		position = max( 1, min( scale.len(), position + ( rnd() < 0.5 ? -1 : 1 ) * ( rnd() < 0.3 ? 2 : 1 ) ) );
+		audioAdd( timeline = t, sound = audioNote( sampler = keys, note = scale[ position ], seconds = beat * 0.4, velocity = s mod 2 == 0 ? 0.8 : 0.55, release = 0.12 ),
+			at = at + s * beat / 2, track = "melody", gainDb = -6, pan = 0.25 );
+	}
+}
+
+audioTrackGain( t, "pad", -4 );
+mix = audioRender( timeline = t, tail = 1 );
+mix = audioReverb( audio = mix, room = 0.45, damp = 0.5, mix = 0.14, tail = 1.5 );
+mix = audioFade( mix, 0.02, 1.5, "smooth" );
+mix = audioSaturate( mix, 1.2, 0.9 );
+written = audioSave( mix, settings.out );
+println( "wrote " & written & " " & numberFormat( audioInfo( mix ).seconds, "0.0" ) & " s, " & bars & " bars at " & bpm & " bpm" );

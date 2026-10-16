@@ -179,7 +179,7 @@ public final class Dsp {
 		long		total	= 0;
 		for ( AudioBuffer part : parts ) {
 			if ( part.getChannels() != first.getChannels() || part.getSampleRate() != first.getSampleRate() ) {
-				throw new AudioException( AudioException.IO, "Cannot join audio with different formats: " + first + " and " + part
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Cannot join audio with different formats: " + first + " and " + part
 				    + ". Use audioChannels() and audioResample() to match them first" );
 			}
 			total += part.getFrames();
@@ -210,7 +210,7 @@ public final class Dsp {
 		int			frames	= 0;
 		for ( AudioBuffer part : parts ) {
 			if ( part.getChannels() != first.getChannels() || part.getSampleRate() != first.getSampleRate() ) {
-				throw new AudioException( AudioException.IO, "Cannot mix audio with different formats: " + first + " and " + part
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Cannot mix audio with different formats: " + first + " and " + part
 				    + ". Use audioChannels() and audioResample() to match them first" );
 			}
 			frames = Math.max( frames, part.getFrames() );
@@ -382,7 +382,8 @@ public final class Dsp {
 			}
 			return new AudioBuffer( new float[][] { mono }, audio.getSampleRate() );
 		}
-		throw new AudioException( AudioException.IO, "Cannot convert " + audio.getChannels() + " channels to " + channels + ", only to or from mono" );
+		throw new AudioException( AudioException.INVALID_ARGUMENT,
+		    "Cannot convert " + audio.getChannels() + " channels to " + channels + ", only to or from mono" );
 	}
 
 	/**

@@ -92,7 +92,7 @@ _bx-audio() {
         pieces)
             _message 'no arguments' ;;
         render)
-            _arguments '--out=[out]:out:' '--bars=[bars]:bars:' '--bpm=[bpm]:bpm:' '--style=[style]:style:' '--swing=[swing]:swing:' '--seed=[seed]:seed:' '--track=[track]:track:' '--loops=[loops]:loops:' '--sound=[sound]:sound:' '--choruses=[choruses]:choruses:' '--voice=[voice]:voice:' '--speed=[speed]:speed:' '--text=[text]:text:' '--duck=[duck]:duck:' '--seconds=[seconds]:seconds:' '--target=[target]:target:' '*:render:(pop-drive lofi house ambient techno synthwave cinematic chiptune sfx jazz rock voiceover trailer game-audio theme)' ;;
+            _arguments '--out=[out]:out:' '--bars=[bars]:bars:' '--bpm=[bpm]:bpm:' '--style=[style]:style:' '--swing=[swing]:swing:' '--seed=[seed]:seed:' '--track=[track]:track:' '--loops=[loops]:loops:' '--sound=[sound]:sound:' '--choruses=[choruses]:choruses:' '--voice=[voice]:voice:' '--speed=[speed]:speed:' '--text=[text]:text:' '--duck=[duck]:duck:' '--seconds=[seconds]:seconds:' '--target=[target]:target:' '*:render:(pop-drive lofi house ambient techno synthwave cinematic chiptune sfx jazz rock voiceover trailer game-audio theme sampler)' ;;
         explorer)
             _arguments '--port=[port]:port:' ;;
         doctor)

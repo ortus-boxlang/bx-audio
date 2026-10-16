@@ -59,7 +59,7 @@ public final class Stretch {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The target length must be above 0 seconds but was " + seconds );
 		}
 		if ( audio.getFrames() == 0 ) {
-			throw new AudioException( AudioException.IO, "Cannot fit silence of no length to a duration" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Cannot fit silence of no length to a duration" );
 		}
 		double		rate	= audio.getDurationSeconds() / seconds;
 		AudioBuffer	result	= stretch( audio, rate );
