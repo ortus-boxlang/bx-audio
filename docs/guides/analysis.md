@@ -63,3 +63,37 @@ bx-audio bpm song.wav --beats
 bx-audio silence interview.wav --thresholdDb=-45 --min=0.5
 bx-audio waveform song.wav
 ```
+
+## Pictures
+
+`audioWaveformImage` and `audioSpectrogramImage` draw a sound as a picture for a web page, a report or a podcast site. Give a `path` and the file is written (the extension picks SVG or PNG), leave it out and you get the SVG text or the PNG bytes back, ready for `audioHttpResponse` or an `<img>`.
+
+<!-- run -->
+```js
+kick = audioDrum( type="kick", seconds=0.6 );
+beat = audioConcat( [ kick, kick, kick, kick ] );
+
+// A waveform: the pale shape is the peaks, the solid one the average level. SVG scales to any size.
+audioWaveformImage( audio=beat, width=800, height=160, path="beat.svg", color="38bdf8", background="0f172a" );
+
+// The same as a PNG, with a lane for each channel of a stereo sound, or as separate bars
+audioWaveformImage( audio=beat, path="beat.png", style="bars", color="16a34a" );
+
+// A spectrogram: time across, frequency up (low at the bottom), loudness as color
+audioSpectrogramImage( audio=beat, width=600, height=200, path="beat-spectrogram.png", scale="magma" );
+
+svg = audioWaveformImage( audio=beat, width=300, height=60 );
+println( svg.left( 40 ) );
+```
+
+Write colors without the `#`, as in `color="38bdf8"`. In a BoxLang string a `#` starts an interpolation, so `"#38bdf8"` would have to be written `"##38bdf8"`. Three digits (`fff`) and eight (`38bdf880`, the last two are the opacity) work too.
+
+| Argument | Waveform | Spectrogram |
+|---|---|---|
+| `width`, `height` | 8 to 8192 by 8 to 4096, default 800 by 160 | 8 to 4000 by 8 to 512, default 800 by 256 |
+| `format` | `svg` (default) or `png` | `png` (default) or `svg` |
+| `color`, `background` | The waveform and what is behind it, transparent when left out | |
+| `style`, `split` | `filled` or `bars`; `split` gives each channel its own lane | |
+| `minHz`, `maxHz`, `rangeDb`, `scale` | | The frequencies shown (40 to 16000), how many dB below the loudest point still show (80), and `magma`, `viridis` or `gray` |
+
+The SVG of a spectrogram holds the PNG, since a spectrogram has a color for every point and drawing each as a shape would make a file of megabytes. Silence is drawn as a thin line in a waveform and as black in a spectrogram.
