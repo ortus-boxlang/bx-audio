@@ -73,11 +73,14 @@ public final class Mastering {
 			return audio.copy();
 		}
 		double		correction	= target - measured;
-		AudioBuffer	result		= audio;
+		AudioBuffer	result		= null;
 		for ( int pass = 0; pass < 4; pass++ ) {
+			// The previous pass is dropped before the next one is built, so a long file is not held three times over
+			result = null;
 			AudioBuffer gained = Dsp.gain( audio, correction );
 			// The true peak limiter keeps the peaks between the samples under the ceiling too
-			result = Dynamics.limitTruePeak( gained, truePeakDb, 150, 5 );
+			result	= Dynamics.limitTruePeak( gained, truePeakDb, 150, 5 );
+			gained	= null;
 			double	now		= Loudness.integrated( result );
 			double	error	= target - now;
 			if ( Math.abs( error ) < 0.05 ) {
