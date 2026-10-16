@@ -1,0 +1,40 @@
+/**
+ * Draws the pictures the documentation shows (docs/assets/images): the waveform and the spectrogram of a short beat with a glide on top, in the
+ * variants of audioWaveformImage() and audioSpectrogramImage(). Run it when the drawing changes, and commit the files it writes.
+ *
+ * The sound is made here from drums and a sweep, with fixed seeds, so the pictures are the same every time.
+ *
+ * Usage:
+ *   boxlang tools/generate-doc-images.bxs
+ */
+
+root = expandPath( "../" );
+target = root & "docs/assets/images";
+directoryCreate( target, true, true );
+
+// Four beats of kick and hat, and a rising glide that settles slowly
+kick = audioDrum( type = "kick", seconds = 0.6 );
+hat = audioDrum( type = "hat", seed = 3 );
+t = audioTimeline( bpm = 110, beatsPerBar = 4, sampleRate = 44100, channels = 2 );
+for( b = 0; b < 8; b++ ){
+	audioAdd( timeline = t, sound = kick, at = b * t.beat( 1 ), track = "drums", gainDb = -2, pan = -0.2 );
+	audioAdd( timeline = t, sound = hat, at = b * t.beat( 1 ) + t.beat( 0.5 ), track = "drums", gainDb = -12, pan = 0.6 );
+}
+glide = audioGain( audio = audioSweep( startHz = 200, endHz = 6000, seconds = t.bar( 2 ), speed = 0.7 ), gainDb = -16 );
+audioAdd( timeline = t, sound = glide, at = 0, track = "glide" );
+mix = audioRender( timeline = t );
+
+// The waveform: SVG for the pages, PNG for places that cannot show SVG
+audioWaveformImage( audio = mix, width = 720, height = 140, path = target & "/waveform.svg", color = "3b82f6" );
+audioWaveformImage( audio = mix, width = 720, height = 140, path = target & "/waveform.png", color = "3b82f6", background = "ffffff" );
+audioWaveformImage( audio = mix, width = 720, height = 140, path = target & "/waveform-bars.svg", style = "bars", color = "16a34a" );
+audioWaveformImage( audio = mix, width = 720, height = 140, path = target & "/waveform-bars.png", style = "bars", color = "16a34a", background = "ffffff" );
+audioWaveformImage( audio = mix, width = 720, height = 200, path = target & "/waveform-split.svg", split = true, color = "7c3aed" );
+audioWaveformImage( audio = mix, width = 720, height = 200, path = target & "/waveform-split.png", split = true, color = "7c3aed", background = "ffffff" );
+audioWaveformImage( audio = mix, width = 720, height = 140, path = target & "/waveform-dark.png", color = "38bdf8", background = "0f172a" );
+
+// The spectrogram
+audioSpectrogramImage( audio = mix, width = 720, height = 240, path = target & "/spectrogram.png", scale = "magma" );
+audioSpectrogramImage( audio = mix, width = 720, height = 240, path = target & "/spectrogram-viridis.png", scale = "viridis" );
+
+println( "Wrote the pictures to docs/assets/images/" );
