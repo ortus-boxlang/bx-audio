@@ -240,7 +240,7 @@
 		
 		
 		
-			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#1-clean">1. Clean</a></li><li class="toc-level-2"><a href="#2-level-to-the-standard">2. Level to the standard</a></li><li class="toc-level-2"><a href="#3-music-under-the-voice">3. Music under the voice</a></li><li class="toc-level-2"><a href="#4-chapters-and-show-notes">4. Chapters and show notes</a></li><li class="toc-level-2"><a href="#5-save-the-mp3">5. Save the MP3</a></li><li class="toc-level-2"><a href="#a-transcript-that-matches-the-audio">A transcript that matches the audio</a></li></ul></details>
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#1-clean">1. Clean</a></li><li class="toc-level-2"><a href="#2-level-to-the-standard">2. Level to the standard</a></li><li class="toc-level-2"><a href="#3-music-under-the-voice">3. Music under the voice</a></li><li class="toc-level-2"><a href="#4-chapters-and-show-notes">4. Chapters and show notes</a></li><li class="toc-level-2"><a href="#5-tags-cover-art-and-chapters-inside-the-file">5. Tags, cover art and chapters inside the file</a></li><li class="toc-level-2"><a href="#6-save-the-mp3">6. Save the MP3</a></li><li class="toc-level-2"><a href="#a-transcript-that-matches-the-audio">A transcript that matches the audio</a></li></ul></details>
 		
 
 		
@@ -304,7 +304,34 @@ println( &quot;mixed &quot; &amp; numberFormat( mix.getDurationSeconds(), &quot;
 );
 println( text );
 </code></pre>
-<h2 id="5-save-the-mp3"><a href="#5-save-the-mp3" id="5-save-the-mp3" name="5-save-the-mp3" class="anchor"></a>5. Save the MP3</h2>
+<h2 id="5-tags-cover-art-and-chapters-inside-the-file"><a href="#5-tags-cover-art-and-chapters-inside-the-file" id="5-tags-cover-art-and-chapters-inside-the-file" name="5-tags-cover-art-and-chapters-inside-the-file" class="anchor"></a>5. Tags, cover art and chapters inside the file</h2>
+<p>Players show the title and the cover, and podcast apps let listeners jump between chapters, when the file carries them. <code>audioTags</code> writes all of it into the MP3. The same list of markers you gave <code>audioMarkers</code> works as the chapters.</p>
+<!-- run -->
+<pre><code class="language-js">audioSave( audio=audioNoise( seconds=6, color=&quot;pink&quot;, seed=3 ), path=&quot;episode.mp3&quot;, bitrate=96 );
+
+audioTags(
+    path=&quot;episode.mp3&quot;,
+    tags={
+        title: &quot;Episode 42: The pilot&quot;,
+        artist: &quot;The Show&quot;,
+        album: &quot;Season 1&quot;,
+        year: 2026,
+        track: &quot;42&quot;,
+        genre: &quot;Podcast&quot;,
+        chapters: [
+            { start: 0, title: &quot;Intro&quot; },
+            { start: 2.5, title: &quot;The news&quot; },
+            { start: 4.5, title: &quot;Wrap up&quot; }
+        ]
+    }
+);
+
+episode = audioTags( path=&quot;episode.mp3&quot; );
+println( episode.title &amp; &quot;, &quot; &amp; episode.chapters.len() &amp; &quot; chapters, the second starts at &quot; &amp; episode.chapters[ 2 ].start &amp; &quot; s&quot; );
+</code></pre>
+<p>Add <code>cover: &quot;cover.png&quot;</code> for the picture (PNG, JPEG, GIF, WebP or BMP, up to 16 MB, square and at least 1400 pixels wide for the podcast directories). Tags you leave out are kept, an empty string removes a tag, and <code>chapters: []</code> removes the chapters. The audio is not touched. See <a href="/reference/return-values/index.html#audiotags-path">Return values</a> for the shape of what you read back.</p>
+<p>MP3 gets ID3v2.4 tags with chapter frames, FLAC gets Vorbis comments and picture blocks, and WAV gets an INFO list and cue points (a WAV file has no place for a cover, the album artist or the disc, and <code>audioTags</code> tells you which tags it ignored).</p>
+<h2 id="6-save-the-mp3"><a href="#6-save-the-mp3" id="6-save-the-mp3" name="6-save-the-mp3" class="anchor"></a>6. Save the MP3</h2>
 <p>Speech does not need stereo or a high bit rate. Mono at 96 or 128 kbps is a small file that sounds the same.</p>
 <pre><code class="language-js">final = audioChannels( final, 1 );
 audioSave( audio=final, path=&quot;episode-042.mp3&quot;, bitrate=96 );
@@ -321,7 +348,7 @@ audioSubtitles( cues=spoken.cues, format=&quot;vtt&quot;, path=&quot;summary.vtt
 
 	
 	
-		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/podcasts.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/podcasts.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 16, 2026, 2&#x3a;02&#x3a;48 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Podcasts&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fpodcasts%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/podcasts.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/podcasts.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 16, 2026, 2&#x3a;03&#x3a;10 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Podcasts&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fpodcasts%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
 	
 </article>
 
@@ -365,7 +392,7 @@ audioSubtitles( cues=spoken.cues, format=&quot;vtt&quot;, path=&quot;summary.vtt
 			
 			
 				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
-					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#1-clean">1. Clean</a></li><li class="toc-level-2"><a href="#2-level-to-the-standard">2. Level to the standard</a></li><li class="toc-level-2"><a href="#3-music-under-the-voice">3. Music under the voice</a></li><li class="toc-level-2"><a href="#4-chapters-and-show-notes">4. Chapters and show notes</a></li><li class="toc-level-2"><a href="#5-save-the-mp3">5. Save the MP3</a></li><li class="toc-level-2"><a href="#a-transcript-that-matches-the-audio">A transcript that matches the audio</a></li></ul></nav>
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#1-clean">1. Clean</a></li><li class="toc-level-2"><a href="#2-level-to-the-standard">2. Level to the standard</a></li><li class="toc-level-2"><a href="#3-music-under-the-voice">3. Music under the voice</a></li><li class="toc-level-2"><a href="#4-chapters-and-show-notes">4. Chapters and show notes</a></li><li class="toc-level-2"><a href="#5-tags-cover-art-and-chapters-inside-the-file">5. Tags, cover art and chapters inside the file</a></li><li class="toc-level-2"><a href="#6-save-the-mp3">6. Save the MP3</a></li><li class="toc-level-2"><a href="#a-transcript-that-matches-the-audio">A transcript that matches the audio</a></li></ul></nav>
 				</aside>
 			
 		</div>

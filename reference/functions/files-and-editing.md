@@ -70,6 +70,21 @@ audioInfo( source, levels=false )
 
 **Returns** A struct with channels, sampleRate, frames and seconds, and peak (0 to 1 for undistorted audio) and rms when they were measured.
 
+## audioTags
+
+Reads the tags of an audio file, or changes them. Without the tags argument the tags are read. With it, the tags you give are written and the ones you leave out are kept: a text tag set to an empty string is removed, a cover set to an empty string is removed, and an empty array of chapters removes the chapters. The file is replaced in one step, and the audio in it is not touched. <p> MP3 files get an ID3v2.4 tag, FLAC files Vorbis comments and picture blocks, WAV files an INFO list and cue points. A WAV file has no place for the album artist, the disc or a cover, and those are reported as ignored. OGG, Opus and M4A files are not supported yet.
+
+```js
+audioTags( path, tags )
+```
+
+| Argument | Type | Default | |
+|---|---|---|---|
+| `path` | string | required | The audio file. |
+| `tags` | struct | optional | The tags to write: title, artist, album, albumArtist, composer, genre, year, track (such as "3" or "3/12"), disc, comment, cover and chapters. The cover is a path to a PNG, JPEG, GIF, WebP or BMP picture, binary data, or a struct with data or path. The chapters are an array of structs with start (seconds), title and optionally end; time and label are accepted for start and title, so the markers you give audioMarkers() work. |
+
+**Returns** When reading: a struct with format (mp3, flac or wav), title, artist, album, albumArtist, composer, genre, year, track, disc and comment (empty strings when the file has none), cover (a struct with mimeType, size and data, or null) and chapters (an array of structs with start, end and title, where end is null when the chapter lasts until the next one). When writing: a struct with path, format, written (the tags that were stored) and ignored (the tags this format has no place for).
+
 ## audioWaveform
 
 Summarize audio as a list of peak levels for drawing a waveform. The audio is split into equal slices and each value is the loudest absolute sample in its slice across all channels.
