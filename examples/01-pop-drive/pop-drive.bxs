@@ -122,7 +122,7 @@ function padFor( chordIndex ){
 t = audioTimeline( bpm=bpm, beatsPerBar=4, sampleRate=sr, channels=2 );
 
 function place( sound, at, pan, gain ){
-	audioAdd( timeline=t, sound=sound, at=at, track="mix", db=gainDb( gain ), pan=pan );
+	audioAdd( timeline=t, sound=sound, at=at, track="mix", gainDb=gainDb( gain ), pan=pan );
 }
 
 bassPattern = isDrive ? [ 0, 0, 12, 0, 0, 12, 0, 0, 0, 0, 12, 0, 0, 12, 0, 12 ] : [ 0, 0, 12, 0, 0, 0, 12, 0 ];

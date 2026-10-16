@@ -16,7 +16,7 @@ package ortus.boxlang.modules.audio.bifs;
 
 import ortus.boxlang.modules.audio.util.Audios;
 import ortus.boxlang.runtime.types.Array;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.modules.audio.util.KeyDictionary;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
@@ -63,10 +63,10 @@ public class AudioBeats extends BIF {
 		double	end			= arguments.getAsDouble( Key.end );
 		double	step		= arguments.getAsDouble( KeyDictionary.step );
 		if ( step <= 0 || Double.isNaN( step ) || Double.isNaN( start ) || Double.isNaN( end ) || start < 0 ) {
-			throw new BoxRuntimeException( "Beats needs a start of zero or more, an end, and a step above zero" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Beats needs a start of zero or more, an end, and a step above zero" );
 		}
 		if ( ( end - start ) / step > 1_000_000 ) {
-			throw new BoxRuntimeException( "That would be more than a million moments, check the end and step" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "That would be more than a million moments, check the end and step" );
 		}
 		Array	times	= new Array();
 		// Count in whole steps so floating point drift cannot add or drop the last moment

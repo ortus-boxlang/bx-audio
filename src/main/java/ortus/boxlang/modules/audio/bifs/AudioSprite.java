@@ -35,7 +35,7 @@ import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Join named sounds into one audio sprite with a map of where each starts, the way Howler.js and game engines load effects" )
@@ -81,16 +81,17 @@ public class AudioSprite extends BIF {
 		AudioBuffer			first	= null;
 		IStruct				given	= arguments.getAsStruct( sounds );
 		if ( given.isEmpty() ) {
-			throw new BoxRuntimeException( "sounds must have at least one sound" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "sounds must have at least one sound" );
 		}
 		for ( var entry : given.entrySet() ) {
 			AudioBuffer sound = Audios.require( entry.getValue(), "sounds." + entry.getKey().getName() );
 			if ( first == null ) {
 				first = sound;
 			} else if ( sound.getChannels() != first.getChannels() || sound.getSampleRate() != first.getSampleRate() ) {
-				throw new BoxRuntimeException( "All sounds in a sprite must have the same channels and sample rate: [" + entry.getKey().getName() + "] is "
-				    + sound.getChannels() + " ch " + sound.getSampleRate() + " Hz but the first is " + first.getChannels() + " ch " + first.getSampleRate()
-				    + " Hz. Use audioChannels() and audioResample()." );
+				throw new AudioException( AudioException.INVALID_ARGUMENT,
+				    "All sounds in a sprite must have the same channels and sample rate: [" + entry.getKey().getName() + "] is "
+				        + sound.getChannels() + " ch " + sound.getSampleRate() + " Hz but the first is " + first.getChannels() + " ch " + first.getSampleRate()
+				        + " Hz. Use audioChannels() and audioResample()." );
 			}
 			if ( !parts.isEmpty() && arguments.getAsDouble( gap ) > 0 ) {
 				AudioBuffer silence = AudioBuffer.silenceSeconds( arguments.getAsDouble( gap ), first.getChannels(), first.getSampleRate() );
@@ -111,7 +112,7 @@ public class AudioSprite extends BIF {
 			try {
 				Files.createDirectories( target.getParent() );
 			} catch ( IOException e ) {
-				throw new BoxRuntimeException( "Could not create the folder of [" + target + "]: " + e.getMessage(), e );
+				throw new AudioException( AudioException.IO, "Could not create the folder of [" + target + "]: " + e.getMessage(), e );
 			}
 			AudioFiles.write( joined, target, 16, 0 );
 			String	name	= target.getFileName().toString();
@@ -124,7 +125,7 @@ public class AudioSprite extends BIF {
 				howler.put( "sprite", spriteMap );
 				Files.writeString( mapFile, JSON.std.with( JSON.Feature.PRETTY_PRINT_OUTPUT ).asString( howler ) + "\n" );
 			} catch ( IOException e ) {
-				throw new BoxRuntimeException( "Could not write [" + mapFile + "]: " + e.getMessage(), e );
+				throw new AudioException( AudioException.IO, "Could not write [" + mapFile + "]: " + e.getMessage(), e );
 			}
 			result.put( Key.of( "path" ), target.toString() );
 			result.put( Key.of( "mapPath" ), mapFile.toString() );

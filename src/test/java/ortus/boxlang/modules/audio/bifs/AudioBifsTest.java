@@ -178,10 +178,10 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		    clickCount = clickAt.len();
 		    click = audioTrim( audioResample( voice, 44100 ), 0, 0.05 );
 		    for( at in clickAt ){
-		        audioAdd( timeline=t, sound=click, at=at, track="drums", db=-6, pan=0.3 );
+		        audioAdd( timeline=t, sound=click, at=at, track="drums", gainDb=-6, pan=0.3 );
 		    }
 		    audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
-		    audioAdd( timeline=t, sound=audioReverse( audioResample( voice, 44100 ) ), at=0, track="music", db=-12 );
+		    audioAdd( timeline=t, sound=audioReverse( audioResample( voice, 44100 ) ), at=0, track="music", gainDb=-12 );
 		    audioPump( t, "music", clickAt, -4, 0.1 );
 		    audioDuck( t, "music", "voice", -9 );
 		    audioTrackGain( t, "drums", -3 );
@@ -295,7 +295,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		        audioAdd( timeline=t, sound=kick, at=at, track="drums" );
 		        audioAdd( timeline=t, sound=hat, at=at + t.beat( 0.5 ), track="drums", pan=0.4 );
 		    }
-		    audioAdd( timeline=t, sound=pluck, at=0, track="bass", db=-6 );
+		    audioAdd( timeline=t, sound=pluck, at=0, track="bass", gainDb=-6 );
 		    audioPump( t, "bass", audioBeats( t, 0, 8 ), -6, 0.2 );
 		    mix = audioSaturate( audioRender( timeline=t, tail=0.25 ) );
 		    audioSave( mix, target );

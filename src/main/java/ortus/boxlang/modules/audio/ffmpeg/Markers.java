@@ -22,7 +22,7 @@ import java.util.Locale;
 import com.fasterxml.jackson.jr.ob.JSON;
 
 import ortus.boxlang.modules.audio.util.Timecode;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Markers, the points in time that a video editor or a player shows: written as JSON, CSV, a DaVinci Resolve EDL, SRT or WebVTT cues, FFmpeg
@@ -55,10 +55,10 @@ public final class Markers {
 	public static String format( List<Marker> markers, String format, int fps, double total ) {
 		String kind = format == null ? "" : format.toLowerCase( Locale.ROOT );
 		if ( !FORMATS.contains( kind ) ) {
-			throw new BoxRuntimeException( "Unknown marker format [" + format + "]. Use one of " + FORMATS );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown marker format [" + format + "]. Use one of " + FORMATS );
 		}
 		if ( fps < 1 || fps > 120 ) {
-			throw new BoxRuntimeException( "fps must be between 1 and 120 but was " + fps );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "fps must be between 1 and 120 but was " + fps );
 		}
 		List<Marker>	sorted	= markers.stream().sorted( Comparator.comparingDouble( Marker::time ) ).toList();
 		StringBuilder	out		= new StringBuilder();
@@ -75,7 +75,7 @@ public final class Markers {
 					}
 					return JSON.std.with( JSON.Feature.PRETTY_PRINT_OUTPUT ).asString( list ) + "\n";
 				} catch ( IOException e ) {
-					throw new BoxRuntimeException( "Could not write the markers: " + e.getMessage(), e );
+					throw new AudioException( AudioException.IO, "Could not write the markers: " + e.getMessage(), e );
 				}
 			}
 			case "csv" -> {

@@ -12,7 +12,7 @@ Peak level tells you how close a file is to clipping. It does not tell you how l
 ```js
 mix = audioGain( audioNoise( seconds=8, color="pink" ), -14 );
 r = audioLoudness( mix );
-println( "integrated " & r.integrated & " LUFS, range " & r.range & " LU, true peak " & r.truePeak & " dBFS" );
+println( "integrated " & r.integrated & " LUFS, range " & r.range & " LU, true peak " & r.truePeakDb & " dBFS" );
 ```
 
 `audioLoudness` follows ITU-R BS.1770 and EBU R128 (K-weighting, gated 400 ms blocks, true peak from a 4 times oversampled signal) and returns:
@@ -21,8 +21,8 @@ println( "integrated " & r.integrated & " LUFS, range " & r.range & " LU, true p
 |---|---|
 | `integrated` | Loudness of the whole program in LUFS, with silence and very quiet passages gated out. The number services use |
 | `range` | Loudness range (LRA) in LU: how much the loudness moves |
-| `truePeak` | Highest peak between samples, dBFS |
-| `samplePeak` | Highest sample, dBFS |
+| `truePeakDb` | Highest peak between samples, dBFS |
+| `samplePeakDb` | Highest sample, dBFS |
 | `momentaryMax` / `shortTermMax` | Loudest 400 ms and loudest 3 s, LUFS |
 
 Silence, or audio shorter than 400 ms, reads -120. This implementation agrees with FFmpeg's `ebur128` filter to within 0.1 LU on rendered music, and with the EBU reference tones (a stereo sine at -23 dBFS reads -23 LUFS).
@@ -32,7 +32,7 @@ Silence, or audio shorter than 400 ms, reads -120. This implementation agrees wi
 <!-- run -->
 ```js
 mix = audioGain( audioNoise( seconds=8, color="pink" ), -22 );
-final = audioMaster( audio=mix, target="streaming", truePeak=-1 );
+final = audioMaster( audio=mix, target="streaming", truePeakDb=-1 );
 println( audioLoudness( final ).integrated );   // -14
 ```
 
@@ -58,10 +58,10 @@ voice = audioNoise( seconds=4, color="pink", seed=3 );
 
 voice = audioEq( voice, [
     { type: "highpass", freq: 90 },                       // no rumble
-    { type: "peak", freq: 3000, gain: 3, q: 1 },          // presence
-    { type: "highshelf", freq: 9000, gain: -2 }           // tame the hiss
+    { type: "peak", freq: 3000, gainDb: 3, q: 1 },          // presence
+    { type: "highshelf", freq: 9000, gainDb: -2 }           // tame the hiss
 ] );
-voice = audioCompress( audio=voice, thresholdDb=-20, ratio=3, attack=8, release=120 );
+voice = audioCompress( audio=voice, thresholdDb=-20, ratio=3, attackMs=8, releaseMs=120 );
 voice = audioLimit( audio=voice, ceilingDb=-1 );
 ```
 
@@ -76,5 +76,5 @@ voice = audioLimit( audio=voice, ceilingDb=-1 );
 ```bash
 bx-audio loudness mix.wav
 bx-audio master mix.wav final.wav --target=podcast
-bx-audio master mix.wav final.wav --target=-18 --truePeak=-2 --glue
+bx-audio master mix.wav final.wav --target=-18 --truePeakDb=-2 --glue
 ```

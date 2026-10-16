@@ -29,6 +29,7 @@ import com.fasterxml.jackson.jr.ob.JSON;
 
 import ortus.boxlang.modules.audio.tts.Downloader.Progress;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * The text to speech engine: the Voices library, which runs Piper models on ONNX Runtime, and what it needs. Its jars are not in the
@@ -76,11 +77,11 @@ public final class EngineInstaller {
 	private static Map<String, Object> load() {
 		try ( InputStream in = EngineInstaller.class.getClassLoader().getResourceAsStream( "engine.json" ) ) {
 			if ( in == null ) {
-				throw new BoxRuntimeException( "The engine list (engine.json) is missing from the module" );
+				throw new AudioException( AudioException.INTERNAL, "The engine list (engine.json) is missing from the module" );
 			}
 			return JSON.std.mapFrom( in );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read the engine list: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read the engine list: " + e.getMessage(), e );
 		}
 	}
 
@@ -151,7 +152,8 @@ public final class EngineInstaller {
 	 */
 	public URL[] classpath() {
 		if ( !isInstalled() ) {
-			throw new BoxRuntimeException( "The text to speech engine is not installed. Run `bx-audio install engine` or audioVoiceInstall( \"engine\" )." );
+			throw new AudioException( AudioException.ENGINE_NOT_INSTALLED,
+			    "The text to speech engine is not installed. Run `bx-audio install engine` or audioVoiceInstall( \"engine\" )." );
 		}
 		try {
 			URL[] urls = new URL[ this.artifacts.size() ];
@@ -160,7 +162,7 @@ public final class EngineInstaller {
 			}
 			return urls;
 		} catch ( MalformedURLException e ) {
-			throw new BoxRuntimeException( "Bad engine path: " + e.getMessage(), e );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Bad engine path: " + e.getMessage(), e );
 		}
 	}
 
@@ -179,7 +181,7 @@ public final class EngineInstaller {
 			}
 			return true;
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not remove the engine: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not remove the engine: " + e.getMessage(), e );
 		}
 	}
 

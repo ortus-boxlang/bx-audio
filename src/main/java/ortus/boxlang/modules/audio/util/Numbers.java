@@ -15,6 +15,7 @@
 package ortus.boxlang.modules.audio.util;
 
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Numbers from the values a BoxLang struct holds. Data that came from JSON or a form often has its numbers as text, such as "12.5".
@@ -40,13 +41,14 @@ public final class Numbers {
 			try {
 				result = Double.parseDouble( text.toString().trim() );
 			} catch ( NumberFormatException e ) {
-				throw new BoxRuntimeException( "Expected a number for " + what + " but got [" + text + "]" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "Expected a number for " + what + " but got [" + text + "]" );
 			}
 		} else {
-			throw new BoxRuntimeException( "Expected a number for " + what + " but got " + ( value == null ? "nothing" : value.getClass().getSimpleName() ) );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Expected a number for " + what + " but got " + ( value == null ? "nothing" : value.getClass().getSimpleName() ) );
 		}
 		if ( Double.isNaN( result ) || Double.isInfinite( result ) ) {
-			throw new BoxRuntimeException( "Expected a finite number for " + what + " but got " + result );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Expected a finite number for " + what + " but got " + result );
 		}
 		return result;
 	}

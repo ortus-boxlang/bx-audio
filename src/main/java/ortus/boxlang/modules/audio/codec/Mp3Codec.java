@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * MP3 reading and writing.
@@ -65,7 +65,7 @@ public final class Mp3Codec {
 	 */
 	public static void requireAvailable() {
 		if ( !isAvailable() ) {
-			throw new BoxRuntimeException( MISSING_MESSAGE );
+			throw new AudioException( AudioException.INTERNAL, MISSING_MESSAGE );
 		}
 	}
 
@@ -102,19 +102,20 @@ public final class Mp3Codec {
 	public static byte[] encode( AudioBuffer audio, int bitrateKbps ) {
 		final int kbps = bitrateKbps == 0 ? defaultBitrate( audio.getSampleRate() ) : bitrateKbps;
 		if ( audio.getChannels() > 2 ) {
-			throw new BoxRuntimeException(
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
 			    "MP3 holds mono or stereo audio but this buffer has " + audio.getChannels() + " channels. Use audioChannels() first" );
 		}
 		if ( !SAMPLE_RATES.contains( audio.getSampleRate() ) ) {
-			throw new BoxRuntimeException( "MP3 cannot hold a sample rate of " + audio.getSampleRate() + " Hz. Use audioResample() to one of " + SAMPLE_RATES );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+			    "MP3 cannot hold a sample rate of " + audio.getSampleRate() + " Hz. Use audioResample() to one of " + SAMPLE_RATES );
 		}
 		int[] allowed = bitratesFor( audio.getSampleRate() );
 		if ( Arrays.stream( allowed ).noneMatch( b -> b == kbps ) ) {
-			throw new BoxRuntimeException(
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
 			    "A bitrate of " + kbps + " kbps is not valid for " + audio.getSampleRate() + " Hz. Use one of " + Arrays.toString( allowed ) );
 		}
 		if ( audio.getFrames() == 0 ) {
-			throw new BoxRuntimeException( "Cannot make an MP3 from empty audio" );
+			throw new AudioException( AudioException.IO, "Cannot make an MP3 from empty audio" );
 		}
 		requireAvailable();
 		return Mp3Encoder.encode( audio, kbps );

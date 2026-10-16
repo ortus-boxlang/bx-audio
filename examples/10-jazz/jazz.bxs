@@ -219,7 +219,7 @@ function newStem(){
 	return audioTimeline( bpm = bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
 }
 function put( stem, sound, at, pan, db ){
-	audioAdd( timeline = stem, sound = sound, at = at, track = "main", db = db, pan = pan );
+	audioAdd( timeline = stem, sound = sound, at = at, track = "main", gainDb = db, pan = pan );
 }
 // The time of an eighth note in a bar: the off beats are late, which is the swing
 function eighthTime( barStart, eighth ){

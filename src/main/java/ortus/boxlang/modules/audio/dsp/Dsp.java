@@ -17,7 +17,7 @@ package ortus.boxlang.modules.audio.dsp;
 import java.util.List;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Basic signal operations on {@link AudioBuffer}. Every operation returns a new buffer and leaves its input untouched.
@@ -69,7 +69,7 @@ public final class Dsp {
 	public static AudioBuffer pan( AudioBuffer audio, double pan ) {
 		requireFinite( pan, "pan" );
 		if ( pan < -1 || pan > 1 ) {
-			throw new BoxRuntimeException( "Pan must be between -1 and 1 but was " + pan );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Pan must be between -1 and 1 but was " + pan );
 		}
 		int frames = audio.getFrames();
 		if ( audio.getChannels() == 1 ) {
@@ -95,7 +95,8 @@ public final class Dsp {
 			}
 			return new AudioBuffer( out, audio.getSampleRate() );
 		}
-		throw new BoxRuntimeException( "Pan works on mono or stereo audio but this buffer has " + audio.getChannels() + " channels" );
+		throw new AudioException( AudioException.INVALID_ARGUMENT,
+		    "Pan works on mono or stereo audio but this buffer has " + audio.getChannels() + " channels" );
 	}
 
 	/**
@@ -110,7 +111,7 @@ public final class Dsp {
 		requireFinite( fadeInSecs, "fadeIn" );
 		requireFinite( fadeOutSecs, "fadeOut" );
 		if ( fadeInSecs < 0 || fadeOutSecs < 0 ) {
-			throw new BoxRuntimeException( "Fade lengths cannot be negative" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Fade lengths cannot be negative" );
 		}
 		int			frames		= audio.getFrames();
 		int			inFrames	= ( int ) Math.min( frames, Math.round( fadeInSecs * audio.getSampleRate() ) );
@@ -156,7 +157,7 @@ public final class Dsp {
 		requireFinite( startSecs, "start" );
 		requireFinite( endSecs, "end" );
 		if ( startSecs < 0 || endSecs < startSecs ) {
-			throw new BoxRuntimeException( "Trim needs 0 <= start <= end but got start " + startSecs + " and end " + endSecs );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Trim needs 0 <= start <= end but got start " + startSecs + " and end " + endSecs );
 		}
 		int			from	= ( int ) Math.min( audio.getFrames(), Math.round( startSecs * audio.getSampleRate() ) );
 		int			to		= ( int ) Math.min( audio.getFrames(), Math.round( endSecs * audio.getSampleRate() ) );
@@ -172,19 +173,19 @@ public final class Dsp {
 	 */
 	public static AudioBuffer concat( List<AudioBuffer> parts ) {
 		if ( parts == null || parts.isEmpty() ) {
-			throw new BoxRuntimeException( "Concat needs at least one audio buffer" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Concat needs at least one audio buffer" );
 		}
 		AudioBuffer	first	= parts.get( 0 );
 		long		total	= 0;
 		for ( AudioBuffer part : parts ) {
 			if ( part.getChannels() != first.getChannels() || part.getSampleRate() != first.getSampleRate() ) {
-				throw new BoxRuntimeException( "Cannot join audio with different formats: " + first + " and " + part
+				throw new AudioException( AudioException.IO, "Cannot join audio with different formats: " + first + " and " + part
 				    + ". Use audioChannels() and audioResample() to match them first" );
 			}
 			total += part.getFrames();
 		}
 		if ( total > Integer.MAX_VALUE ) {
-			throw new BoxRuntimeException( "The joined audio is too long to hold in memory" );
+			throw new AudioException( AudioException.TOO_LARGE, "The joined audio is too long to hold in memory" );
 		}
 		float[][] out = new float[ first.getChannels() ][ ( int ) total ];
 		for ( int ch = 0; ch < out.length; ch++ ) {
@@ -203,13 +204,13 @@ public final class Dsp {
 	 */
 	public static AudioBuffer mix( List<AudioBuffer> parts ) {
 		if ( parts == null || parts.isEmpty() ) {
-			throw new BoxRuntimeException( "Mix needs at least one audio buffer" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Mix needs at least one audio buffer" );
 		}
 		AudioBuffer	first	= parts.get( 0 );
 		int			frames	= 0;
 		for ( AudioBuffer part : parts ) {
 			if ( part.getChannels() != first.getChannels() || part.getSampleRate() != first.getSampleRate() ) {
-				throw new BoxRuntimeException( "Cannot mix audio with different formats: " + first + " and " + part
+				throw new AudioException( AudioException.IO, "Cannot mix audio with different formats: " + first + " and " + part
 				    + ". Use audioChannels() and audioResample() to match them first" );
 			}
 			frames = Math.max( frames, part.getFrames() );
@@ -254,10 +255,10 @@ public final class Dsp {
 		requireFinite( drive, "drive" );
 		requireFinite( level, "level" );
 		if ( drive <= 0 ) {
-			throw new BoxRuntimeException( "Drive must be more than 0 but was " + drive );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Drive must be more than 0 but was " + drive );
 		}
 		if ( level < 0 || level > 1 ) {
-			throw new BoxRuntimeException( "Level must be between 0 and 1 but was " + level );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Level must be between 0 and 1 but was " + level );
 		}
 		float peak = audio.getPeak();
 		if ( peak == 0f ) {
@@ -291,15 +292,16 @@ public final class Dsp {
 	public static AudioBuffer filter( AudioBuffer audio, String type, double cutoff, double q ) {
 		String kind = type == null ? "" : type.toLowerCase( java.util.Locale.ROOT );
 		if ( !FILTER_TYPES.contains( kind ) ) {
-			throw new BoxRuntimeException( "Unknown filter type [" + type + "]. Use one of " + FILTER_TYPES );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown filter type [" + type + "]. Use one of " + FILTER_TYPES );
 		}
 		requireFinite( cutoff, "cutoff" );
 		requireFinite( q, "q" );
 		if ( cutoff <= 0 || cutoff >= audio.getSampleRate() / 2.0 ) {
-			throw new BoxRuntimeException( "The cutoff must be above 0 and below " + audio.getSampleRate() / 2.0 + " Hz but was " + cutoff );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The cutoff must be above 0 and below " + audio.getSampleRate() / 2.0 + " Hz but was " + cutoff );
 		}
 		if ( q <= 0 || q > 100 ) {
-			throw new BoxRuntimeException( "Q must be above 0 and at most 100 but was " + q );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Q must be above 0 and at most 100 but was " + q );
 		}
 		double	w0		= 2 * Math.PI * cutoff / audio.getSampleRate();
 		double	cos		= Math.cos( w0 );
@@ -356,7 +358,7 @@ public final class Dsp {
 	 */
 	public static AudioBuffer toChannels( AudioBuffer audio, int channels ) {
 		if ( channels < 1 || channels > AudioBuffer.MAX_CHANNELS ) {
-			throw new BoxRuntimeException( "Channels must be between 1 and " + AudioBuffer.MAX_CHANNELS + " but was " + channels );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Channels must be between 1 and " + AudioBuffer.MAX_CHANNELS + " but was " + channels );
 		}
 		if ( channels == audio.getChannels() ) {
 			return audio.copy();
@@ -380,7 +382,7 @@ public final class Dsp {
 			}
 			return new AudioBuffer( new float[][] { mono }, audio.getSampleRate() );
 		}
-		throw new BoxRuntimeException( "Cannot convert " + audio.getChannels() + " channels to " + channels + ", only to or from mono" );
+		throw new AudioException( AudioException.IO, "Cannot convert " + audio.getChannels() + " channels to " + channels + ", only to or from mono" );
 	}
 
 	/**
@@ -388,8 +390,9 @@ public final class Dsp {
 	 */
 	public static AudioBuffer resample( AudioBuffer audio, int targetRate ) {
 		if ( targetRate < AudioBuffer.MIN_SAMPLE_RATE || targetRate > AudioBuffer.MAX_SAMPLE_RATE ) {
-			throw new BoxRuntimeException( "Sample rate must be between " + AudioBuffer.MIN_SAMPLE_RATE + " and " + AudioBuffer.MAX_SAMPLE_RATE
-			    + " Hz but was " + targetRate );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Sample rate must be between " + AudioBuffer.MIN_SAMPLE_RATE + " and " + AudioBuffer.MAX_SAMPLE_RATE
+			        + " Hz but was " + targetRate );
 		}
 		if ( targetRate == audio.getSampleRate() ) {
 			return audio.copy();
@@ -398,7 +401,7 @@ public final class Dsp {
 		double	ratio		= ( double ) targetRate / audio.getSampleRate();
 		long	outLong		= Math.round( inFrames * ratio );
 		if ( outLong > Integer.MAX_VALUE ) {
-			throw new BoxRuntimeException( "The resampled audio is too long to hold in memory" );
+			throw new AudioException( AudioException.TOO_LARGE, "The resampled audio is too long to hold in memory" );
 		}
 		int			outFrames	= ( int ) outLong;
 		// Lowering the rate: stretch the filter so its cutoff sits at the new Nyquist
@@ -558,7 +561,7 @@ public final class Dsp {
 
 	private static void requireFinite( double value, String name ) {
 		if ( Double.isNaN( value ) || Double.isInfinite( value ) ) {
-			throw new BoxRuntimeException( "The " + name + " argument must be a finite number but was " + value );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The " + name + " argument must be a finite number but was " + value );
 		}
 	}
 

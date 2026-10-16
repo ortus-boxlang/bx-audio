@@ -28,7 +28,7 @@ import java.util.List;
 import ortus.boxlang.modules.audio.tts.VoiceCatalog;
 import ortus.boxlang.modules.audio.tts.VoiceInfo;
 import ortus.boxlang.runtime.scopes.Key;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 @BoxBIF( description = "List the voices of the collection with their licenses, whether they are installed, downloadable or not offered, and why" )
 public class AudioVoices extends BIF {
@@ -72,7 +72,8 @@ public class AudioVoices extends BIF {
 		String	wanted		= arguments.getAsBoolean( KeyDictionary.installed ) ? "installed" : arguments.getAsString( status ).trim().toLowerCase();
 		String	licenseId	= arguments.getAsString( license );
 		if ( !List.of( "offered", "installed", "downloadable", "excluded", "all" ).contains( wanted ) ) {
-			throw new BoxRuntimeException( "Unknown status [" + wanted + "]. Use offered, installed, downloadable, excluded or all." );
+			throw new AudioException( AudioException.DOWNLOAD_FAILED,
+			    "Unknown status [" + wanted + "]. Use offered, installed, downloadable, excluded or all." );
 		}
 		var		store	= Speech.store();
 		var		catalog	= Speech.catalog();

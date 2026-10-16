@@ -61,9 +61,9 @@ laser = audioGain( glide( "saw", 1800, 220, 0.22, 0.5 ), -12 );
 boom = audioGain( audioReverb( audio = audioFilter( audioEnvelope( audioNoise( seconds = 1.4, sampleRate = sr, seed = seed, color = "brown" ), 0.002, 0.5 ), "lowpass", 900, 0.8 ), room = 0.4, damp = 0.5, mix = 0.2 ), 0 );
 
 // Five copies of the effects that repeat a lot, each a little different in pitch and level
-jumps = audioVariations( audio = jump, count = 5, pitchRange = 1.5, gainRange = 2, seed = seed );
-coins = audioVariations( audio = coin, count = 4, pitchRange = 0.7, gainRange = 1.5, seed = seed + 1 );
-lasers = audioVariations( audio = laser, count = 5, pitchRange = 1.0, gainRange = 2, seed = seed + 2 );
+jumps = audioVariations( audio = jump, count = 5, pitchRange = 1.5, gainRangeDb = 2, seed = seed );
+coins = audioVariations( audio = coin, count = 4, pitchRange = 0.7, gainRangeDb = 1.5, seed = seed + 1 );
+lasers = audioVariations( audio = laser, count = 5, pitchRange = 1.0, gainRangeDb = 2, seed = seed + 2 );
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // The music: four bars of bass and arpeggio at 130 bpm, made into a loop

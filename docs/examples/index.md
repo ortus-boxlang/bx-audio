@@ -220,8 +220,8 @@ bx-audio render voiceover --out=voiceover.mp3
 
 | Setting | | Range | Default |
 |---|---|---|---|
-| `--voice` | Voice | text | `joe` |
-| `--text` | Lines, separated by | | text | `none` |
+| `--voice` | Voice | text | `kristin` |
+| `--text` | Lines, separated by \| | text | `none` |
 | `--duck` | Music ducking in dB | -24 to 0 | `-12` |
 | `--bpm` | Tempo | 80 to 130 | `100` |
 
@@ -240,7 +240,7 @@ bx-audio render trailer --out=trailer.mp3
 | Setting | | Range | Default |
 |---|---|---|---|
 | `--seconds` | Length in seconds | 8 to 40 | `15` |
-| `--voice` | Voice | text | `joe` |
+| `--voice` | Voice | text | `kristin` |
 | `--text` | What the voice says | text | `none` |
 | `--target` | Loudness target | streaming, podcast, game, broadcast, cinema | `streaming` |
 

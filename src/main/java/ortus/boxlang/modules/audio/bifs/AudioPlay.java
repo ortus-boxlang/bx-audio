@@ -25,7 +25,7 @@ import ortus.boxlang.runtime.context.IBoxContext;
 import ortus.boxlang.runtime.scopes.ArgumentsScope;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 @BoxBIF( description = "Play audio through the speakers" )
 public class AudioPlay extends BIF {
@@ -67,7 +67,7 @@ public class AudioPlay extends BIF {
 	public Playback _invoke( IBoxContext context, ArgumentsScope arguments ) {
 		String where = arguments.getAsString( output ).toLowerCase( java.util.Locale.ROOT );
 		if ( where.equals( "memory" ) ) {
-			throw new BoxRuntimeException(
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
 			    "audioPlay needs a mixer that runs: use speakers or null, or audioMixer( output=\"memory\" ) and render() for the audio" );
 		}
 		AudioBuffer	sound		= Audios.require( arguments.get( audio ), "audio" );

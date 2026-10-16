@@ -19,7 +19,7 @@ import java.util.Deque;
 
 import ortus.boxlang.modules.audio.analysis.Loudness;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Compression and limiting
@@ -44,13 +44,13 @@ public final class Dynamics {
 	public static AudioBuffer compress( AudioBuffer audio, double thresholdDb, double ratio, double attackMs, double releaseMs, double kneeDb,
 	    double makeupDb ) {
 		if ( ratio < 1 || ratio > 100 ) {
-			throw new BoxRuntimeException( "The ratio must be between 1 and 100 but was " + ratio );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ratio must be between 1 and 100 but was " + ratio );
 		}
 		if ( thresholdDb > 0 || thresholdDb < -100 ) {
-			throw new BoxRuntimeException( "The threshold must be between -100 and 0 dB but was " + thresholdDb );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The threshold must be between -100 and 0 dB but was " + thresholdDb );
 		}
 		if ( attackMs < 0 || releaseMs < 0 || kneeDb < 0 ) {
-			throw new BoxRuntimeException( "Attack, release and knee cannot be negative" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Attack, release and knee cannot be negative" );
 		}
 		int			rate		= audio.getSampleRate();
 		double		attack		= coefficient( attackMs, rate );
@@ -114,10 +114,10 @@ public final class Dynamics {
 	 */
 	public static AudioBuffer limit( AudioBuffer audio, double ceilingDb, double releaseMs, double lookAheadMs ) {
 		if ( ceilingDb > 0 || ceilingDb < -60 ) {
-			throw new BoxRuntimeException( "The ceiling must be between -60 and 0 dB but was " + ceilingDb );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ceiling must be between -60 and 0 dB but was " + ceilingDb );
 		}
 		if ( releaseMs < 0 || lookAheadMs < 0 || lookAheadMs > 100 ) {
-			throw new BoxRuntimeException( "Release cannot be negative and the look-ahead must be between 0 and 100 ms" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Release cannot be negative and the look-ahead must be between 0 and 100 ms" );
 		}
 		int			rate	= audio.getSampleRate();
 		int			frames	= audio.getFrames();

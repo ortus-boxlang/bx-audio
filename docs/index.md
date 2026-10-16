@@ -18,7 +18,7 @@ bass = audioFilter( audioEnvelope( audioOsc( "saw", audioFreq( "A1" ), 0.4 ), 0.
 for( at in audioBeats( t, 0, 16 ) ){
     audioAdd( timeline=t, sound=kick, at=at, track="drums" );
 }
-audioAdd( timeline=t, sound=bass, at=t.bar( 1 ), track="bass", db=-6 );
+audioAdd( timeline=t, sound=bass, at=t.bar( 1 ), track="bass", gainDb=-6 );
 audioPump( t, "bass", audioBeats( t, 0, 16 ), -5, 0.18 );
 
 mix = audioMaster( audio=audioRender( t ), target="streaming" );   // -14 LUFS, true peak under -1 dBFS

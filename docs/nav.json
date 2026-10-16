@@ -48,7 +48,10 @@
 			"reference/functions/games.md",
 			"reference/functions/storage.md",
 			"reference/cli.md",
-			"reference/configuration.md"
+			"reference/configuration.md",
+			"reference/conventions.md",
+			"reference/return-values.md",
+			"reference/errors.md"
 		]
 	},
 	{

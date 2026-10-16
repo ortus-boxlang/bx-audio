@@ -29,7 +29,7 @@ import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 @BoxBIF( description = "Speak a text piece by piece and return the audio with the time each caption line is spoken" )
 public class AudioSpeakCues extends BIF {
@@ -98,7 +98,7 @@ public class AudioSpeakCues extends BIF {
 		}
 		String mode = arguments.getAsString( split ).toLowerCase( java.util.Locale.ROOT );
 		if ( !mode.equals( "sentence" ) && !mode.equals( "clause" ) ) {
-			throw new BoxRuntimeException( "split must be sentence or clause but was [" + mode + "]" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "split must be sentence or clause but was [" + mode + "]" );
 		}
 		Narration.Result	result	= Speech.narrate( arguments.getAsString( text ), arguments.getAsString( voice ), allow,
 		    AudioSpeak.progress( context, arguments ),

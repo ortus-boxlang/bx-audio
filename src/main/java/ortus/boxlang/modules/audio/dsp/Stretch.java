@@ -15,7 +15,7 @@
 package ortus.boxlang.modules.audio.dsp;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Time stretching and pitch shifting with WSOLA (waveform similarity overlap-add): the audio is cut into overlapping windows, which are laid
@@ -38,7 +38,7 @@ public final class Stretch {
 	 */
 	public static AudioBuffer stretch( AudioBuffer audio, double rate ) {
 		if ( Double.isNaN( rate ) || rate < MIN_RATE || rate > MAX_RATE ) {
-			throw new BoxRuntimeException( "The rate must be between " + MIN_RATE + " and " + MAX_RATE + " but was " + rate );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The rate must be between " + MIN_RATE + " and " + MAX_RATE + " but was " + rate );
 		}
 		if ( Math.abs( rate - 1 ) < 1e-6 || audio.getFrames() == 0 ) {
 			return audio.copy();
@@ -56,10 +56,10 @@ public final class Stretch {
 	 */
 	public static AudioBuffer fitTo( AudioBuffer audio, double seconds ) {
 		if ( Double.isNaN( seconds ) || seconds <= 0 ) {
-			throw new BoxRuntimeException( "The target length must be above 0 seconds but was " + seconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The target length must be above 0 seconds but was " + seconds );
 		}
 		if ( audio.getFrames() == 0 ) {
-			throw new BoxRuntimeException( "Cannot fit silence of no length to a duration" );
+			throw new AudioException( AudioException.IO, "Cannot fit silence of no length to a duration" );
 		}
 		double		rate	= audio.getDurationSeconds() / seconds;
 		AudioBuffer	result	= stretch( audio, rate );
@@ -73,7 +73,7 @@ public final class Stretch {
 	 */
 	public static AudioBuffer pitch( AudioBuffer audio, double semitones ) {
 		if ( Double.isNaN( semitones ) || Math.abs( semitones ) > 24 ) {
-			throw new BoxRuntimeException( "The shift must be within 24 semitones either way but was " + semitones );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The shift must be within 24 semitones either way but was " + semitones );
 		}
 		if ( Math.abs( semitones ) < 1e-9 || audio.getFrames() == 0 ) {
 			return audio.copy();
@@ -93,16 +93,17 @@ public final class Stretch {
 	 */
 	public static AudioBuffer varispeed( AudioBuffer audio, double factor ) {
 		if ( Double.isNaN( factor ) || factor < 0.125 || factor > 8 ) {
-			throw new BoxRuntimeException( "The speed factor must be between 0.125 and 8 but was " + factor );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The speed factor must be between 0.125 and 8 but was " + factor );
 		}
 		if ( Math.abs( factor - 1 ) < 1e-9 ) {
 			return audio.copy();
 		}
 		long newRate = Math.round( audio.getSampleRate() * factor );
 		if ( newRate < AudioBuffer.MIN_SAMPLE_RATE || newRate > AudioBuffer.MAX_SAMPLE_RATE ) {
-			throw new BoxRuntimeException( "Playing audio at " + audio.getSampleRate() + " Hz " + factor + " times as fast needs " + newRate
-			    + " Hz, which is outside the " + AudioBuffer.MIN_SAMPLE_RATE + " to " + AudioBuffer.MAX_SAMPLE_RATE
-			    + " Hz this module handles. Use a smaller factor." );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Playing audio at " + audio.getSampleRate() + " Hz " + factor + " times as fast needs " + newRate
+			        + " Hz, which is outside the " + AudioBuffer.MIN_SAMPLE_RATE + " to " + AudioBuffer.MAX_SAMPLE_RATE
+			        + " Hz this module handles. Use a smaller factor." );
 		}
 		AudioBuffer relabeled = new AudioBuffer( copyChannels( audio ), ( int ) newRate );
 		return Dsp.resample( relabeled, audio.getSampleRate() );

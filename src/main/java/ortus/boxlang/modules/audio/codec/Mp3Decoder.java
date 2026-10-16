@@ -24,7 +24,7 @@ import javazoom.jl.decoder.DecoderException;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * The part of the MP3 codec that uses JLayer. Only loaded when MP3 is used, see {@link Mp3Codec}.
@@ -51,7 +51,8 @@ final class Mp3Decoder {
 				}
 				// A stream that changes format part way through cannot be held in one buffer
 				if ( frame.getChannelCount() != channels || frame.getSampleFrequency() != rate ) {
-					throw new BoxRuntimeException( "This MP3 changes its sample rate or channel count part way through, which is not supported" );
+					throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+					    "This MP3 changes its sample rate or channel count part way through, which is not supported" );
 				}
 				int length = frame.getBufferLength();
 				if ( used + length > pcm.length ) {
@@ -62,7 +63,7 @@ final class Mp3Decoder {
 				stream.closeFrame();
 			}
 		} catch ( BitstreamException | DecoderException e ) {
-			throw new BoxRuntimeException( "Could not decode the MP3: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not decode the MP3: " + e.getMessage(), e );
 		} finally {
 			try {
 				stream.close();
@@ -71,7 +72,7 @@ final class Mp3Decoder {
 			}
 		}
 		if ( channels == 0 || used == 0 ) {
-			throw new BoxRuntimeException( "No MP3 audio was found in the file" );
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "No MP3 audio was found in the file" );
 		}
 		int			frames	= used / channels;
 		float[][]	out		= new float[ channels ][ frames ];

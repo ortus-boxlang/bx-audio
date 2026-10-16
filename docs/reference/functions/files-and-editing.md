@@ -57,17 +57,18 @@ audioSave( audio, path, bitDepth=16, bitrate=0 )
 
 ## audioInfo
 
-Describes some audio. A file is read fully into memory to measure its levels.
+Describes some audio. A WAV file is described from its header, so a file of any size answers at once; the other formats are decoded. The peak and rms of a file are measured, which reads all of it, only when levels is true. A buffer always has them.
 
 ```js
-audioInfo( source )
+audioInfo( source, levels=false )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `source` | any | required | An audio buffer, or the path of an audio file. |
+| `levels` | boolean | `false` | Measure peak and rms of a file too. Reads the whole file. |
 
-**Returns** A struct with channels, sampleRate, frames, seconds, peak (0 to 1 for undistorted audio) and rms.
+**Returns** A struct with channels, sampleRate, frames and seconds, and peak (0 to 1 for undistorted audio) and rms when they were measured.
 
 ## audioWaveform
 
@@ -89,13 +90,13 @@ audioWaveform( audio, points=800 )
 Change the volume of an audio buffer. The input buffer is left untouched.
 
 ```js
-audioGain( audio, db )
+audioGain( audio, gainDb )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `audio` | any | required | The audio buffer. |
-| `db` | double | required | The gain in decibels. Negative values make it quieter, 6 roughly doubles the amplitude. |
+| `gainDb` | double | required | The gain in decibels. Negative values make it quieter, 6 roughly doubles the amplitude. |
 
 **Returns** A new audio buffer.
 

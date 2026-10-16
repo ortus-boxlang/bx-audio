@@ -46,7 +46,7 @@ public class MasteringBifsTest extends BaseIntegrationTest {
 		IStruct r = ( IStruct ) run( "result = audioLoudness( audioGain( audioOsc( 'sine', 997, 10 ), -23 ) )" );
 		// A mono sine at -23 dBFS peak is 3 LU below the same sine in both channels
 		assertThat( ( ( Number ) r.get( Key.of( "integrated" ) ) ).doubleValue() ).isWithin( 0.3 ).of( -26.0 );
-		assertThat( r.keySet().stream().map( Key::getName ).toList() ).containsAtLeast( "integrated", "range", "truePeak", "samplePeak", "momentaryMax",
+		assertThat( r.keySet().stream().map( Key::getName ).toList() ).containsAtLeast( "integrated", "range", "truePeakDb", "samplePeakDb", "momentaryMax",
 		    "shortTermMax" );
 		String source = "a = audioPan( audioGain( audioNoise( seconds=8, color='pink' ), -30 ), 0 ); ";
 		assertThat( ( ( Number ) run( source + "result = audioLoudness( audioMaster( a ) ).integrated" ) ).doubleValue() ).isWithin( 0.5 ).of( -14.0 );
@@ -54,7 +54,7 @@ public class MasteringBifsTest extends BaseIntegrationTest {
 		    .of( -16.0 );
 		assertThat( ( ( Number ) run( source + "result = audioLoudness( audioNormalizeLoudness( a, -20 ) ).integrated" ) ).doubleValue() )
 		    .isWithin( 0.5 ).of( -20.0 );
-		assertThat( ( ( Number ) run( source + "result = audioLoudness( audioMaster( audio=a, glue=true ) ).truePeak" ) ).doubleValue() ).isAtMost( -0.9 );
+		assertThat( ( ( Number ) run( source + "result = audioLoudness( audioMaster( audio=a, glue=true ) ).truePeakDb" ) ).doubleValue() ).isAtMost( -0.9 );
 		assertThat( message( "result = audioMaster( audioNoise( seconds=1 ), 'loud' )" ) ).contains( "Unknown loudness target [loud]" );
 	}
 
@@ -66,9 +66,9 @@ public class MasteringBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Number ) run( tone + "result = audioCompress( audio=t, thresholdDb=-20, ratio=10, makeupDb=0 ).getRms()" ) ).doubleValue() )
 		    .isLessThan( ( ( Number ) run( tone + "result = t.getRms()" ) ).doubleValue() );
 		assertThat( ( ( Number ) run( tone + "result = audioCompress( audio=t, makeupDb=0 ).getFrames()" ) ).intValue() ).isEqualTo( 88200 );
-		Number boosted = ( Number ) run( tone + "result = audioEq( t, [ { type: 'peak', freq: 1000, gain: 6 } ] ).getRms() / t.getRms()" );
+		Number boosted = ( Number ) run( tone + "result = audioEq( t, [ { type: 'peak', freq: 1000, gainDb: 6 } ] ).getRms() / t.getRms()" );
 		assertThat( boosted.doubleValue() ).isWithin( 0.3 ).of( 2.0 );
-		assertThat( message( tone + "result = audioEq( t, [ { type: 'peak', gain: 3 } ] )" ) ).contains( "needs a freq" );
+		assertThat( message( tone + "result = audioEq( t, [ { type: 'peak', gainDb: 3 } ] )" ) ).contains( "needs a freq" );
 		assertThat( message( tone + "result = audioEq( t, [ { type: 'wobble', freq: 100 } ] )" ) ).contains( "Unknown EQ band type" );
 		assertThat( message( tone + "result = audioLimit( t, 3 )" ) ).contains( "ceiling" );
 	}

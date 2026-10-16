@@ -30,7 +30,7 @@ import com.fasterxml.jackson.jr.ob.JSON;
 
 import ortus.boxlang.modules.audio.tts.Downloader;
 import ortus.boxlang.modules.audio.tts.EngineInstaller.NamedProgress;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Downloads FFmpeg and FFprobe for this computer from a pinned list ({@code ffmpeg.json} in the module): each file has a URL, a size and a
@@ -90,11 +90,11 @@ public final class FfmpegInstaller {
 	private static Map<String, Object> manifest() {
 		try ( InputStream in = FfmpegInstaller.class.getClassLoader().getResourceAsStream( "ffmpeg.json" ) ) {
 			if ( in == null ) {
-				throw new BoxRuntimeException( "The FFmpeg list (ffmpeg.json) is missing from the module" );
+				throw new AudioException( AudioException.INTERNAL, "The FFmpeg list (ffmpeg.json) is missing from the module" );
 			}
 			return JSON.std.mapFrom( in );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read the FFmpeg list: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read the FFmpeg list: " + e.getMessage(), e );
 		}
 	}
 
@@ -158,7 +158,7 @@ public final class FfmpegInstaller {
 	 */
 	public void install( NamedProgress progress ) {
 		if ( !isSupported() ) {
-			throw new BoxRuntimeException( "There is no FFmpeg download for this computer (" + this.platform
+			throw new AudioException( AudioException.DOWNLOAD_FAILED, "There is no FFmpeg download for this computer (" + this.platform
 			    + "). Install FFmpeg yourself so it is on the PATH, or set the ffmpeg module setting or BX_AUDIO_FFMPEG to its path." );
 		}
 		if ( isInstalled() ) {
@@ -179,7 +179,7 @@ public final class FfmpegInstaller {
 			}
 			Files.deleteIfExists( downloads );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not install FFmpeg: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not install FFmpeg: " + e.getMessage(), e );
 		}
 	}
 
@@ -205,7 +205,7 @@ public final class FfmpegInstaller {
 		}
 		for ( String name : wanted.keySet() ) {
 			if ( !Files.isRegularFile( this.dir.resolve( name ) ) ) {
-				throw new BoxRuntimeException( "The FFmpeg download did not contain " + name );
+				throw new AudioException( AudioException.DOWNLOAD_FAILED, "The FFmpeg download did not contain " + name );
 			}
 		}
 	}
@@ -225,7 +225,7 @@ public final class FfmpegInstaller {
 			}
 			return true;
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not remove FFmpeg: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not remove FFmpeg: " + e.getMessage(), e );
 		}
 	}
 

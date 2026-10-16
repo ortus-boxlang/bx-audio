@@ -26,6 +26,7 @@ import java.util.UUID;
 import ortus.boxlang.modules.audio.ffmpeg.FfmpegSupport;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Reading and writing audio files, choosing the format: reading goes by what is in the file and writing goes by the file extension.
@@ -72,7 +73,8 @@ public final class AudioFiles {
 		switch ( ext ) {
 			case "", ".wav", ".wave", ".mp3", ".flac", ".ogg", ".oga", ".opus", ".m4a", ".mp4", ".aac" -> {
 			}
-			default -> throw new BoxRuntimeException( "Cannot write [" + ext + "] files. Use .wav, .mp3, .flac, .ogg, .opus, .m4a or .aac" );
+			default -> throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+			    "Cannot write [" + ext + "] files. Use .wav, .mp3, .flac, .ogg, .opus, .m4a or .aac" );
 		}
 	}
 
@@ -91,7 +93,7 @@ public final class AudioFiles {
 				Files.move( temp, target, StandardCopyOption.REPLACE_EXISTING );
 			}
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not write audio file [" + target + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not write audio file [" + target + "]: " + e.getMessage(), e );
 		} finally {
 			try {
 				Files.deleteIfExists( temp );
@@ -112,7 +114,7 @@ public final class AudioFiles {
 		try {
 			bytes = Files.readAllBytes( path );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read audio file [" + path + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read audio file [" + path + "]: " + e.getMessage(), e );
 		}
 		bytes = withoutId3BeforeFlac( bytes );
 		if ( bytes.length >= 12 && bytes[ 0 ] == 'R' && bytes[ 1 ] == 'I' && bytes[ 2 ] == 'F' && bytes[ 3 ] == 'F' ) {
@@ -125,7 +127,7 @@ public final class AudioFiles {
 			return FlacCodec.decode( bytes );
 		}
 		if ( !FFMPEG_READABLE.contains( extension( path ) ) && !looksLikeFfmpegContainer( bytes ) ) {
-			throw new BoxRuntimeException( "[" + path.getFileName()
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "[" + path.getFileName()
 			    + "] is not an audio file this module can read: it is not WAV, MP3 or FLAC, and its extension is not one FFmpeg is asked to read" );
 		}
 		return FfmpegSupport.require( "Reading [" + path.getFileName() + "], which is not a WAV, MP3 or FLAC file," ).decode( path );
@@ -140,7 +142,7 @@ public final class AudioFiles {
 			return head.length == 12 && head[ 0 ] == 'R' && head[ 1 ] == 'I' && head[ 2 ] == 'F' && head[ 3 ] == 'F' && head[ 8 ] == 'W'
 			    && head[ 9 ] == 'A' && head[ 10 ] == 'V' && head[ 11 ] == 'E';
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read audio file [" + path + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read audio file [" + path + "]: " + e.getMessage(), e );
 		}
 	}
 
@@ -178,7 +180,7 @@ public final class AudioFiles {
 					default -> FfmpegSupport.require( "Writing " + ext + " files" ).encode( audio, temp, bitrateKbps );
 				}
 			} catch ( IOException e ) {
-				throw new BoxRuntimeException( "Could not write audio file [" + path + "]: " + e.getMessage(), e );
+				throw new AudioException( AudioException.IO, "Could not write audio file [" + path + "]: " + e.getMessage(), e );
 			}
 		} );
 	}

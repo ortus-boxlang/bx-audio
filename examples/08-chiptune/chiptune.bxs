@@ -210,7 +210,7 @@ function newVoice(){
 	return audioTimeline( bpm = bpm, beatsPerBar = 4, sampleRate = sr, channels = 2 );
 }
 function put( voice, sound, at, pan, db ){
-	audioAdd( timeline = voice, sound = sound, at = at, track = "main", db = db, pan = pan );
+	audioAdd( timeline = voice, sound = sound, at = at, track = "main", gainDb = db, pan = pan );
 }
 
 lead = newVoice();

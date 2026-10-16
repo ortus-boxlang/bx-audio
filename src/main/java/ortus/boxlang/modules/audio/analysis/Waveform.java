@@ -15,7 +15,7 @@
 package ortus.boxlang.modules.audio.analysis;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Reduces audio to a handful of values for drawing a waveform
@@ -40,7 +40,7 @@ public final class Waveform {
 	 */
 	public static double[] peaks( AudioBuffer audio, int points ) {
 		if ( points < 1 || points > MAX_POINTS ) {
-			throw new BoxRuntimeException( "Points must be between 1 and " + MAX_POINTS + " but was " + points );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Points must be between 1 and " + MAX_POINTS + " but was " + points );
 		}
 		double[]	result	= new double[ points ];
 		int			frames	= audio.getFrames();

@@ -21,6 +21,7 @@ import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
 import ortus.boxlang.runtime.context.IBoxContext;
 import ortus.boxlang.runtime.scopes.ArgumentsScope;
+import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 
 @BoxBIF( description = "Duck a timeline track while another track is loud, like music under a voice-over" )
@@ -37,8 +38,8 @@ public class AudioDuck extends BIF {
 		    new Argument( true, "string", KeyDictionary.trigger ),
 		    new Argument( false, "double", KeyDictionary.amountDb, -12.0 ),
 		    new Argument( false, "double", KeyDictionary.thresholdDb, -40.0 ),
-		    new Argument( false, "double", KeyDictionary.attack, 0.01 ),
-		    new Argument( false, "double", KeyDictionary.release, 0.3 )
+		    new Argument( false, "double", Key.of( "attackMs" ), 10.0 ),
+		    new Argument( false, "double", Key.of( "releaseMs" ), 300.0 )
 		};
 	}
 
@@ -58,9 +59,9 @@ public class AudioDuck extends BIF {
 	 *
 	 * @argument.thresholdDb The trigger level above which ducking starts, relative to full scale. Defaults to -40.
 	 *
-	 * @argument.attack Seconds taken to lower the track. Defaults to 0.01.
+	 * @argument.attackMs Milliseconds taken to lower the track. Defaults to 10.
 	 *
-	 * @argument.release Seconds taken to bring the track back. Defaults to 0.3.
+	 * @argument.releaseMs Milliseconds taken to bring the track back. Defaults to 300.
 	 *
 	 * @return The same timeline, so calls can be chained.
 	 */
@@ -70,8 +71,8 @@ public class AudioDuck extends BIF {
 		    arguments.getAsString( KeyDictionary.trigger ),
 		    arguments.getAsDouble( KeyDictionary.amountDb ),
 		    arguments.getAsDouble( KeyDictionary.thresholdDb ),
-		    arguments.getAsDouble( KeyDictionary.attack ),
-		    arguments.getAsDouble( KeyDictionary.release )
+		    arguments.getAsDouble( Key.of( "attackMs" ) ) / 1000.0,
+		    arguments.getAsDouble( Key.of( "releaseMs" ) ) / 1000.0
 		);
 	}
 

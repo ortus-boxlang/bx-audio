@@ -15,10 +15,10 @@ pad  = audioGain( audioFilter( audioOsc( "saw", audioFreq( "A2" ), 4 ), "lowpass
 
 audioAdd( timeline=t, sound=pad, at=0, track="music" );
 for( at in audioBeats( t, 0, 16 ) ){
-    audioAdd( timeline=t, sound=kick, at=at, track="drums", db=-4 );
+    audioAdd( timeline=t, sound=kick, at=at, track="drums", gainDb=-4 );
 }
 for( at in audioBeats( t, 0.5, 16, 1 ) ){
-    audioAdd( timeline=t, sound=hat, at=at, track="drums", db=-12, pan=0.3 );
+    audioAdd( timeline=t, sound=hat, at=at, track="drums", gainDb=-12, pan=0.3 );
 }
 
 audioSave( audioRender( timeline=t, tail=1 ), "beat.wav" );
@@ -49,7 +49,7 @@ mix = audioRender( t );
 
 ```js
 t = audioTimeline( bpm=100 );
-audioAdd( timeline=t, sound=music, at=0, track="music", db=-10 );
+audioAdd( timeline=t, sound=music, at=0, track="music", gainDb=-10 );
 audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
 audioDuck( t, "music", "voice", -9, -40, 0.01, 0.3 );   // down 9 dB while the voice is above -40 dB
 mix = audioRender( timeline=t, tail=1 );

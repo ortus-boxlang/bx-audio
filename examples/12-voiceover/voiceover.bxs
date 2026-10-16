@@ -115,24 +115,24 @@ for( b = 0; b < bars; b++ ){
 	t0 = b * bar;
 	index = ( b mod 4 ) + 1;
 	isLast = ( b == bars - 1 );
-	audioAdd( timeline = t, sound = pad( index ), at = t0, track = "music", db = -2 );
+	audioAdd( timeline = t, sound = pad( index ), at = t0, track = "music", gainDb = -2 );
 	if( isLast ){
-		audioAdd( timeline = t, sound = crash, at = t0, track = "drums", db = -4 );
-		audioAdd( timeline = t, sound = kick, at = t0, track = "drums", db = -3 );
+		audioAdd( timeline = t, sound = crash, at = t0, track = "drums", gainDb = -4 );
+		audioAdd( timeline = t, sound = kick, at = t0, track = "drums", gainDb = -3 );
 		continue;
 	}
 	// arpeggio from the start, the bass and beat from bar two
 	for( s = 0; s < 16; s += 2 ){
-		audioAdd( timeline = t, sound = pluck( chords[ index ].notes[ arp[ ( s / 2 ) mod 8 + 1 ] ] + 12 ), at = t0 + s * step, track = "music", db = s mod 4 == 0 ? -12 : -16,
+		audioAdd( timeline = t, sound = pluck( chords[ index ].notes[ arp[ ( s / 2 ) mod 8 + 1 ] ] + 12 ), at = t0 + s * step, track = "music", gainDb = s mod 4 == 0 ? -12 : -16,
 			pan = s mod 4 == 0 ? -0.3 : 0.3 );
 	}
 	if( b >= 2 ){
 		for( s = 0; s < 8; s++ ){
-			audioAdd( timeline = t, sound = bassNote( chords[ index ].bass ), at = t0 + s * beat / 2, track = "music", db = s mod 2 == 0 ? -4 : -7 );
+			audioAdd( timeline = t, sound = bassNote( chords[ index ].bass ), at = t0 + s * beat / 2, track = "music", gainDb = s mod 2 == 0 ? -4 : -7 );
 		}
 		for( k = 0; k < 4; k++ ){
-			audioAdd( timeline = t, sound = kick, at = t0 + k * beat, track = "drums", db = -5 );
-			audioAdd( timeline = t, sound = hat, at = t0 + k * beat + beat / 2, track = "drums", db = -17, pan = 0.2 );
+			audioAdd( timeline = t, sound = kick, at = t0 + k * beat, track = "drums", gainDb = -5 );
+			audioAdd( timeline = t, sound = hat, at = t0 + k * beat + beat / 2, track = "drums", gainDb = -17, pan = 0.2 );
 		}
 	}
 }
@@ -141,7 +141,7 @@ for( b = 0; b < bars; b++ ){
 // The voice goes on its own track, in the middle, and the music and the beat duck under it
 // ---------------------------------------------------------------------------------------------------------------------------------
 for( i = 1; i <= clips.len(); i++ ){
-	audioAdd( timeline = t, sound = clips[ i ], at = starts[ i ], track = "voice", db = 0 );
+	audioAdd( timeline = t, sound = clips[ i ], at = starts[ i ], track = "voice", gainDb = 0 );
 }
 // The music and the beat sit below the voice even when it is silent, and duck further while it speaks
 audioTrackGain( t, "music", -10 );

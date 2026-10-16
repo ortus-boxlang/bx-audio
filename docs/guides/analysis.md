@@ -60,6 +60,6 @@ See [Loudness and mastering](loudness-and-mastering.md) for `audioLoudness`. For
 
 ```bash
 bx-audio bpm song.wav --beats
-bx-audio silence interview.wav --db=-45 --min=0.5
+bx-audio silence interview.wav --thresholdDb=-45 --min=0.5
 bx-audio waveform song.wav
 ```

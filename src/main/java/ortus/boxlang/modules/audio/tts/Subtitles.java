@@ -19,7 +19,7 @@ import java.util.Locale;
 
 import ortus.boxlang.modules.audio.tts.Narration.Cue;
 import ortus.boxlang.modules.audio.util.Timecode;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Captions as SRT or WebVTT text
@@ -47,7 +47,7 @@ public final class Subtitles {
 	public static String format( List<Cue> cues, String format, double offset ) {
 		String kind = format == null ? "" : format.toLowerCase( Locale.ROOT );
 		if ( !FORMATS.contains( kind ) ) {
-			throw new BoxRuntimeException( "Unknown subtitle format [" + format + "]. Use srt or vtt." );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown subtitle format [" + format + "]. Use srt or vtt." );
 		}
 		boolean			srt	= kind.equals( "srt" );
 		StringBuilder	out	= new StringBuilder( srt ? "" : "WEBVTT\n\n" );

@@ -84,7 +84,7 @@ mix = audioTrim( audioRender( timeline=t ), 0, info.seconds );
 ## 5. Master
 
 ```js
-final = audioMaster( audio=mix, target="streaming", truePeak=-1 );
+final = audioMaster( audio=mix, target="streaming", truePeakDb=-1 );
 println( audioLoudness( final ) );   // integrated -14 LUFS, true peak under -1 dBFS
 ```
 

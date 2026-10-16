@@ -13,7 +13,7 @@ Text to speech with open license voices, captions timed to the voice, and the vo
 Turn text into speech with an installed Piper voice, installing the engine and the voice on first use
 
 ```js
-audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses )
+audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations )
 ```
 
 | Argument | Type | Default | |
@@ -24,6 +24,7 @@ audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses )
 | `onProgress` | function | optional | A function called as ( name, bytesDone, bytesTotal ) while something downloads. |
 | `speed` | double | `1` | How fast to speak: 1 is the voice's own pace, 1.25 faster, 0.8 slower. Between 0.25 and 4. Defaults to 1. |
 | `pauses` | struct | optional | A struct with any of sentence, clause and paragraph, in seconds, to speak the text piece by piece with those pauses between the pieces (defaults 0.35, 0.15 and 0.8). Leave it out to let the voice phrase the whole text itself. |
+| `pronunciations` | struct | optional | A struct of word to spoken form for words the voice gets wrong, for example { Ortus: "Or tus" }. BoxLang and the names of its family are already said correctly. The text you pass stays as it is, only what the voice is given changes. |
 
 **Returns** A mono audio buffer at the voice sample rate, normally 22050 Hz.
 
@@ -32,7 +33,7 @@ audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses )
 Speak a text piece by piece and return the audio with the time each caption line is spoken
 
 ```js
-audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", autoInstall, onProgress )
+audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", autoInstall, onProgress, pronunciations )
 ```
 
 | Argument | Type | Default | |
@@ -45,6 +46,7 @@ audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", aut
 | `split` | string | `"sentence"` | sentence to speak and time whole sentences, clause to work clause by clause (more natural pauses, shorter captions). Defaults to sentence. |
 | `autoInstall` | boolean | optional | May the engine and the voice be downloaded when missing. Defaults to the module setting autoInstall. |
 | `onProgress` | function | optional | A function called as ( name, bytesDone, bytesTotal ) while something downloads. |
+| `pronunciations` | struct | optional | A struct of word to spoken form for words the voice gets wrong, for example { Ortus: "Or tus" }. The captions keep the original words. BoxLang and the names of its family are already said correctly. |
 
 **Returns** A struct with audio (a mono buffer), cues (an array of structs with start, end and text, in seconds) and seconds (the length). Pass the cues to audioSubtitles().
 

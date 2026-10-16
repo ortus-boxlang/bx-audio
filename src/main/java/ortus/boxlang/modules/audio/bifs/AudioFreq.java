@@ -16,7 +16,7 @@ package ortus.boxlang.modules.audio.bifs;
 
 import ortus.boxlang.modules.audio.synth.Synth;
 import ortus.boxlang.runtime.dynamic.casters.DoubleCaster;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.modules.audio.util.KeyDictionary;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
@@ -57,7 +57,7 @@ public class AudioFreq extends BIF {
 		if ( note instanceof Number number ) {
 			return Synth.midiToHz( number.doubleValue() );
 		}
-		throw new BoxRuntimeException( "The note must be a note name like C4 or a MIDI number" );
+		throw new AudioException( AudioException.INVALID_ARGUMENT, "The note must be a note name like C4 or a MIDI number" );
 	}
 
 }

@@ -30,7 +30,7 @@ import ortus.boxlang.runtime.scopes.ArgumentsScope;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.IStruct;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Write markers (points in time with labels) as JSON, CSV, a Resolve EDL, SRT, WebVTT, FFmpeg chapters or a YouTube chapter list" )
@@ -78,7 +78,8 @@ public class AudioMarkers extends BIF {
 		List<Markers.Marker> list = new ArrayList<>();
 		for ( Object entry : arguments.getAsArray( markers ) ) {
 			if ( ! ( entry instanceof IStruct item ) || item.get( Key.of( "time" ) ) == null ) {
-				throw new BoxRuntimeException( "Each marker must be a struct with a time in seconds and a label, such as { time: 12.5, label: \"Chorus\" }" );
+				throw new AudioException( AudioException.INVALID_ARGUMENT,
+				    "Each marker must be a struct with a time in seconds and a label, such as { time: 12.5, label: \"Chorus\" }" );
 			}
 			Object d = item.get( Key.of( "duration" ) );
 			list.add(
@@ -94,7 +95,7 @@ public class AudioMarkers extends BIF {
 				Files.createDirectories( target.getParent() );
 				Files.writeString( target, text );
 			} catch ( IOException e ) {
-				throw new BoxRuntimeException( "Could not write [" + file + "]: " + e.getMessage(), e );
+				throw new AudioException( AudioException.IO, "Could not write [" + file + "]: " + e.getMessage(), e );
 			}
 		}
 		return text;

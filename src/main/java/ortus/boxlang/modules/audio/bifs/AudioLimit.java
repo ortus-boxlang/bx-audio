@@ -29,8 +29,8 @@ public class AudioLimit extends BIF {
 
 	private static final Key	audio		= Key.of( "audio" );
 	private static final Key	ceilingDb	= Key.of( "ceilingDb" );
-	private static final Key	release		= Key.of( "release" );
-	private static final Key	lookAhead	= Key.of( "lookAhead" );
+	private static final Key	releaseMs	= Key.of( "releaseMs" );
+	private static final Key	lookAheadMs	= Key.of( "lookAheadMs" );
 
 	/**
 	 * Constructor
@@ -40,8 +40,8 @@ public class AudioLimit extends BIF {
 		declaredArguments = new Argument[] {
 		    new Argument( true, "any", audio ),
 		    new Argument( false, "double", ceilingDb, -1.0 ),
-		    new Argument( false, "double", release, 100.0 ),
-		    new Argument( false, "double", lookAhead, 5.0 )
+		    new Argument( false, "double", releaseMs, 100.0 ),
+		    new Argument( false, "double", lookAheadMs, 5.0 )
 		};
 	}
 
@@ -55,15 +55,16 @@ public class AudioLimit extends BIF {
 	 *
 	 * @argument.ceilingDb The highest level in dB, at most 0, counting the peaks between the samples (the true peak). Defaults to -1.
 	 *
-	 * @argument.release Milliseconds to recover after a peak. Defaults to 100.
+	 * @argument.releaseMs Milliseconds to recover after a peak. Defaults to 100.
 	 *
-	 * @argument.lookAhead Milliseconds the limiter looks ahead. Defaults to 5.
+	 * @argument.lookAheadMs Milliseconds the limiter looks ahead. Defaults to 5.
 	 *
 	 * @return A new audio buffer.
 	 */
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		return Dynamics.limitTruePeak( Audios.require( arguments.get( audio ), "audio" ), arguments.getAsDouble( ceilingDb ), arguments.getAsDouble( release ),
-		    arguments.getAsDouble( lookAhead ) );
+		return Dynamics.limitTruePeak( Audios.require( arguments.get( audio ), "audio" ), arguments.getAsDouble( ceilingDb ),
+		    arguments.getAsDouble( releaseMs ),
+		    arguments.getAsDouble( lookAheadMs ) );
 	}
 
 }

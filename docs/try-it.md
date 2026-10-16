@@ -50,9 +50,9 @@ for( at in audioBeats( t, 0, 16 ) ){
 	audioAdd( timeline=t, sound=kick, at=at, track="drums" );
 }
 for( at in audioBeats( t, 0.5, 16 ) ){
-	audioAdd( timeline=t, sound=hat, at=at, track="drums", db=-12 );
+	audioAdd( timeline=t, sound=hat, at=at, track="drums", gainDb=-12 );
 }
-audioAdd( timeline=t, sound=bass, at=0, track="bass", db=-6 );
+audioAdd( timeline=t, sound=bass, at=0, track="bass", gainDb=-6 );
 audioPump( t, "bass", audioBeats( t, 0, 16 ), -5, 0.18 );
 
 audioSave( audioRender( t ), "beat.wav" );
@@ -81,7 +81,7 @@ mix = audioGain( audioMix( [ audioOsc( "saw", audioFreq( "A2" ), 3 ), audioOsc( 
 println( "before: " & audioLoudness( mix ).integrated & " LUFS" );
 
 mastered = audioMaster( audio=mix, target="streaming" );
-println( "after: " & audioLoudness( mastered ).integrated & " LUFS, true peak " & audioLoudness( mastered ).truePeak & " dBFS" );
+println( "after: " & audioLoudness( mastered ).integrated & " LUFS, true peak " & audioLoudness( mastered ).truePeakDb & " dBFS" );
 audioSave( mastered, "mastered.wav" );
 ```
 

@@ -16,7 +16,7 @@ Find FFmpeg on this computer and say what it can do: OGG, Opus, AAC and video fi
 audioFfmpeg()
 ```
 
-**Returns** A struct with available, source (configured, installed or system), path, probePath, version, encoders (libvorbis, libopus, aac, libmp3lame, flac that it has), platform, installable (is there a download for this computer), downloadSizeMB and installDir.
+**Returns** A struct with available, source (configured, installed or system), path, probePath, version, encoders (libvorbis, libopus, aac, libmp3lame, flac that it has), platform, installable (is there a download for this computer), autoInstall (may the module download it by itself), downloadSizeMB and installDir. When the ffmpeg setting points at something that does not run, available is false and problem says why.
 
 ## audioFfmpegInstall
 

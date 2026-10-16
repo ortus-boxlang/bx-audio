@@ -37,6 +37,7 @@ import ortus.boxlang.modules.audio.tts.TtsHome;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.ModuleSettings;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * FFmpeg and FFprobe as separate programs. They are found in this order: the {@code ffmpeg} module setting, the {@code BX_AUDIO_FFMPEG}
@@ -82,8 +83,9 @@ public final class Ffmpeg {
 		if ( !configured.isEmpty() ) {
 			Ffmpeg found = fromPath( Path.of( configured ), "configured" );
 			if ( found == null ) {
-				throw new BoxRuntimeException( "The configured FFmpeg [" + configured + "] was not found or does not run. Fix the ffmpeg module setting or "
-				    + "BX_AUDIO_FFMPEG, or clear it to use the installed or system FFmpeg." );
+				throw new AudioException( AudioException.FFMPEG_MISSING,
+				    "The configured FFmpeg [" + configured + "] was not found or does not run. Fix the ffmpeg module setting or "
+				        + "BX_AUDIO_FFMPEG, or clear it to use the installed or system FFmpeg." );
 			}
 			return found;
 		}
@@ -187,7 +189,7 @@ public final class Ffmpeg {
 			String					first	= run( List.of( this.ffmpeg.toString(), "-hide_banner", "-version" ) ).text().lines().findFirst().orElse( "" );
 			java.util.regex.Matcher	m		= java.util.regex.Pattern.compile( "version\\s+(\\S+)" ).matcher( first );
 			if ( !m.find() ) {
-				throw new BoxRuntimeException( "[" + this.ffmpeg + "] does not look like FFmpeg" );
+				throw new AudioException( AudioException.FFMPEG_FAILED, "[" + this.ffmpeg + "] does not look like FFmpeg" );
 			}
 			this.version = m.group( 1 );
 		}
@@ -236,16 +238,16 @@ public final class Ffmpeg {
 			CompletableFuture<byte[]>	err		= CompletableFuture.supplyAsync( () -> drain( process.getErrorStream() ), IO );
 			if ( !process.waitFor( TIMEOUT_MINUTES, TimeUnit.MINUTES ) ) {
 				process.destroyForcibly();
-				throw new BoxRuntimeException( "FFmpeg took more than " + TIMEOUT_MINUTES + " minutes and was stopped" );
+				throw new AudioException( AudioException.FFMPEG_FAILED, "FFmpeg took more than " + TIMEOUT_MINUTES + " minutes and was stopped" );
 			}
 			return new Result( process.exitValue(), out.get(), new String( err.get(), StandardCharsets.UTF_8 ) );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not start " + command.get( 0 ) + ": " + e.getMessage(), e );
+			throw new AudioException( AudioException.FFMPEG_FAILED, "Could not start " + command.get( 0 ) + ": " + e.getMessage(), e );
 		} catch ( InterruptedException e ) {
 			Thread.currentThread().interrupt();
-			throw new BoxRuntimeException( "FFmpeg was interrupted", e );
+			throw new AudioException( AudioException.FFMPEG_FAILED, "FFmpeg was interrupted", e );
 		} catch ( java.util.concurrent.ExecutionException e ) {
-			throw new BoxRuntimeException( "Could not read the output of FFmpeg: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read the output of FFmpeg: " + e.getMessage(), e );
 		}
 	}
 
@@ -268,7 +270,7 @@ public final class Ffmpeg {
 		command.addAll( args );
 		Result result = run( command );
 		if ( result.exit() != 0 ) {
-			throw new BoxRuntimeException( "FFmpeg failed: " + result.err().trim() );
+			throw new AudioException( AudioException.FFMPEG_FAILED, "FFmpeg failed: " + result.err().trim() );
 		}
 		return result;
 	}
@@ -281,16 +283,16 @@ public final class Ffmpeg {
 	@SuppressWarnings( "unchecked" )
 	public Map<String, Object> probe( Path file ) {
 		if ( !Files.isRegularFile( file ) ) {
-			throw new BoxRuntimeException( "The file [" + file + "] does not exist" );
+			throw new AudioException( AudioException.FILE_NOT_FOUND, "The file [" + file + "] does not exist" );
 		}
 		Result result = run( List.of( this.ffprobe.toString(), "-v", "error", "-print_format", "json", "-show_format", "-show_streams", file.toString() ) );
 		if ( result.exit() != 0 ) {
-			throw new BoxRuntimeException( "FFprobe could not read [" + file + "]: " + result.err().trim() );
+			throw new AudioException( AudioException.FFMPEG_FAILED, "FFprobe could not read [" + file + "]: " + result.err().trim() );
 		}
 		try {
 			return JSON.std.mapFrom( new String( result.out(), StandardCharsets.UTF_8 ) );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read the FFprobe output: " + e.getMessage(), e );
+			throw new AudioException( AudioException.FFMPEG_FAILED, "Could not read the FFprobe output: " + e.getMessage(), e );
 		}
 	}
 
@@ -309,7 +311,7 @@ public final class Ffmpeg {
 			}
 		}
 		if ( audio == null ) {
-			throw new BoxRuntimeException( "The file [" + file + "] has no audio stream" );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The file [" + file + "] has no audio stream" );
 		}
 		int		channels	= Math.min( AudioBuffer.MAX_CHANNELS, ( ( Number ) audio.get( "channels" ) ).intValue() );
 		int		rate		= Integer.parseInt( String.valueOf( audio.get( "sample_rate" ) ) );
@@ -322,14 +324,14 @@ public final class Ffmpeg {
 			    raw.toString() ) );
 			long frameCount = Files.size( raw ) / 4 / channels;
 			if ( frameCount > Integer.MAX_VALUE - 16 || frameCount * channels * 4L > MAX_DECODE_BYTES ) {
-				throw new BoxRuntimeException( "The audio of [" + file + "] is too long to hold in memory" );
+				throw new AudioException( AudioException.TOO_LARGE, "The audio of [" + file + "] is too long to hold in memory" );
 			}
 			int			frames	= ( int ) frameCount;
 			float[][]	data;
 			try {
 				data = new float[ channels ][ frames ];
 			} catch ( OutOfMemoryError e ) {
-				throw new BoxRuntimeException( "The audio of [" + file + "] is too long to hold in memory" );
+				throw new AudioException( AudioException.TOO_LARGE, "The audio of [" + file + "] is too long to hold in memory" );
 			}
 			try ( java.nio.channels.FileChannel in = java.nio.channels.FileChannel.open( raw, java.nio.file.StandardOpenOption.READ ) ) {
 				ByteBuffer	block	= ByteBuffer.allocate( 4096 * channels * 4 ).order( ByteOrder.LITTLE_ENDIAN );
@@ -355,7 +357,7 @@ public final class Ffmpeg {
 			}
 			return new AudioBuffer( data, rate );
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not read the audio of [" + file + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not read the audio of [" + file + "]: " + e.getMessage(), e );
 		} finally {
 			try {
 				if ( raw != null ) {
@@ -383,7 +385,8 @@ public final class Ffmpeg {
 									    List.of( "-c:a", "aac", "-b:a", ( bitrateKbps > 0 ? bitrateKbps : 192 ) + "k", "-movflags", "+faststart" );
 									case ".aac" -> List.of( "-c:a", "aac", "-b:a", ( bitrateKbps > 0 ? bitrateKbps : 192 ) + "k", "-f", "adts" );
 									default ->
-									    throw new BoxRuntimeException( "Cannot write [" + ext + "] files. Use .wav, .mp3, .flac, .ogg, .opus, .m4a or .aac" );
+									    throw new AudioException( AudioException.UNSUPPORTED_FORMAT,
+									        "Cannot write [" + ext + "] files. Use .wav, .mp3, .flac, .ogg, .opus, .m4a or .aac" );
 								};
 		try {
 			Path temp = Files.createTempFile( "bxaudio-", ".wav" );
@@ -398,7 +401,7 @@ public final class Ffmpeg {
 				Files.deleteIfExists( temp );
 			}
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not write [" + target + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not write [" + target + "]: " + e.getMessage(), e );
 		}
 	}
 
@@ -415,7 +418,7 @@ public final class Ffmpeg {
 	 */
 	public void mux( Path video, AudioBuffer audio, Path target, boolean keepOriginal, double originalDb, double offset, int bitrateKbps ) {
 		if ( !Files.isRegularFile( video ) ) {
-			throw new BoxRuntimeException( "The video [" + video + "] does not exist" );
+			throw new AudioException( AudioException.FILE_NOT_FOUND, "The video [" + video + "] does not exist" );
 		}
 		String	name	= target.getFileName().toString().toLowerCase( Locale.ROOT );
 		boolean	webm	= name.endsWith( ".webm" );
@@ -457,7 +460,7 @@ public final class Ffmpeg {
 				Files.deleteIfExists( temp );
 			}
 		} catch ( IOException e ) {
-			throw new BoxRuntimeException( "Could not write [" + target + "]: " + e.getMessage(), e );
+			throw new AudioException( AudioException.IO, "Could not write [" + target + "]: " + e.getMessage(), e );
 		}
 	}
 

@@ -28,7 +28,7 @@ import javax.sound.sampled.SourceDataLine;
 
 import ortus.boxlang.modules.audio.dsp.Dsp;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
-import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.modules.audio.util.AudioException;
 
 /**
  * Plays many sounds at once, the way a game does: each sound has its own volume, pan and pitch, sounds belong to buses (music, effects,
@@ -58,14 +58,14 @@ public final class Mixer implements AutoCloseable {
 	 */
 	public Mixer( int rate, int channels, String output ) {
 		if ( rate < 8000 || rate > 192000 ) {
-			throw new BoxRuntimeException( "The mixer sample rate must be between 8000 and 192000 Hz but was " + rate );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The mixer sample rate must be between 8000 and 192000 Hz but was " + rate );
 		}
 		if ( channels < 1 || channels > 2 ) {
-			throw new BoxRuntimeException( "The mixer has 1 or 2 channels but was asked for " + channels );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The mixer has 1 or 2 channels but was asked for " + channels );
 		}
 		String mode = output == null ? "speakers" : output.toLowerCase( Locale.ROOT );
 		if ( !List.of( "speakers", "null", "memory" ).contains( mode ) ) {
-			throw new BoxRuntimeException( "Unknown mixer output [" + output + "]. Use speakers, null or memory." );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown mixer output [" + output + "]. Use speakers, null or memory." );
 		}
 		this.rate		= rate;
 		this.channels	= channels;
@@ -107,7 +107,7 @@ public final class Mixer implements AutoCloseable {
 	 */
 	public Playback play( AudioBuffer sound, Map<?, ?> options ) {
 		if ( this.closed ) {
-			throw new BoxRuntimeException( "The mixer is closed" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The mixer is closed" );
 		}
 		float[][]	data		= prepare( sound );
 		int			frames		= data[ 0 ].length;
@@ -115,15 +115,15 @@ public final class Mixer implements AutoCloseable {
 		double		loopStart	= Math.max( 0, number( options, "loopStart", 0 ) * this.rate );
 		double		loopEnd		= number( options, "loopEnd", 0 ) > 0 ? Math.min( frames, number( options, "loopEnd", 0 ) * this.rate ) : frames;
 		if ( loop && loopEnd - loopStart < 64 ) {
-			throw new BoxRuntimeException( "The loop must be at least 64 frames long: check loopStart and loopEnd" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The loop must be at least 64 frames long: check loopStart and loopEnd" );
 		}
 		double start = number( options, "start", 0 );
 		if ( start < 0 ) {
-			throw new BoxRuntimeException( "The play option [start] cannot be negative but was " + start );
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The play option [start] cannot be negative but was " + start );
 		}
 		double pitch = number( options, "pitch", 1 );
 		if ( pitch <= 0 || pitch > 16 ) {
-			throw new BoxRuntimeException( "The pitch must be above 0 and at most 16 but was " + pitch );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The pitch must be above 0 and at most 16 but was " + pitch );
 		}
 		Object		given	= lookup( options, "bus" );
 		String		bus		= given == null ? "main" : String.valueOf( given );
@@ -306,10 +306,11 @@ public final class Mixer implements AutoCloseable {
 	 */
 	public AudioBuffer render( double seconds ) {
 		if ( !this.output.equals( "memory" ) ) {
-			throw new BoxRuntimeException( "render() is for a mixer opened with output=\"memory\"; this one plays to " + this.output );
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "render() is for a mixer opened with output=\"memory\"; this one plays to " + this.output );
 		}
 		if ( seconds < 0 || seconds > 3600 ) {
-			throw new BoxRuntimeException( "Seconds must be between 0 and 3600 but was " + seconds );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Seconds must be between 0 and 3600 but was " + seconds );
 		}
 		int			total	= ( int ) Math.round( seconds * this.rate );
 		float[][]	result	= new float[ this.channels ][ total ];
@@ -353,7 +354,7 @@ public final class Mixer implements AutoCloseable {
 				this.line.open( format, BLOCK * this.channels * 2 * 6 );
 				this.line.start();
 			} catch ( LineUnavailableException | IllegalArgumentException | SecurityException e ) {
-				throw new BoxRuntimeException( "There is no audio output device to play to (" + e.getMessage()
+				throw new AudioException( AudioException.IO, "There is no audio output device to play to (" + e.getMessage()
 				    + "). On a server without a sound card use output=\"null\" to keep time without sound, or output=\"memory\" and render() to get the audio.",
 				    e );
 			}
@@ -464,7 +465,7 @@ public final class Mixer implements AutoCloseable {
 		if ( lookup( options, key ) instanceof Number n ) {
 			double value = n.doubleValue();
 			if ( Double.isNaN( value ) || Double.isInfinite( value ) ) {
-				throw new BoxRuntimeException( "The play option [" + key + "] must be a finite number but was " + value );
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "The play option [" + key + "] must be a finite number but was " + value );
 			}
 			return value;
 		}

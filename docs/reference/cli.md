@@ -62,7 +62,7 @@ bx-audio convert <in> <out> [--bitrate=N] [--bitDepth=16] [--sampleRate=N] [--ch
 Scale the peak of a file to a level in decibels.
 
 ```bash
-bx-audio normalize <in> <out> [--db=-1]
+bx-audio normalize <in> <out> [--targetDb=-1]
 ```
 
 ## trim
@@ -86,7 +86,7 @@ bx-audio loudness <file>
 Reach a loudness target with a true-peak ceiling, ready to publish.
 
 ```bash
-bx-audio master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeak=-1] [--glue]
+bx-audio master <in> <out> [--target=streaming|podcast|broadcast|-14] [--truePeakDb=-1] [--glue]
 ```
 
 ## stretch
@@ -118,7 +118,7 @@ bx-audio bpm <file> [--beats]
 List the silent stretches, or write a copy with the silence cut off both ends.
 
 ```bash
-bx-audio silence <file> [--db=-50] [--min=0.3] [--trim=OUT]
+bx-audio silence <file> [--thresholdDb=-50] [--min=0.3] [--trim=OUT]
 ```
 
 ## waveform
