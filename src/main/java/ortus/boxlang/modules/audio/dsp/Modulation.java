@@ -145,9 +145,14 @@ public final class Modulation {
 				double[]	c	= coefficients[ i / BLOCK ];
 				double		x	= in[ i ];
 				double		y	= c[ 0 ] * x + z1;
-				z1				= c[ 1 ] * x - c[ 3 ] * y + z2;
-				z2				= c[ 2 ] * x - c[ 4 ] * y;
-				out[ ch ][ i ]	= ( float ) y;
+				z1	= c[ 1 ] * x - c[ 3 ] * y + z2;
+				z2	= c[ 2 ] * x - c[ 4 ] * y;
+				// state that has died away is cut, so the filter does not run in denormal numbers
+				if ( Math.abs( z1 ) < Dsp.SILENCE && Math.abs( z2 ) < Dsp.SILENCE ) {
+					z1	= 0;
+					z2	= 0;
+				}
+				out[ ch ][ i ] = ( float ) y;
 			}
 		}
 		return new AudioBuffer( out, rate );

@@ -355,4 +355,20 @@ public class DspTest {
 		assertThrows( BoxRuntimeException.class, () -> Dsp.mix( List.of( a, constant( 2, 2, 22050, 0f ) ) ) );
 	}
 
+	@Test
+	@DisplayName( "A filter's tail dies away to exactly zero after the sound stops, instead of lingering in denormal numbers" )
+	void testFilterTailEndsInZero() {
+		float[] samples = new float[ 44100 * 3 ];
+		for ( int i = 0; i < 4410; i++ ) {
+			samples[ i ] = ( float ) Math.sin( 2 * Math.PI * 200 * i / 44100.0 );
+		}
+		AudioBuffer out = Dsp.filter( new AudioBuffer( new float[][] { samples }, 44100 ), "lowpass", 150, 0.7071 );
+		assertThat( out.channel( 0 )[ 4410 + 44100 ] ).isEqualTo( 0f );
+		assertThat( out.channel( 0 )[ samples.length - 1 ] ).isEqualTo( 0f );
+		assertThat( out.channel( 0 )[ 2000 ] ).isNotEqualTo( 0f );
+		AudioBuffer swept = Modulation.apply( new AudioBuffer( new float[][] { samples }, 44100 ), "cutoff",
+		    ortus.boxlang.modules.audio.curve.Curves.lfo( "sine", 1, 100, 300, 0, 0, 0 ), "lowpass", 0.7071 );
+		assertThat( swept.channel( 0 )[ samples.length - 1 ] ).isEqualTo( 0f );
+	}
+
 }

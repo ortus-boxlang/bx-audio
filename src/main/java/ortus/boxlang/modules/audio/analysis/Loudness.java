@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ortus.boxlang.modules.audio.dsp.Dsp;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 
 /**
@@ -101,7 +102,13 @@ public final class Loudness {
 				x1	= x;
 				y2	= y1;
 				y1	= y;
+				if ( Math.abs( y ) < Dsp.SILENCE ) {
+					y = 0;
+				}
 				double z = high[ 0 ] * y + high[ 1 ] * h1 + high[ 2 ] * h2 - high[ 3 ] * z1 - high[ 4 ] * z2;
+				if ( Math.abs( z ) < Dsp.SILENCE ) {
+					z = 0;
+				}
 				h2	= h1;
 				h1	= y;
 				z2	= z1;
