@@ -48,7 +48,8 @@ Pages marked with `<!-- run -->` before a code block are executed by a test, so 
 
 1. Add a class in `src/main/java/ortus/boxlang/modules/audio/bifs/`, annotated `@BoxBIF`, extending `BIF`, with Javadoc that has `@argument.name` for each argument and `@return`.
 2. Put it in a category in `tools/generate-docs.bxs` (the script stops if you forget) and run it.
-3. Add a test.
+3. Add a row to the function tables of `readme.md` (a test checks that every function is there with the arguments it takes) and raise the counts on the home page and `docs/index.md`; the same test names the numbers that are out of date.
+4. Add a test.
 
 ## Ortus
 
