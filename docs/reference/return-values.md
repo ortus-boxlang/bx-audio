@@ -27,6 +27,7 @@ Functions fall into five groups by what they return. Anything not listed here re
 | `audioStorageClear` | Megabytes freed. |
 | `audioVoiceRemove` | `true` if something was deleted, `false` if it was not installed. |
 | `audioSubtitles`, `audioMarkers` | The text of the file, in the format you asked for. |
+| `audioWaveformImage`, `audioSpectrogramImage` | With a `path`: the absolute path of the file written. Without: the SVG as a string, or the PNG as binary data. |
 | `audioWaveform` | An array of numbers from 0 (silence) upwards, 1 is full scale. |
 | `audioSpectrum` | An array of band levels in dB, lowest frequency first. `-120` means nothing. |
 | `audioSpectrogram` | An array of frames, each an array of band levels in dB. |

@@ -149,7 +149,7 @@ public class DocsTest extends BaseIntegrationTest {
 	void testSnippetsRun( @TempDir Path dir ) throws Exception {
 		useNoDownloads();
 		Pattern	snippet	= Pattern.compile( "<!-- run -->\\n```js\\n(.*?)```", Pattern.DOTALL );
-		Pattern	file	= Pattern.compile( "\"((?:[\\w\\-]+/)*[\\w\\-]+\\.(?:wav|mp3|flac|json|edl|txt|srt))\"" );
+		Pattern	file	= Pattern.compile( "\"((?:[\\w\\-]+/)*[\\w\\-]+\\.(?:wav|mp3|flac|json|edl|txt|srt|png|svg))\"" );
 		int		ran		= 0;
 		for ( Path page : pages() ) {
 			Matcher m = snippet.matcher( read( page ) );

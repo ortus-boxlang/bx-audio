@@ -100,7 +100,6 @@ public final class FileTags {
 	 * Apply an edit to a file. The file is replaced in one step, so it is never left half written.
 	 */
 	public static Outcome write( Path file, TagSet edit ) {
-		AudioFiles.checkWritable( file );
 		String[] format = new String[ 1 ];
 		AudioFiles.atomically( file, temp -> {
 			try (
