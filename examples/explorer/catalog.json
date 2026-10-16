@@ -520,5 +520,41 @@
         "value": 132
       }
     ]
+  },
+  {
+    "id": "sampler",
+    "title": "Sampler",
+    "style": "Instruments from recordings",
+    "script": "../16-sampler/sampler.bxs",
+    "blurb": "Two recordings, a pluck and a pad, played as instruments at any pitch: a melody, a bass and held chords made by looping the pad.",
+    "params": [
+      {
+        "name": "bars",
+        "label": "Bars",
+        "type": "range",
+        "min": 4,
+        "max": 16,
+        "step": 4,
+        "value": 8
+      },
+      {
+        "name": "bpm",
+        "label": "Tempo",
+        "type": "range",
+        "min": 70,
+        "max": 130,
+        "step": 2,
+        "value": 96
+      },
+      {
+        "name": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 99,
+        "step": 1,
+        "value": 7
+      }
+    ]
   }
 ]

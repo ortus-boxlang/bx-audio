@@ -39,6 +39,7 @@ clips = [
 	{ id : "voiceover", args : [], voice : true },
 	{ id : "trailer", args : [ "--seconds=15" ], voice : true },
 	{ id : "game-audio", args : [] },
+	{ id : "sampler", args : [ "--bars=8" ] },
 	{ id : "theme", args : [ "--bars=16" ] }
 ];
 

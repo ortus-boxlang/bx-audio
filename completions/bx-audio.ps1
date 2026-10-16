@@ -26,7 +26,7 @@ $bxAudioCommands = [ordered]@{
     'probe' = @()
     'mux' = @('--keep-original', '--offset=')
     'pieces' = @()
-    'render' = @('pop-drive', 'lofi', 'house', 'ambient', 'techno', 'synthwave', 'cinematic', 'chiptune', 'sfx', 'jazz', 'rock', 'voiceover', 'trailer', 'game-audio', 'theme', '--out=', '--bars=', '--bpm=', '--style=', '--swing=', '--seed=', '--track=', '--loops=', '--sound=', '--choruses=', '--voice=', '--speed=', '--text=', '--duck=', '--seconds=', '--target=')
+    'render' = @('pop-drive', 'lofi', 'house', 'ambient', 'techno', 'synthwave', 'cinematic', 'chiptune', 'sfx', 'jazz', 'rock', 'voiceover', 'trailer', 'game-audio', 'theme', 'sampler', '--out=', '--bars=', '--bpm=', '--style=', '--swing=', '--seed=', '--track=', '--loops=', '--sound=', '--choruses=', '--voice=', '--speed=', '--text=', '--duck=', '--seconds=', '--target=')
     'explorer' = @('--port=')
     'doctor' = @()
     'completions' = @('bash', 'zsh', 'fish', 'powershell')

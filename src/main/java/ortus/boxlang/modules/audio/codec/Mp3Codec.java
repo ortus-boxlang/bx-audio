@@ -115,7 +115,7 @@ public final class Mp3Codec {
 			    "A bitrate of " + kbps + " kbps is not valid for " + audio.getSampleRate() + " Hz. Use one of " + Arrays.toString( allowed ) );
 		}
 		if ( audio.getFrames() == 0 ) {
-			throw new AudioException( AudioException.IO, "Cannot make an MP3 from empty audio" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Cannot make an MP3 from empty audio" );
 		}
 		requireAvailable();
 		return Mp3Encoder.encode( audio, kbps );

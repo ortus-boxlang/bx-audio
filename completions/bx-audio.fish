@@ -112,7 +112,7 @@ complete -c bx-audio -n '__fish_seen_subcommand_from render' -l text -r
 complete -c bx-audio -n '__fish_seen_subcommand_from render' -l duck -r
 complete -c bx-audio -n '__fish_seen_subcommand_from render' -l seconds -r
 complete -c bx-audio -n '__fish_seen_subcommand_from render' -l target -r
-complete -c bx-audio -n '__fish_seen_subcommand_from render' -a 'pop-drive lofi house ambient techno synthwave cinematic chiptune sfx jazz rock voiceover trailer game-audio theme'
+complete -c bx-audio -n '__fish_seen_subcommand_from render' -a 'pop-drive lofi house ambient techno synthwave cinematic chiptune sfx jazz rock voiceover trailer game-audio theme sampler'
 complete -c bx-audio -n '__fish_seen_subcommand_from explorer' -l port -r
 complete -c bx-audio -n '__fish_seen_subcommand_from completions' -a 'bash zsh fish powershell'
 complete -c bx-audio -n '__fish_seen_subcommand_from help' -a 'info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help'

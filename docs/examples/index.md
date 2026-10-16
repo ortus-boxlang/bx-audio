@@ -281,3 +281,21 @@ bx-audio render theme --out=theme.mp3
 
 [Script and notes](https://github.com/ortus-boxlang/bx-audio/tree/development/examples/15-theme)
 
+## Sampler
+
+*Instruments from recordings.* Two recordings, a pluck and a pad, played as instruments at any pitch: a melody, a bass and held chords made by looping the pad.
+
+<audio controls preload="none" src="../assets/audio/sampler.mp3"></audio>
+
+```bash
+bx-audio render sampler --out=sampler.mp3
+```
+
+| Setting | | Range | Default |
+|---|---|---|---|
+| `--bars` | Bars | 4 to 16 | `8` |
+| `--bpm` | Tempo | 70 to 130 | `96` |
+| `--seed` | Seed | 1 to 99 | `7` |
+
+[Script and notes](https://github.com/ortus-boxlang/bx-audio/tree/development/examples/16-sampler)
+

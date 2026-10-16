@@ -66,6 +66,15 @@ public class ErrorTypesTest extends BaseIntegrationTest {
 	}
 
 	@Test
+	@DisplayName( "Audio that does not fit together is an invalid argument, not a file error" )
+	void mismatchedFormats() {
+		assertThat( type( "audioMix( [ audioOsc( 'sine', 440, 1 ), audioPan( audioOsc( 'sine', 440, 1 ), 0 ) ] )" ) )
+		    .isEqualTo( AudioException.INVALID_ARGUMENT );
+		assertThat( type( "audioConcat( [ audioOsc( 'sine', 440, 1 ), audioPan( audioOsc( 'sine', 440, 1 ), 0 ) ] )" ) )
+		    .isEqualTo( AudioException.INVALID_ARGUMENT );
+	}
+
+	@Test
 	@DisplayName( "Speech errors name the thing that is missing" )
 	void speech() {
 		assertThat( type( "audioSpeak( text='Hello', voice='nobody-at-all', autoInstall=false )" ) ).isEqualTo( AudioException.VOICE_NOT_FOUND );

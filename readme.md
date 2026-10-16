@@ -106,7 +106,7 @@ Every function returns a new buffer and leaves its input untouched. BoxLang does
 | `audioSave( audio, path, bitDepth=16, bitrate=0 )` | Write WAV (16 bit, 24 bit or 32 bit float) or MP3 (by `.mp3` extension, `bitrate` in kbps, default 192 or 128 below 32 kHz, mono or stereo) |
 | `audioInfo( audioOrPath )` | Channels, sample rate, frames, seconds, peak and RMS |
 | `audioWaveform( audio, points=800 )` | The loudest level in each of `points` equal slices, as an array for drawing a waveform |
-| `audioGain( audio, db )` | Change the volume in decibels |
+| `audioGain( audio, gainDb )` | Change the volume in decibels |
 | `audioPan( audio, pan )` | Place a sound from -1 (left) to 1 (right) with a constant power law. Mono becomes stereo, stereo acts as a balance |
 | `audioFade( audio, fadeIn=0, fadeOut=0, curve="linear" )` | Fade in and out, `curve` is `linear` or `smooth` |
 | `audioNormalize( audio, targetDb=-1 )` | Scale the peak to a target level |
@@ -175,7 +175,7 @@ A timeline holds named tracks at one sample rate and a tempo grid. Sounds are pl
 | `audioTimeline( bpm=120, beatsPerBar=4, sampleRate=44100, channels=2 )` | Create a timeline. `t.beat( n )` and `t.bar( n )` turn beats and bars into seconds |
 | `audioAdd( timeline, sound, at=0, track="main", gainDb=0, pan=0 )` | Place a sound at a time. Other sample rates are converted automatically, mono sounds are panned |
 | `audioBeats( timeline, start=0, end, step=1 )` | List moments on the beat grid in seconds, ready for `audioAdd( at= )` or `audioPump( times= )` |
-| `audioTrackGain( timeline, track, db )` | Set the volume of a whole track |
+| `audioTrackGain( timeline, track, gainDb )` | Set the volume of a whole track |
 | `audioPump( timeline, track, times, amountDb=-5, recovery=0.18 )` | Dip a track at given moments, like a kick drum sidechain |
 | `audioDuck( timeline, track, trigger, amountDb=-12, thresholdDb=-40, attackMs=10, releaseMs=300 )` | Lower a track while another is loud, like music under a voice-over |
 | `audioRender( timeline, tail=0 )` | Mix all tracks down to one buffer. The timeline can be changed and rendered again |
