@@ -50,7 +50,7 @@ bx-audio master chord.wav loud.wav    # reach -14 LUFS with a true-peak limiter
 
 ## Hear the examples
 
-The module ships fourteen complete pieces. Render one to a file, or open the [explorer](guides/explorer.md) and play them in a browser:
+The module ships fifteen complete pieces. Render one to a file, or open the [explorer](guides/explorer.md) and play them in a browser:
 
 ```bash
 bx-audio pieces                                # the list

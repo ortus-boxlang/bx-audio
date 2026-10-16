@@ -9,7 +9,7 @@ summary: What is done and what is next.
 1. DSP: gain, pan, fade, normalize, trim, concat, reverse, channels, resample
 2. Timeline mixing with a beat grid, ducking, pumping and offline rendering
 3. Synthesis (oscillators, envelopes, noise, drums, filters) and effects (delay, reverb, chorus, saturation)
-4. A catalog of fourteen example scripts, original music, measured and tested
+4. A catalog of fifteen example scripts, original music, measured and tested
 5. Text to speech with open license voices, speed, pauses, timed captions and SRT and WebVTT subtitles
 6. Analysis: waveform, loudness (EBU R128), tempo and beats, spectrum, silence
 7. Mastering: loudness targets with a true-peak limiter, compressor, limiter, EQ

@@ -1,10 +1,10 @@
-# BoxLang Audio
+# BxAudio
 
 > Make, mix, master and speak audio from BoxLang. Synthesis, loudness, time stretch, text to speech with captions, FFmpeg for video and a real time mixer for games, all on the JVM.
 
 ## Pages
 
-- [BoxLang Audio](https://bxaudio.boxlang.io/index.md) ([HTML](https://bxaudio.boxlang.io/index.html))
+- [BxAudio](https://bxaudio.boxlang.io/index.md) ([HTML](https://bxaudio.boxlang.io/index.html))
 - [Files and editing](https://bxaudio.boxlang.io/reference/functions/files-and-editing.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/files-and-editing/index.html))
 - [Functions](https://bxaudio.boxlang.io/reference/functions/index.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/index.html))
 - [Guides](https://bxaudio.boxlang.io/guides/index.md) ([HTML](https://bxaudio.boxlang.io/guides/index.html))
@@ -21,6 +21,7 @@
 - [Effects](https://bxaudio.boxlang.io/reference/functions/effects.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/effects/index.html))
 - [Examples](https://bxaudio.boxlang.io/examples/index.md) ([HTML](https://bxaudio.boxlang.io/examples/index.html))
 - [Timeline mixing](https://bxaudio.boxlang.io/guides/mixing.md) ([HTML](https://bxaudio.boxlang.io/guides/mixing/index.html))
+- [Try it](https://bxaudio.boxlang.io/try-it.md) ([HTML](https://bxaudio.boxlang.io/try-it/index.html))
 - [Timeline mixing](https://bxaudio.boxlang.io/reference/functions/timeline.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/timeline/index.html))
 - [Trailers and video](https://bxaudio.boxlang.io/guides/trailers-and-video.md) ([HTML](https://bxaudio.boxlang.io/guides/trailers-and-video/index.html))
 - [Loudness and dynamics](https://bxaudio.boxlang.io/reference/functions/loudness-and-dynamics.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/loudness-and-dynamics/index.html))
