@@ -42,3 +42,5 @@
 - [Storage](https://bxaudio.boxlang.io/guides/storage.md) ([HTML](https://bxaudio.boxlang.io/guides/storage/index.html))
 - [Storage](https://bxaudio.boxlang.io/reference/functions/storage.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/storage/index.html))
 - [The explorer](https://bxaudio.boxlang.io/guides/explorer.md) ([HTML](https://bxaudio.boxlang.io/guides/explorer/index.html))
+- [Podcasts](https://bxaudio.boxlang.io/guides/podcasts.md) ([HTML](https://bxaudio.boxlang.io/guides/podcasts/index.html))
+- [Testing audio](https://bxaudio.boxlang.io/guides/testing-audio.md) ([HTML](https://bxaudio.boxlang.io/guides/testing-audio/index.html))
