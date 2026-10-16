@@ -73,6 +73,7 @@ public class AudioSave extends BIF {
 			throw new BoxRuntimeException( "The audio argument must be an audio buffer, for example from audioLoad() or audioSilence()" );
 		}
 		Path path = FileSystemUtil.expandPath( context, arguments.getAsString( Key.path ) ).absolutePath();
+		AudioFiles.checkWritable( path );
 		try {
 			Path parent = path.getParent();
 			if ( parent != null ) {

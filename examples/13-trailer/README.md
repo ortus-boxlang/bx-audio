@@ -17,7 +17,8 @@ The first run downloads the speech engine and the voice (see [docs/voices.md](..
 | `--video` | none | A video to score. The picture is copied, never re-encoded. |
 | `--videoOut` | next to the audio | Where the scored video goes |
 | `--text` | three short lines | What the voice says |
-| `--voice` | `joe` | A voice from `bx-audio voices` |
+| `--voice` | `kristin` | A voice from `bx-audio voices` |
+| `--speed` | `0.96` | How fast the voice speaks, 1 is its own pace |
 | `--voiceFile` | none | Your own narration instead of speech (no captions then) |
 | `--music` | built-in cue | Your own music, cut to length |
 | `--target` | `streaming` | `streaming` -14 LUFS, `podcast` -16, `broadcast` -23, or a number |

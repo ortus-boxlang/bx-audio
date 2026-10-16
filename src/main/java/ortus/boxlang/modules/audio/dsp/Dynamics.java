@@ -17,6 +17,7 @@ package ortus.boxlang.modules.audio.dsp;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import ortus.boxlang.modules.audio.analysis.Loudness;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
@@ -156,6 +157,27 @@ public final class Dynamics {
 			}
 		}
 		return new AudioBuffer( out, rate );
+	}
+
+	/**
+	 * A limiter whose ceiling holds for the true peak, the highest level the signal reaches between the samples. The sample peak limiter runs
+	 * first, the true peak is measured on the result, and when it is over the ceiling the sample ceiling is lowered by the overshoot and the
+	 * limiter runs again, a few times at most. Audio that goes on to lossy encoding or a converter then does not clip.
+	 *
+	 * @param ceilingDb The highest true peak allowed, in dBFS
+	 */
+	public static AudioBuffer limitTruePeak( AudioBuffer audio, double ceilingDb, double releaseMs, double lookAheadMs ) {
+		double		sampleCeiling	= ceilingDb;
+		AudioBuffer	out				= limit( audio, sampleCeiling, releaseMs, lookAheadMs );
+		for ( int pass = 0; pass < 6; pass++ ) {
+			double truePeak = Loudness.truePeakDb( out );
+			if ( truePeak <= ceilingDb + 0.005 || sampleCeiling <= -60 ) {
+				break;
+			}
+			sampleCeiling	= Math.max( -60, sampleCeiling - ( truePeak - ceilingDb ) - 0.02 );
+			out				= limit( audio, sampleCeiling, releaseMs, lookAheadMs );
+		}
+		return out;
 	}
 
 	/**

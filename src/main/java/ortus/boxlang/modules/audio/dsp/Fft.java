@@ -124,6 +124,9 @@ public final class Fft {
 	}
 
 	public static int nextPowerOfTwo( int n ) {
+		if ( n > 1 << 30 ) {
+			throw new IllegalArgumentException( "No power of two above " + n + " fits in an int" );
+		}
 		int p = 2;
 		while ( p < n ) {
 			p <<= 1;

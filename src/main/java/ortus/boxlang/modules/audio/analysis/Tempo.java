@@ -19,6 +19,7 @@ import java.util.List;
 
 import ortus.boxlang.modules.audio.dsp.Fft;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
+import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
 /**
  * Tempo and beat detection: an onset strength curve from the change of the spectrum, a tempo from its autocorrelation, and beat positions
@@ -44,6 +45,11 @@ public final class Tempo {
 	 * @param maxBpm Highest tempo to consider
 	 */
 	public static Result detect( AudioBuffer audio, double minBpm, double maxBpm ) {
+		if ( ! ( minBpm >= 20 && maxBpm <= 400 && minBpm < maxBpm ) ) {
+			throw new BoxRuntimeException(
+			    "The tempo range must have a minimum of at least 20, a maximum of at most 400 and the minimum below the maximum, but was "
+			        + minBpm + " to " + maxBpm + " BPM" );
+		}
 		int			rate	= audio.getSampleRate();
 		int			hop		= Math.max( 64, rate / 100 );
 		double[]	onset	= onsetStrength( Spectrum.mono( audio ), hop );

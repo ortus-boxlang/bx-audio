@@ -69,7 +69,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		    saved = audioSave( a, target );
 		    b = audioLoad( target );
 		    result = audioInfo( b );
-		    fromPath = audioInfo( target );
+		    fromPath = audioInfo( target, true );
 		    """,
 		    context );
 		IStruct info = ( IStruct ) variables.get( result );
@@ -132,7 +132,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		    gap = audioSilence( 0.25, 2, 44100 );
 		    full = audioConcat( [ voice, gap, audioReverse( voice ) ] );
 		    audioSave( full, target, 24 );
-		    result = audioInfo( target );
+		    result = audioInfo( target, true );
 		    """,
 		    context );
 		IStruct info = ( IStruct ) variables.get( result );
@@ -188,7 +188,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		    mix = audioRender( timeline=t, tail=0.5 );
 		    mix = audioSaturate( audioFade( mix, 0, 0.5, "smooth" ), 2.2, 0.9 );
 		    audioSave( mix, target );
-		    result = audioInfo( target );
+		    result = audioInfo( target, true );
 		    names = t.getTrackNames();
 		    secondBeat = t.beat( 1 );
 		    """,
@@ -299,7 +299,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		    audioPump( t, "bass", audioBeats( t, 0, 8 ), -6, 0.2 );
 		    mix = audioSaturate( audioRender( timeline=t, tail=0.25 ) );
 		    audioSave( mix, target );
-		    result = audioInfo( target );
+		    result = audioInfo( target, true );
 		    """,
 		    context );
 		IStruct info = ( IStruct ) variables.get( result );
@@ -397,7 +397,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		    stereo = audioChannels( tone, 2 );
 		    saved = audioSave( audio=stereo, path=mp3, bitrate=128 );
 		    back = audioLoad( mp3 );
-		    info = audioInfo( mp3 );
+		    info = audioInfo( mp3, true );
 		    result = [ back.getChannels(), back.getSampleRate(), info.channels, info.sampleRate, info.seconds >= 2.0, info.seconds < 2.2, info.peak > 0.9 ];
 		    """,
 		    context );
@@ -454,7 +454,7 @@ public class AudioBifsTest extends BaseIntegrationTest {
 		assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioSave( audioSilence( 1 ), mp3, 16, 100 )", context ) );
 		BoxRuntimeException notAudio = assertThrows( BoxRuntimeException.class, () -> runtime.executeSource( "audioLoad( text )", context ) );
 		// Without FFmpeg the message says which formats are read natively, with it FFprobe says it is not media
-		assertThat( notAudio.getMessage() ).containsMatch( "not a WAV, MP3 or FLAC|could not read" );
+		assertThat( notAudio.getMessage() ).containsMatch( "not a WAV, MP3 or FLAC|could not read|not an audio file" );
 		assertThat( Files.exists( dir.resolve( "x.xyz" ) ) ).isFalse();
 	}
 

@@ -69,8 +69,8 @@ if( !only.len() || only.contains( "theme" ) ){
 if( options.keyExists( "voice-samples" ) && options[ "voice-samples" ] != false ){
 	directoryCreate( target & "/voices", true, true );
 	for( voice in audioVoices( status = "offered" ) ){
-		line = "Hello. I am " & voice.name & ", one of the open license voices of BoxLang Audio.";
-		sample = audioSpeak( text = line, voice = voice.id );
+		line = "Welcome to BxAudio. I am " & voice.name & ", one of the open license voices that come with BoxLang.";
+		sample = audioSpeak( text = line, voice = voice.id, speed = 0.96, pauses = { sentence : 0.5, clause : 0.2 } );
 		audioSave( sample, target & "/voices/" & voice.id & ".mp3", 16, 64 );
 		println( voice.id & ": " & numberFormat( sample.getDurationSeconds(), "0.0" ) & " s" );
 	}

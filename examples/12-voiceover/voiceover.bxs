@@ -7,11 +7,11 @@
  * of your own instead, pass `--voiceFile=narration.wav`.
  *
  * Usage:
- *   boxlang voiceover.bxs [--out=out/voiceover.wav] [--voice=joe] [--text="First line.|Second line.|Third line."]
+ *   boxlang voiceover.bxs [--out=out/voiceover.wav] [--voice=kristin] [--speed=0.96] [--text="First line.|Second line.|Third line."]
  *                         [--voiceFile=narration.wav] [--duck=-12] [--bpm=100] [--install=false]
  */
 
-settings = { out : "out/voiceover.wav", voice : "joe", text : "", voiceFile : "", duck : -12, bpm : 100, install : true };
+settings = { out : "out/voiceover.wav", voice : "kristin", speed : 0.96, text : "", voiceFile : "", duck : -12, bpm : 100, install : true };
 settings.append( cliGetArgs().options );
 // Settings preset by whoever runs the script from code (tests, the bx-audio CLI) win over the command line
 if( isDefined( "overrides" ) ){
@@ -25,8 +25,8 @@ bar = beat * 4;
 step = beat / 4;
 
 defaultLines = [
-	"Meet BoxLang. A modern language for the JVM.",
-	"Fast to write. Easy to read. Ready for anything.",
+	"Welcome to BoxLang, a modern language for the JVM.",
+	"It is fast to write, easy to read, and ready for anything.",
 	"BoxLang. Build more, with less."
 ];
 
@@ -40,7 +40,7 @@ if( settings.voiceFile.len() ){
 	lines = settings.text.len() ? settings.text.listToArray( "|" ) : defaultLines;
 	for( line in lines ){
 		println( "speaking: " & line.trim() );
-		clips.append( audioSpeak( text = line.trim(), voice = settings.voice, autoInstall = settings.install != false ) );
+		clips.append( audioSpeak( text = line.trim(), voice = settings.voice, speed = settings.speed * 1.0, pauses = { sentence : 0.5, clause : 0.2 }, autoInstall = settings.install != false ) );
 	}
 }
 
@@ -54,8 +54,8 @@ function leveled( clip ){
 	var peakDb = 20 * log10( max( info.peak, 0.0001 ) );
 	return audioGain( clip, min( gainDb, -1 - peakDb ) );
 }
-// A clean, even voice: no rumble, a touch of room, at a speaking level
-clips = clips.map( ( clip ) => leveled( audioReverb( audio = audioFilter( clip, "highpass", 90, 0.7071 ), room = 0.2, damp = 0.6, mix = 0.06 ) ) );
+// A polished voice: no rumble, evened out by a gentle compressor, a touch of room, at a speaking level
+clips = clips.map( ( clip ) => leveled( audioReverb( audio = audioCompress( audioFilter( clip, "highpass", 80, 0.7071 ), -22, 3, 12, 120 ), room = 0.2, damp = 0.6, mix = 0.05 ) ) );
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // Where each line goes: the first after two bars of music, each next one on a bar line after the last one ended

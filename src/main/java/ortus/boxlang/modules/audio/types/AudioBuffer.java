@@ -20,7 +20,7 @@ import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
  * An in-memory block of audio: one {@code float[]} of samples per channel, in the range -1.0 to 1.0, plus the sample rate.
  * <p>
  * All channels have the same number of frames. The buffer owns the arrays it is given, so callers must not keep writing to
- * them afterwards. Use {@link #copy()} to get an independent buffer.
+ * them afterwards. Use {@link #copy()} to get an independent buffer. Samples that are not finite numbers (NaN or an infinity) become 0.
  */
 public final class AudioBuffer {
 
@@ -53,6 +53,14 @@ public final class AudioBuffer {
 		for ( float[] channel : samples ) {
 			if ( channel == null || channel.length != frames ) {
 				throw new BoxRuntimeException( "All channels of an audio buffer must be present and have the same length" );
+			}
+		}
+		// A NaN or an infinity in one sample would poison every filter that runs over it, so those samples become silence
+		for ( float[] channel : samples ) {
+			for ( int i = 0; i < channel.length; i++ ) {
+				if ( !Float.isFinite( channel[ i ] ) ) {
+					channel[ i ] = 0;
+				}
 			}
 		}
 		this.samples	= samples;

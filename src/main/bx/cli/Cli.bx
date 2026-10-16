@@ -153,7 +153,7 @@ class {
 
 	function cmdInfo( required array args, required struct options ){
 		var file = needFile( args, 1, "info <file>" );
-		var info = audioInfo( file );
+		var info = audioInfo( file, true );
 		var dbfs = ( v ) => v > 0 ? numberFormat( 20 * log10( v ), "0.0" ) & " dBFS" : "silence";
 		out( file );
 		out( "  format    " & ( [ "wav", "wave", "" ].contains( file.listLast( "." ).lcase() ) || !file.find( "." ) ? "WAV" : file.listLast( "." ).ucase() ) );
@@ -467,7 +467,7 @@ class {
 
 	function cmdClean( required array args, required struct options ){
 		var kind = args.len() ? args.first().lcase() : "all";
-		if( !options.keyExists( "yes" ) ){
+		if( !( options.keyExists( "yes" ) && options.yes != false ) ){
 			var storage = audioStorage();
 			out( "This deletes [#kind#] from #storage.home#. Add --yes to do it. Downloads happen again on next use." );
 			return;
@@ -693,11 +693,14 @@ class {
 		if( [ "wav", "wave", "mp3", "flac" ].contains( ext ) || !file.find( "." ) ){
 			return;
 		}
-		if( !audioFfmpeg().available ){
+		var status = audioFfmpeg();
+		if( !status.available ){
 			out( "Reading and writing ." & ext & " files needs FFmpeg." );
-			if( audioFfmpeg().installable ){
+			if( status.installable && status.autoInstall ){
 				var info = audioFfmpegInstall( progressPrinter() );
 				out( "installed FFmpeg " & info.version );
+			} else {
+				throw( type = "bxaudio.ffmpegMissing", message = "FFmpeg is needed for ." & ext & " files and was not found. Run `bx-audio ffmpeg install` to download it, or install FFmpeg so it is on the PATH." );
 			}
 		}
 	}

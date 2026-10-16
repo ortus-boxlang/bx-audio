@@ -161,6 +161,10 @@ public final class FfmpegInstaller {
 			throw new BoxRuntimeException( "There is no FFmpeg download for this computer (" + this.platform
 			    + "). Install FFmpeg yourself so it is on the PATH, or set the ffmpeg module setting or BX_AUDIO_FFMPEG to its path." );
 		}
+		if ( isInstalled() ) {
+			// Already here: a second install would download everything again and replace programs that may be running
+			return;
+		}
 		try {
 			Path downloads = this.dir.resolve( "downloads" );
 			for ( Archive archive : this.archives ) {

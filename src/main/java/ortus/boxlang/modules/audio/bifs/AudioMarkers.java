@@ -22,6 +22,7 @@ import java.util.List;
 import ortus.boxlang.modules.audio.ffmpeg.Markers;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.util.Audios;
+import ortus.boxlang.modules.audio.util.Numbers;
 import ortus.boxlang.runtime.bifs.BIF;
 import ortus.boxlang.runtime.bifs.BoxBIF;
 import ortus.boxlang.runtime.context.IBoxContext;
@@ -30,6 +31,7 @@ import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
+import ortus.boxlang.runtime.util.FileSystemUtil;
 
 @BoxBIF( description = "Write markers (points in time with labels) as JSON, CSV, a Resolve EDL, SRT, WebVTT, FFmpeg chapters or a YouTube chapter list" )
 public class AudioMarkers extends BIF {
@@ -80,14 +82,15 @@ public class AudioMarkers extends BIF {
 			}
 			Object d = item.get( Key.of( "duration" ) );
 			list.add(
-			    new Markers.Marker( ( ( Number ) item.get( Key.of( "time" ) ) ).doubleValue(), String.valueOf( item.getOrDefault( Key.of( "label" ), "" ) ),
-			        d == null ? 0 : ( ( Number ) d ).doubleValue() ) );
+			    new Markers.Marker( Numbers.toDouble( item.get( Key.of( "time" ) ), "the time of a marker" ),
+			        String.valueOf( item.getOrDefault( Key.of( "label" ), "" ) ),
+			        d == null ? 0 : Numbers.toDouble( d, "the duration of a marker" ) ) );
 		}
 		String	text	= Markers.format( list, arguments.getAsString( format ), arguments.getAsInteger( fps ), arguments.getAsDouble( total ) );
 		String	file	= arguments.getAsString( path );
 		if ( !file.isBlank() ) {
 			try {
-				Path target = Path.of( file ).toAbsolutePath();
+				Path target = FileSystemUtil.expandPath( context, file ).absolutePath();
 				Files.createDirectories( target.getParent() );
 				Files.writeString( target, text );
 			} catch ( IOException e ) {

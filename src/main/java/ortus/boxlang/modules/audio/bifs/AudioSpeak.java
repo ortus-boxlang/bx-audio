@@ -15,6 +15,7 @@
 package ortus.boxlang.modules.audio.bifs;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ortus.boxlang.modules.audio.tts.Narration;
@@ -44,7 +45,8 @@ public class AudioSpeak extends BIF {
 		    new Argument( false, "boolean", KeyDictionary.autoInstall ),
 		    new Argument( false, "function", KeyDictionary.onProgress ),
 		    new Argument( false, "double", Key.of( "speed" ), 1.0 ),
-		    new Argument( false, "struct", Key.of( "pauses" ) )
+		    new Argument( false, "struct", Key.of( "pauses" ) ),
+		    new Argument( false, "struct", Key.of( "pronunciations" ) )
 		};
 	}
 
@@ -68,23 +70,39 @@ public class AudioSpeak extends BIF {
 	 * @argument.pauses A struct with any of sentence, clause and paragraph, in seconds, to speak the text piece by piece with those pauses
 	 *                  between the pieces (defaults 0.35, 0.15 and 0.8). Leave it out to let the voice phrase the whole text itself.
 	 *
+	 * @argument.pronunciations A struct of word to spoken form for words the voice gets wrong, for example { Ortus: "Or tus" }. BoxLang and the names of
+	 *                          its family are already said correctly. The text you pass stays as it is, only what the voice is given changes.
+	 *
 	 * @return A mono audio buffer at the voice sample rate, normally 22050 Hz.
 	 */
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		boolean	allow	= arguments.containsKey( KeyDictionary.autoInstall ) && arguments.get( KeyDictionary.autoInstall ) != null
+		boolean				allow	= arguments.containsKey( KeyDictionary.autoInstall ) && arguments.get( KeyDictionary.autoInstall ) != null
 		    ? arguments.getAsBoolean( KeyDictionary.autoInstall )
 		    : Speech.autoInstall();
-		double	speed	= arguments.getAsDouble( Key.of( "speed" ) );
+		double				speed	= arguments.getAsDouble( Key.of( "speed" ) );
+		Map<String, String>	spoken	= pronunciations( arguments );
 		if ( arguments.get( Key.of( "pauses" ) ) instanceof IStruct pauses ) {
 			Map<String, Object> values = new HashMap<>();
-			pauses.forEach( ( k, v ) -> values.put( k.getName().toLowerCase(), v ) );
+			pauses.forEach( ( k, v ) -> values.put( k.getName().toLowerCase( java.util.Locale.ROOT ), v ) );
 			return Speech
 			    .narrate( arguments.getAsString( KeyDictionary.text ), arguments.getAsString( KeyDictionary.voice ), allow, progress( context, arguments ),
-			        speed, Narration.Pauses.from( values ), false, 80 )
+			        speed, Narration.Pauses.from( values ), false, 80, spoken )
 			    .audio();
 		}
 		return Speech.speak( arguments.getAsString( KeyDictionary.text ), arguments.getAsString( KeyDictionary.voice ), allow,
-		    progress( context, arguments ), speed );
+		    progress( context, arguments ), speed, spoken );
+	}
+
+	/**
+	 * @return The caller's respellings from the pronunciations argument, or null when there are none
+	 */
+	static Map<String, String> pronunciations( ArgumentsScope arguments ) {
+		if ( arguments.get( Key.of( "pronunciations" ) ) instanceof IStruct given && !given.isEmpty() ) {
+			Map<String, String> result = new LinkedHashMap<>();
+			given.forEach( ( k, v ) -> result.put( k.getName(), String.valueOf( v ) ) );
+			return result;
+		}
+		return null;
 	}
 
 	static EngineInstaller.NamedProgress progress( IBoxContext context, ArgumentsScope arguments ) {

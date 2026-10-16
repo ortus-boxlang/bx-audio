@@ -37,18 +37,18 @@ final class Mp3Encoder {
 		    false );
 		LameEncoder	encoder		= new LameEncoder( format, bitrateKbps, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGH, false );
 		try {
-			ByteArrayOutputStream	mp3		= new ByteArrayOutputStream( Math.max( 1024, frames / 8 ) );
+			ByteArrayOutputStream	mp3			= new ByteArrayOutputStream( Math.max( 1024, frames / 8 ) );
 			// Interleaved 16 bit little endian samples, converted a block at a time to keep memory flat
-			int						block	= Math.max( 1, encoder.getPCMBufferSize() / ( channels * 2 ) );
-			byte[]					pcm		= new byte[ block * channels * 2 ];
-			byte[]					out		= new byte[ Math.max( encoder.getMP3BufferSize(), encoder.getPCMBufferSize() ) ];
+			int						block		= Math.max( 1, encoder.getPCMBufferSize() / ( channels * 2 ) );
+			byte[]					pcm			= new byte[ block * channels * 2 ];
+			byte[]					out			= new byte[ Math.max( encoder.getMP3BufferSize(), encoder.getPCMBufferSize() ) ];
+			Quantizer				quantizer	= new Quantizer( audio, 16 );
 			for ( int start = 0; start < frames; start += block ) {
 				int	count	= Math.min( block, frames - start );
 				int	at		= 0;
 				for ( int i = 0; i < count; i++ ) {
 					for ( int ch = 0; ch < channels; ch++ ) {
-						float	sample	= Math.max( -1f, Math.min( 1f, audio.channel( ch )[ start + i ] ) );
-						int		v		= Math.round( sample * 32767f );
+						int v = quantizer.next( audio.channel( ch )[ start + i ] );
 						pcm[ at++ ]	= ( byte ) v;
 						pcm[ at++ ]	= ( byte ) ( v >> 8 );
 					}

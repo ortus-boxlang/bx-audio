@@ -41,6 +41,11 @@ public final class Markers {
 	 * @param duration Seconds it lasts, 0 to last until the next marker
 	 */
 	public record Marker( double time, String label, double duration ) {
+
+		public Marker {
+			// A marker without a label is a marker with an empty one
+			label = label == null ? "" : label;
+		}
 	}
 
 	/**
@@ -62,8 +67,11 @@ public final class Markers {
 				try {
 					java.util.List<java.util.Map<String, Object>> list = new java.util.ArrayList<>();
 					for ( Marker m : sorted ) {
-						list.add( new java.util.LinkedHashMap<>(
-						    java.util.Map.of( "time", m.time(), "label", m.label(), "duration", end( sorted, m, total ) - m.time() ) ) );
+						java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+						row.put( "time", m.time() );
+						row.put( "label", m.label() );
+						row.put( "duration", end( sorted, m, total ) - m.time() );
+						list.add( row );
 					}
 					return JSON.std.with( JSON.Feature.PRETTY_PRINT_OUTPUT ).asString( list ) + "\n";
 				} catch ( IOException e ) {
@@ -83,7 +91,7 @@ public final class Markers {
 					String in = Timecode.frames( m.time(), fps ), after = Timecode.frames( m.time() + 1.0 / fps, fps );
 					out.append(
 					    String.format( Locale.ROOT, "%03d  001      V     C        %s %s %s %s\n |C:ResolveColorBlue |M:%s |D:1\n\n", n++, in, after, in, after,
-					        m.label().replace( '|', '/' ) ) );
+					        oneLine( m.label() ).replace( '|', '/' ) ) );
 				}
 			}
 			case "srt", "vtt" -> {
@@ -97,7 +105,7 @@ public final class Markers {
 						out.append( n ).append( "\n" );
 					}
 					out.append( Timecode.clock( m.time(), srt ) ).append( " --> " ).append( Timecode.clock( end( sorted, m, total ), srt ) ).append( "\n" )
-					    .append( m.label() ).append( "\n\n" );
+					    .append( cueText( m.label(), srt ) ).append( "\n\n" );
 					n++;
 				}
 			}
@@ -105,7 +113,7 @@ public final class Markers {
 				out.append( ";FFMETADATA1\n" );
 				for ( Marker m : sorted ) {
 					out.append( "[CHAPTER]\nTIMEBASE=1/1000\nSTART=" ).append( Math.round( m.time() * 1000 ) ).append( "\nEND=" )
-					    .append( Math.round( end( sorted, m, total ) * 1000 ) ).append( "\ntitle=" ).append( m.label().replace( "\n", " " ) ).append( "\n" );
+					    .append( Math.round( end( sorted, m, total ) * 1000 ) ).append( "\ntitle=" ).append( ffmetadata( m.label() ) ).append( "\n" );
 				}
 			}
 			default -> {
@@ -117,13 +125,42 @@ public final class Markers {
 		return out.toString();
 	}
 
+	/**
+	 * A value in an FFmpeg metadata file: the characters = ; # and \\ are escaped with a backslash and a line break is written as a backslash
+	 * followed by a real new line
+	 */
+	private static String ffmetadata( String text ) {
+		return text.replace( "\\", "\\\\" ).replace( "=", "\\=" ).replace( ";", "\\;" ).replace( "#", "\\#" ).replace( "\r\n", "\n" ).replace( "\n", "\\\n" );
+	}
+
+	private static String oneLine( String text ) {
+		return text.replaceAll( "\\s*[\\r\\n]+\\s*", " " );
+	}
+
+	/**
+	 * The text of a subtitle cue. A blank line would end the cue and an arrow would read as a time range, and WebVTT also reads markup.
+	 */
+	private static String cueText( String text, boolean srt ) {
+		String clean = text.replace( "\r\n", "\n" ).replaceAll( "\\n{2,}", "\n" ).replace( "-->", "->" );
+		return srt ? clean : clean.replace( "&", "&amp;" ).replace( "<", "&lt;" );
+	}
+
 	private static double end( List<Marker> sorted, Marker marker, double total ) {
 		if ( marker.duration() > 0 ) {
 			return marker.time() + marker.duration();
 		}
-		int index = sorted.indexOf( marker );
-		if ( index + 1 < sorted.size() ) {
-			return sorted.get( index + 1 ).time();
+		// Identity, so two markers that are equal (same time and label) each find their own place and the next one after it
+		int index = -1;
+		for ( int i = 0; i < sorted.size(); i++ ) {
+			if ( sorted.get( i ) == marker ) {
+				index = i;
+				break;
+			}
+		}
+		for ( int i = index + 1; i < sorted.size(); i++ ) {
+			if ( sorted.get( i ).time() > marker.time() ) {
+				return sorted.get( i ).time();
+			}
 		}
 		return total > marker.time() ? total : marker.time() + 2;
 	}

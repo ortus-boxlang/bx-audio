@@ -53,7 +53,7 @@ public class AudioLimit extends BIF {
 	 *
 	 * @argument.audio The audio buffer.
 	 *
-	 * @argument.ceilingDb The highest sample level in dB, at most 0. Defaults to -1.
+	 * @argument.ceilingDb The highest level in dB, at most 0, counting the peaks between the samples (the true peak). Defaults to -1.
 	 *
 	 * @argument.release Milliseconds to recover after a peak. Defaults to 100.
 	 *
@@ -62,7 +62,7 @@ public class AudioLimit extends BIF {
 	 * @return A new audio buffer.
 	 */
 	public AudioBuffer _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		return Dynamics.limit( Audios.require( arguments.get( audio ), "audio" ), arguments.getAsDouble( ceilingDb ), arguments.getAsDouble( release ),
+		return Dynamics.limitTruePeak( Audios.require( arguments.get( audio ), "audio" ), arguments.getAsDouble( ceilingDb ), arguments.getAsDouble( release ),
 		    arguments.getAsDouble( lookAhead ) );
 	}
 

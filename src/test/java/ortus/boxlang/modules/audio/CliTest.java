@@ -266,6 +266,7 @@ public class CliTest extends BaseIntegrationTest {
 	@Test
 	void testWhereAndClean( @TempDir Path home ) throws Exception {
 		useSpeechHome( home );
+		Files.writeString( home.resolve( ".bxaudio-home" ), "" );
 		Path voice = home.resolve( "voices/joe/model.onnx" );
 		Files.createDirectories( voice.getParent() );
 		Files.write( voice, new byte[ 2_000_000 ] );

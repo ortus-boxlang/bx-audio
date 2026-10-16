@@ -56,7 +56,8 @@ public class AudioSpeakCues extends BIF {
 		    new Argument( false, "integer", maxChars, 80 ),
 		    new Argument( false, "string", split, "sentence" ),
 		    new Argument( false, "boolean", autoInstall ),
-		    new Argument( false, "function", onProgress )
+		    new Argument( false, "function", onProgress ),
+		    new Argument( false, "struct", Key.of( "pronunciations" ) )
 		};
 	}
 
@@ -83,6 +84,9 @@ public class AudioSpeakCues extends BIF {
 	 *
 	 * @argument.onProgress A function called as ( name, bytesDone, bytesTotal ) while something downloads.
 	 *
+	 * @argument.pronunciations A struct of word to spoken form for words the voice gets wrong, for example { Ortus: "Or tus" }. The captions keep the
+	 *                          original words. BoxLang and the names of its family are already said correctly.
+	 *
 	 * @return A struct with audio (a mono buffer), cues (an array of structs with start, end and text, in seconds) and seconds (the length). Pass the
 	 *         cues to audioSubtitles().
 	 */
@@ -90,15 +94,16 @@ public class AudioSpeakCues extends BIF {
 		boolean				allow	= arguments.get( autoInstall ) != null ? arguments.getAsBoolean( autoInstall ) : Speech.autoInstall();
 		Map<String, Object>	values	= new HashMap<>();
 		if ( arguments.get( pauses ) instanceof IStruct given ) {
-			given.forEach( ( k, v ) -> values.put( k.getName().toLowerCase(), v ) );
+			given.forEach( ( k, v ) -> values.put( k.getName().toLowerCase( java.util.Locale.ROOT ), v ) );
 		}
-		String mode = arguments.getAsString( split ).toLowerCase();
+		String mode = arguments.getAsString( split ).toLowerCase( java.util.Locale.ROOT );
 		if ( !mode.equals( "sentence" ) && !mode.equals( "clause" ) ) {
 			throw new BoxRuntimeException( "split must be sentence or clause but was [" + mode + "]" );
 		}
 		Narration.Result	result	= Speech.narrate( arguments.getAsString( text ), arguments.getAsString( voice ), allow,
 		    AudioSpeak.progress( context, arguments ),
-		    arguments.getAsDouble( speed ), Narration.Pauses.from( values ), mode.equals( "clause" ), arguments.getAsInteger( maxChars ) );
+		    arguments.getAsDouble( speed ), Narration.Pauses.from( values ), mode.equals( "clause" ), arguments.getAsInteger( maxChars ),
+		    AudioSpeak.pronunciations( arguments ) );
 		Array				cueList	= new Array();
 		for ( Narration.Cue cue : result.cues() ) {
 			cueList.add( Struct.ofNonConcurrent( "start", cue.start(), "end", cue.end(), "text", cue.text() ) );

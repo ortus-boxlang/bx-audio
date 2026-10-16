@@ -61,13 +61,13 @@ public final class Mastering {
 	 * Reach an integrated loudness without any peak above the ceiling. The gain is applied and a limiter catches the peaks, which lowers the
 	 * loudness a little, so the gain is corrected and the pass repeated a few times.
 	 *
-	 * @param truePeakDb The ceiling in dBFS. Sample peaks are held to it by the limiter, and a small margin covers the inter-sample peaks.
+	 * @param truePeakDb The ceiling for the true peak in dBFS, the highest level the signal reaches between the samples.
 	 */
 	public static AudioBuffer toLoudness( AudioBuffer audio, double target, double truePeakDb ) {
 		if ( truePeakDb > 0 || truePeakDb < -20 ) {
 			throw new BoxRuntimeException( "The true peak ceiling must be between -20 and 0 dBFS but was " + truePeakDb );
 		}
-		double measured = Loudness.measure( audio ).integrated();
+		double measured = Loudness.integrated( audio );
 		if ( measured <= Loudness.FLOOR ) {
 			return audio.copy();
 		}
@@ -75,9 +75,9 @@ public final class Mastering {
 		AudioBuffer	result		= audio;
 		for ( int pass = 0; pass < 4; pass++ ) {
 			AudioBuffer gained = Dsp.gain( audio, correction );
-			// The limiter holds sample peaks at the ceiling; the oversampled peak can sit a little higher, so aim a little lower
-			result = Dynamics.limit( gained, truePeakDb - 0.3, 150, 5 );
-			double	now		= Loudness.measure( result ).integrated();
+			// The true peak limiter keeps the peaks between the samples under the ceiling too
+			result = Dynamics.limitTruePeak( gained, truePeakDb, 150, 5 );
+			double	now		= Loudness.integrated( result );
 			double	error	= target - now;
 			if ( Math.abs( error ) < 0.05 ) {
 				break;

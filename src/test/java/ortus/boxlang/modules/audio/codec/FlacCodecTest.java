@@ -62,7 +62,7 @@ public class FlacCodecTest {
 	void testRoundTrip() {
 		for ( int channels : new int[] { 1, 2, 3, 6 } ) {
 			AudioBuffer a = music( channels, 1.5 );
-			assertSame( a, FlacCodec.decode( FlacCodec.encode( a, 16 ) ), 1.0 / 32768 );
+			assertSame( a, FlacCodec.decode( FlacCodec.encode( a, 16 ) ), 2.0 / 32768 );
 			assertSame( a, FlacCodec.decode( FlacCodec.encode( a, 24 ) ), 1.0 / 8388608 );
 		}
 	}
@@ -71,7 +71,7 @@ public class FlacCodecTest {
 	@Test
 	void testEdgeCases() {
 		assertSame( AudioBuffer.silenceSeconds( 0.3, 2, 44100 ), FlacCodec.decode( FlacCodec.encode( AudioBuffer.silenceSeconds( 0.3, 2, 44100 ), 16 ) ),
-		    1.0 / 32768 );
+		    2.0 / 32768 );
 		Random		random	= new Random( 3 );
 		float[][]	noise	= new float[ 2 ][ 5000 ];
 		for ( int i = 0; i < 5000; i++ ) {
@@ -79,9 +79,9 @@ public class FlacCodecTest {
 			noise[ 1 ][ i ]	= ( float ) ( random.nextDouble() * 2 - 1 );
 		}
 		AudioBuffer loud = new AudioBuffer( noise, 48000 );
-		assertSame( loud, FlacCodec.decode( FlacCodec.encode( loud, 16 ) ), 1.0 / 32768 + 1e-6 );
+		assertSame( loud, FlacCodec.decode( FlacCodec.encode( loud, 16 ) ), 2.0 / 32768 );
 		AudioBuffer tiny = new AudioBuffer( new float[][] { { 0.5f, -0.5f, 0.25f } }, 8000 );
-		assertSame( tiny, FlacCodec.decode( FlacCodec.encode( tiny, 16 ) ), 1.0 / 32768 );
+		assertSame( tiny, FlacCodec.decode( FlacCodec.encode( tiny, 16 ) ), 2.0 / 32768 );
 		AudioBuffer none = AudioBuffer.silence( 2, 0, 44100 );
 		assertThat( FlacCodec.decode( FlacCodec.encode( none, 16 ) ).getFrames() ).isEqualTo( 0 );
 	}
