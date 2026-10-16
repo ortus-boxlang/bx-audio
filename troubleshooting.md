@@ -60,6 +60,20 @@ It checks Java, `java.desktop`, MP3, FFmpeg, the sound card, the examples, the M
 
 **"... positional and named arguments".** BoxLang does not allow both in one call. Use all positional or all named arguments.
 
+## Long files and memory
+
+**"Java heap space" on a long recording.** A buffer holds every sample as a 32 bit float, which is about 350 KB per second of stereo audio at 44.1 kHz (21 MB a minute, 1.3 GB an hour). Every function that changes audio returns a new buffer, so a chain of calls on a long file holds several copies at once. Mastering (`audioNormalizeLoudness`, `audioMaster`) holds the most, about four times the size of the buffer at its peak.
+
+| Stereo, 44.1 kHz | Buffer | Heap to allow (5 times the buffer) |
+|---|---|---|
+| 10 minutes | 212 MB | 1 GB |
+| 30 minutes | 635 MB | 3 GB |
+| 1 hour | 1.3 GB | 6 GB |
+
+A one hour stereo file passed through load, loudness, `audioNormalizeLoudness` and an MP3 encode finished with 6 GB of heap and ran out of memory at 3.4 GB.
+
+Give the JVM more room with `-Xmx` (`java -Xmx8g`, or `JAVA_OPTS` for CommandBox and the BoxLang scripts), and let go of buffers you no longer need by assigning them an empty string. Time grows in proportion to length: loudness takes about 1.4 s for each minute of audio and an MP3 encode 3.5 s. If a file is longer than the memory you can spare, cut it with `audioTrim` into parts, process each and join them with `audioConcat`.
+
 ## Storage
 
 **The disk is filling up.** `bx-audio where` shows what the module keeps and `bx-audio clean voices --yes` frees it, see [Storage](guides/storage.md).
