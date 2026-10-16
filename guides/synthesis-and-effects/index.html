@@ -240,7 +240,7 @@
 		
 		
 		
-			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#oscillators-and-notes">Oscillators and notes</a></li><li class="toc-level-2"><a href="#shape-it">Shape it</a></li><li class="toc-level-2"><a href="#noise-sweeps-and-drums">Noise, sweeps and drums</a></li><li class="toc-level-2"><a href="#edit">Edit</a></li><li class="toc-level-2"><a href="#effects">Effects</a></li><li class="toc-level-2"><a href="#where-to-go-from-here">Where to go from here</a></li></ul></details>
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#oscillators-and-notes">Oscillators and notes</a></li><li class="toc-level-2"><a href="#shape-it">Shape it</a></li><li class="toc-level-2"><a href="#noise-sweeps-and-drums">Noise, sweeps and drums</a></li><li class="toc-level-2"><a href="#edit">Edit</a></li><li class="toc-level-2"><a href="#effects">Effects</a></li><li class="toc-level-2"><a href="#play-a-recording-as-an-instrument">Play a recording as an instrument</a></li><li class="toc-level-2"><a href="#where-to-go-from-here">Where to go from here</a></li></ul></details>
 		
 
 		
@@ -290,7 +290,7 @@ laser = audioSweep( 1800, 200, 0.25 );
 <tr><th>Function</th><th>Does</th></tr>
 </thead>
 <tbody>
-<tr><td><code>audioGain( audio, db )</code></td><td>Change the volume</td></tr>
+<tr><td><code>audioGain( audio, gainDb )</code></td><td>Change the volume</td></tr>
 <tr><td><code>audioPan( audio, pan )</code></td><td>Place from -1 (left) to 1 (right) with a constant power law</td></tr>
 <tr><td><code>audioFade( audio, fadeIn, fadeOut, curve )</code></td><td>Fade in and out, <code>linear</code> or <code>smooth</code></td></tr>
 <tr><td><code>audioTrim( audio, start, end )</code></td><td>Cut a section, in seconds</td></tr>
@@ -310,6 +310,40 @@ wide   = audioChorus( audio=hall, rate=0.8, depth=0.003, mix=0.4 );
 audioSave( audioSaturate( wide ), &quot;snare-hall.wav&quot; );
 </code></pre>
 <p><code>audioDelay</code> repeats until they are 60 dB down, at most ten seconds, unless you give a <code>tail</code>. <code>audioReverb</code> is a Freeverb design: eight damped combs into four allpass filters with a stereo spread. A large room builds level on sustained sounds, so lower the mix. <code>audioSaturate</code> rounds off peaks with a tanh curve, a warm limiter for the final mix.</p>
+<h2 id="play-a-recording-as-an-instrument"><a href="#play-a-recording-as-an-instrument" id="play-a-recording-as-an-instrument" name="play-a-recording-as-an-instrument" class="anchor"></a>Play a recording as an instrument</h2>
+<p><code>audioSampler</code> turns a recording into an instrument and <code>audioNote</code> plays it. A note is the recording played faster or slower, the way a tape keyboard does, so a higher note is also shorter. The notes are audio buffers, so they go on a timeline like any other sound.</p>
+<p>The recording here is made in the script so the example runs anywhere: a plucked saw. Use <code>audioLoad( &quot;piano-c4.wav&quot; )</code> for a real one.</p>
+<!-- run -->
+<pre><code class="language-js">pluck = audioEnvelope( audio=audioOsc( shape=&quot;saw&quot;, freq=audioFreq( &quot;C4&quot; ), seconds=0.8, harmonics=10 ), attack=0.002, decay=0.2 );
+keys  = audioSampler( audio=pluck, rootNote=&quot;C4&quot; );
+
+t = audioTimeline( bpm=100, beatsPerBar=4, sampleRate=44100, channels=2 );
+melody = [ &quot;C4&quot;, &quot;E4&quot;, &quot;G4&quot;, &quot;E4&quot;, &quot;A4&quot;, &quot;G4&quot;, &quot;E4&quot;, &quot;C4&quot; ];
+for( i = 1; i &lt;= melody.len(); i++ ){
+    audioAdd( timeline=t, sound=audioNote( sampler=keys, note=melody[ i ], velocity=0.8 ), at=t.beat( i - 1 ) / 2, track=&quot;melody&quot; );
+}
+// A chord is the notes together. Give each a lower velocity so the sum is not too loud.
+audioAdd( timeline=t, sound=audioNote( sampler=keys, note=[ &quot;C3&quot;, &quot;E3&quot;, &quot;G3&quot; ], seconds=2, velocity=0.4 ), at=0, track=&quot;chord&quot; );
+
+mix = audioRender( timeline=t );
+println( numberFormat( mix.getDurationSeconds(), &quot;0.0&quot; ) &amp; &quot; s, peak &quot; &amp; numberFormat( mix.getPeak(), &quot;0.00&quot; ) );
+</code></pre>
+<p>The sampler example plays this way for 23 seconds, with a plucked melody and bass and a looped pad that holds each chord for a bar. Its waveform, and its spectrogram, where every note is a stack of lines (the harmonics of the saw recording) that moves up and down with the melody and shifts at each chord change:</p>
+<p><img src="/assets/images/sampler-waveform.svg"  alt="The waveform of the sampler example: a steady level with a small peak at the start of every bar" /></p>
+<p><picture><source type="image/webp" srcset="/assets/images/sampler-spectrogram-400w.16cc59ea.webp 400w, /assets/images/sampler-spectrogram-720w.16cc59ea.webp 720w" sizes="(min-width: 800px) 800px, 100vw"><img src="/assets/images/sampler-spectrogram.png" srcset="/assets/images/sampler-spectrogram-400w.16cc59ea.png 400w" sizes="(min-width: 800px) 800px, 100vw"  alt="The spectrogram of the sampler example: stacks of horizontal lines, the harmonics of each note, with the melody notes reaching the top and the whole picture changing at every bar" /></picture></p>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Argument</th><th>What it does</th></tr>
+</thead>
+<tbody>
+<tr><td><code>rootNote</code></td><td>The note the recording sounds at: a name such as <code>C4</code> (middle C) or a MIDI number where 69 is A4. Fractions detune, <code>60.1</code> is ten cents above C4.</td></tr>
+<tr><td><code>seconds</code></td><td>How long the note is held. <code>0</code>, the default, plays the recording through.</td></tr>
+<tr><td><code>velocity</code></td><td>How hard the note is played, 0 to 1, which is its loudness.</td></tr>
+<tr><td><code>attack</code>, <code>release</code></td><td>Seconds of fade in (default 3 ms, to avoid a click) and of fade out after the note was held (default 50 ms).</td></tr>
+</tbody>
+</table></div>
+<p><strong>One recording per few notes.</strong> A recording can be shifted up to three octaves each way, but it sounds most natural within a few semitones. Give several: <code>audioSampler( audio={ C2: low, C3: lower, C4: middle, C5: high } )</code> uses the nearest one for each note.</p>
+<p><strong>Held notes.</strong> A recording is as long as it is. For a pad, a string or an organ that has to last, turn on <code>loop=true</code>. The whole recording, or the part from <code>loopStart</code> to <code>loopEnd</code> (in seconds), is repeated until the note ends, with a short <code>crossfade</code> that hides the join. Choose a steady part, with no attack and no decay, for the loop.</p>
 <h2 id="where-to-go-from-here"><a href="#where-to-go-from-here" id="where-to-go-from-here" name="where-to-go-from-here" class="anchor"></a>Where to go from here</h2>
 <p>The <a href="/examples/index.html">examples</a> are complete pieces, each a single readable script. <a href="/guides/mixing/index.html">Timeline mixing</a> puts sounds in time.</p>
 
@@ -317,7 +351,7 @@ audioSave( audioSaturate( wide ), &quot;snare-hall.wav&quot; );
 
 	
 	
-		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/synthesis-and-effects.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/synthesis-and-effects.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 16, 2026, 2&#x3a;45&#x3a;22 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Synthesis%20and%20effects&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fsynthesis-and-effects%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/synthesis-and-effects.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/synthesis-and-effects.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 16, 2026, 2&#x3a;46&#x3a;00 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Synthesis%20and%20effects&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fsynthesis-and-effects%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
 	
 </article>
 
@@ -361,7 +395,7 @@ audioSave( audioSaturate( wide ), &quot;snare-hall.wav&quot; );
 			
 			
 				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
-					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#oscillators-and-notes">Oscillators and notes</a></li><li class="toc-level-2"><a href="#shape-it">Shape it</a></li><li class="toc-level-2"><a href="#noise-sweeps-and-drums">Noise, sweeps and drums</a></li><li class="toc-level-2"><a href="#edit">Edit</a></li><li class="toc-level-2"><a href="#effects">Effects</a></li><li class="toc-level-2"><a href="#where-to-go-from-here">Where to go from here</a></li></ul></nav>
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#oscillators-and-notes">Oscillators and notes</a></li><li class="toc-level-2"><a href="#shape-it">Shape it</a></li><li class="toc-level-2"><a href="#noise-sweeps-and-drums">Noise, sweeps and drums</a></li><li class="toc-level-2"><a href="#edit">Edit</a></li><li class="toc-level-2"><a href="#effects">Effects</a></li><li class="toc-level-2"><a href="#play-a-recording-as-an-instrument">Play a recording as an instrument</a></li><li class="toc-level-2"><a href="#where-to-go-from-here">Where to go from here</a></li></ul></nav>
 				</aside>
 			
 		</div>
