@@ -106,4 +106,28 @@ public class StorageTest {
 		assertThat( Storage.clear( home, "voices" ) ).isEqualTo( 10L );
 	}
 
+	@DisplayName( "a locked file does not stop the rest being deleted, and the error names it and says what to do" )
+	@Test
+	void testLockedFile( @TempDir Path home ) throws IOException {
+		Path engine = home.resolve( "engine" );
+		fill( engine.resolve( "locked.jar" ), 5 );
+		fill( engine.resolve( "lib" ).resolve( "other.jar" ), 5 );
+		fill( engine.resolve( "lib" ).resolve( "locked-too.jar" ), 5 );
+		Storage.Deleter		deleter	= path -> {
+										if ( path.getFileName().toString().startsWith( "locked" ) ) {
+											throw new IOException( "The process cannot access the file because it is being used by another process" );
+										}
+										Files.delete( path );
+									};
+		BoxRuntimeException	e		= assertThrows( BoxRuntimeException.class, () -> Storage.delete( engine, deleter ) );
+		assertThat( e.getMessage() ).contains( "Could not delete 2 files" );
+		assertThat( e.getMessage() ).contains( "being used by another process" );
+		assertThat( e.getMessage() ).contains( "Stop BoxLang" );
+		assertThat( Files.exists( engine.resolve( "lib" ).resolve( "other.jar" ) ) ).isFalse();
+		assertThat( Files.exists( engine.resolve( "locked.jar" ) ) ).isTrue();
+		// once nothing holds them the clean finishes
+		Storage.delete( engine, Files::delete );
+		assertThat( Files.exists( engine ) ).isFalse();
+	}
+
 }

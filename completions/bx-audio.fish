@@ -27,7 +27,7 @@ complete -c bx-audio -n '__fish_use_subcommand' -a probe -d 'Describe any audio 
 complete -c bx-audio -n '__fish_use_subcommand' -a mux -d 'Put an audio file on a video, copying the picture without re-encoding'
 complete -c bx-audio -n '__fish_use_subcommand' -a pieces -d 'List the example pieces of music you can render'
 complete -c bx-audio -n '__fish_use_subcommand' -a render -d 'Synthesize an example piece to an audio file'
-complete -c bx-audio -n '__fish_use_subcommand' -a explorer -d 'Start the web explorer on the BoxLang MiniServer'
+complete -c bx-audio -n '__fish_use_subcommand' -a explorer -d 'Start the web explorer on the BoxLang MiniServer (this machine only unless you give a --host)'
 complete -c bx-audio -n '__fish_use_subcommand' -a doctor -d 'Check that MP3, FFmpeg, audio output, the examples and the explorer will work here'
 complete -c bx-audio -n '__fish_use_subcommand' -a completions -d 'Print the tab completion script of a shell'
 complete -c bx-audio -n '__fish_use_subcommand' -a version -d 'Show the module version'
@@ -114,5 +114,6 @@ complete -c bx-audio -n '__fish_seen_subcommand_from render' -l seconds -r
 complete -c bx-audio -n '__fish_seen_subcommand_from render' -l target -r
 complete -c bx-audio -n '__fish_seen_subcommand_from render' -a 'pop-drive lofi house ambient techno synthwave cinematic chiptune sfx jazz rock voiceover trailer game-audio theme sampler'
 complete -c bx-audio -n '__fish_seen_subcommand_from explorer' -l port -r
+complete -c bx-audio -n '__fish_seen_subcommand_from explorer' -l host -r
 complete -c bx-audio -n '__fish_seen_subcommand_from completions' -a 'bash zsh fish powershell'
 complete -c bx-audio -n '__fish_seen_subcommand_from help' -a 'info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help'

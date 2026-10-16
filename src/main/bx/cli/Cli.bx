@@ -74,7 +74,7 @@ class {
 			{ name : "mux", usage : "mux <video> <audio> <out> [--keep-original] [--offset=0]", help : "Put an audio file on a video, copying the picture without re-encoding" },
 			{ name : "pieces", usage : "pieces", help : "List the example pieces of music you can render" },
 			{ name : "render", usage : "render <piece> [--out=FILE] [--bars=N] [--bpm=N] ...", help : "Synthesize an example piece to an audio file" },
-			{ name : "explorer", usage : "explorer [--port=8080]", help : "Start the web explorer on the BoxLang MiniServer" },
+			{ name : "explorer", usage : "explorer [--port=8080] [--host=127.0.0.1]", help : "Start the web explorer on the BoxLang MiniServer (this machine only unless you give a --host)" },
 			{ name : "doctor", usage : "doctor", help : "Check that MP3, FFmpeg, audio output, the examples and the explorer will work here" },
 			{ name : "completions", usage : "completions <bash|zsh|fish|powershell>", help : "Print the tab completion script of a shell",
 				details : [
@@ -604,16 +604,21 @@ class {
 
 	function cmdExplorer( required array args, required struct options ){
 		var port = int( options.port ?: 8080 );
+		// The MiniServer listens on every interface unless told otherwise, and the explorer renders audio on request, so it stays on this machine by default
+		var host = options.host ?: "127.0.0.1";
 		var webroot = root & "/examples/explorer";
 		if( !directoryExists( webroot ) ){
 			throw( type = "bxaudio.cli", message = "The explorer was not found at [#webroot#]." );
 		}
 		var program = findOnPath( "boxlang-miniserver" );
 		if( !program.len() ){
-			throw( type = "bxaudio.cli", message = "The explorer needs the BoxLang MiniServer, which is not on your PATH. Install it from https://boxlang.ortusbooks.com/getting-started/installation, then run this again. Or start it yourself: boxlang-miniserver --webroot #webroot# --port #port#" );
+			throw( type = "bxaudio.cli", message = "The explorer needs the BoxLang MiniServer, which is not on your PATH. Install it from https://boxlang.ortusbooks.com/getting-started/installation, then run this again. Or start it yourself: boxlang-miniserver --webroot #webroot# --port #port# --host #host#" );
 		}
-		out( "Starting the explorer at http://localhost:#port#/index.bxm (Ctrl+C to stop)" );
-		var builder = createObject( "java", "java.lang.ProcessBuilder" ).init( [ program, "--webroot", webroot, "--port", port & "" ] );
+		out( "Starting the explorer at http://#( host == "127.0.0.1" || host == "0.0.0.0" ? "localhost" : host )#:#port#/index.bxm (Ctrl+C to stop)" );
+		if( host == "0.0.0.0" ){
+			out( "Listening on every network interface. Anyone who can reach this machine can render audio on it." );
+		}
+		var builder = createObject( "java", "java.lang.ProcessBuilder" ).init( [ program, "--webroot", webroot, "--port", port & "", "--host", host ] );
 		builder.inheritIO().start().waitFor();
 	}
 

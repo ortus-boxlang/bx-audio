@@ -48,7 +48,7 @@ bx-audio clean all --yes
 audioStorageClear( "voices" );   // returns the megabytes freed; kinds: engine, voices, ffmpeg, cache, all
 ```
 
-Everything is downloaded again the next time it is needed. `bx-audio remove joe` deletes one voice, `bx-audio remove engine` the engine.
+Everything is downloaded again the next time it is needed. On Windows the jars of the speech engine stay locked while BoxLang runs, so clearing `engine` after speaking can delete everything else and then report the locked files. Stop BoxLang and run the clean again. `bx-audio remove joe` deletes one voice, `bx-audio remove engine` the engine.
 
 ## Move it
 

@@ -27,7 +27,7 @@ $bxAudioCommands = [ordered]@{
     'mux' = @('--keep-original', '--offset=')
     'pieces' = @()
     'render' = @('pop-drive', 'lofi', 'house', 'ambient', 'techno', 'synthwave', 'cinematic', 'chiptune', 'sfx', 'jazz', 'rock', 'voiceover', 'trailer', 'game-audio', 'theme', 'sampler', '--out=', '--bars=', '--bpm=', '--style=', '--swing=', '--seed=', '--track=', '--loops=', '--sound=', '--choruses=', '--voice=', '--speed=', '--text=', '--duck=', '--seconds=', '--target=')
-    'explorer' = @('--port=')
+    'explorer' = @('--port=', '--host=')
     'doctor' = @()
     'completions' = @('bash', 'zsh', 'fish', 'powershell')
     'version' = @()
