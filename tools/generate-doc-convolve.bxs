@@ -1,0 +1,34 @@
+/**
+ * Draws the pictures and renders the clip of the convolution reverb section of the synthesis guide (docs/assets/images/convolve-*.png,
+ * docs/assets/audio/convolve.mp3). The room is made here from filtered noise that falls 60 dB in two seconds, with a fixed seed, so the output is
+ * the same every time. Run it when convolution changes, and commit the files it writes.
+ *
+ * Usage:
+ *   boxlang tools/generate-doc-convolve.bxs
+ */
+
+root = expandPath( "../" );
+images = root & "docs/assets/images";
+clips = root & "docs/assets/audio";
+directoryCreate( images, true, true );
+directoryCreate( clips, true, true );
+
+// A room: noise that is dark and falls 60 dB in two seconds
+room = audioFilter( audioNoise( seconds = 2, seed = 7 ), "lowpass", 3500, 0.7071 );
+room = audioModulate( audio = room, param = "gainDb", curve = audioCurve( points = [ { at : 0, value : 0 }, { at : 2, value : -60 } ] ) );
+audioWaveformImage( audio = room, width = 720, height = 120, path = images & "/convolve-room.png", color = "16a34a", background = "ffffff" );
+
+// A short phrase of two hits, dry and in the room
+hit = audioDrum( type = "snare", seconds = 0.4 );
+dry = audioConcat( [ hit, audioSilence( seconds = 0.3, channels = 1 ), hit, audioSilence( seconds = 1.5, channels = 1 ) ] );
+wet = audioConvolve( audio = dry, impulse = room, mix = 0.4 );
+// the dry picture gets silence at the end so both pictures have the same time axis
+dryPadded = audioConcat( [ dry, audioSilence( seconds = wet.getDurationSeconds() - dry.getDurationSeconds(), channels = 1 ) ] );
+audioWaveformImage( audio = dryPadded, width = 720, height = 120, path = images & "/convolve-dry.png", color = "3b82f6", background = "ffffff" );
+audioWaveformImage( audio = wet, width = 720, height = 120, path = images & "/convolve-wet.png", color = "7c3aed", background = "ffffff" );
+
+// The clip: dry, a breath, then in the room
+both = audioConcat( [ audioChannels( dry, 2 ), audioSilence( seconds = 0.5, channels = 2 ), audioChannels( wet, 2 ) ] );
+audioSave( audioNormalizeLoudness( both, -16 ), clips & "/convolve.mp3", 16, 96 );
+
+println( "Wrote the convolution picture and clip" );
