@@ -15,6 +15,7 @@
 package ortus.boxlang.modules.audio.tts;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import ortus.boxlang.modules.audio.tts.Downloader.Progress;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
@@ -68,10 +69,17 @@ public final class Speech {
 	public record Ready( VoiceInfo voice, VoiceStore store, PiperEngine engine ) {
 
 		public AudioBuffer say( String text, double speed ) {
+			return say( text, speed, null );
+		}
+
+		/**
+		 * @param pronunciations Caller supplied respellings, word to spoken form, see {@link Pronunciation}. May be null.
+		 */
+		public AudioBuffer say( String text, double speed, Map<String, String> pronunciations ) {
 			if ( speed < 0.25 || speed > 4 ) {
 				throw new BoxRuntimeException( "The speed must be between 0.25 and 4 but was " + speed );
 			}
-			return this.engine.speak( this.voice, this.store, text, speed );
+			return this.engine.speak( this.voice, this.store, Pronunciation.apply( text, pronunciations ), speed );
 		}
 	}
 
@@ -123,10 +131,18 @@ public final class Speech {
 	 * Speak a text at a speed, see {@link #speak(String, String, boolean, EngineInstaller.NamedProgress)}
 	 */
 	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed ) {
+		return speak( text, voiceName, allowInstall, progress, speed, null );
+	}
+
+	/**
+	 * Speak a text at a speed with the caller's own pronunciations, see {@link Pronunciation}
+	 */
+	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
+	    Map<String, String> pronunciations ) {
 		if ( text == null || text.isBlank() ) {
 			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
 		}
-		return prepare( voiceName, allowInstall, progress ).say( text, speed );
+		return prepare( voiceName, allowInstall, progress ).say( text, speed, pronunciations );
 	}
 
 	/**
@@ -134,11 +150,19 @@ public final class Speech {
 	 */
 	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Narration.Pauses pauses, boolean clauses, int maxChars ) {
+		return narrate( text, voiceName, allowInstall, progress, speed, pauses, clauses, maxChars, null );
+	}
+
+	/**
+	 * Speak a text piece by piece with the caller's own pronunciations. The captions keep the original words.
+	 */
+	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
+	    Narration.Pauses pauses, boolean clauses, int maxChars, Map<String, String> pronunciations ) {
 		if ( text == null || text.isBlank() ) {
 			throw new BoxRuntimeException( "There is nothing to say: the text is empty" );
 		}
 		Ready ready = prepare( voiceName, allowInstall, progress );
-		return Narration.narrate( text, piece -> ready.say( piece, speed ), pauses, clauses, maxChars );
+		return Narration.narrate( text, piece -> ready.say( piece, speed, pronunciations ), pauses, clauses, maxChars );
 	}
 
 	/**
