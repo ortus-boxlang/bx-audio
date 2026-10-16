@@ -3252,3 +3252,6 @@ a.button.primary {
 	color: var(--bxsites-accent);
 	font-weight: 600;
 }
+
+/* Pictures in a page, such as the waveform and spectrogram drawings, never wider than the text */
+.page-content img { max-width: 100%; height: auto; }
