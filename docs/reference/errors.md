@@ -21,7 +21,7 @@ try {
 | `bxaudio.invalidArgument` | An argument has a value or a type the function cannot use, such as a negative frequency or something that is not audio. | Fix the call. The message says which argument and what is allowed. |
 | `bxaudio.fileNotFound` | A file you named does not exist. | Check the path. Relative paths are relative to the running script. |
 | `bxaudio.io` | A file could not be read, written, moved or deleted: no permission, a full disk, a read only folder. | Fix the folder or the permissions. The cause is attached. |
-| `bxaudio.unsupportedFormat` | The format, encoding, bit depth, channel count or sample rate is one the module cannot handle, or the file is not audio at all. | Convert the file, see [Formats and FFmpeg](../guides/formats-and-ffmpeg.md). |
+| `bxaudio.unsupportedFormat` | The format, encoding, bit depth, channel count or sample rate is one the module cannot handle, or the file is not audio at all. Tags of OGG, Opus and M4A files are not supported yet. | Convert the file, see [Formats and FFmpeg](../guides/formats-and-ffmpeg.md). |
 | `bxaudio.corruptAudio` | The file claims to be audio but is damaged or cut short. | Get a good copy. |
 | `bxaudio.tooLarge` | The audio is too long to hold in memory. | Cut it into parts first. |
 | `bxaudio.ffmpegMissing` | A feature needs FFmpeg (OGG, Opus, AAC, video) and FFmpeg is not installed, and could not be downloaded. | Run `bx-audio ffmpeg install` or `audioFfmpegInstall()`, or install it so it is on the PATH. See `audioFfmpeg()` for the state. |

@@ -36,6 +36,28 @@ Functions fall into five groups by what they return. Anything not listed here re
 
 All keys below are always present unless marked optional.
 
+### `audioTags( path )`
+
+Reading gives every key, with an empty string for a tag the file does not have.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `format` | string | `mp3`, `flac` or `wav`. |
+| `title`, `artist`, `album`, `albumArtist`, `composer`, `genre`, `year`, `track`, `disc`, `comment` | string | The tag, or `""`. `track` and `disc` can be `"3"` or `"3/12"`. |
+| `cover` | struct or null | `{ mimeType, size, data }` with the picture as binary data, `null` when there is none. |
+| `chapters` | array | Structs `{ start, end, title }` in seconds, empty when there are none. `end` is `null` when the chapter lasts until the next one starts (FLAC and WAV do not store ends). |
+
+### `audioTags( path, tags )`
+
+Writing gives back what happened.
+
+| Key | Type | Meaning |
+|---|---|---|
+| `path` | string | The file. |
+| `format` | string | `mp3`, `flac` or `wav`. |
+| `written` | array | The tags that were stored, in the order `title`, `artist`, `album`, `albumArtist`, `composer`, `genre`, `year`, `track`, `disc`, `comment`, `cover`, `chapters`. |
+| `ignored` | array | The tags this format has no place for. A WAV file ignores `albumArtist`, `disc` and `cover`. |
+
 ### `audioHttpResponse( source, request )`
 
 | Key | Type | Meaning |

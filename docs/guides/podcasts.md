@@ -86,7 +86,40 @@ text = audioMarkers(
 println( text );
 ```
 
-## 5. Save the MP3
+## 5. Tags, cover art and chapters inside the file
+
+Players show the title and the cover, and podcast apps let listeners jump between chapters, when the file carries them. `audioTags` writes all of it into the MP3. The same list of markers you gave `audioMarkers` works as the chapters.
+
+<!-- run -->
+```js
+audioSave( audio=audioNoise( seconds=6, color="pink", seed=3 ), path="episode.mp3", bitrate=96 );
+
+audioTags(
+    path="episode.mp3",
+    tags={
+        title: "Episode 42: The pilot",
+        artist: "The Show",
+        album: "Season 1",
+        year: 2026,
+        track: "42",
+        genre: "Podcast",
+        chapters: [
+            { start: 0, title: "Intro" },
+            { start: 2.5, title: "The news" },
+            { start: 4.5, title: "Wrap up" }
+        ]
+    }
+);
+
+episode = audioTags( path="episode.mp3" );
+println( episode.title & ", " & episode.chapters.len() & " chapters, the second starts at " & episode.chapters[ 2 ].start & " s" );
+```
+
+Add `cover: "cover.png"` for the picture (PNG, JPEG, GIF, WebP or BMP, up to 16 MB, square and at least 1400 pixels wide for the podcast directories). Tags you leave out are kept, an empty string removes a tag, and `chapters: []` removes the chapters. The audio is not touched. See [Return values](../reference/return-values.md#audiotags-path) for the shape of what you read back.
+
+MP3 gets ID3v2.4 tags with chapter frames, FLAC gets Vorbis comments and picture blocks, and WAV gets an INFO list and cue points (a WAV file has no place for a cover, the album artist or the disc, and `audioTags` tells you which tags it ignored).
+
+## 6. Save the MP3
 
 Speech does not need stereo or a high bit rate. Mono at 96 or 128 kbps is a small file that sounds the same.
 

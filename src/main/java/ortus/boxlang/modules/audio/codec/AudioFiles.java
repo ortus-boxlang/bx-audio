@@ -86,7 +86,7 @@ public final class AudioFiles {
 	 * Write to a temporary file next to the target and move it into place, so a failure half way never leaves a truncated file where a good one
 	 * was. The temporary name starts with a prefix and keeps the real name last, so the extension still tells the encoder the format.
 	 */
-	private static void atomically( Path target, java.util.function.Consumer<Path> writer ) {
+	public static void atomically( Path target, java.util.function.Consumer<Path> writer ) {
 		Path	dir		= target.toAbsolutePath().getParent();
 		Path	temp	= dir.resolve( ".bxaudio-" + UUID.randomUUID().toString().substring( 0, 8 ) + "-" + target.getFileName() );
 		try {
