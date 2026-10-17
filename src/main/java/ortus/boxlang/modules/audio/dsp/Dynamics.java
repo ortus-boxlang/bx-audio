@@ -43,6 +43,12 @@ public final class Dynamics {
 	 */
 	public static AudioBuffer compress( AudioBuffer audio, double thresholdDb, double ratio, double attackMs, double releaseMs, double kneeDb,
 	    double makeupDb ) {
+		Dsp.requireFinite( ratio, "ratio" );
+		Dsp.requireDb( thresholdDb, "thresholdDb" );
+		Dsp.requireDb( makeupDb, "makeupDb" );
+		Dsp.requireFinite( attackMs, "attackMs" );
+		Dsp.requireFinite( releaseMs, "releaseMs" );
+		Dsp.requireFinite( kneeDb, "kneeDb" );
 		if ( ratio < 1 || ratio > 100 ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ratio must be between 1 and 100 but was " + ratio );
 		}
@@ -50,7 +56,7 @@ public final class Dynamics {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The threshold must be between -100 and 0 dB but was " + thresholdDb );
 		}
 		if ( attackMs < 0 || releaseMs < 0 || kneeDb < 0 ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Attack, release and knee cannot be negative" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Attack, release and knee cannot be negative" );
 		}
 		int			rate		= audio.getSampleRate();
 		double		attack		= coefficient( attackMs, rate );
@@ -113,11 +119,14 @@ public final class Dynamics {
 	 * @param lookAheadMs How far ahead the limiter looks, which is also how long the gain takes to go down
 	 */
 	public static AudioBuffer limit( AudioBuffer audio, double ceilingDb, double releaseMs, double lookAheadMs ) {
+		Dsp.requireFinite( ceilingDb, "ceilingDb" );
+		Dsp.requireFinite( releaseMs, "releaseMs" );
+		Dsp.requireFinite( lookAheadMs, "lookAheadMs" );
 		if ( ceilingDb > 0 || ceilingDb < -60 ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ceiling must be between -60 and 0 dB but was " + ceilingDb );
 		}
 		if ( releaseMs < 0 || lookAheadMs < 0 || lookAheadMs > 100 ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Release cannot be negative and the look-ahead must be between 0 and 100 ms" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Release cannot be negative and the look-ahead must be between 0 and 100 ms" );
 		}
 		int		rate	= audio.getSampleRate();
 		int		frames	= audio.getFrames();

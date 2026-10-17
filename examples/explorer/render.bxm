@@ -28,7 +28,8 @@
 		if( param.type == "select" ){
 			settings[ param.name ] = param.options.contains( raw ) ? raw : param.value;
 		} else {
-			if( !isNumeric( raw ) ){
+			// isNumeric also accepts NaN and lists such as 1,5, which cannot be cast
+			if( !reFind( "^-?\d+(\.\d+)?$", toString( raw ) ) ){
 				fail( 400, "Setting [#param.name#] must be a number" );
 			}
 			value = max( param.min, min( param.max, raw + 0 ) );
@@ -50,8 +51,9 @@
 	cached = fileExists( metaPath ) && fileExists( wavPath );
 
 	if( !cached ){
-		// One render per key at a time, a second request for the same sound waits and then finds it cached
-		bx:lock name="bx-audio-explorer-#key#" timeout=300 type="exclusive" {
+		// One render at a time for the whole explorer, so a burst of different settings cannot use up the memory. A second request for the same
+		// sound waits and then finds it cached.
+		bx:lock name="bx-audio-explorer-render" timeout=300 type="exclusive" {
 			if( !( fileExists( metaPath ) && fileExists( wavPath ) ) ){
 				started = getTickCount();
 				forScript = { "out" : wavPath };

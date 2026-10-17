@@ -18,7 +18,7 @@ It needs the [BoxLang MiniServer](https://boxlang.ortusbooks.com/boxlang-framewo
 ## What it does
 
 - A card for each piece: pick one, change its settings (bars, tempo, style, seed and the settings of that piece) and press Render.
-- The piece is synthesized on the server by the same script as the command line, and cached by piece and settings, so the same settings play instantly the second time.
+- The piece is synthesized on the server by the same script as the command line, and cached by piece and settings, so the same settings play instantly the second time. Renders run one at a time, so a burst of requests queues instead of using up the memory. The cache is the `cache` folder next to `render.bxm` (the newest 40 renders are kept), and it is not covered by `bx-audio clean`, so delete that folder to free the space.
 - A waveform of the render that you can click to seek.
 - Light and dark themes in the BoxLang palette.
 

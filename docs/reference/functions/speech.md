@@ -33,20 +33,20 @@ audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciation
 Speak a text piece by piece and return the audio with the time each caption line is spoken
 
 ```js
-audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", autoInstall, onProgress, pronunciations )
+audioSpeakCues( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations, maxChars=80, split="sentence" )
 ```
 
 | Argument | Type | Default | |
 |---|---|---|---|
 | `text` | string | required | What to say. Blank lines separate paragraphs. |
 | `voice` | string | required | The voice: an id such as en_US-joe-medium, or its short name. See audioVoices(). |
-| `speed` | double | `1` | 1 is the voice's own pace. Between 0.25 and 4. Defaults to 1. |
-| `pauses` | struct | optional | A struct with any of sentence, clause and paragraph in seconds. Defaults 0.35, 0.15 and 0.8. |
-| `maxChars` | integer | `80` | Longest caption line in characters; longer sentences are split into several lines. Defaults to 80. |
-| `split` | string | `"sentence"` | sentence to speak and time whole sentences, clause to work clause by clause (more natural pauses, shorter captions). Defaults to sentence. |
 | `autoInstall` | boolean | optional | May the engine and the voice be downloaded when missing. Defaults to the module setting autoInstall. |
 | `onProgress` | function | optional | A function called as ( name, bytesDone, bytesTotal ) while something downloads. |
+| `speed` | double | `1` | 1 is the voice's own pace. Between 0.25 and 4. Defaults to 1. |
+| `pauses` | struct | optional | A struct with any of sentence, clause and paragraph in seconds. Defaults 0.35, 0.15 and 0.8. |
 | `pronunciations` | struct | optional | A struct of word to spoken form for words the voice gets wrong, for example { Ortus: "Or tus" }. The captions keep the original words. BoxLang and the names of its family are already said correctly. |
+| `maxChars` | integer | `80` | Longest caption line in characters; longer sentences are split into several lines. Defaults to 80. |
+| `split` | string | `"sentence"` | sentence to speak and time whole sentences, clause to work clause by clause (more natural pauses, shorter captions). Defaults to sentence. |
 
 **Returns** A struct with audio (a mono buffer), cues (an array of structs with start, end and text, in seconds) and seconds (the length). Pass the cues to audioSubtitles().
 

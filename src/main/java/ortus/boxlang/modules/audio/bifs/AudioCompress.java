@@ -32,7 +32,7 @@ public class AudioCompress extends BIF {
 	private static final Key	ratio		= Key.of( "ratio" );
 	private static final Key	attackMs	= Key.of( "attackMs" );
 	private static final Key	releaseMs	= Key.of( "releaseMs" );
-	private static final Key	knee		= Key.of( "knee" );
+	private static final Key	kneeDb		= Key.of( "kneeDb" );
 	private static final Key	makeupDb	= Key.of( "makeupDb" );
 
 	/**
@@ -46,7 +46,7 @@ public class AudioCompress extends BIF {
 		    new Argument( false, "double", ratio, 4.0 ),
 		    new Argument( false, "double", attackMs, 10.0 ),
 		    new Argument( false, "double", releaseMs, 100.0 ),
-		    new Argument( false, "double", knee, 6.0 ),
+		    new Argument( false, "double", kneeDb, 6.0 ),
 		    new Argument( false, "any", makeupDb, "auto" )
 		};
 	}
@@ -67,7 +67,7 @@ public class AudioCompress extends BIF {
 	 *
 	 * @argument.releaseMs Milliseconds to turn back up. Defaults to 100.
 	 *
-	 * @argument.knee Width in dB of the soft knee. 0 is a hard knee. Defaults to 6.
+	 * @argument.kneeDb Width in dB of the soft knee. 0 is a hard knee. Defaults to 6.
 	 *
 	 * @argument.makeupDb Gain added after compression in dB, or "auto" to match the loudness (RMS) of the input. Defaults to auto.
 	 *
@@ -78,11 +78,11 @@ public class AudioCompress extends BIF {
 		AudioBuffer	input	= Audios.require( arguments.get( audio ), "audio" );
 		if ( makeup instanceof Number n ) {
 			return Dynamics.compress( input, arguments.getAsDouble( thresholdDb ), arguments.getAsDouble( ratio ), arguments.getAsDouble( attackMs ),
-			    arguments.getAsDouble( releaseMs ), arguments.getAsDouble( knee ), n.doubleValue() );
+			    arguments.getAsDouble( releaseMs ), arguments.getAsDouble( kneeDb ), n.doubleValue() );
 		}
 		if ( "auto".equalsIgnoreCase( String.valueOf( makeup ) ) ) {
 			return Dynamics.compressMatched( input, arguments.getAsDouble( thresholdDb ), arguments.getAsDouble( ratio ), arguments.getAsDouble( attackMs ),
-			    arguments.getAsDouble( releaseMs ), arguments.getAsDouble( knee ) );
+			    arguments.getAsDouble( releaseMs ), arguments.getAsDouble( kneeDb ) );
 		}
 		throw new ortus.boxlang.runtime.types.exceptions.BoxRuntimeException( "makeupDb must be a number of dB or \"auto\" but was [" + makeup + "]" );
 	}

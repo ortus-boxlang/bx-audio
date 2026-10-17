@@ -43,7 +43,12 @@ import ortus.boxlang.modules.audio.util.AudioException;
  */
 public final class HttpAudio {
 
-	private static final DateTimeFormatter HTTP_DATE = DateTimeFormatter.ofPattern( "EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US );
+	/** The most a single range answer carries, 16 MB */
+	private static final long				MAX_SLICE	= 16L * 1024 * 1024;
+	/** The largest file sent whole, 1 GB, because the body is held in memory */
+	private static final long				MAX_WHOLE	= 1024L * 1024 * 1024;
+
+	private static final DateTimeFormatter	HTTP_DATE	= DateTimeFormatter.ofPattern( "EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US );
 
 	private HttpAudio() {
 	}
@@ -232,10 +237,16 @@ public final class HttpAudio {
 			}
 		}
 		if ( bounds != null ) {
+			// A shorter slice than asked for is a legal answer, and it keeps an open ended request from loading the rest of a big file
+			bounds[ 1 ] = Math.min( bounds[ 1 ], bounds[ 0 ] + MAX_SLICE - 1 );
 			headers.put( "Content-Range", "bytes " + bounds[ 0 ] + "-" + bounds[ 1 ] + "/" + length );
 			headers.put( "Content-Length", String.valueOf( bounds[ 1 ] - bounds[ 0 ] + 1 ) );
 			byte[] body = verb.equals( "HEAD" ) ? new byte[ 0 ] : content.read( bounds[ 0 ], bounds[ 1 ] );
 			return new Result( 206, "Partial Content", headers, body );
+		}
+		if ( length > MAX_WHOLE && !verb.equals( "HEAD" ) ) {
+			throw new AudioException( AudioException.TOO_LARGE,
+			    "The file is " + length + " bytes, which is too large to send in one piece. Ask for it with Range requests." );
 		}
 		headers.put( "Content-Length", String.valueOf( length ) );
 		byte[] body = verb.equals( "HEAD" ) || length == 0 ? new byte[ 0 ] : content.read( 0, length - 1 );

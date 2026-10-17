@@ -15,7 +15,7 @@ The same rules hold for every function, so a name tells you the unit.
 | `...Lufs` | Loudness in LUFS. | `targetLufs` |
 | `...Hz` | Hertz. | `minHz`, `maxHz` |
 | `seconds`, `at`, `tail`, `fadeIn`, `fadeOut`, `crossfade`, `pad` | Seconds. Anything about time that has no `Ms` is in seconds. | `at=2.5` |
-| `level`, `mix`, `feedback`, `volume`, `pan`, `peak`, `rms` | Linear numbers, not decibels. `level`, `mix`, `feedback` and `volume` run from 0 to 1, `pan` from -1 to 1. | `mix=0.3` |
+| `level`, `mix`, `feedback`, `volume`, `pan`, `peak`, `rms` | Linear numbers, not decibels. `level`, `mix`, `feedback` and `volume` run from 0 to 1 (`audioDelay` takes a feedback up to 0.95), `pan` from -1 to 1. | `mix=0.3` |
 
 A value in decibels is never a bare `db`, `gain` or `truePeak`. If the name has no `Db`, it is not decibels.
 

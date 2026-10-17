@@ -51,13 +51,13 @@ public class AudioSpeakCues extends BIF {
 		declaredArguments = new Argument[] {
 		    new Argument( true, "string", text ),
 		    new Argument( true, "string", voice ),
-		    new Argument( false, "double", speed, 1.0 ),
-		    new Argument( false, "struct", pauses ),
-		    new Argument( false, "integer", maxChars, 80 ),
-		    new Argument( false, "string", split, "sentence" ),
 		    new Argument( false, "boolean", autoInstall ),
 		    new Argument( false, "function", onProgress ),
-		    new Argument( false, "struct", Key.of( "pronunciations" ) )
+		    new Argument( false, "double", speed, 1.0 ),
+		    new Argument( false, "struct", pauses ),
+		    new Argument( false, "struct", Key.of( "pronunciations" ) ),
+		    new Argument( false, "integer", maxChars, 80 ),
+		    new Argument( false, "string", split, "sentence" )
 		};
 	}
 

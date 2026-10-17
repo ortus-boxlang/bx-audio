@@ -30,17 +30,22 @@ public final class Notes {
 	 * @return The MIDI number, where 60 is middle C (C4) and 69 is A4
 	 */
 	public static double midi( Object value ) {
+		double midi;
 		if ( value instanceof Number number ) {
-			return number.doubleValue();
-		}
-		if ( value instanceof String name ) {
+			midi = number.doubleValue();
+		} else if ( value instanceof String name ) {
 			try {
-				return Double.parseDouble( name.trim() );
+				midi = Double.parseDouble( name.trim() );
 			} catch ( NumberFormatException e ) {
 				return Synth.noteNameToMidi( name );
 			}
+		} else {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The note must be a note name like C4 or a MIDI number" );
 		}
-		throw new AudioException( AudioException.INVALID_ARGUMENT, "The note must be a note name like C4 or a MIDI number" );
+		if ( Double.isNaN( midi ) || midi < 0 || midi > 135 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A MIDI note must be between 0 and 135 but was " + midi );
+		}
+		return midi;
 	}
 
 }

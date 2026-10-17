@@ -136,7 +136,8 @@ public final class AudioFiles {
 
 	private static AudioBuffer decodeBytes( byte[] bytes, String name, Path onDisk ) {
 		bytes = withoutId3BeforeFlac( bytes );
-		if ( bytes.length >= 12 && bytes[ 0 ] == 'R' && bytes[ 1 ] == 'I' && bytes[ 2 ] == 'F' && bytes[ 3 ] == 'F' ) {
+		if ( bytes.length >= 12 && bytes[ 0 ] == 'R' && bytes[ 1 ] == 'I' && bytes[ 2 ] == 'F' && bytes[ 3 ] == 'F' && bytes[ 8 ] == 'W' && bytes[ 9 ] == 'A'
+		    && bytes[ 10 ] == 'V' && bytes[ 11 ] == 'E' ) {
 			return WavCodec.decode( bytes );
 		}
 		if ( Mp3Codec.looksLikeMp3( bytes ) ) {
@@ -214,7 +215,7 @@ public final class AudioFiles {
 				switch ( ext ) {
 					case "", ".wav", ".wave" -> WavCodec.write( audio, temp, bitDepth );
 					case ".mp3" -> Files.write( temp, Mp3Codec.encode( audio, bitrateKbps ) );
-					case ".flac" -> Files.write( temp, FlacCodec.encode( audio, bitDepth == 24 ? 24 : 16 ) );
+					case ".flac" -> Files.write( temp, FlacCodec.encode( audio, flacDepth( bitDepth ) ) );
 					default -> FfmpegSupport.require( "Writing " + ext + " files" ).encode( audio, temp, bitrateKbps );
 				}
 			} catch ( IOException e ) {
@@ -283,7 +284,7 @@ public final class AudioFiles {
 			case "mp3" :
 				return Mp3Codec.encode( audio, bitrateKbps );
 			case "flac" :
-				return FlacCodec.encode( audio, bitDepth == 24 ? 24 : 16 );
+				return FlacCodec.encode( audio, flacDepth( bitDepth ) );
 			default :
 		}
 		Path temp = null;
@@ -305,4 +306,10 @@ public final class AudioFiles {
 		}
 	}
 
+	private static int flacDepth( int bitDepth ) {
+		if ( bitDepth != 16 && bitDepth != 24 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "FLAC can be written with a bit depth of 16 or 24 but was " + bitDepth );
+		}
+		return bitDepth;
+	}
 }

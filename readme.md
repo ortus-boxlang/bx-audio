@@ -241,7 +241,7 @@ Loudness is measured as ITU-R BS.1770 and EBU R128 define it (K-weighting, gated
 | `audioLoudness( audio )` | `integrated` LUFS, `range` LU, `truePeakDb` and `samplePeakDb` dBFS, `momentaryMax` and `shortTermMax` LUFS. Silence reads -120 |
 | `audioNormalizeLoudness( audio, targetLufs=-14, truePeakDb=-1 )` | Set the loudness, with a limiter keeping peaks under the ceiling |
 | `audioMaster( audio, target="streaming", truePeakDb=-1, glue=false )` | The same with presets: `streaming` -14, `podcast` -16, `game` -16, `broadcast` -23 (EBU R128), `cinema` -24, or a number. `glue` compresses lightly first |
-| `audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, knee=6, makeupDb="auto" )` | A compressor. `auto` make-up matches the loudness of the input |
+| `audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, kneeDb=6, makeupDb="auto" )` | A compressor. `auto` make-up matches the loudness of the input |
 | `audioLimit( audio, ceilingDb=-1, releaseMs=100, lookAheadMs=5 )` | A look-ahead limiter: no sample ends above the ceiling |
 | `audioEq( audio, bands )` | Parametric EQ. Each band is `{ type, freq, gainDb, q }` with `type` `peak`, `lowshelf`, `highshelf`, `lowpass`, `highpass` or `notch` |
 
@@ -285,7 +285,7 @@ WAV, MP3 and FLAC are read and written by the module itself (FLAC lossless, in p
 | `videoInfo( path )` | Length, size, video and audio streams of any media file |
 | `audioMux( video, audio, output, keepOriginal=false, originalDb=-12, offset=0, bitrate=0 )` | Put audio on a video, copying the picture untouched; never longer than the video |
 | `audioMarkers( markers, format="json", path="", fps=30, total=0 )` | Markers as `json`, `csv`, a Resolve `edl`, `srt`, `vtt`, FFmpeg chapters (`ffmetadata`) or a `youtube` chapter list |
-| `audioHttpResponse( source, request, format="", bitrate=0, bitDepth=16, maxAgeSeconds=3600, filename="", download=false )` | What to send for a request for audio: status, headers and body for Range, ETag and 304 |
+| `audioHttpResponse( source, request, format="", bitDepth=16, bitrate=0, maxAgeSeconds=3600, filename="", download=false )` | What to send for a request for audio: status, headers and body for Range, ETag and 304 |
 
 `audioSave( audio, "out.ogg", 16, 96 )` and `audioLoad( "clip.mp4" )` just work once FFmpeg is there. FFmpeg builds are third party programs with their own licenses (see [docs](docs/)); the module never bundles or links them.
 
@@ -311,7 +311,7 @@ Playing to the speakers needs a sound card and the JVM's `java.desktop` module. 
 | Function | Purpose |
 |---|---|
 | `audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations )` | Speak a text, `speed` 1 is the voice's pace, `pauses` (`{ sentence, clause, paragraph }` in seconds) speaks it piece by piece. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
-| `audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", autoInstall, onProgress, pronunciations )` | Speak piece by piece and get `audio`, `cues` (`start`, `end`, `text`) and `seconds`. Captions land on the words within about 10 ms |
+| `audioSpeakCues( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations, maxChars=80, split="sentence" )` | Speak piece by piece and get `audio`, `cues` (`start`, `end`, `text`) and `seconds`. Captions land on the words within about 10 ms |
 | `audioSubtitles( cues, format="srt", path="", offset=0 )` | SRT or WebVTT text from cues, written to a file if you give a path |
 | `audioVoices( language="", installed=false, status="offered", license="", usage="" )` | The voices: id, name, language, quality, license, `usage` (what the license means for a product you sell), `commercial`, `credit`, size, `status` (`installed`, `downloadable`, or `excluded` with `reason`). `status="excluded"` or `"all"` shows the voices that are not offered and why |
 | `audioLicenses()` | The licenses of the offered voices and what each asks of you |

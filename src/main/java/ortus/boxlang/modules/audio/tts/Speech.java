@@ -141,9 +141,7 @@ public final class Speech {
 	 */
 	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Map<String, String> pronunciations ) {
-		if ( text == null || text.isBlank() ) {
-			throw new AudioException( AudioException.INVALID_ARGUMENT, "There is nothing to say: the text is empty" );
-		}
+		checkSayable( text, speed );
 		return prepare( voiceName, allowInstall, progress ).say( text, speed, pronunciations );
 	}
 
@@ -160,11 +158,27 @@ public final class Speech {
 	 */
 	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Narration.Pauses pauses, boolean clauses, int maxChars, Map<String, String> pronunciations ) {
+		checkSayable( text, speed );
+		Ready ready = prepare( voiceName, allowInstall, progress );
+		return Narration.narrate( text, piece -> ready.say( piece, speed, pronunciations ), pauses, clauses, maxChars );
+	}
+
+	/**
+	 * Checked before anything is downloaded: the speed is in range and the text holds something the English voices can say
+	 */
+	private static void checkSayable( String text, double speed ) {
 		if ( text == null || text.isBlank() ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "There is nothing to say: the text is empty" );
 		}
-		Ready ready = prepare( voiceName, allowInstall, progress );
-		return Narration.narrate( text, piece -> ready.say( piece, speed, pronunciations ), pauses, clauses, maxChars );
+		if ( Double.isNaN( speed ) || speed < 0.25 || speed > 4 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The speed must be between 0.25 and 4 but was " + speed );
+		}
+		boolean sayable = text.codePoints()
+		    .anyMatch( c -> Character.isDigit( c ) && c < 128 || Character.isLetter( c ) && Character.UnicodeScript.of( c ) == Character.UnicodeScript.LATIN );
+		if ( !sayable ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The text has no words the voice can say. The voices speak US English, so letters of other scripts, symbols and emoji are not spoken." );
+		}
 	}
 
 	/**

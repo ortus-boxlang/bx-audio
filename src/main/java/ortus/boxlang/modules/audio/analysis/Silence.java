@@ -52,7 +52,7 @@ public final class Silence {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The threshold must be between -120 and 0 dB but was " + thresholdDb );
 		}
 		if ( minSeconds < 0 ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The minimum length cannot be negative" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The minimum length cannot be negative" );
 		}
 		int			rate		= audio.getSampleRate();
 		int			window		= Math.max( 1, rate / 100 );

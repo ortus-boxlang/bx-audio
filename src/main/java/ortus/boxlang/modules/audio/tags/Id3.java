@@ -138,6 +138,9 @@ public final class Id3 {
 		int pos = 0;
 		if ( ( flags & 0x40 ) != 0 && tag.length >= 4 ) {
 			pos = version == 4 ? syncsafe( tag, 0 ) : 4 + plain( tag, 0 );
+			if ( pos < 0 || pos > tag.length ) {
+				throw new AudioException( AudioException.CORRUPT_AUDIO, "The ID3 extended header claims a size past the end of the tag" );
+			}
 		}
 		List<Frame> frames = new ArrayList<>( parseFrames( tag, pos, tag.length, version ) );
 		return new Parsed( version, audioAt, frames );
@@ -179,7 +182,7 @@ public final class Id3 {
 				flags	= ( ( tag[ pos + 8 ] & 0xFF ) << 8 ) | ( tag[ pos + 9 ] & 0xFF );
 			}
 			pos += header;
-			if ( size < 0 || pos + size > to ) {
+			if ( size < 0 || ( long ) pos + size > to ) {
 				break;
 			}
 			byte[] data = java.util.Arrays.copyOfRange( tag, pos, pos + size );

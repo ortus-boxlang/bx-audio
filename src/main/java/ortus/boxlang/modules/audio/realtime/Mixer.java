@@ -119,7 +119,7 @@ public final class Mixer implements AutoCloseable {
 		}
 		double start = number( options, "start", 0 );
 		if ( start < 0 ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The play option [start] cannot be negative but was " + start );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The play option [start] cannot be negative but was " + start );
 		}
 		double pitch = number( options, "pitch", 1 );
 		if ( pitch <= 0 || pitch > 16 ) {

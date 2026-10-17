@@ -53,7 +53,7 @@ public final class Dsp {
 	 * @param db    Gain in decibels, negative values make it quieter
 	 */
 	public static AudioBuffer gain( AudioBuffer audio, double db ) {
-		requireFinite( db, "db" );
+		requireDb( db, "db" );
 		return scale( audio, ( float ) dbToLinear( db ) );
 	}
 
@@ -111,7 +111,7 @@ public final class Dsp {
 		requireFinite( fadeInSecs, "fadeIn" );
 		requireFinite( fadeOutSecs, "fadeOut" );
 		if ( fadeInSecs < 0 || fadeOutSecs < 0 ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Fade lengths cannot be negative" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "Fade lengths cannot be negative" );
 		}
 		int			frames		= audio.getFrames();
 		int			inFrames	= ( int ) Math.min( frames, Math.round( fadeInSecs * audio.getSampleRate() ) );
@@ -137,7 +137,7 @@ public final class Dsp {
 	 * @param targetDb Target peak in decibels relative to full scale, normally 0 or slightly below
 	 */
 	public static AudioBuffer normalize( AudioBuffer audio, double targetDb ) {
-		requireFinite( targetDb, "targetDb" );
+		requireDb( targetDb, "targetDb" );
 		float peak = audio.getPeak();
 		// A peak this small is silence for every practical purpose, and scaling it up would overflow
 		if ( peak < 1e-12f ) {
@@ -578,9 +578,20 @@ public final class Dsp {
 		return Math.abs( x ) >= 1 ? 0 : 0.5 + 0.5 * Math.cos( Math.PI * x );
 	}
 
-	private static void requireFinite( double value, String name ) {
+	public static void requireFinite( double value, String name ) {
 		if ( Double.isNaN( value ) || Double.isInfinite( value ) ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The " + name + " argument must be a finite number but was " + value );
+		}
+	}
+
+	/**
+	 * A decibel value must be a number and no further from zero than +-200 dB, which is far past anything audible. Larger values overflow to
+	 * infinity and would silently turn the sound into silence.
+	 */
+	public static void requireDb( double value, String name ) {
+		requireFinite( value, name );
+		if ( Math.abs( value ) > 200 ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The " + name + " argument must be between -200 and 200 dB but was " + value );
 		}
 	}
 

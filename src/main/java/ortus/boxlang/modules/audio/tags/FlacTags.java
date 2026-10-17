@@ -106,7 +106,7 @@ public final class FlacTags {
 			return new Comments( "", new ArrayList<>() );
 		}
 		int vendorLength = le32( body, 0 );
-		if ( vendorLength < 0 || 4 + vendorLength + 4 > body.length ) {
+		if ( vendorLength < 0 || 4L + vendorLength + 4 > body.length ) {
 			return new Comments( "", new ArrayList<>() );
 		}
 		String			vendor	= new String( body, 4, vendorLength, StandardCharsets.UTF_8 );
@@ -116,7 +116,7 @@ public final class FlacTags {
 		for ( int i = 0; i < count && pos + 4 <= body.length; i++ ) {
 			int length = le32( body, pos );
 			pos += 4;
-			if ( length < 0 || pos + length > body.length ) {
+			if ( length < 0 || ( long ) pos + length > body.length ) {
 				break;
 			}
 			entries.add( new String( body, pos, length, StandardCharsets.UTF_8 ) );
@@ -194,7 +194,11 @@ public final class FlacTags {
 			Matcher	t		= CHAPTER_TIME.matcher( key );
 			Matcher	n		= CHAPTER_NAME.matcher( key );
 			if ( n.matches() ) {
-				names.put( Integer.parseInt( n.group( 1 ) ), value );
+				try {
+					names.put( Integer.parseInt( n.group( 1 ) ), value );
+				} catch ( NumberFormatException e ) {
+					// a chapter number that is not a number is left out
+				}
 			} else if ( t.matches() ) {
 				try {
 					times.put( Integer.parseInt( t.group( 1 ) ), parseClock( value ) );
@@ -256,14 +260,17 @@ public final class FlacTags {
 		}
 		int	mimeLength	= be32( b, 4 );
 		int	at			= 8;
-		if ( mimeLength < 0 || at + mimeLength + 4 > b.length ) {
+		if ( mimeLength < 0 || ( long ) at + mimeLength + 4 > b.length ) {
 			return null;
 		}
 		String mime = new String( b, at, mimeLength, StandardCharsets.ISO_8859_1 );
 		at += mimeLength;
 		int descLength = be32( b, at );
+		if ( descLength < 0 || ( long ) at + 4 + descLength + 16 + 4 > b.length ) {
+			return null;
+		}
 		at += 4 + descLength + 16;
-		if ( descLength < 0 || at + 4 > b.length ) {
+		if ( at + 4 > b.length ) {
 			return null;
 		}
 		int dataLength = be32( b, at );

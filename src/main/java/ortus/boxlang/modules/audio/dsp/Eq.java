@@ -53,6 +53,9 @@ public final class Eq {
 	}
 
 	private static AudioBuffer apply( AudioBuffer audio, Band band ) {
+		Dsp.requireFinite( band.freq(), "freq" );
+		Dsp.requireFinite( band.q(), "q" );
+		Dsp.requireDb( band.gainDb(), "gainDb" );
 		String type = band.type().toLowerCase( Locale.ROOT );
 		if ( !BAND_TYPES.contains( type ) ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "Unknown EQ band type [" + band.type() + "]. Use one of " + BAND_TYPES );

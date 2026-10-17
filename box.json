@@ -14,7 +14,14 @@
 	"shortDescription": "Audio synthesis, mixing, analysis, text-to-speech and playback for BoxLang, with no native dependencies",
 	"type": "boxlang-modules",
 	"keywords": [
-		"boxlang"
+		"boxlang",
+		"audio",
+		"sound",
+		"music",
+		"text-to-speech",
+		"mp3",
+		"wav",
+		"flac"
 	],
 	"boxlang": {
 		"minimumVersion": "1.0.0",
@@ -29,12 +36,6 @@
 			"URL": "https://www.apache.org/licenses/LICENSE-2.0"
 		}
 	],
-	"devDependencies": {
-		"commandbox-boxlang": "*",
-		"commandbox-cfformat": "*",
-		"commandbox-docbox": "*",
-		"testbox": "*"
-	},
 	"ignore": [
 		"**/.*",
 		"settings.gradle",
@@ -45,7 +46,6 @@
 		"gradle/**"
 	],
 	"scripts": {
-		"setupTemplate": "task run taskFile=src/build/SetupTemplate.cfc",
 		"onRelease": "publish"
 	}
 }

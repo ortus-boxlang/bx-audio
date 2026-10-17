@@ -151,7 +151,7 @@ serviceLoader {
 jar {
     archiveVersion =  "${version}"
  	manifest {
-	   attributes 'Description': 'ExampleBoxLangModule'
+	   attributes 'Description': 'BxAudio, audio for BoxLang with no native dependencies'
     }
 }
 shadowJar {
@@ -178,7 +178,7 @@ spotless {
 
 /**
  * Custom task that creates a build/module folders
- * - Copies the build/libs/BoxLangModuleTemplate-1.0.0.jar to build/module/libs/BoxLangModuleTemplate-1.0.0.jar
+ * - Copies the build/libs/bx-audio-1.0.0.jar to build/module/libs/bx-audio-1.0.0.jar
  * - Copies the src/main/bx/** to build/module/ folder.
  */
 task createModuleStructure(type: Copy) {
@@ -217,6 +217,7 @@ task createModuleStructure(type: Copy) {
     }
     from( '.' ) {
         include 'box.json'
+		include 'LICENSE'
 		include 'readme.md'
 		include 'changelog.md'
 		// Token Replacements Go Here

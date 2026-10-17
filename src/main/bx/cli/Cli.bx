@@ -151,9 +151,18 @@ class {
 			known[ key ] = true;
 		} );
 		known[ "help" ] = true;
+		var takesValue = {};
+		reMatch( "--[A-Za-z][A-Za-z0-9-]*=", text ).each( ( o ) => {
+			takesValue[ o.reReplace( "^--", "" ).reReplace( "=$", "" ).replace( "-", "", "all" ).lcase() ] = true;
+		} );
 		for( var option in options.keyArray() ){
-			if( !known.keyExists( option.replace( "-", "", "all" ).lcase() ) ){
+			var plain = option.replace( "-", "", "all" ).lcase();
+			if( !known.keyExists( plain ) ){
 				throw( type = "bxaudio.cli", message = "Unknown option --#option# for `#name#`. Run `bx-audio help #name#` to see its options." );
+			}
+			// "--voice" with nothing after it would otherwise become the text "true"
+			if( takesValue.keyExists( plain ) && isInstanceOf( options[ option ], "java.lang.Boolean" ) ){
+				throw( type = "bxaudio.cli", message = "The option --#option# needs a value, for example --#option#=VALUE." );
 			}
 		}
 	}
@@ -269,17 +278,27 @@ class {
 		out( "  Needed for: OGG, Opus, AAC and M4A files, reading video files, mux, probe. WAV, MP3 and FLAC never need it." );
 	}
 
+	/**
+	 * An option that must be a number. The built in val() turns text such as abc into 0, which hides a typo.
+	 */
+	private function num( required any value ){
+		if( !isNumeric( value ) || isInstanceOf( value, "java.lang.Boolean" ) ){
+			throw( type = "bxaudio.cli", message = "A number was expected but the option has [#value#]." );
+		}
+		return value + 0;
+	}
+
 	function cmdPlay( required array args, required struct options ){
 		var file = needFile( args, 1, "play <file>" );
 		var audio = audioLoad( file );
 		out( "playing " & file & " (" & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s)" );
-		audioPlay( audio = audio, wait = true, volume = val( options.volume ?: 1 ), output = options.output ?: "speakers" );
+		audioPlay( audio = audio, wait = true, volume = num( options.volume ?: 1 ), output = options.output ?: "speakers" );
 	}
 
 	function cmdLoopify( required array args, required struct options ){
 		var source = needFile( args, 1, "loopify <in> <out>" );
 		var target = absolute( needArg( args, 2, "loopify <in> <out>" ) );
-		var looped = audioLoopify( audioLoad( source ), val( options.crossfade ?: 0.25 ) );
+		var looped = audioLoopify( audioLoad( source ), num( options.crossfade ?: 0.25 ) );
 		out( "wrote " & audioSave( looped, target ) & " (" & numberFormat( looped.getDurationSeconds(), "0.00" ) & " s)" );
 	}
 
@@ -296,7 +315,7 @@ class {
 			}
 			sounds[ path.listLast( "/\\" ).reReplace( "\.[^.]*$", "" ) ] = audioLoad( path );
 		} );
-		var result = audioSprite( sounds = sounds, gap = val( options.gap ?: 0.1 ), path = target );
+		var result = audioSprite( sounds = sounds, gap = num( options.gap ?: 0.1 ), path = target );
 		out( "wrote " & result.path & " and " & result.mapPath );
 		result.sprites.each( ( name, s ) => out( "  " & pad( name, 16 ) & numberFormat( s.start, "0.00" ) & " s to " & numberFormat( s.end, "0.00" ) & " s" ) );
 	}
@@ -321,7 +340,7 @@ class {
 		var sound = needFile( args, 2, "mux <video> <audio> <out>" );
 		var target = absolute( needArg( args, 3, "mux <video> <audio> <out>" ) );
 		var keep = options.keyExists( "keep-original" ) && options[ "keep-original" ] != false;
-		out( "wrote " & audioMux( video = video, audio = audioLoad( sound ), output = target, keepOriginal = keep, offset = val( options.offset ?: 0 ) ) );
+		out( "wrote " & audioMux( video = video, audio = audioLoad( sound ), output = target, keepOriginal = keep, offset = num( options.offset ?: 0 ) ) );
 	}
 
 	function cmdLoudness( required array args, required struct options ){
@@ -339,7 +358,7 @@ class {
 		var source = needFile( args, 1, "master <in> <out>" );
 		var target = absolute( needArg( args, 2, "master <in> <out>" ) );
 		var goal = options.target ?: "streaming";
-		var mastered = audioMaster( audio = audioLoad( source ), target = isNumeric( goal ) ? val( goal ) : goal, truePeakDb = options.truePeakDb ?: -1, glue = options.keyExists( "glue" ) && options.glue != false );
+		var mastered = audioMaster( audio = audioLoad( source ), target = isNumeric( goal ) ? num( goal ) : goal, truePeakDb = options.truePeakDb ?: -1, glue = options.keyExists( "glue" ) && options.glue != false );
 		var r = audioLoudness( mastered );
 		var written = audioSave( mastered, target );
 		out( "wrote " & written & " (" & numberFormat( r.integrated, "0.0" ) & " LUFS, true peak " & numberFormat( r.truePeakDb, "0.0" ) & " dBFS)" );
@@ -350,9 +369,9 @@ class {
 		var target = absolute( needArg( args, 2, "stretch <in> <out> --rate=N|--seconds=N" ) );
 		var audio = audioLoad( source );
 		if( options.keyExists( "seconds" ) ){
-			audio = audioFitTo( audio, val( options.seconds ) );
+			audio = audioFitTo( audio, num( options.seconds ) );
 		} else if( options.keyExists( "rate" ) ){
-			audio = audioStretch( audio, val( options.rate ) );
+			audio = audioStretch( audio, num( options.rate ) );
 		} else {
 			throw( type = "bxaudio.cli", message = "Missing option. Usage: bx-audio stretch <in> <out> --rate=1.1 | --seconds=30" );
 		}
@@ -365,7 +384,7 @@ class {
 		if( !options.keyExists( "semitones" ) ){
 			throw( type = "bxaudio.cli", message = "Missing option. Usage: bx-audio pitch <in> <out> --semitones=2" );
 		}
-		out( "wrote " & audioSave( audioPitch( audioLoad( source ), val( options.semitones ) ), target ) );
+		out( "wrote " & audioSave( audioPitch( audioLoad( source ), num( options.semitones ) ), target ) );
 	}
 
 	function cmdBpm( required array args, required struct options ){
@@ -384,10 +403,10 @@ class {
 		var source = needFile( args, 1, "silence <file>" );
 		var audio = audioLoad( source );
 		if( options.keyExists( "trim" ) ){
-			out( "wrote " & audioSave( audioTrimSilence( audio, val( options.thresholdDb ?: -50 ) ), absolute( options.trim ) ) );
+			out( "wrote " & audioSave( audioTrimSilence( audio, num( options.thresholdDb ?: -50 ) ), absolute( options.trim ) ) );
 			return;
 		}
-		var found = audioDetectSilence( audio, val( options.thresholdDb ?: -50 ), val( options.min ?: 0.3 ) );
+		var found = audioDetectSilence( audio, num( options.thresholdDb ?: -50 ), num( options.min ?: 0.3 ) );
 		if( !found.len() ){
 			out( "No silence found." );
 			return;
@@ -532,6 +551,9 @@ class {
 
 	function cmdClean( required array args, required struct options ){
 		var kind = args.len() ? args.first().lcase() : "all";
+		if( ![ "engine", "voices", "ffmpeg", "cache", "all" ].contains( kind ) ){
+			throw( type = "bxaudio.cli", message = "Unknown kind [#kind#]. Use engine, voices, ffmpeg, cache or all." );
+		}
 		if( !( options.keyExists( "yes" ) && options.yes != false ) ){
 			var storage = audioStorage();
 			out( "This deletes [#kind#] from #storage.home#. Add --yes to do it. Downloads happen again on next use." );
@@ -557,7 +579,7 @@ class {
 		}
 		var target = absolute( options.out ?: "speech.wav" );
 		var install = ( options.install ?: true ) != false;
-		var speed = val( options.speed ?: 1 );
+		var speed = num( options.speed ?: 1 );
 		var pieceByPiece = [ "captions", "by-clause", "sentence-pause", "clause-pause", "paragraph-pause" ].some( ( k ) => options.keyExists( k ) );
 		if( !pieceByPiece ){
 			var audio = audioSpeak( text = text, voice = options.voice, autoInstall = install, onProgress = progressPrinter(), speed = speed );
@@ -568,7 +590,7 @@ class {
 		var pauses = {};
 		[ "sentence", "clause", "paragraph" ].each( ( k ) => {
 			if( options.keyExists( k & "-pause" ) ){
-				pauses[ k ] = val( options[ k & "-pause" ] );
+				pauses[ k ] = num( options[ k & "-pause" ] );
 			}
 		} );
 		var spoken = audioSpeakCues(
@@ -585,7 +607,7 @@ class {
 		if( options.keyExists( "captions" ) ){
 			var captions = absolute( options.captions );
 			var format = captions.lcase().endsWith( ".vtt" ) ? "vtt" : "srt";
-			audioSubtitles( cues = spoken.cues, format = format, path = captions, offset = val( options.offset ?: 0 ) );
+			audioSubtitles( cues = spoken.cues, format = format, path = captions, offset = num( options.offset ?: 0 ) );
 			out( "wrote " & captions & " (" & spoken.cues.len() & " captions)" );
 		}
 	}
@@ -613,6 +635,16 @@ class {
 			if( !known.contains( key ) ){
 				throw( type = "bxaudio.cli", message = "[#piece.id#] has no setting [#key#]. Its settings are: #known.toList( ', ' )#." );
 			}
+			var param = piece.params.filter( ( x ) => x.name == key ).first();
+			if( ( param.type ?: "" ) == "select" ){
+				if( !param.options.contains( value & "" ) ){
+					throw( type = "bxaudio.cli", message = "[#key#] must be one of: #param.options.toList( ', ' )#." );
+				}
+			} else if( param.keyExists( "min" ) ){
+				if( !isSimpleValue( value ) || isBoolean( value ) && !isNumeric( value ) || !reFind( "^-?\d+(\.\d+)?$", value & "" ) || value <= 0 ){
+					throw( type = "bxaudio.cli", message = "[#key#] must be a number above 0." );
+				}
+			}
 			settings[ key ] = value;
 		} );
 		// The example scripts read their settings from `overrides`, in their own scope
@@ -639,7 +671,10 @@ class {
 			out( "Listening on every network interface. Anyone who can reach this machine can render audio on it." );
 		}
 		var builder = createObject( "java", "java.lang.ProcessBuilder" ).init( [ program, "--webroot", webroot, "--port", port & "", "--host", host ] );
-		builder.inheritIO().start().waitFor();
+		var exit = builder.inheritIO().start().waitFor();
+		if( exit != 0 ){
+			throw( type = "bxaudio.cli", message = "The explorer stopped with exit code #exit#. If the port is in use, try another with --port." );
+		}
 	}
 
 	function cmdDoctor( required array args, required struct options ){
