@@ -145,8 +145,8 @@ public final class Dynamics {
 				sum -= ahead[ i - n ];
 			}
 			int count = Math.min( i + 1, n );
-			// Before the start the missing frames count as no reduction
-			smooth[ i ] = ( float ) ( ( sum + ( n - count ) ) / n );
+			// Before the start the missing frames repeat the first value, so the opening of the file is protected like the rest
+			smooth[ i ] = ( float ) ( ( sum + ( n - count ) * ( double ) ahead[ 0 ] ) / n );
 		}
 		ahead = null;
 		double		relCoef	= coefficient( releaseMs, rate );
