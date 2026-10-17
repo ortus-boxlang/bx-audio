@@ -48,7 +48,7 @@ A real time mixer with buses, loops and crossfades, varied effects and audio spr
 Every voice of the collection: which can be used, which cannot, and why.
 :::
 ::: card title="Reference" icon="phosphor-duotone:books" href="reference/functions/index.md"
-All 82 functions with their arguments, and every command of the `bx-audio` command line.
+All 83 functions with their arguments, and every command of the `bx-audio` command line.
 :::
 :::
 

@@ -93,6 +93,27 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( help ).contains( "this machine only" );
 	}
 
+	@DisplayName( "voices shows the usage class of each license, filters by it, and credits writes the credit text" )
+	@Test
+	void testVoiceUsageAndCredits() {
+		String list = run( "voices", "--usage=permissive" );
+		assertThat( list ).contains( "USAGE" );
+		assertThat( list ).contains( "en_US-joe-medium" );
+		assertThat( list ).contains( "permissive" );
+		assertThat( run( "voices", "--usage=attribution" ) ).contains( "No voices match." );
+		String copyleft = run( "voices", "--excluded", "--usage=copyleft" );
+		assertThat( copyleft ).contains( "fr_FR-tom-medium" );
+		assertThat( copyleft ).contains( "hy_AM-gor-medium" );
+		assertThat( copyleft ).doesNotContain( "en_US-joe-medium" );
+		String detail = run( "voices", "joe" );
+		assertThat( detail ).contains( "usage        permissive (allows a product you sell)" );
+		assertThat( run( "voices", "sam" ) ).contains( "credit       Voice \"sam\"" );
+		assertThat( run( "credits", "joe" ) ).contains( "No credit is required for joe (CC0-1.0)." );
+		assertThat( run( "credits", "sam", "joe" ) ).contains( "Apache License 2.0" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "credits" ) ).getMessage() ).contains( "Name at least one voice" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> run( "voices", "--usage=free" ) ).getMessage() ).contains( "Unknown usage [free]" );
+	}
+
 	@DisplayName( "help lists every command and each command has its own usage" )
 	@Test
 	void testHelp() {

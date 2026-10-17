@@ -13,7 +13,8 @@ $bxAudioCommands = [ordered]@{
     'silence' = @('--thresholdDb=', '--min=', '--trim=')
     'waveform' = @('--width=', '--unicode')
     'speak' = @('--voice=', '--out=', '--file=', '--speed=', '--captions=', '--no-install', '--offset=', '--max-chars=', '--by-clause', '--sentence-pause=', '--clause-pause=', '--paragraph-pause=')
-    'voices' = @('--lang=', '--installed', '--downloadable', '--excluded', '--all', '--license=')
+    'voices' = @('--lang=', '--installed', '--downloadable', '--excluded', '--all', '--license=', '--usage=')
+    'credits' = @()
     'licenses' = @()
     'install' = @('bryce', 'joe', 'john', 'kathleen', 'kristin', 'en_US-ljspeech-high', 'en_US-ljspeech-medium', 'mike', 'norman', 'reza_ibrahim', 'sam', 'engine')
     'remove' = @('bryce', 'joe', 'john', 'kathleen', 'kristin', 'en_US-ljspeech-high', 'en_US-ljspeech-medium', 'mike', 'norman', 'reza_ibrahim', 'sam', 'engine')
@@ -31,7 +32,7 @@ $bxAudioCommands = [ordered]@{
     'doctor' = @()
     'completions' = @('bash', 'zsh', 'fish', 'powershell')
     'version' = @()
-    'help' = @('info', 'convert', 'normalize', 'trim', 'loudness', 'master', 'stretch', 'pitch', 'bpm', 'silence', 'waveform', 'speak', 'voices', 'licenses', 'install', 'remove', 'where', 'clean', 'play', 'loopify', 'sprite', 'ffmpeg', 'probe', 'mux', 'pieces', 'render', 'explorer', 'doctor', 'completions', 'version', 'help')
+    'help' = @('info', 'convert', 'normalize', 'trim', 'loudness', 'master', 'stretch', 'pitch', 'bpm', 'silence', 'waveform', 'speak', 'voices', 'credits', 'licenses', 'install', 'remove', 'where', 'clean', 'play', 'loopify', 'sprite', 'ffmpeg', 'probe', 'mux', 'pieces', 'render', 'explorer', 'doctor', 'completions', 'version', 'help')
 }
 Register-ArgumentCompleter -Native -CommandName bx-audio -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)

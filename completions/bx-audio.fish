@@ -14,6 +14,7 @@ complete -c bx-audio -n '__fish_use_subcommand' -a silence -d 'List the silent s
 complete -c bx-audio -n '__fish_use_subcommand' -a waveform -d 'Draw the loudness of a file on one line, with block characters if you add --unicode'
 complete -c bx-audio -n '__fish_use_subcommand' -a speak -d 'Say a text with an open license voice, installing the engine and the voice the first time'
 complete -c bx-audio -n '__fish_use_subcommand' -a voices -d 'List voices with their licenses, what is installed, and why some are not offered'
+complete -c bx-audio -n '__fish_use_subcommand' -a credits -d 'Print the credits the licenses of some voices ask for, to put on an about page'
 complete -c bx-audio -n '__fish_use_subcommand' -a licenses -d 'Show the voice licenses and what each one asks of you'
 complete -c bx-audio -n '__fish_use_subcommand' -a install -d 'Download a voice, or the speech engine every voice needs'
 complete -c bx-audio -n '__fish_use_subcommand' -a remove -d 'Delete a downloaded voice, or the speech engine'
@@ -80,6 +81,7 @@ complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l downloadable
 complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l excluded
 complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l all
 complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l license -r
+complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l usage -r
 complete -c bx-audio -n '__fish_seen_subcommand_from install' -a 'bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine'
 complete -c bx-audio -n '__fish_seen_subcommand_from remove' -a 'bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine'
 complete -c bx-audio -n '__fish_seen_subcommand_from clean' -l yes
@@ -116,4 +118,4 @@ complete -c bx-audio -n '__fish_seen_subcommand_from render' -a 'pop-drive lofi 
 complete -c bx-audio -n '__fish_seen_subcommand_from explorer' -l port -r
 complete -c bx-audio -n '__fish_seen_subcommand_from explorer' -l host -r
 complete -c bx-audio -n '__fish_seen_subcommand_from completions' -a 'bash zsh fish powershell'
-complete -c bx-audio -n '__fish_seen_subcommand_from help' -a 'info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help'
+complete -c bx-audio -n '__fish_seen_subcommand_from help' -a 'info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices credits licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help'

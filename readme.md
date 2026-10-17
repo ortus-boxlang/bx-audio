@@ -312,8 +312,9 @@ Playing to the speakers needs a sound card and the JVM's `java.desktop` module. 
 | `audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations )` | Speak a text, `speed` 1 is the voice's pace, `pauses` (`{ sentence, clause, paragraph }` in seconds) speaks it piece by piece. `voice` is an id such as `en_US-joe-medium` or a short name such as `joe`. Downloads the engine (about 148 MB, once) and the voice (63 to 114 MB, once) if they are missing, unless `autoInstall` is false |
 | `audioSpeakCues( text, voice, speed=1, pauses, maxChars=80, split="sentence", autoInstall, onProgress, pronunciations )` | Speak piece by piece and get `audio`, `cues` (`start`, `end`, `text`) and `seconds`. Captions land on the words within about 10 ms |
 | `audioSubtitles( cues, format="srt", path="", offset=0 )` | SRT or WebVTT text from cues, written to a file if you give a path |
-| `audioVoices( language="", installed=false, status="offered", license="" )` | The voices: id, name, language, quality, license, size, `status` (`installed`, `downloadable`, or `excluded` with `reason`). `status="excluded"` or `"all"` shows the voices that are not offered and why |
+| `audioVoices( language="", installed=false, status="offered", license="", usage="" )` | The voices: id, name, language, quality, license, `usage` (what the license means for a product you sell), `commercial`, `credit`, size, `status` (`installed`, `downloadable`, or `excluded` with `reason`). `status="excluded"` or `"all"` shows the voices that are not offered and why |
 | `audioLicenses()` | The licenses of the offered voices and what each asks of you |
+| `audioCredits( voices )` | The credits the licenses of some voices ask for, as text for an about page |
 | `audioVoiceInstall( voice, onProgress )` | Download a voice ahead of time, or `"engine"` for the speech engine every voice needs |
 | `audioVoiceRemove( voice )` | Delete a voice, or `"engine"`, from disk |
 | `audioSpeechStatus()` | Where it all lives, whether the engine is installed, and which voices are |
@@ -374,6 +375,7 @@ bx-audio doctor                                     # checks MP3, the examples a
 | `ffmpeg [install]` / `probe <file>` / `mux <video> <audio> <out>` | FFmpeg status and download, media information, audio onto a video |
 | `where` / `clean [kind] --yes` | Where `~/.bxaudio` keeps its downloads and how big they are, and deleting them |
 | `licenses` | The voice licenses and what each asks of you |
+| `credits <voice>...` | The credits the licenses of some voices ask for, to put on an about page |
 | `completions <shell>` | Print the tab completion script for `bash`, `zsh`, `fish` or `powershell` |
 | `version` | The module version |
 | `normalize <in> <out>` | Scale the peak to `--targetDb` (default -1) |

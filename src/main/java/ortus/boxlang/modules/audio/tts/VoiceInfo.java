@@ -23,6 +23,7 @@ package ortus.boxlang.modules.audio.tts;
  * @param quality     {@code low}, {@code medium} or {@code high}
  * @param license     The license as an identifier, for example {@code CC0-1.0}
  * @param licenseText The license exactly as the voice's model card states it
+ * @param usage       What the license means for a product you sell, see {@link Usage}
  * @param shareAlike  True when the license requires derived works to be shared under the same terms
  * @param source      Where the training data came from, may be empty
  * @param model       The model file
@@ -35,6 +36,7 @@ public record VoiceInfo(
     String quality,
     String license,
     String licenseText,
+    String usage,
     boolean shareAlike,
     String source,
     VoiceFile model,
@@ -48,6 +50,13 @@ public record VoiceInfo(
 	 * @param md5  The MD5 digest in hex
 	 */
 	public record VoiceFile( String path, long size, String md5 ) {
+	}
+
+	/**
+	 * @return true when the license allows a product you sell
+	 */
+	public boolean commercial() {
+		return Usage.commercial( this.usage );
 	}
 
 	/**

@@ -211,4 +211,41 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) variables.get( Key.of( "events" ) ) ).size() ).isEqualTo( 0 );
 	}
 
+	@DisplayName( "audioVoices says what each license means for a product you sell, and filters by it" )
+	@Test
+	void testVoiceUsage( @TempDir Path home ) {
+		useSpeechHome( home );
+		IStruct joe = ( IStruct ) ( ( Array ) run( "result = audioVoices().filter( ( v ) => v.name == 'joe' )" ) ).get( 0 );
+		assertThat( joe.get( Key.of( "usage" ) ) ).isEqualTo( "permissive" );
+		assertThat( joe.get( Key.of( "commercial" ) ) ).isEqualTo( true );
+		assertThat( joe.get( Key.of( "credit" ) ) ).isEqualTo( "" );
+		IStruct sam = ( IStruct ) ( ( Array ) run( "result = audioVoices().filter( ( v ) => v.name == 'sam' )" ) ).get( 0 );
+		assertThat( ( String ) sam.get( Key.of( "credit" ) ) ).contains( "Apache License 2.0" );
+		assertThat( ( ( Array ) run( "result = audioVoices( usage='permissive' )" ) ).size() ).isEqualTo( VoiceCatalog.load().all().size() );
+		assertThat( ( ( Array ) run( "result = audioVoices( usage='attribution,sharealike' )" ) ).size() ).isEqualTo( 0 );
+		Array copyleft = ( Array ) run( "result = audioVoices( status='excluded', usage='copyleft' )" );
+		assertThat( copyleft.size() ).isEqualTo( 2 );
+		IStruct tom = ( IStruct ) run( "result = audioVoices( status='excluded', usage='copyleft' ).filter( ( v ) => v.name == 'tom' ).first()" );
+		assertThat( tom.get( Key.of( "commercial" ) ) ).isEqualTo( false );
+		assertThat( tom.get( Key.of( "usage" ) ) ).isEqualTo( "copyleft" );
+		assertThat(
+		    run( "result = audioVoices( status='all' ).every( ( v ) => v.keyExists( 'usage' ) && v.keyExists( 'commercial' ) && v.keyExists( 'credit' ) )" ) )
+		    .isEqualTo( true );
+		assertThat( message( "result = audioVoices( usage='free' )" ) ).contains( "Unknown usage [free]" );
+	}
+
+	@DisplayName( "audioCredits writes the credit text for one voice, a list or an array, and refuses voices that cannot be used" )
+	@Test
+	void testCredits( @TempDir Path home ) {
+		useSpeechHome( home );
+		assertThat( run( "result = audioCredits( 'joe' )" ) ).isEqualTo( "No credit is required for joe (CC0-1.0).\n" );
+		String text = ( String ) run( "result = audioCredits( [ 'sam', 'joe' ] )" );
+		assertThat( text ).startsWith( "Voices\n\n- Voice \"sam\" (en_US)" );
+		assertThat( text ).contains( "No credit is required for joe (CC0-1.0)." );
+		assertThat( run( "result = audioCredits( 'joe, en_US-joe-medium' )" ) ).isEqualTo( "No credit is required for joe (CC0-1.0), joe (CC0-1.0).\n" );
+		assertThat( message( "result = audioCredits( 'nobody' )" ) ).contains( "Unknown voice [nobody]" );
+		assertThat( message( "result = audioCredits( 'fr_FR-tom-medium' )" ) ).contains( "is not offered" );
+		assertThat( message( "result = audioCredits( [] )" ) ).contains( "Name at least one voice" );
+	}
+
 }

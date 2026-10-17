@@ -25,6 +25,8 @@ import ortus.boxlang.runtime.types.Array;
 import ortus.boxlang.runtime.types.Struct;
 import java.util.List;
 
+import ortus.boxlang.modules.audio.tts.Credits;
+import ortus.boxlang.modules.audio.tts.Usage;
 import ortus.boxlang.modules.audio.tts.VoiceCatalog;
 import ortus.boxlang.modules.audio.tts.VoiceInfo;
 import ortus.boxlang.runtime.scopes.Key;
@@ -35,6 +37,7 @@ public class AudioVoices extends BIF {
 
 	private static final Key	status	= Key.of( "status" );
 	private static final Key	license	= Key.of( "license" );
+	private static final Key	usage	= Key.of( "usage" );
 
 	/**
 	 * Constructor
@@ -45,7 +48,8 @@ public class AudioVoices extends BIF {
 		    new Argument( false, "string", KeyDictionary.language, "" ),
 		    new Argument( false, "boolean", KeyDictionary.installed, false ),
 		    new Argument( false, "string", status, "offered" ),
-		    new Argument( false, "string", license, "" )
+		    new Argument( false, "string", license, "" ),
+		    new Argument( false, "string", usage, "" )
 		};
 	}
 
@@ -64,13 +68,19 @@ public class AudioVoices extends BIF {
 	 *
 	 * @argument.license Only voices with this license identifier, for example CC0-1.0 or Apache-2.0.
 	 *
-	 * @return An array of structs with id, name, language, quality, license, licenseText, shareAlike, source, sizeMB, installed, status
-	 *         (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).
+	 * @argument.usage Only voices of these usage classes, as a list: permissive, attribution, sharealike (the commercial ones), noncommercial, copyleft,
+	 *                 custom or unclear. For example "permissive,attribution" gives the voices you can use in a product you sell without any condition
+	 *                 beyond credit.
+	 *
+	 * @return An array of structs with id, name, language, quality, license, licenseText, usage (what the license means for a product you sell),
+	 *         commercial (true for permissive, attribution and sharealike), credit (the text to publish, empty when the license asks for none),
+	 *         shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).
 	 */
 	public Array _invoke( IBoxContext context, ArgumentsScope arguments ) {
-		String	language	= arguments.getAsString( KeyDictionary.language );
-		String	wanted		= arguments.getAsBoolean( KeyDictionary.installed ) ? "installed" : arguments.getAsString( status ).trim().toLowerCase();
-		String	licenseId	= arguments.getAsString( license );
+		String			language	= arguments.getAsString( KeyDictionary.language );
+		String			wanted		= arguments.getAsBoolean( KeyDictionary.installed ) ? "installed" : arguments.getAsString( status ).trim().toLowerCase();
+		String			licenseId	= arguments.getAsString( license );
+		List<String>	usages		= usageFilter( arguments.getAsString( usage ) );
 		if ( !List.of( "offered", "installed", "downloadable", "excluded", "all" ).contains( wanted ) ) {
 			throw new AudioException( AudioException.DOWNLOAD_FAILED,
 			    "Unknown status [" + wanted + "]. Use offered, installed, downloadable, excluded or all." );
@@ -81,20 +91,23 @@ public class AudioVoices extends BIF {
 		for ( VoiceInfo voice : catalog.all() ) {
 			boolean	isInstalled	= store.isInstalled( voice );
 			String	state		= isInstalled ? "installed" : "downloadable";
-			if ( !matches( wanted, state ) || !matchesFilters( voice.language(), voice.license(), language, licenseId ) ) {
+			if ( !matches( wanted, state ) || !matchesFilters( voice.language(), voice.license(), language, licenseId )
+			    || !matchesUsage( voice.usage(), usages ) ) {
 				continue;
 			}
 			result.add( Struct.ofNonConcurrent( "id", voice.id(), "name", voice.name(), "language", voice.language(), "quality", voice.quality(),
-			    "license", voice.license(), "licenseText", voice.licenseText(), "shareAlike", voice.shareAlike(), "source", voice.source(),
+			    "license", voice.license(), "licenseText", voice.licenseText(), "usage", voice.usage(), "commercial", voice.commercial(), "credit",
+			    Credits.line( voice ), "shareAlike", voice.shareAlike(), "source", voice.source(),
 			    "sizeMB", Speech.megabytes( voice.downloadSize() ), "installed", isInstalled, "status", state, "reasonKind", "", "reason", "" ) );
 		}
 		if ( wanted.equals( "excluded" ) || wanted.equals( "all" ) ) {
 			for ( VoiceCatalog.ExcludedVoice voice : catalog.excluded() ) {
-				if ( !matchesFilters( voice.language(), voice.license(), language, licenseId ) ) {
+				if ( !matchesFilters( voice.language(), voice.license(), language, licenseId ) || !matchesUsage( voice.usage(), usages ) ) {
 					continue;
 				}
 				result.add( Struct.ofNonConcurrent( "id", voice.id(), "name", voice.name(), "language", voice.language(), "quality", voice.quality(),
-				    "license", voice.license(), "licenseText", voice.licenseText(), "shareAlike", voice.license().contains( "-SA-" ), "source",
+				    "license", voice.license(), "licenseText", voice.licenseText(), "usage", voice.usage(), "commercial", Usage.commercial( voice.usage() ),
+				    "credit", "", "shareAlike", voice.license().contains( "-SA-" ), "source",
 				    voice.source(), "sizeMB", Speech.megabytes( voice.size() ), "installed", false, "status", "excluded", "reasonKind",
 				    voice.reasonKind(), "reason", voice.reason() ) );
 			}
@@ -113,6 +126,29 @@ public class AudioVoices extends BIF {
 	private static boolean matchesFilters( String voiceLanguage, String voiceLicense, String language, String licenseId ) {
 		return ( language.isEmpty() || voiceLanguage.equalsIgnoreCase( language ) )
 		    && ( licenseId.isEmpty() || voiceLicense.equalsIgnoreCase( licenseId ) );
+	}
+
+	/**
+	 * The classes asked for, checked, or none for every class
+	 */
+	private static List<String> usageFilter( String text ) {
+		List<String> classes = new java.util.ArrayList<>();
+		for ( String each : text.split( "," ) ) {
+			String name = each.trim().toLowerCase();
+			if ( name.isEmpty() ) {
+				continue;
+			}
+			if ( !Usage.ALL.contains( name ) ) {
+				throw new AudioException( AudioException.INVALID_ARGUMENT,
+				    "Unknown usage [" + name + "]. Use one or more of: " + String.join( ", ", Usage.ALL ) );
+			}
+			classes.add( name );
+		}
+		return classes;
+	}
+
+	private static boolean matchesUsage( String voiceUsage, List<String> usages ) {
+		return usages.isEmpty() || usages.contains( voiceUsage );
 	}
 
 }

@@ -72,7 +72,7 @@ audioSubtitles( cues, format="srt", path="", offset=0 )
 List the voices of the collection, with their licenses and what you can do with each
 
 ```js
-audioVoices( language="", installed=false, status="offered", license="" )
+audioVoices( language="", installed=false, status="offered", license="", usage="" )
 ```
 
 | Argument | Type | Default | |
@@ -81,8 +81,9 @@ audioVoices( language="", installed=false, status="offered", license="" )
 | `installed` | boolean | `false` | True to list only the voices that are installed. Same as status="installed". |
 | `status` | string | `"offered"` | offered (default: voices you can use), installed, downloadable (offered, not installed yet), excluded (not offered, with the reason) or all. |
 | `license` | string | `""` | Only voices with this license identifier, for example CC0-1.0 or Apache-2.0. |
+| `usage` | string | `""` | Only voices of these usage classes, as a list: permissive, attribution, sharealike (the commercial ones), noncommercial, copyleft, custom or unclear. For example "permissive,attribution" gives the voices you can use in a product you sell without any condition beyond credit. |
 
-**Returns** An array of structs with id, name, language, quality, license, licenseText, shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).
+**Returns** An array of structs with id, name, language, quality, license, licenseText, usage (what the license means for a product you sell), commercial (true for permissive, attribution and sharealike), credit (the text to publish, empty when the license asks for none), shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).
 
 ## audioLicenses
 
@@ -93,6 +94,20 @@ audioLicenses()
 ```
 
 **Returns** An array of structs with id, name, url, commercial, attribution, shareAlike, summary and voices (how many offered voices use it).
+
+## audioCredits
+
+Writes the credits for the voices you use, to put on an about page or in the notices of a product. A line for each voice whose license asks that the creator is credited (CC BY, CC BY-SA, Apache 2.0), with the creator of the training data, the license and a link to it, and a sentence naming the voices that ask for nothing. Voices that are not offered raise an error, as they cannot be used.
+
+```js
+audioCredits( voices )
+```
+
+| Argument | Type | Default | |
+|---|---|---|---|
+| `voices` | any | required | A voice id or short name, a comma separated list of them, or an array, for example [ "joe", "en_US-sam-medium" ]. |
+
+**Returns** The credits as text, one line a voice, in a form that is also valid Markdown.
 
 ## audioVoiceInstall
 

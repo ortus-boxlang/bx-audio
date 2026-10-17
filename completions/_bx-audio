@@ -17,6 +17,7 @@ _bx-audio() {
         'waveform:Draw the loudness of a file on one line, with block characters if you add --unicode'
         'speak:Say a text with an open license voice, installing the engine and the voice the first time'
         'voices:List voices with their licenses, what is installed, and why some are not offered'
+        'credits:Print the credits the licenses of some voices ask for, to put on an about page'
         'licenses:Show the voice licenses and what each one asks of you'
         'install:Download a voice, or the speech engine every voice needs'
         'remove:Delete a downloaded voice, or the speech engine'
@@ -66,7 +67,9 @@ _bx-audio() {
         speak)
             _arguments '--voice=[voice]:voice:' '--out=[out]:out:' '--file=[file]:file:' '--speed=[speed]:speed:' '--captions=[captions]:captions:' '--no-install' '--offset=[offset]:offset:' '--max-chars=[max-chars]:max-chars:' '--by-clause' '--sentence-pause=[sentence-pause]:sentence-pause:' '--clause-pause=[clause-pause]:clause-pause:' '--paragraph-pause=[paragraph-pause]:paragraph-pause:' ;;
         voices)
-            _arguments '--lang=[lang]:lang:' '--installed' '--downloadable' '--excluded' '--all' '--license=[license]:license:' ;;
+            _arguments '--lang=[lang]:lang:' '--installed' '--downloadable' '--excluded' '--all' '--license=[license]:license:' '--usage=[usage]:usage:' ;;
+        credits)
+            _message 'no arguments' ;;
         licenses)
             _message 'no arguments' ;;
         install)
@@ -102,7 +105,7 @@ _bx-audio() {
         version)
             _message 'no arguments' ;;
         help)
-            _arguments '*:help:(info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help)' ;;
+            _arguments '*:help:(info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices credits licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help)' ;;
     esac
 }
 if [ "$funcstack[1]" = "_bx-audio" ]; then

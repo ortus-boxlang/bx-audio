@@ -58,7 +58,7 @@ public class VoiceStoreTest {
 		} );
 		server.start();
 		try {
-			VoiceInfo	voice	= new VoiceInfo( "xx_XX-test-low", "test", "xx_XX", "low", "CC0-1.0", "CC0", false, "",
+			VoiceInfo	voice	= new VoiceInfo( "xx_XX-test-low", "test", "xx_XX", "low", "CC0-1.0", "CC0", "permissive", false, "",
 			    new VoiceFile( "v/xx_XX-test-low.onnx", model.length, modelMd5 ), new VoiceFile( "v/xx_XX-test-low.onnx.json", config.length, configMd5 ) );
 			VoiceStore	store	= new VoiceStore( dir.resolve( "voices" ), "http://127.0.0.1:" + server.getAddress().getPort() );
 			assertThat( store.isInstalled( voice ) ).isFalse();

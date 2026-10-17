@@ -5,7 +5,7 @@
 _bx_audio_complete() {
     local current_word="${COMP_WORDS[COMP_CWORD]}"
     local command="${COMP_WORDS[1]}"
-    local commands="info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help"
+    local commands="info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices credits licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help"
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "$commands" -- "$current_word"))
         return
@@ -36,7 +36,9 @@ _bx_audio_complete() {
         speak)
             COMPREPLY=($(compgen -W "--voice= --out= --file= --speed= --captions= --no-install --offset= --max-chars= --by-clause --sentence-pause= --clause-pause= --paragraph-pause=" -- "$current_word")) ;;
         voices)
-            COMPREPLY=($(compgen -W "--lang= --installed --downloadable --excluded --all --license=" -- "$current_word")) ;;
+            COMPREPLY=($(compgen -W "--lang= --installed --downloadable --excluded --all --license= --usage=" -- "$current_word")) ;;
+        credits)
+            COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         licenses)
             COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         install)
@@ -72,7 +74,7 @@ _bx_audio_complete() {
         version)
             COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         help)
-            COMPREPLY=($(compgen -W "info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help" -- "$current_word")) ;;
+            COMPREPLY=($(compgen -W "info convert normalize trim loudness master stretch pitch bpm silence waveform speak voices credits licenses install remove where clean play loopify sprite ffmpeg probe mux pieces render explorer doctor completions version help" -- "$current_word")) ;;
         *) COMPREPLY=($(compgen -f -- "$current_word")) ;;
     esac
 }

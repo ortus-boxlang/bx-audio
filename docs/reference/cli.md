@@ -23,6 +23,7 @@ summary: Every bx-audio command and its options.
 | [`waveform`](#waveform) | Draw the loudness of a file on one line, with block characters if you add --unicode |
 | [`speak`](#speak) | Say a text with an open license voice, installing the engine and the voice the first time |
 | [`voices`](#voices) | List voices with their licenses, what is installed, and why some are not offered |
+| [`credits`](#credits) | Print the credits the licenses of some voices ask for, to put on an about page |
 | [`licenses`](#licenses) | Show the voice licenses and what each one asks of you |
 | [`install`](#install) | Download a voice, or the speech engine every voice needs |
 | [`remove`](#remove) | Delete a downloaded voice, or the speech engine |
@@ -158,7 +159,7 @@ Giving captions, a pause or --by-clause speaks the text piece by piece. Without 
 List voices with their licenses, what is installed, and why some are not offered.
 
 ```bash
-bx-audio voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID]
+bx-audio voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID] [--usage=CLASSES]
 ```
 
 ```text
@@ -170,8 +171,18 @@ Without options it lists the voices you can use. Each row says whether it is ins
   --all           Offered and excluded together
   --lang=en_US    One language (--lang=all is the default)
   --license=ID    One license, for example CC0-1.0 or Apache-2.0
+  --usage=LIST    Only these classes of license: permissive, attribution, sharealike (the commercial ones),
+                  noncommercial, copyleft, custom, unclear. For example --usage=permissive,attribution
 
-See `bx-audio licenses` for what each license asks of you.
+See `bx-audio licenses` for what each license asks of you, and `bx-audio credits <voice>` for the credit to publish.
+```
+
+## credits
+
+Print the credits the licenses of some voices ask for, to put on an about page.
+
+```bash
+bx-audio credits <voice> [<voice> ...]
 ```
 
 ## licenses
