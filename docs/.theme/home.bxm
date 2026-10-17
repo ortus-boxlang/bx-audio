@@ -99,7 +99,8 @@
 	<link rel="stylesheet" href="#variables.basePath#assets/vendor/bootstrap/bootstrap.min.css">
 	<link rel="stylesheet" href="#variables.basePath#assets/vendor/highlight/github.min.css">
 	<link rel="stylesheet" href="#themeAssetUrl( 'style.css' )#">
-	<link rel="stylesheet" href="#moduleAssetUrl( 'home.css' )#">
+	<!--- bxsites-home.css is a copy of bx-sites' own home.css, kept in the theme so the page does not depend on which bx-sites release builds it --->
+	<link rel="stylesheet" href="#themeAssetUrl( 'bxsites-home.css' )#">
 	<link rel="stylesheet" href="#variables.basePath#assets/vendor/phosphor/style.css">
 	<link rel="stylesheet" href="#themeAssetUrl( 'audio-home.css' )#">
 
