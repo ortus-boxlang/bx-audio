@@ -342,7 +342,7 @@
 			<div class="ax-lic ax-reveal"><table>
 				<tr><th>Voice</th><th>License</th><th>Status</th><th></th></tr>
 				<tr><td>en_US joe</td><td>CC0</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-joe-medium.mp3" aria-label="Play en_US joe"><i class="ph-duotone ph-play"></i></button></td></tr>
-				<tr><td>en_US bryce</td><td>CC0</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-bryce-medium.mp3" aria-label="Play en_US bryce"><i class="ph-duotone ph-play"></i></button></td></tr>
+				<tr><td>en_US bryce</td><td>Public Domain</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-bryce-medium.mp3" aria-label="Play en_US bryce"><i class="ph-duotone ph-play"></i></button></td></tr>
 				<tr><td>en_US kristin</td><td>Public Domain</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-kristin-medium.mp3" aria-label="Play en_US kristin"><i class="ph-duotone ph-play"></i></button></td></tr>
 				<tr><td>en_GB (dictionary)</td><td>GPL data</td><td><span class="ax-tag no">Not offered</span></td><td></td></tr>
 				<tr><td>Non-commercial set</td><td>CC BY-NC</td><td><span class="ax-tag no">Not offered</span></td><td></td></tr>
