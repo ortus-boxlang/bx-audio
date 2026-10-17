@@ -37,11 +37,33 @@ function normalizeLicense( text ){
 	if( t.startsWith( "cc0" ) ){ return "CC0-1.0"; }
 	if( t == "public domain" ){ return "Public-Domain"; }
 	if( t.contains( "by-sa" ) || t.contains( "attribution-sharealike" ) ){ return t.contains( "4.0" ) ? "CC-BY-SA-4.0" : ""; }
-	if( t == "cc by 4.0" || t == "cc-by 4.0" || t == "cc-by-4.0" || t.contains( "licenses/by/4.0" ) ){ return "CC-BY-4.0"; }
+	if( t == "cc by 4.0" || t == "cc-by 4.0" || t == "cc-by-4.0" || t.contains( "licenses/by/4.0" ) || t.contains( "(cc by 4.0)" ) || t.startsWith( "creative commons attribution 4.0" ) ){ return "CC-BY-4.0"; }
 	if( t.contains( "licenses/by/3.0" ) ){ return "CC-BY-3.0"; }
 	if( t.contains( "apache" ) ){ return "Apache-2.0"; }
 	if( t.contains( "unlicense" ) ){ return "Unlicense"; }
 	return "";
+}
+
+/**
+ * What a license means for someone who sells a service built on the voice:
+ *   permissive     CC0, public domain, Unlicense, Apache 2.0: use it, nothing to publish
+ *   attribution    CC BY: use it, and credit the creator
+ *   sharealike     CC BY-SA: use it, credit the creator, and what you share made from it carries the same terms
+ *   noncommercial  BY-NC and BY-NC-SA: not for a product you sell
+ *   copyleft       GPL and AGPL: not offered, whether the weights count as the program is untested
+ *   custom         a license written for one dataset (Blizzard, IITM, Data Baker)
+ *   unclear        the card says nothing, or only "See URL", or a form we do not classify
+ * The first three are the commercial ones. The text of the card decides for a voice whose license we do not accept.
+ */
+function usageOf( license, text ){
+	if( [ "CC0-1.0", "Public-Domain", "Unlicense", "Apache-2.0" ].contains( license ) ){ return "permissive"; }
+	if( [ "CC-BY-4.0", "CC-BY-3.0" ].contains( license ) ){ return "attribution"; }
+	if( license == "CC-BY-SA-4.0" ){ return "sharealike"; }
+	var t = text.lcase();
+	if( t.contains( "agpl" ) || t.reFind( "(^|[^a-z])gpl" ) ){ return "copyleft"; }
+	if( t.contains( "-nc" ) || t.contains( " nc " ) || t.contains( "non-commercial" ) || t.contains( "noncommercial" ) ){ return "noncommercial"; }
+	if( t.contains( "blizzard" ) || t.contains( "iitm" ) || t.contains( "data-baker" ) ){ return "custom"; }
+	return "unclear";
 }
 
 /**
@@ -50,7 +72,8 @@ function normalizeLicense( text ){
 function reasonFor( text ){
 	var t = text.lcase();
 	if( !text.len() ){ return "The model card states no license"; }
-	if( t.contains( "-nc" ) || t.contains( "non-commercial" ) ){ return "Non-commercial license"; }
+	if( t.contains( "agpl" ) || t.reFind( "(^|[^a-z])gpl" ) ){ return "Copyleft license (" & text.left( 20 ) & "), not offered"; }
+	if( t.contains( "-nc" ) || t.contains( "non-commercial" ) || t.contains( "noncommercial" ) ){ return "Non-commercial license"; }
 	if( t.contains( "blizzard" ) ){ return "Custom license (Blizzard 2013 data), not an open license"; }
 	if( t.startsWith( "see" ) ){ return "The model card only says '" & text & "', so the license is not clear"; }
 	return "Not an open license we accept: " & text.left( 50 );
@@ -97,7 +120,8 @@ for( key in all.keyArray().sort( "text" ) ){
 		}
 		excluded.append( {
 			"id" : key, "name" : voice.name, "language" : voice.language.code, "quality" : voice.quality, "license" : license,
-			"licenseText" : licenseText, "source" : sourceUrl, "reasonKind" : kind, "reason" : reason, "size" : totalSize
+			"licenseText" : licenseText, "usage" : usageOf( license, licenseText ), "source" : sourceUrl, "reasonKind" : kind, "reason" : reason,
+			"size" : totalSize
 		} );
 		continue;
 	}
@@ -116,6 +140,7 @@ for( key in all.keyArray().sort( "text" ) ){
 		"quality" : voice.quality,
 		"license" : license,
 		"licenseText" : licenseText,
+		"usage" : usageOf( license, licenseText ),
 		"shareAlike" : license.contains( "-SA-" ),
 		"source" : sourceUrl,
 		"model" : files.model,
@@ -161,23 +186,37 @@ doc.append( "```" );
 doc.append( "" );
 doc.append( "#### Licenses" );
 doc.append( "" );
-doc.append( "Only voices whose model card states an open license are listed: CC0, public domain, CC BY, CC BY-SA, Apache 2.0 or the Unlicense. The license column is the identifier we map the card's wording to, and the card itself stays the authority, so read it when it matters (the link in the last column leads to the training data). A voice licensed CC BY asks for credit, and CC BY-SA also asks that what you make from it is shared under the same terms. Voices whose card says non-commercial, names a custom license, says only ""See URL"", or says nothing are not listed." );
+doc.append( "Only voices whose model card states an open license are listed: CC0, public domain, CC BY, CC BY-SA, Apache 2.0 or the Unlicense. The license column is the identifier we map the card's wording to, and the card itself stays the authority, so read it when it matters (the link in the last column leads to the training data). Voices whose card says non-commercial, names a custom license, says only ""See URL"", or says nothing are not listed. The usage column says what the license means for a product you sell, see [Using voices in a product you sell](##using-voices-in-a-product-you-sell)." );
 doc.append( "" );
 doc.append( "#### Available voices" );
 doc.append( "" );
-doc.append( "| Voice | Language | Quality | License | Download | Training data | Listen |" );
-doc.append( "|---|---|---|---|---|---|---|" );
+doc.append( "| Voice | Language | Quality | License | Usage | Download | Training data | Listen |" );
+doc.append( "|---|---|---|---|---|---|---|---|" );
 for( v in kept ){
 	// A sample line spoken by the voice, made by tools/generate-doc-audio.bxs --voice-samples
 	sample = fileExists( expandPath( "../docs/assets/audio/voices/" & v.id & ".mp3" ) ) ? "<audio controls preload=""none"" src=""assets/audio/voices/" & v.id & ".mp3""></audio>" : "";
-	doc.append( "| `" & v.id & "` | " & v.language & " | " & v.quality & " | " & v.license & " | " & mb( v.model.size + v.config.size ) & " | " & ( v.source.len() ? "[source](" & v.source & ")" : "not stated" ) & " | " & sample & " |" );
+	doc.append( "| `" & v.id & "` | " & v.language & " | " & v.quality & " | " & v.license & " | " & v.usage & " | " & mb( v.model.size + v.config.size ) & " | " & ( v.source.len() ? "[source](" & v.source & ")" : "not stated" ) & " | " & sample & " |" );
 }
 doc.append( "" );
 doc.append( "Use a voice by its full id, or by its short name when only one voice has that name (`joe`, but not `ljspeech`, which comes in two qualities)." );
 doc.append( "" );
+doc.append( "#### Using voices in a product you sell" );
+doc.append( "" );
+doc.append( "Every offered license allows commercial use, so you can sell a service that speaks with these voices as long as you do what the license asks. Each voice has a `usage`:" );
+doc.append( "" );
+doc.append( "| Usage | Licenses | What you do |" );
+doc.append( "|---|---|---|" );
+doc.append( "| `permissive` | CC0, public domain, Unlicense, Apache 2.0 | Nothing is required. With Apache 2.0, keep the license notice. |" );
+doc.append( "| `attribution` | CC BY | Credit the creator of the training data and link the license. For model training, Creative Commons says the credit can be a link to the source of the dataset. |" );
+doc.append( "| `sharealike` | CC BY-SA | Credit as above. The license also asks that adapted material you share carries the same terms. Whether speech made by a model is adapted material is not settled, so read the card, and take advice if you need to be sure. |" );
+doc.append( "" );
+doc.append( "`audioCredits( [ ""joe"", ""en_US-sam-medium"" ] )` or `bx-audio credits joe sam` writes the credits for the voices you use, ready to paste into an about page. Filter the list with `audioVoices( usage=""permissive,attribution"" )` or `bx-audio voices --usage=permissive,attribution`." );
+doc.append( "" );
+doc.append( "These licenses were written for datasets and software, not for speech made by a model, so a few questions have no settled answer. This page is a guide, not legal advice. The code of this module is Apache 2.0, and the MP3 libraries are LGPL jars that you download separately." );
+doc.append( "" );
 doc.append( "#### Not offered" );
 doc.append( "" );
-doc.append( "Every voice of the collection that is not offered, and why. `bx-audio voices --excluded` prints the same list, and `audioVoices( status=""excluded"" )` returns it." );
+doc.append( "Every voice of the collection that is not offered, and why. `bx-audio voices --excluded` prints the same list, and `audioVoices( status=""excluded"" )` returns it. The usage column describes the license, whether the voice is offered is a separate question." );
 doc.append( "" );
 doc.append( "| Why | Voices |" );
 doc.append( "|---|---|" );
@@ -187,10 +226,25 @@ for( kindName in [ "license", "dictionary", "speakers", "language" ] ){
 	doc.append( "| " & label & " | " & count & " |" );
 }
 doc.append( "" );
-doc.append( "| Voice | Language | License on the card | Why |" );
-doc.append( "|---|---|---|---|" );
+doc.append( "The voices left out for their license, by what the license is:" );
+doc.append( "" );
+doc.append( "| Usage | Meaning | Voices |" );
+doc.append( "|---|---|---|" );
+for( usageName in [ "noncommercial", "copyleft", "custom", "unclear" ] ){
+	count = excluded.filter( ( e ) => e.reasonKind == "license" && e.usage == usageName ).len();
+	meaning = {
+		noncommercial : "BY-NC and BY-NC-SA: not for a product you sell",
+		copyleft : "GPL and AGPL: whether model weights count as the program is untested",
+		custom : "A license written for one dataset",
+		unclear : "The card says nothing, only ""See URL"", or a form we do not classify"
+	}[ usageName ];
+	doc.append( "| `" & usageName & "` | " & meaning & " | " & count & " |" );
+}
+doc.append( "" );
+doc.append( "| Voice | Language | License on the card | Usage | Why |" );
+doc.append( "|---|---|---|---|---|" );
 for( e in excluded ){
-	doc.append( "| `" & e.id & "` | " & e.language & " | " & ( e.licenseText.len() ? e.licenseText.replace( "|", "/", "all" ) : "none" ) & " | " & e.reason.replace( "|", "/", "all" ) & " |" );
+	doc.append( "| `" & e.id & "` | " & e.language & " | " & ( e.licenseText.len() ? e.licenseText.replace( "|", "/", "all" ) : "none" ) & " | " & e.usage & " | " & e.reason.replace( "|", "/", "all" ) & " |" );
 }
 doc.append( "" );
 doc.append( "British English voices (`en_GB`) need the `en_uk` dictionary of the Voices engine, which is licensed GPL 3, so they are not offered. Other languages need a phonemizer the engine does not have yet." );

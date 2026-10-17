@@ -4,6 +4,7 @@
   "excluded" : [ {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ar_JO",
     "source" : "https://github.com/AliMokhammad/arabicttstrain/",
     "id" : "ar_JO-kareem-low",
@@ -15,6 +16,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ar_JO",
     "source" : "https://github.com/AliMokhammad/arabicttstrain/",
     "id" : "ar_JO-kareem-medium",
@@ -26,6 +28,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Bulgarian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "bg_BG",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "bg_BG-dimitar-medium",
@@ -37,6 +40,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Bengali",
     "reasonKind" : "language",
+    "usage" : "sharealike",
     "language" : "bn_BD",
     "source" : "http://www.openslr.org/37/",
     "id" : "bn_BD-google-medium",
@@ -48,6 +52,7 @@
   }, {
     "reason" : "Not an open license we accept: CC BY-SA 3.0 ES",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ca_ES",
     "source" : "https://collectivat.cat/asr#upc-festcat-tts-corpora",
     "id" : "ca_ES-upc_ona-medium",
@@ -59,6 +64,7 @@
   }, {
     "reason" : "Not an open license we accept: CC BY-SA 3.0 ES",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ca_ES",
     "source" : "https://collectivat.cat/asr#upc-festcat-tts-corpora",
     "id" : "ca_ES-upc_ona-x_low",
@@ -70,6 +76,7 @@
   }, {
     "reason" : "Not an open license we accept: CC BY-SA 3.0 ES",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ca_ES",
     "source" : "https://collectivat.cat/asr#upc-festcat-tts-corpora",
     "id" : "ca_ES-upc_pau-x_low",
@@ -81,6 +88,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Czech",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "cs_CZ",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "cs_CZ-jirka-low",
@@ -92,6 +100,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Czech",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "cs_CZ",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "cs_CZ-jirka-medium",
@@ -101,19 +110,21 @@
     "licenseText" : "CC0",
     "name" : "jirka"
   }, {
-    "reason" : "Not an open license we accept: Creative Commons Attribution 4.0 International (CC",
-    "reasonKind" : "license",
+    "reason" : "Not supported yet: the Voices engine has no phonemizer for Czech",
+    "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "cs_CZ",
     "source" : "https://huggingface.co/ondrazarici/Cassandra-Kasandra-piper-cz",
     "id" : "cs_CZ-kasandra-medium",
     "quality" : "medium",
-    "license" : "",
+    "license" : "CC-BY-4.0",
     "size" : 63514270,
     "licenseText" : "Creative Commons Attribution 4.0 International (CC BY 4.0)",
     "name" : "kasandra"
   }, {
     "reason" : "Not an open license we accept: CC-BY",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "cy_GB",
     "source" : "https://huggingface.co/datasets/techiaith/bu-tts-cy-en",
     "id" : "cy_GB-bu_tts-medium",
@@ -125,6 +136,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "cy_GB",
     "source" : "https://git.techiaith.bangor.ac.uk/data-porth-technolegau-iaith/corpws-talentau-llais",
     "id" : "cy_GB-gwryw_gogleddol-medium",
@@ -136,6 +148,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Danish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "da_DK",
     "source" : "https://www.nb.no/sprakbanken/en/resource-catalogue/oai-nb-no-sbr-21/",
     "id" : "da_DK-talesyntese-medium",
@@ -147,6 +160,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "de_DE",
     "source" : "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/",
     "id" : "de_DE-eva_k-x_low",
@@ -158,6 +172,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "de_DE",
     "source" : "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/",
     "id" : "de_DE-karlsson-low",
@@ -169,6 +184,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for German",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "de_DE",
     "source" : "https://github.com/rhasspy/dataset-voice-kerstin",
     "id" : "de_DE-kerstin-low",
@@ -180,6 +196,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for German",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "de_DE",
     "source" : "http://openslr.org/94/",
     "id" : "de_DE-mls-medium",
@@ -191,6 +208,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "de_DE",
     "source" : "https://github.com/marytts/pavoque-data",
     "id" : "de_DE-pavoque-low",
@@ -202,6 +220,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "de_DE",
     "source" : "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/",
     "id" : "de_DE-ramona-low",
@@ -213,6 +232,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for German",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "de_DE",
     "source" : "https://github.com/thorstenMueller/Thorsten-Voice",
     "id" : "de_DE-thorsten-high",
@@ -224,6 +244,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for German",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "de_DE",
     "source" : "https://github.com/thorstenMueller/Thorsten-Voice",
     "id" : "de_DE-thorsten-low",
@@ -235,6 +256,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for German",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "de_DE",
     "source" : "https://github.com/thorstenMueller/Thorsten-Voice",
     "id" : "de_DE-thorsten-medium",
@@ -246,6 +268,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for German",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "de_DE",
     "source" : "https://github.com/thorstenMueller/Thorsten-Voice",
     "id" : "de_DE-thorsten_emotional-medium",
@@ -257,6 +280,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "el_GR",
     "source" : "",
     "id" : "el_GR-joy-medium",
@@ -268,6 +292,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Greek",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "el_GR",
     "source" : "https://www.kaggle.com/datasets/bryanpark/greek-single-speaker-speech-dataset",
     "id" : "el_GR-rapunzelina-low",
@@ -279,6 +304,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Greek",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "el_GR",
     "source" : "https://www.kaggle.com/datasets/bryanpark/greek-single-speaker-speech-dataset",
     "id" : "el_GR-rapunzelina-medium",
@@ -290,6 +316,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_GB",
     "source" : "https://github.com/MycroftAI/mimic3-voices/blob/master/voices/en_UK/apope_low",
     "id" : "en_GB-alan-low",
@@ -301,6 +328,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_GB",
     "source" : "https://github.com/MycroftAI/mimic3-voices/blob/master/voices/en_UK/apope_low",
     "id" : "en_GB-alan-medium",
@@ -312,6 +340,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "attribution",
     "language" : "en_GB",
     "source" : "https://datashare.ed.ac.uk/handle/10283/3270",
     "id" : "en_GB-alba-medium",
@@ -323,6 +352,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "attribution",
     "language" : "en_GB",
     "source" : "https://www.liverpool.ac.uk/architecture/research/acoustics-research-unit/speech-corpus/",
     "id" : "en_GB-aru-medium",
@@ -334,6 +364,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "permissive",
     "language" : "en_GB",
     "source" : "https://librivox.org",
     "id" : "en_GB-cori-high",
@@ -345,6 +376,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "permissive",
     "language" : "en_GB",
     "source" : "https://librivox.org",
     "id" : "en_GB-cori-medium",
@@ -356,6 +388,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_GB",
     "source" : "https://github.com/dioco-group/jenny-tts-dataset",
     "id" : "en_GB-jenny_dioco-medium",
@@ -367,6 +400,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "sharealike",
     "language" : "en_GB",
     "source" : "http://www.openslr.org/83/",
     "id" : "en_GB-northern_english_male-medium",
@@ -378,6 +412,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_GB",
     "source" : "https://github.com/marytts/dfki-semaine-data",
     "id" : "en_GB-semaine-medium",
@@ -389,6 +424,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "sharealike",
     "language" : "en_GB",
     "source" : "http://www.openslr.org/83/",
     "id" : "en_GB-southern_english_female-low",
@@ -400,6 +436,7 @@
   }, {
     "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
     "reasonKind" : "dictionary",
+    "usage" : "attribution",
     "language" : "en_GB",
     "source" : "https://datashare.ed.ac.uk/handle/10283/3443",
     "id" : "en_GB-vctk-medium",
@@ -411,6 +448,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_US",
     "source" : "https://github.com/MycroftAI/mimic3-voices",
     "id" : "en_US-amy-low",
@@ -422,6 +460,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_US",
     "source" : "https://github.com/MycroftAI/mimic3-voices",
     "id" : "en_US-amy-medium",
@@ -433,6 +472,7 @@
   }, {
     "reason" : "The model card only says 'See LICENSE file', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_US",
     "source" : "http://www.festvox.org/cmu_arctic/",
     "id" : "en_US-arctic-medium",
@@ -444,6 +484,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_US",
     "source" : "https://github.com/MycroftAI/mimic3-voices",
     "id" : "en_US-danny-low",
@@ -455,6 +496,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_US",
     "source" : "https://ast-astrec.nict.go.jp/en/release/hi-fi-captain/",
     "id" : "en_US-hfc_female-medium",
@@ -466,6 +508,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_US",
     "source" : "https://ast-astrec.nict.go.jp/en/release/hi-fi-captain/",
     "id" : "en_US-hfc_male-medium",
@@ -477,6 +520,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "en_US",
     "source" : "https://github.com/MycroftAI/mimic2",
     "id" : "en_US-kusal-medium",
@@ -488,6 +532,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_US",
     "source" : "https://www.isca-speech.org/archive/interspeech_2018/zhao18b_interspeech.html",
     "id" : "en_US-l2arctic-medium",
@@ -499,6 +544,7 @@
   }, {
     "reason" : "Custom license (Blizzard 2013 data), not an open license",
     "reasonKind" : "license",
+    "usage" : "custom",
     "language" : "en_US",
     "source" : "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/",
     "id" : "en_US-lessac-high",
@@ -510,6 +556,7 @@
   }, {
     "reason" : "Custom license (Blizzard 2013 data), not an open license",
     "reasonKind" : "license",
+    "usage" : "custom",
     "language" : "en_US",
     "source" : "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/",
     "id" : "en_US-lessac-low",
@@ -521,6 +568,7 @@
   }, {
     "reason" : "Custom license (Blizzard 2013 data), not an open license",
     "reasonKind" : "license",
+    "usage" : "custom",
     "language" : "en_US",
     "source" : "https://www.cstr.ed.ac.uk/projects/blizzard/2013/lessac_blizzard2013/",
     "id" : "en_US-lessac-medium",
@@ -532,6 +580,7 @@
   }, {
     "reason" : "904 speakers, not supported yet",
     "reasonKind" : "speakers",
+    "usage" : "attribution",
     "language" : "en_US",
     "source" : "http://www.openslr.org/60/",
     "id" : "en_US-libritts-high",
@@ -543,6 +592,7 @@
   }, {
     "reason" : "904 speakers, not supported yet",
     "reasonKind" : "speakers",
+    "usage" : "attribution",
     "language" : "en_US",
     "source" : "http://www.openslr.org/141/",
     "id" : "en_US-libritts_r-medium",
@@ -554,6 +604,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_US",
     "source" : "https://www.kaggle.com/datasets/roholazandie/ryanspeech",
     "id" : "en_US-ryan-high",
@@ -565,6 +616,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_US",
     "source" : "https://www.kaggle.com/datasets/roholazandie/ryanspeech",
     "id" : "en_US-ryan-low",
@@ -576,6 +628,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "en_US",
     "source" : "https://www.kaggle.com/datasets/roholazandie/ryanspeech",
     "id" : "en_US-ryan-medium",
@@ -587,6 +640,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "sharealike",
     "language" : "es_AR",
     "source" : "https://www.openslr.org/61/",
     "id" : "es_AR-daniela-high",
@@ -598,6 +652,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "es_ES",
     "source" : "https://github.com/carlfm01/my-speech-datasets",
     "id" : "es_ES-carlfm-x_low",
@@ -609,6 +664,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "es_ES",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "es_ES-davefx-medium",
@@ -620,6 +676,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "es_ES",
     "source" : "http://www.openslr.org/94/",
     "id" : "es_ES-mls_10246-low",
@@ -631,6 +688,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "es_ES",
     "source" : "http://www.openslr.org/94/",
     "id" : "es_ES-mls_9972-low",
@@ -642,6 +700,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "es_ES",
     "source" : "https://datashare.ed.ac.uk/handle/10283/574",
     "id" : "es_ES-sharvard-medium",
@@ -653,6 +712,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "es_MX",
     "source" : "https://huggingface.co/datasets/rmcpantoja/Ald_Mexican_Spanish_speech_dataset",
     "id" : "es_MX-ald-medium",
@@ -664,6 +724,7 @@
   }, {
     "reason" : "The model card states no license",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "es_MX",
     "source" : "",
     "id" : "es_MX-ald-x_low",
@@ -675,6 +736,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Spanish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "es_MX",
     "source" : "https://huggingface.co/spaces/HirCoir/Piper-TTS-Spanish",
     "id" : "es_MX-claude-high",
@@ -686,6 +748,7 @@
   }, {
     "reason" : "Not an open license we accept: CC-BY (META-SHARE \"Available - Unrestricted Use\")",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "et_EE",
     "source" : "https://metashare.ut.ee/repository/browse/speech-corpus-of-estonian-news-sentences/37b7c5d6a0d411eebb4773db10791bcfb0c0cf788d2d4030bfaf2f2e6e55dd8d/",
     "id" : "et_EE-news-medium",
@@ -695,30 +758,33 @@
     "licenseText" : "CC-BY (META-SHARE \"Available - Unrestricted Use\")",
     "name" : "news"
   }, {
-    "reason" : "Not an open license we accept: Creative Commons Attribution 4.0",
-    "reasonKind" : "license",
+    "reason" : "Not supported yet: the Voices engine has no phonemizer for Basque",
+    "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "eu_ES",
     "source" : "https://huggingface.co/datasets/itzune/antton-dataset",
     "id" : "eu_ES-antton-medium",
     "quality" : "medium",
-    "license" : "",
+    "license" : "CC-BY-4.0",
     "size" : 63536455,
     "licenseText" : "Creative Commons Attribution 4.0",
     "name" : "antton"
   }, {
-    "reason" : "Not an open license we accept: Creative Commons Attribution 4.0",
-    "reasonKind" : "license",
+    "reason" : "Not supported yet: the Voices engine has no phonemizer for Basque",
+    "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "eu_ES",
     "source" : "https://huggingface.co/datasets/itzune/maider-dataset",
     "id" : "eu_ES-maider-medium",
     "quality" : "medium",
-    "license" : "",
+    "license" : "CC-BY-4.0",
     "size" : 63536455,
     "licenseText" : "Creative Commons Attribution 4.0",
     "name" : "maider"
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Farsi",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fa_IR",
     "source" : "https://datacula.com/tts-databases",
     "id" : "fa_IR-amir-medium",
@@ -730,6 +796,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Farsi",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fa_IR",
     "source" : "https://tts.datacula.com/",
     "id" : "fa_IR-ganji-medium",
@@ -741,6 +808,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Farsi",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fa_IR",
     "source" : "https://tts.datacula.com/",
     "id" : "fa_IR-ganji_adabi-medium",
@@ -752,6 +820,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "fa_IR",
     "source" : "https://github.com/gyroing",
     "id" : "fa_IR-gyro-medium",
@@ -763,6 +832,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Farsi",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fa_IR",
     "source" : "https://huggingface.co/datasets/mah92/Hedayatfar-Persian-Quran-Audio-Dataset",
     "id" : "fa_IR-reza_ibrahim-medium",
@@ -774,6 +844,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Finnish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fi_FI",
     "source" : "https://www.kaggle.com/bryanpark/finnish-single-speaker-speech-dataset",
     "id" : "fi_FI-harri-low",
@@ -785,6 +856,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Finnish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fi_FI",
     "source" : "https://www.kaggle.com/bryanpark/finnish-single-speaker-speech-dataset",
     "id" : "fi_FI-harri-medium",
@@ -796,6 +868,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for French",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "fr_FR",
     "source" : "https://www.kaggle.com/datasets/bryanpark/french-single-speaker-speech-dataset",
     "id" : "fr_FR-gilles-low",
@@ -807,6 +880,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for French",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "fr_FR",
     "source" : "http://openslr.org/94/",
     "id" : "fr_FR-mls-medium",
@@ -818,6 +892,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for French",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "fr_FR",
     "source" : "http://www.openslr.org/94/",
     "id" : "fr_FR-mls_1840-low",
@@ -829,6 +904,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for French",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "fr_FR",
     "source" : "https://datashare.is.ed.ac.uk/handle/10283/2353",
     "id" : "fr_FR-siwis-low",
@@ -840,6 +916,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for French",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "fr_FR",
     "source" : "https://datashare.is.ed.ac.uk/handle/10283/2353",
     "id" : "fr_FR-siwis-medium",
@@ -849,8 +926,9 @@
     "licenseText" : "CC-BY 4.0",
     "name" : "siwis"
   }, {
-    "reason" : "Not an open license we accept: AGPLv3",
+    "reason" : "Copyleft license (AGPLv3), not offered",
     "reasonKind" : "license",
+    "usage" : "copyleft",
     "language" : "fr_FR",
     "source" : "https://git.bksp.space/Tjiho/French-tts-model-piper",
     "id" : "fr_FR-tom-medium",
@@ -862,6 +940,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for French",
     "reasonKind" : "language",
+    "usage" : "sharealike",
     "language" : "fr_FR",
     "source" : "https://github.com/marytts/upmc-pierre-data",
     "id" : "fr_FR-upmc-medium",
@@ -873,6 +952,7 @@
   }, {
     "reason" : "The model card only says 'See dataset URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "he_IL",
     "source" : "https://www.openslr.org/134",
     "id" : "he_IL-saspeech-medium",
@@ -884,6 +964,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "hi_IN",
     "source" : "",
     "id" : "hi_IN-pratham-medium",
@@ -895,6 +976,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "hi_IN",
     "source" : "",
     "id" : "hi_IN-priyamvada-medium",
@@ -906,6 +988,7 @@
   }, {
     "reason" : "Not an open license we accept: https://www.iitm.ac.in/donlab/indictts/downloads/l",
     "reasonKind" : "license",
+    "usage" : "custom",
     "language" : "hi_IN",
     "source" : "https://www.iitm.ac.in/donlab/indictts",
     "id" : "hi_IN-rohan-medium",
@@ -917,6 +1000,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Hungarian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "hu_HU",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "hu_HU-anna-medium",
@@ -928,6 +1012,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Hungarian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "hu_HU",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "hu_HU-berta-medium",
@@ -939,6 +1024,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Hungarian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "hu_HU",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "hu_HU-imre-medium",
@@ -948,8 +1034,9 @@
     "licenseText" : "CC0",
     "name" : "imre"
   }, {
-    "reason" : "Not an open license we accept: GPL 2.0",
+    "reason" : "Copyleft license (GPL 2.0), not offered",
     "reasonKind" : "license",
+    "usage" : "copyleft",
     "language" : "hy_AM",
     "source" : "https://huggingface.co/davit312/piper-TTS-Armenian",
     "id" : "hy_AM-gor-medium",
@@ -961,6 +1048,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "id_ID",
     "source" : "https://www.kaggle.com/code/mpwolke/indic-tts-malayalam-speech-corpus",
     "id" : "id_ID-news_tts-medium",
@@ -972,6 +1060,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "is_IS",
     "source" : "http://hdl.handle.net/20.500.12537/104",
     "id" : "is_IS-bui-medium",
@@ -983,6 +1072,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "is_IS",
     "source" : "http://hdl.handle.net/20.500.12537/104",
     "id" : "is_IS-salka-medium",
@@ -994,6 +1084,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "is_IS",
     "source" : "http://hdl.handle.net/20.500.12537/104",
     "id" : "is_IS-steinn-medium",
@@ -1005,6 +1096,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "is_IS",
     "source" : "http://hdl.handle.net/20.500.12537/104",
     "id" : "is_IS-ugla-medium",
@@ -1016,6 +1108,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "it_IT",
     "source" : "https://huggingface.co/datasets/paolapersico1/Voice-Dataset-Italian",
     "id" : "it_IT-paola-medium",
@@ -1027,6 +1120,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "it_IT",
     "source" : "https://www.caito.de/2019/01/03/the-m-ailabs-speech-dataset/",
     "id" : "it_IT-riccardo-x_low",
@@ -1038,6 +1132,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Italian",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "it_IT",
     "source" : "https://huggingface.co/datasets/committa/serena-synthetic-it-27h",
     "id" : "it_IT-serena-high",
@@ -1049,6 +1144,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Italian",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "it_IT",
     "source" : "https://huggingface.co/datasets/committa/serena-synthetic-it-27h",
     "id" : "it_IT-serena-medium",
@@ -1060,6 +1156,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "ja_JP",
     "source" : "https://ast-astrec.nict.go.jp/en/release/hi-fi-captain/",
     "id" : "ja_JP-hi_fi_captain-medium",
@@ -1071,6 +1168,7 @@
   }, {
     "reason" : "The model card only says 'See LICENSE file', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ka_GE",
     "source" : "http://github.com/Olga-Yakovleva/RHVoice",
     "id" : "ka_GE-natia-medium",
@@ -1082,6 +1180,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Kazakh",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "kk_KZ",
     "source" : "https://github.com/IS2AI/Kazakh_TTS",
     "id" : "kk_KZ-iseke-x_low",
@@ -1093,6 +1192,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Kazakh",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "kk_KZ",
     "source" : "https://github.com/IS2AI/Kazakh_TTS",
     "id" : "kk_KZ-issai-high",
@@ -1104,6 +1204,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Kazakh",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "kk_KZ",
     "source" : "https://github.com/IS2AI/Kazakh_TTS",
     "id" : "kk_KZ-raya-x_low",
@@ -1115,6 +1216,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "ko_KR",
     "source" : "https://www.kaggle.com/datasets/bryanpark/korean-single-speaker-speech-dataset",
     "id" : "ko_KR-kss-medium",
@@ -1126,6 +1228,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "ku_TR",
     "source" : "",
     "id" : "ku_TR-berfin_renas-medium",
@@ -1137,6 +1240,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "lb_LU",
     "source" : "https://github.com/marytts/marylux-data",
     "id" : "lb_LU-marylux-medium",
@@ -1148,6 +1252,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Lithuanian",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "lt_LT",
     "source" : "https://huggingface.co/datasets/meldynamics/liepa-tts",
     "id" : "lt_LT-reginute1-medium",
@@ -1159,6 +1264,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Latvian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "lv_LV",
     "source" : "https://huggingface.co/RaivisDejus/Piper-lv_LV-Aivars-medium",
     "id" : "lv_LV-aivars-medium",
@@ -1170,6 +1276,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ml_IN",
     "source" : "https://www.kaggle.com/code/mpwolke/indic-tts-malayalam-speech-corpus",
     "id" : "ml_IN-arjun-medium",
@@ -1181,6 +1288,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ml_IN",
     "source" : "https://www.kaggle.com/code/mpwolke/indic-tts-malayalam-speech-corpus",
     "id" : "ml_IN-meera-medium",
@@ -1192,6 +1300,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Marathi",
     "reasonKind" : "language",
+    "usage" : "sharealike",
     "language" : "mr_IN",
     "source" : "https://openslr.org/64/",
     "id" : "mr_IN-google-medium",
@@ -1203,6 +1312,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Nepali",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "ne_NP",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "ne_NP-chitwan-medium",
@@ -1214,6 +1324,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Nepali",
     "reasonKind" : "language",
+    "usage" : "sharealike",
     "language" : "ne_NP",
     "source" : "http://www.openslr.org/43/",
     "id" : "ne_NP-google-medium",
@@ -1225,6 +1336,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Nepali",
     "reasonKind" : "language",
+    "usage" : "sharealike",
     "language" : "ne_NP",
     "source" : "http://www.openslr.org/43/",
     "id" : "ne_NP-google-x_low",
@@ -1236,6 +1348,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_BE",
     "source" : "https://github.com/rhasspy/dataset-voice-nathalie",
     "id" : "nl_BE-nathalie-medium",
@@ -1247,6 +1360,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_BE",
     "source" : "https://github.com/rhasspy/dataset-voice-nathalie",
     "id" : "nl_BE-nathalie-x_low",
@@ -1258,6 +1372,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_BE",
     "source" : "https://github.com/r-dh/dutch-vl-tts",
     "id" : "nl_BE-rdh-medium",
@@ -1269,6 +1384,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_BE",
     "source" : "https://github.com/r-dh/dutch-vl-tts",
     "id" : "nl_BE-rdh-x_low",
@@ -1280,6 +1396,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_NL",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "nl_NL-alex-medium",
@@ -1291,6 +1408,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "nl_NL",
     "source" : "http://openslr.org/94/",
     "id" : "nl_NL-mls-medium",
@@ -1302,6 +1420,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "nl_NL",
     "source" : "http://www.openslr.org/94/",
     "id" : "nl_NL-mls_5809-low",
@@ -1313,6 +1432,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "nl_NL",
     "source" : "http://www.openslr.org/94/",
     "id" : "nl_NL-mls_7432-low",
@@ -1324,6 +1444,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_NL",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "nl_NL-pim-medium",
@@ -1335,6 +1456,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Dutch",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "nl_NL",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "nl_NL-ronnie-medium",
@@ -1346,6 +1468,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Norwegian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "no_NO",
     "source" : "https://www.nb.no/sprakbanken/en/resource-catalogue/oai-nb-no-sbr-75/",
     "id" : "no_NO-nvcc-medium",
@@ -1357,6 +1480,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Norwegian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "no_NO",
     "source" : "https://www.nb.no/sprakbanken/en/resource-catalogue/oai-nb-no-sbr-15/",
     "id" : "no_NO-talesyntese-medium",
@@ -1368,6 +1492,7 @@
   }, {
     "reason" : "The model card states no license",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "pl_PL",
     "source" : "",
     "id" : "pl_PL-bass-high",
@@ -1379,6 +1504,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Polish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pl_PL",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "pl_PL-darkman-medium",
@@ -1390,6 +1516,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Polish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pl_PL",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "pl_PL-gosia-medium",
@@ -1401,6 +1528,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Polish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pl_PL",
     "source" : "https://www.kaggle.com/datasets/czyzi0/the-mc-speech-dataset",
     "id" : "pl_PL-mc_speech-medium",
@@ -1412,6 +1540,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Polish",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "pl_PL",
     "source" : "http://www.openslr.org/94/",
     "id" : "pl_PL-mls_6892-low",
@@ -1423,6 +1552,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Portuguese",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pt_BR",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "pt_BR-cadu-medium",
@@ -1434,6 +1564,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Portuguese",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "pt_BR",
     "source" : "https://github.com/Edresson/TTS-Portuguese-Corpus",
     "id" : "pt_BR-edresson-low",
@@ -1445,6 +1576,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Portuguese",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pt_BR",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "pt_BR-faber-medium",
@@ -1456,6 +1588,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Portuguese",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pt_BR",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "pt_BR-jeff-medium",
@@ -1467,6 +1600,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Portuguese",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "pt_PT",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "pt_PT-tugão-medium",
@@ -1478,6 +1612,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Romanian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "ro_RO",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "ro_RO-mihai-medium",
@@ -1489,6 +1624,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Russian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "ru_RU",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "ru_RU-denis-medium",
@@ -1500,6 +1636,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Russian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "ru_RU",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "ru_RU-dmitri-medium",
@@ -1511,6 +1648,7 @@
   }, {
     "reason" : "Not an open license we accept: Unknown",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ru_RU",
     "source" : "https://github.com/RHVoice/RHVoice",
     "id" : "ru_RU-irina-medium",
@@ -1522,6 +1660,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "ru_RU",
     "source" : "https://ruslan-corpus.github.io/",
     "id" : "ru_RU-ruslan-medium",
@@ -1533,6 +1672,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Slovak",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "sk_SK",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "sk_SK-lili-medium",
@@ -1544,6 +1684,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Slovenian",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "sl_SI",
     "source" : "https://huggingface.co/datasets/ppisljar/artur_studio_tts/",
     "id" : "sl_SI-artur-medium",
@@ -1555,6 +1696,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Albanian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "sq_AL",
     "source" : "https://huggingface.co/edonseki/folsh.ai",
     "id" : "sq_AL-edon-medium",
@@ -1566,6 +1708,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "sr_RS",
     "source" : "https://github.com/marytts/serbski-institut-dsb-data",
     "id" : "sr_RS-serbski_institut-medium",
@@ -1577,6 +1720,7 @@
   }, {
     "reason" : "The model card states no license",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "sv_SE",
     "source" : "https://huggingface.co/yeagersthlm/piper-voice-sv-alma",
     "id" : "sv_SE-alma-medium",
@@ -1588,6 +1732,7 @@
   }, {
     "reason" : "The model card states no license",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "sv_SE",
     "source" : "",
     "id" : "sv_SE-lisa-medium",
@@ -1599,6 +1744,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Swedish",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "sv_SE",
     "source" : "https://www.nb.no/sprakbanken/en/resource-catalogue/oai-nb-no-sbr-17/",
     "id" : "sv_SE-nst-medium",
@@ -1610,6 +1756,7 @@
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "sw_CD",
     "source" : "https://lanfrica.com/record/kiswahili-tts-dataset",
     "id" : "sw_CD-lanfrica-medium",
@@ -1621,6 +1768,7 @@
   }, {
     "reason" : "Not an open license we accept: www.iitm.ac.in/donlab/indictts/downloads/license.p",
     "reasonKind" : "license",
+    "usage" : "custom",
     "language" : "te_IN",
     "source" : "https://www.iitm.ac.in/donlab/indictts",
     "id" : "te_IN-maya-medium",
@@ -1632,6 +1780,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Telugu",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "te_IN",
     "source" : "https://huggingface.co/datasets/ai4bharat/indicvoices_r",
     "id" : "te_IN-padmavathi-medium",
@@ -1643,6 +1792,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Telugu",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "te_IN",
     "source" : "https://huggingface.co/datasets/ai4bharat/indicvoices_r",
     "id" : "te_IN-venkatesh-medium",
@@ -1654,6 +1804,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "th_TH",
     "source" : "https://huggingface.co/datasets/dubbing-ai/vaja-thai",
     "id" : "th_TH-tsync2-medium",
@@ -1665,6 +1816,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "tr_TR",
     "source" : "https://github.com/marytts/dfki-ot-data/",
     "id" : "tr_TR-dfki-medium",
@@ -1676,6 +1828,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Ukrainian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "uk_UA",
     "source" : "https://github.com/egorsmkv/ukrainian-tts-datasets/tree/main/lada",
     "id" : "uk_UA-lada-x_low",
@@ -1687,6 +1840,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Ukrainian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "uk_UA",
     "source" : "https://github.com/egorsmkv/ukrainian-tts-datasets",
     "id" : "uk_UA-mykyta-high",
@@ -1698,6 +1852,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Ukrainian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "uk_UA",
     "source" : "https://github.com/egorsmkv/ukrainian-tts-datasets",
     "id" : "uk_UA-oleksa-high",
@@ -1709,6 +1864,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Ukrainian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "uk_UA",
     "source" : "https://github.com/egorsmkv/ukrainian-tts-datasets",
     "id" : "uk_UA-tetiana-high",
@@ -1720,6 +1876,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Ukrainian",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "uk_UA",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "uk_UA-ukrainian_tts-medium",
@@ -1731,6 +1888,7 @@
   }, {
     "reason" : "The model card states no license",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ur_PK",
     "source" : "",
     "id" : "ur_PK-aegis_female-medium",
@@ -1742,6 +1900,7 @@
   }, {
     "reason" : "The model card states no license",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "ur_PK",
     "source" : "",
     "id" : "ur_PK-fasih-medium",
@@ -1753,6 +1912,7 @@
   }, {
     "reason" : "Not an open license we accept: Unknown",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "vi_VN",
     "source" : "https://github.com/TensorSpeech/TensorFlowASR/blob/main/README.md#vietnamese",
     "id" : "vi_VN-25hours_single-low",
@@ -1764,6 +1924,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Vietnamese",
     "reasonKind" : "language",
+    "usage" : "attribution",
     "language" : "vi_VN",
     "source" : "https://ieee-dataport.org/documents/vais-1000-vietnamese-speech-synthesis-corpus",
     "id" : "vi_VN-vais1000-medium",
@@ -1775,6 +1936,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "vi_VN",
     "source" : "https://ailab.hcmus.edu.vn/vivos/",
     "id" : "vi_VN-vivos-x_low",
@@ -1786,6 +1948,7 @@
   }, {
     "reason" : "Not supported yet: the Voices engine has no phonemizer for Chinese",
     "reasonKind" : "language",
+    "usage" : "permissive",
     "language" : "zh_CN",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "id" : "zh_CN-chaowen-medium",
@@ -1797,6 +1960,7 @@
   }, {
     "reason" : "Not an open license we accept: Unknown",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "zh_CN",
     "source" : "https://github.com/PlayVoice/HuaYan_TTS",
     "id" : "zh_CN-huayan-medium",
@@ -1808,6 +1972,7 @@
   }, {
     "reason" : "Not an open license we accept: Unknown",
     "reasonKind" : "license",
+    "usage" : "unclear",
     "language" : "zh_CN",
     "source" : "https://github.com/PlayVoice/HuaYan_TTS",
     "id" : "zh_CN-huayan-x_low",
@@ -1819,6 +1984,7 @@
   }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
+    "usage" : "noncommercial",
     "language" : "zh_CN",
     "source" : "https://huggingface.co/openspeech/BZNSYP",
     "id" : "zh_CN-xiao_ya-medium",
@@ -1829,6 +1995,7 @@
     "name" : "xiao_ya"
   } ],
   "voices" : [ {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "",
     "model" : {
@@ -1848,6 +2015,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "model" : {
@@ -1867,6 +2035,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://librivox.org",
     "model" : {
@@ -1886,6 +2055,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://github.com/rhasspy/dataset-voice-kathleen",
     "model" : {
@@ -1905,6 +2075,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://librivox.org",
     "model" : {
@@ -1924,6 +2095,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://keithito.com/LJ-Speech-Dataset/",
     "model" : {
@@ -1943,6 +2115,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://keithito.com/LJ-Speech-Dataset/",
     "model" : {
@@ -1962,6 +2135,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://github.com/OHF-Voice/voice-datasets",
     "model" : {
@@ -1981,6 +2155,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://librivox.org",
     "model" : {
@@ -2000,6 +2175,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://huggingface.co/datasets/mah92/Hedayatfar-Persian-Quran-Audio-Dataset",
     "model" : {
@@ -2019,6 +2195,7 @@
     },
     "shareAlike" : false
   }, {
+    "usage" : "permissive",
     "language" : "en_US",
     "source" : "https://github.com/Sam-Accenture-Non-Binary-Voice/non-binary-voice-files",
     "model" : {

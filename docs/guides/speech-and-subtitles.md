@@ -103,6 +103,19 @@ The times come from the length of each spoken piece, and with the voice's paddin
 bx-audio speak "Meet BoxLang. Build more, with less." --voice=joe --out=vo.wav --captions=vo.srt --by-clause
 ```
 
+## Licenses and credits
+
+Every voice has a license, and it decides what you may do with the speech in a product you sell. `audioVoices()` gives each voice a `usage` (`permissive`, `attribution` or `sharealike` for the voices on offer, all of which allow a product you sell) and the `credit` it asks for. `audioCredits()` writes the credits for the voices you use.
+
+<!-- run -->
+```js
+usable = audioVoices( usage="permissive,attribution" );
+println( usable.len() & " voices you can use in a product you sell" );
+println( audioCredits( [ "joe", "sam" ] ) );
+```
+
+Voices with non-commercial, copyleft, custom or unclear licenses are not offered, and [Voices](../voices.md) says which and why. This is a guide, not legal advice.
+
 ## Limits
 
 - US English only for now. British English (`en_GB`) voices need a GPL 3 pronunciation dictionary and other languages need a phonemizer the engine does not have yet. See [Voices](../voices.md).

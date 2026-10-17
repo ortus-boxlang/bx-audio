@@ -103,4 +103,40 @@ public class VoiceCatalogTest {
 		assertThat( catalog.excluded().stream().anyMatch( v -> offered.contains( v.id() ) ) ).isFalse();
 	}
 
+	@DisplayName( "Every voice, offered or not, has a usage class that agrees with its license" )
+	@Test
+	void testUsageClasses() {
+		VoiceCatalog catalog = VoiceCatalog.load();
+		for ( VoiceInfo voice : catalog.all() ) {
+			assertThat( Usage.ALL ).contains( voice.usage() );
+			assertThat( voice.commercial() ).isTrue();
+			String expected = switch ( voice.license() ) {
+				case "CC0-1.0", "Public-Domain", "Unlicense", "Apache-2.0" -> Usage.PERMISSIVE;
+				case "CC-BY-4.0", "CC-BY-3.0" -> Usage.ATTRIBUTION;
+				default -> Usage.SHAREALIKE;
+			};
+			assertThat( voice.usage() ).isEqualTo( expected );
+		}
+		Set<String> seen = new HashSet<>();
+		for ( VoiceCatalog.ExcludedVoice voice : catalog.excluded() ) {
+			assertThat( Usage.ALL ).contains( voice.usage() );
+			seen.add( voice.usage() );
+			String text = voice.licenseText().toLowerCase();
+			if ( voice.reasonKind().equals( "license" ) ) {
+				// a voice left out for its license is never in a commercial class
+				assertThat( Usage.commercial( voice.usage() ) ).isFalse();
+			}
+			if ( voice.usage().equals( Usage.NONCOMMERCIAL ) ) {
+				assertThat( text.contains( "nc" ) || text.contains( "non-commercial" ) || text.contains( "noncommercial" ) ).isTrue();
+			}
+			if ( voice.usage().equals( Usage.COPYLEFT ) ) {
+				assertThat( text ).containsMatch( "gpl" );
+			}
+		}
+		// the collection has voices of each kind that cannot be offered, and the catalog says which
+		assertThat( seen ).containsAtLeast( Usage.NONCOMMERCIAL, Usage.COPYLEFT, Usage.CUSTOM, Usage.UNCLEAR, Usage.ATTRIBUTION, Usage.SHAREALIKE );
+		assertThat( catalog.excluded().stream().filter( v -> v.usage().equals( Usage.COPYLEFT ) ).map( VoiceCatalog.ExcludedVoice::id ).toList() )
+		    .containsExactly( "fr_FR-tom-medium", "hy_AM-gor-medium" );
+	}
+
 }

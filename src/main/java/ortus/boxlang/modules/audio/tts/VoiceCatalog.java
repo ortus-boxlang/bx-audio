@@ -53,13 +53,14 @@ public final class VoiceCatalog {
 	 * @param quality     {@code low}, {@code medium} or {@code high}
 	 * @param license     The license as an identifier, empty when the card's license is not an open one we accept
 	 * @param licenseText The license as the model card states it, empty when it states none
+	 * @param usage       What the license means for a product you sell, see {@link Usage}
 	 * @param source      Where the training data came from, may be empty
 	 * @param reasonKind  {@code license}, {@code dictionary}, {@code speakers} or {@code language}
 	 * @param reason      Why it is not offered, in a sentence
 	 * @param size        The bytes its files would take
 	 */
-	public record ExcludedVoice( String id, String name, String language, String quality, String license, String licenseText, String source,
-	    String reasonKind, String reason, long size ) {
+	public record ExcludedVoice( String id, String name, String language, String quality, String license, String licenseText, String usage,
+	    String source, String reasonKind, String reason, long size ) {
 	}
 
 	/**
@@ -92,6 +93,7 @@ public final class VoiceCatalog {
 			    ( String ) v.get( "quality" ),
 			    ( String ) v.get( "license" ),
 			    ( String ) v.get( "licenseText" ),
+			    ( String ) v.getOrDefault( "usage", Usage.UNCLEAR ),
 			    ( Boolean ) v.get( "shareAlike" ),
 			    ( String ) v.get( "source" ),
 			    file( ( Map<String, Object> ) v.get( "model" ) ),
@@ -101,8 +103,9 @@ public final class VoiceCatalog {
 		for ( Object entry : ( List<Object> ) root.getOrDefault( "excluded", List.of() ) ) {
 			Map<String, Object> v = ( Map<String, Object> ) entry;
 			excluded.add( new ExcludedVoice( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ),
-			    ( String ) v.get( "quality" ), ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ), ( String ) v.get( "source" ),
-			    ( String ) v.get( "reasonKind" ), ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue() ) );
+			    ( String ) v.get( "quality" ), ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ),
+			    ( String ) v.getOrDefault( "usage", Usage.UNCLEAR ), ( String ) v.get( "source" ), ( String ) v.get( "reasonKind" ),
+			    ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue() ) );
 		}
 		return new VoiceCatalog( ( String ) root.get( "source" ), List.copyOf( voices ), List.copyOf( excluded ) );
 	}

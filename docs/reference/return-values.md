@@ -139,11 +139,15 @@ An array of structs `{ start, end, duration }` in seconds.
 
 ### `audioVoices()`
 
-An array of structs: `id`, `name`, `language`, `quality`, `license`, `licenseText`, `shareAlike`, `source`, `sizeMB`, `installed`, `status` (`installed`, `downloadable` or `excluded`), `reasonKind` and `reason` (empty unless excluded).
+An array of structs: `id`, `name`, `language`, `quality`, `license`, `licenseText`, `usage` (`permissive`, `attribution`, `sharealike`, `noncommercial`, `copyleft`, `custom` or `unclear`), `commercial` (true for the first three), `credit` (the text to publish, empty when the license asks for none), `shareAlike`, `source`, `sizeMB`, `installed`, `status` (`installed`, `downloadable` or `excluded`), `reasonKind` and `reason` (empty unless excluded).
 
 ### `audioLicenses()`
 
 An array of structs: `id`, `name`, `url`, `commercial`, `attribution`, `shareAlike`, `summary` and `voices` (how many offered voices use it).
+
+### `audioCredits( voices )`
+
+Text: a line for each voice whose license asks for credit, with the creator of the training data and the license with its link, and a sentence naming the voices that ask for none.
 
 ### `audioSpeechStatus()`
 
