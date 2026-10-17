@@ -240,7 +240,7 @@
 		
 		
 		
-			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#audiospeak">audioSpeak</a></li><li class="toc-level-2"><a href="#audiospeakcues">audioSpeakCues</a></li><li class="toc-level-2"><a href="#audiosubtitles">audioSubtitles</a></li><li class="toc-level-2"><a href="#audiovoices">audioVoices</a></li><li class="toc-level-2"><a href="#audiolicenses">audioLicenses</a></li><li class="toc-level-2"><a href="#audiovoiceinstall">audioVoiceInstall</a></li><li class="toc-level-2"><a href="#audiovoiceremove">audioVoiceRemove</a></li><li class="toc-level-2"><a href="#audiospeechstatus">audioSpeechStatus</a></li></ul></details>
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#audiospeak">audioSpeak</a></li><li class="toc-level-2"><a href="#audiospeakcues">audioSpeakCues</a></li><li class="toc-level-2"><a href="#audiosubtitles">audioSubtitles</a></li><li class="toc-level-2"><a href="#audiovoices">audioVoices</a></li><li class="toc-level-2"><a href="#audiolicenses">audioLicenses</a></li><li class="toc-level-2"><a href="#audiocredits">audioCredits</a></li><li class="toc-level-2"><a href="#audiovoiceinstall">audioVoiceInstall</a></li><li class="toc-level-2"><a href="#audiovoiceremove">audioVoiceRemove</a></li><li class="toc-level-2"><a href="#audiospeechstatus">audioSpeechStatus</a></li></ul></details>
 		
 
 		
@@ -304,7 +304,7 @@
 <p><strong>Returns</strong> The subtitle text.</p>
 <h2 id="audiovoices"><a href="#audiovoices" id="audiovoices" name="audiovoices" class="anchor"></a>audioVoices</h2>
 <p>List the voices of the collection, with their licenses and what you can do with each</p>
-<pre><code class="language-js">audioVoices( language=&quot;&quot;, installed=false, status=&quot;offered&quot;, license=&quot;&quot; )
+<pre><code class="language-js">audioVoices( language=&quot;&quot;, installed=false, status=&quot;offered&quot;, license=&quot;&quot;, usage=&quot;&quot; )
 </code></pre>
 <div class="bxsites-table-wrap"><table class="table">
 <thead>
@@ -315,14 +315,28 @@
 <tr><td><code>installed</code></td><td>boolean</td><td><code>false</code></td><td>True to list only the voices that are installed. Same as status=&quot;installed&quot;.</td></tr>
 <tr><td><code>status</code></td><td>string</td><td><code>&quot;offered&quot;</code></td><td>offered (default: voices you can use), installed, downloadable (offered, not installed yet), excluded (not offered, with the reason) or all.</td></tr>
 <tr><td><code>license</code></td><td>string</td><td><code>&quot;&quot;</code></td><td>Only voices with this license identifier, for example CC0-1.0 or Apache-2.0.</td></tr>
+<tr><td><code>usage</code></td><td>string</td><td><code>&quot;&quot;</code></td><td>Only voices of these usage classes, as a list: permissive, attribution, sharealike (the commercial ones), noncommercial, copyleft, custom or unclear. For example &quot;permissive,attribution&quot; gives the voices you can use in a product you sell without any condition beyond credit.</td></tr>
 </tbody>
 </table></div>
-<p><strong>Returns</strong> An array of structs with id, name, language, quality, license, licenseText, shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).</p>
+<p><strong>Returns</strong> An array of structs with id, name, language, quality, license, licenseText, usage (what the license means for a product you sell), commercial (true for permissive, attribution and sharealike), credit (the text to publish, empty when the license asks for none), shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).</p>
 <h2 id="audiolicenses"><a href="#audiolicenses" id="audiolicenses" name="audiolicenses" class="anchor"></a>audioLicenses</h2>
 <p>List the licenses of the offered voices and what each asks of you. A summary for orientation, the voice's model card is the authority.</p>
 <pre><code class="language-js">audioLicenses()
 </code></pre>
 <p><strong>Returns</strong> An array of structs with id, name, url, commercial, attribution, shareAlike, summary and voices (how many offered voices use it).</p>
+<h2 id="audiocredits"><a href="#audiocredits" id="audiocredits" name="audiocredits" class="anchor"></a>audioCredits</h2>
+<p>Writes the credits for the voices you use, to put on an about page or in the notices of a product. A line for each voice whose license asks that the creator is credited (CC BY, CC BY-SA, Apache 2.0), with the creator of the training data, the license and a link to it, and a sentence naming the voices that ask for nothing. Voices that are not offered raise an error, as they cannot be used.</p>
+<pre><code class="language-js">audioCredits( voices )
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Argument</th><th>Type</th><th>Default</th><th> </th></tr>
+</thead>
+<tbody>
+<tr><td><code>voices</code></td><td>any</td><td>required</td><td>A voice id or short name, a comma separated list of them, or an array, for example [ &quot;joe&quot;, &quot;en_US-sam-medium&quot; ].</td></tr>
+</tbody>
+</table></div>
+<p><strong>Returns</strong> The credits as text, one line a voice, in a form that is also valid Markdown.</p>
 <h2 id="audiovoiceinstall"><a href="#audiovoiceinstall" id="audiovoiceinstall" name="audiovoiceinstall" class="anchor"></a>audioVoiceInstall</h2>
 <p>Download a voice, or the text to speech engine itself, and check it</p>
 <pre><code class="language-js">audioVoiceInstall( voice, onProgress )
@@ -360,7 +374,7 @@
 
 	
 	
-		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/reference/functions/speech.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/reference/functions/speech.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 16, 2026, 10&#x3a;40&#x3a;59 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Speech%20and%20subtitles&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Freference%2Ffunctions%2Fspeech%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/reference/functions/speech.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/reference/functions/speech.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 17, 2026, 10&#x3a;56&#x3a;48 AM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Speech%20and%20subtitles&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Freference%2Ffunctions%2Fspeech%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
 	
 </article>
 
@@ -404,7 +418,7 @@
 			
 			
 				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
-					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#audiospeak">audioSpeak</a></li><li class="toc-level-2"><a href="#audiospeakcues">audioSpeakCues</a></li><li class="toc-level-2"><a href="#audiosubtitles">audioSubtitles</a></li><li class="toc-level-2"><a href="#audiovoices">audioVoices</a></li><li class="toc-level-2"><a href="#audiolicenses">audioLicenses</a></li><li class="toc-level-2"><a href="#audiovoiceinstall">audioVoiceInstall</a></li><li class="toc-level-2"><a href="#audiovoiceremove">audioVoiceRemove</a></li><li class="toc-level-2"><a href="#audiospeechstatus">audioSpeechStatus</a></li></ul></nav>
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#audiospeak">audioSpeak</a></li><li class="toc-level-2"><a href="#audiospeakcues">audioSpeakCues</a></li><li class="toc-level-2"><a href="#audiosubtitles">audioSubtitles</a></li><li class="toc-level-2"><a href="#audiovoices">audioVoices</a></li><li class="toc-level-2"><a href="#audiolicenses">audioLicenses</a></li><li class="toc-level-2"><a href="#audiocredits">audioCredits</a></li><li class="toc-level-2"><a href="#audiovoiceinstall">audioVoiceInstall</a></li><li class="toc-level-2"><a href="#audiovoiceremove">audioVoiceRemove</a></li><li class="toc-level-2"><a href="#audiospeechstatus">audioSpeechStatus</a></li></ul></nav>
 				</aside>
 			
 		</div>
