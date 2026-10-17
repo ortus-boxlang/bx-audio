@@ -89,7 +89,7 @@
 			[ "Pop Drive", "pop-drive", "headphones" ], [ "Lofi", "lofi", "coffee" ], [ "House", "house", "vinyl-record" ], [ "Ambient", "ambient", "cloud" ],
 			[ "Techno", "techno", "lightning" ], [ "Synthwave", "synthwave", "sun-horizon" ], [ "Cinematic", "cinematic", "film-slate" ],
 			[ "Chiptune", "chiptune", "game-controller" ], [ "Game SFX", "sfx", "sparkle" ], [ "Jazz", "jazz", "music-notes" ], [ "Rock", "rock", "guitar" ],
-			[ "Voice-over", "voiceover", "microphone" ], [ "Trailer", "trailer", "film-strip" ], [ "Game audio", "game-audio", "joystick" ] ].forEach( function ( c, n ) {
+			[ "Voice-over", "voiceover", "microphone" ], [ "Trailer", "trailer", "film-strip" ], [ "Game audio", "game-audio", "joystick" ], [ "Sampler", "sampler", "piano-keys" ] ].forEach( function ( c, n ) {
 			var b = document.createElement( "button" );
 			b.type = "button";
 			b.className = "ax-clip ax-reveal" + ( n === 0 ? " theme" : "" );

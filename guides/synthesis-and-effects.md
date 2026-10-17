@@ -4,7 +4,7 @@ order: 2
 summary: Make sound from nothing with oscillators, noise, envelopes and drums, then shape it with filters, echo and reverb.
 ---
 
-Sounds are made from code, with no samples to download or license. Generators return mono buffers at a known level, so they mix predictably.
+Sounds are made from code, with no samples to download or license. Generators return mono buffers. Noise has an RMS of about -12 dBFS, and noise and the band limited saw and square can peak above full scale (up to about 1.35 for white noise), so lower the gain or use `audioSaturate` before saving, which otherwise clips.
 
 ## Oscillators and notes
 
@@ -66,7 +66,7 @@ laser = audioSweep( 1800, 200, 0.25 );
 | `audioConcat( audios )` | Join buffers end to end |
 | `audioMix( audios )` | Play buffers at the same time |
 | `audioReverse( audio )` | Play it backwards |
-| `audioChannels( audio, n )` / `audioResample( audio, rate )` | Convert mono and stereo, or the sample rate |
+| `audioChannels( audio, channels )` / `audioResample( audio, sampleRate )` | Convert mono and stereo, or the sample rate |
 
 ## Effects
 

@@ -45,7 +45,7 @@ audioDecode( data, format="" )
 Works out what to send for a request for audio. It does not send anything: copy the status, the headers and the body to the response of your web server. <p> It answers what a browser audio player asks for. A request with a Range header gets just those bytes with status 206, which is what lets a player seek without downloading everything. A repeated request with a matching If-None-Match gets 304 and no body. HEAD gets the headers only. A range that is past the end gets 416. <p> The source can be a path (the file is sent as it is, and only the asked bytes are read from disk), an audio buffer (encoded to the format) or binary data you already encoded with audioEncode(). Encoding is done on every call, so encode once and keep the bytes when many requests ask for the same sound.
 
 ```js
-audioHttpResponse( source, request, format="", bitrate=0, bitDepth=16, maxAgeSeconds=3600, filename="", download=false )
+audioHttpResponse( source, request, format="", bitDepth=16, bitrate=0, maxAgeSeconds=3600, filename="", download=false )
 ```
 
 | Argument | Type | Default | |
@@ -53,8 +53,8 @@ audioHttpResponse( source, request, format="", bitrate=0, bitDepth=16, maxAgeSec
 | `source` | any | required | A file path, an audio buffer or binary data. |
 | `request` | struct | optional | The request: a struct with method (GET or HEAD, defaults to GET) and headers, a struct of the request headers such as range and if-none-match. A struct that has no headers key is taken to be the headers themselves. |
 | `format` | string | `""` | wav, mp3, flac, ogg, opus, m4a or aac. For a buffer it is the format to encode (defaults to mp3). For a path, leave it out to send the file as it is, or give another format to convert. For binary data it says what the data is, and is found from the content when left out. |
-| `bitrate` | integer | `0` | For MP3, OGG, Opus and AAC when audio is encoded: the bitrate in kbps. Defaults to the format's own. |
 | `bitDepth` | integer | `16` | For WAV and FLAC when audio is encoded. Defaults to 16. |
+| `bitrate` | integer | `0` | For MP3, OGG, Opus and AAC when audio is encoded: the bitrate in kbps. Defaults to the format's own. |
 | `maxAgeSeconds` | long | `3600` | How long a browser may keep it without asking again. 0 makes it ask every time (cheap, since the ETag answers 304), a negative number forbids storing it. Defaults to 3600. |
 | `filename` | string | `""` | A file name offered to a browser that saves the audio. |
 | `download` | boolean | `false` | True to ask the browser to save the file instead of playing it. Defaults to false. |
