@@ -20,7 +20,7 @@ It checks Java, `java.desktop`, MP3, FFmpeg, the sound card, the examples, the M
 
 ## FFmpeg
 
-**"... needs FFmpeg, which was not found."** OGG, Opus, AAC, M4A, video files and `audioMux` need FFmpeg. Run `bx-audio ffmpeg install` to download one, or install FFmpeg so it is on the `PATH`, or set the `ffmpeg` [setting](reference/configuration.md). If `autoInstall` is `false`, the module never downloads it for you.
+**"... needs FFmpeg, and FFmpeg is not installed on this computer."** OGG, Opus, AAC, M4A, video files and `audioMux` need FFmpeg. Run `bx-audio ffmpeg install` to download one, or install FFmpeg so it is on the `PATH`, or set the `ffmpeg` [setting](reference/configuration.md). If `autoInstall` is `false`, the module never downloads it for you.
 
 **"The configured FFmpeg ... was not found or does not run."** The `ffmpeg` setting or `BX_AUDIO_FFMPEG` points to something that is not FFmpeg. Fix or clear it. A configured path never falls back silently to another FFmpeg.
 
@@ -40,7 +40,7 @@ It checks Java, `java.desktop`, MP3, FFmpeg, the sound card, the examples, the M
 
 **The first call takes a long time.** It is downloading about 210 MB. Pass `onProgress` to `audioSpeak` to show it, or run `bx-audio install engine joe` ahead of time.
 
-**Speech sounds slightly different on another machine.** The model runs the same, but it is floating point on a native library, so tiny differences are possible. Everything else in the module is bit for bit repeatable.
+**The same text sounds slightly different each time.** The voice model adds a little randomness, so lengths and caption times vary by a few hundredths of a second between runs, as well as between machines. Save the audio and its captions together and do not compare speech byte for byte. Everything else in the module is repeatable with its seed.
 
 ## Playing sound
 

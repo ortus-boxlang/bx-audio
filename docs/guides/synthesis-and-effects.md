@@ -66,7 +66,7 @@ laser = audioSweep( 1800, 200, 0.25 );
 | `audioConcat( audios )` | Join buffers end to end |
 | `audioMix( audios )` | Play buffers at the same time |
 | `audioReverse( audio )` | Play it backwards |
-| `audioChannels( audio, n )` / `audioResample( audio, rate )` | Convert mono and stereo, or the sample rate |
+| `audioChannels( audio, channels )` / `audioResample( audio, sampleRate )` | Convert mono and stereo, or the sample rate |
 
 ## Effects
 
