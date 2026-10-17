@@ -326,7 +326,7 @@
 <pre id="ax-pg-snippet"></pre>
 					</div>
 				</div>
-				<div class="ax-pg-foot"><i class="ph-duotone ph-info"></i> Want the real module? <a href="#variables.basePath#try-it/">Clone it and run every feature</a>.</div>
+				<div class="ax-pg-foot"><i class="ph-duotone ph-info"></i> <span>Want the real module? <a href="#variables.basePath#try-it/">Clone it and run every feature</a>.</span></div>
 			</div>
 		</div>
 	</section>
