@@ -69,4 +69,4 @@ All 83 functions with their arguments, and every command of the `bx-audio` comma
 
 ## Requirements
 
-BoxLang 1.x on Java 21. WAV, FLAC, analysis and everything that makes sound need nothing else. MP3 uses two small LGPL jars shipped with the module and the JDK's `java.desktop` module. Text to speech downloads its engine and a voice the first time, and FFmpeg is found on your computer or downloaded when something needs it. Downloads go to `~/.bxaudio` and you can see and clear them with `bx-audio where` and `bx-audio clean`.
+BoxLang 1.18 or newer on Java 21. WAV, FLAC, analysis and everything that makes sound need nothing else. MP3 uses two small LGPL jars shipped with the module and the JDK's `java.desktop` module. Text to speech downloads its engine and a voice the first time, and FFmpeg is found on your computer or downloaded when something needs it. Downloads go to `~/.bxaudio` and you can see and clear them with `bx-audio where` and `bx-audio clean`.

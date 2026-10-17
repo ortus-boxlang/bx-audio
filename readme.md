@@ -71,7 +71,7 @@ audioSave( audioSaturate( audioRender( t ) ), "groove.mp3" );
 
 ### Requirements
 
-- **BoxLang Runtime** 1.0.0 or higher
+- **BoxLang Runtime** 1.18.0 or higher
 - **Java 21 or newer**, a full JDK (MP3 writing needs the `java.desktop` module)
 - **MP3 only:** the optional codec jars that ship in the module's `libs/` folder (see [Licensing](#licensing))
 

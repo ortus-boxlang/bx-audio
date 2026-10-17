@@ -6,6 +6,9 @@
 class {
 
 	overrides = request.audioJob.overrides;
-	include request.audioJob.script;
+	// BoxLang 1.18 no longer finds an include by an absolute file path, so the script is included by its path relative to this file
+	here = createObject( "java", "java.nio.file.Path" ).of( getDirectoryFromPath( getCurrentTemplatePath() ) ).toAbsolutePath().normalize();
+	script = createObject( "java", "java.nio.file.Path" ).of( request.audioJob.script ).toAbsolutePath().normalize();
+	include here.relativize( script ).toString().replace( "\\", "/" );
 
 }
