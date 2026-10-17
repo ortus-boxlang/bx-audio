@@ -22,7 +22,7 @@ println( r.bpm & " BPM, confidence " & r.confidence & ", " & r.beats.len() & " b
 | `confidence` | 0 to 1: how much the pulse stands out |
 | `beats` | Beat times in seconds |
 
-`minBpm` and `maxBpm` (default 60 and 200) limit the search. Tempo detection is a guess: music that is half or double a common tempo can be read either way, and `confidence` tells you how sure it is. A click track is found within 1.5 BPM.
+`minBpm` and `maxBpm` (default 60 and 200) limit the search. Tempo detection is a guess: music that is half or double a common tempo can be read either way, and `confidence` tells you how sure it is. A steady click track from 70 to 150 BPM is found within 1.5 BPM. Above that it can come back as half the tempo (160 reads as 80) with a confidence of 1, so set `minBpm` to the lowest tempo you expect, for example `audioBpm( x, 120, 200 )`.
 
 ## Spectrum
 

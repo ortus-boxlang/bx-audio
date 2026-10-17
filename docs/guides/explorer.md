@@ -4,7 +4,7 @@ order: 12
 summary: A web app on the BoxLang MiniServer that plays every example piece in the browser.
 ---
 
-The explorer is a small BoxLang web app (`index.bxm` and `render.bxm`) that plays every piece of the examples catalog in the browser, with adjustable settings, a waveform and seeking. It runs on the BoxLang MiniServer.
+The explorer is a small BoxLang web app (`index.bxm` and `render.bxm`) that plays every piece of the examples catalog that does not need the speech engine (14 of 16) in the browser, with adjustable settings, a waveform and seeking. It runs on the BoxLang MiniServer.
 
 ![The explorer](../assets/explorer.png)
 

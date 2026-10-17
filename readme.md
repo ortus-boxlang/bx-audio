@@ -46,7 +46,7 @@ BoxLang Audio makes sound from code. Synthesize instruments and drums, arrange t
 - 🎼 A catalog of complete, original example songs with no samples to license
 - 🗣️ Text to speech with open license voices that download on first use, no API key or cloud service
 - 🔁 Repeatable: the same seed gives the same sound on any machine
-- 🌐 A [catalog explorer](examples/explorer/) web app on the BoxLang MiniServer that plays every piece in the browser
+- 🌐 A [catalog explorer](examples/explorer/) web app on the BoxLang MiniServer that plays every piece that does not need the speech engine (14 of 16) in the browser
 - 🧩 100% Java, no native dependencies, works from the CLI, web apps and Lambda
 
 ## Why BoxLang Audio?
@@ -72,6 +72,7 @@ audioSave( audioSaturate( audioRender( t ) ), "groove.mp3" );
 ### Requirements
 
 - **BoxLang Runtime** 1.0.0 or higher
+- **Java 21 or newer**, a full JDK (MP3 writing needs the `java.desktop` module)
 - **MP3 only:** the optional codec jars that ship in the module's `libs/` folder (see [Licensing](#licensing))
 
 ### Installation
@@ -242,7 +243,7 @@ Loudness is measured as ITU-R BS.1770 and EBU R128 define it (K-weighting, gated
 | `audioMaster( audio, target="streaming", truePeakDb=-1, glue=false )` | The same with presets: `streaming` -14, `podcast` -16, `game` -16, `broadcast` -23 (EBU R128), `cinema` -24, or a number. `glue` compresses lightly first |
 | `audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, knee=6, makeupDb="auto" )` | A compressor. `auto` make-up matches the loudness of the input |
 | `audioLimit( audio, ceilingDb=-1, releaseMs=100, lookAheadMs=5 )` | A look-ahead limiter: no sample ends above the ceiling |
-| `audioEq( audio, bands )` | Parametric EQ. Each band is `{ type, freq, gain, q }` with `type` `peak`, `lowshelf`, `highshelf`, `lowpass`, `highpass` or `notch` |
+| `audioEq( audio, bands )` | Parametric EQ. Each band is `{ type, freq, gainDb, q }` with `type` `peak`, `lowshelf`, `highshelf`, `lowpass`, `highpass` or `notch` |
 
 ```js
 mix = audioRender( timeline=t );
@@ -296,7 +297,7 @@ WAV, MP3 and FLAC are read and written by the module itself (FLAC lossless, in p
 | `mixer.play( sound, { bus, volume, pan, pitch, loop, loopStart, loopEnd, start, fadeIn } )` | Play a sound, get a playback to `stop( fade )`, `pause()`, `resume()`, `setVolume()`, `setPan()`, `setPitch()`, `fadeTo( level, seconds )` |
 | `mixer.crossfade( playback, sound, seconds, options )` | Swap music smoothly |
 | `mixer.setVolume( bus, volume )` / `mixer.setVolume( volume )` | Bus and master volume |
-| `audioPlay( audio, wait=true, volume=1, output="speakers" )` | Play one sound through the speakers, or with `output="memory"` or `"null"` where there is no sound card |
+| `audioPlay( audio, wait=true, volume=1, output="speakers" )` | Play one sound through the speakers, or with `output="null"` where there is no sound card. To get the audio itself use `audioMixer( output="memory" )` and `render()` |
 | `audioLoopify( audio, crossfade=0.25 )` | Blend the end into the start so a loop cannot click |
 | `audioVariations( audio, count=5, pitchRange=1, gainRangeDb=2, seed=1 )` | Slightly different copies, so repeated effects do not sound alike |
 | `audioSprite( sounds, gap=0.1, path )` | Join named sounds into one file with a Howler.js map |
@@ -338,7 +339,7 @@ Three module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in
 
 ## Examples
 
-The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/) [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/), [Rock](examples/11-rock/), a [Voice-over](examples/12-voiceover/) with music that ducks under a spoken voice, a complete [Trailer](examples/13-trailer/) soundtrack (music cut to the video, voice-over, captions, mastering, mux) and [Game audio](examples/14-game-audio/) (a mixer session, loops, variations, a sprite).
+The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/), [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/), [Rock](examples/11-rock/), a [Voice-over](examples/12-voiceover/) with music that ducks under a spoken voice, a complete [Trailer](examples/13-trailer/) soundtrack (music cut to the video, voice-over, captions, mastering, mux) [Game audio](examples/14-game-audio/) (a mixer session, loops, variations, a sprite), [Sampler](examples/16-sampler/) and [The BxAudio theme](examples/15-theme/).
 
 ```bash
 boxlang examples/01-pop-drive/pop-drive.bxs --out=out/pop-drive.wav
