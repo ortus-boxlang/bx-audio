@@ -53,8 +53,8 @@ public class AudioHttpResponse extends BIF {
 		    new Argument( true, "any", source ),
 		    new Argument( false, "struct", request ),
 		    new Argument( false, "string", format, "" ),
-		    new Argument( false, "integer", KeyDictionary.bitrate, 0 ),
 		    new Argument( false, "integer", Key.of( "bitDepth" ), 16 ),
+		    new Argument( false, "integer", KeyDictionary.bitrate, 0 ),
 		    new Argument( false, "long", maxAgeSeconds, 3600L ),
 		    new Argument( false, "string", filename, "" ),
 		    new Argument( false, "boolean", download, false )

@@ -66,10 +66,21 @@ public class AudioEq extends BIF {
 			if ( ! ( entry instanceof IStruct band ) ) {
 				throw new AudioException( AudioException.INVALID_ARGUMENT, "Each EQ band must be a struct such as { type: \"peak\", freq: 3000, gainDb: 3 }" );
 			}
+			for ( Key key : band.keySet() ) {
+				String name = key.getName();
+				if ( ! ( name.equalsIgnoreCase( "type" ) || name.equalsIgnoreCase( "freq" ) || name.equalsIgnoreCase( "gainDb" )
+				    || name.equalsIgnoreCase( "q" ) ) ) {
+					throw new AudioException( AudioException.INVALID_ARGUMENT,
+					    "Unknown EQ band key [" + name + "]. A band has type, freq, gainDb and q (gain was renamed gainDb)" );
+				}
+			}
 			String	kind	= String.valueOf( band.getOrDefault( Key.of( "type" ), "peak" ) );
 			Object	f		= band.get( Key.of( "freq" ) );
 			if ( f == null ) {
 				throw new AudioException( AudioException.INVALID_ARGUMENT, "Each EQ band needs a freq in Hz" );
+			}
+			if ( !band.containsKey( Key.of( "gainDb" ) ) && ( kind.equalsIgnoreCase( "peak" ) || kind.toLowerCase().endsWith( "shelf" ) ) ) {
+				throw new AudioException( AudioException.INVALID_ARGUMENT, "A " + kind + " band needs a gainDb in dB" );
 			}
 			Object	g	= band.getOrDefault( Key.of( "gainDb" ), 0 );
 			Object	w	= band.get( Key.of( "q" ) );

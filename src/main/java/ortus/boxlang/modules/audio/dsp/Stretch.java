@@ -61,8 +61,13 @@ public final class Stretch {
 		if ( audio.getFrames() == 0 ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "Cannot fit silence of no length to a duration" );
 		}
-		double		rate	= audio.getDurationSeconds() / seconds;
-		AudioBuffer	result	= stretch( audio, rate );
+		double rate = audio.getDurationSeconds() / seconds;
+		if ( rate < MIN_RATE || rate > MAX_RATE ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The new length must be between a quarter and four times the original (" + audio.getDurationSeconds()
+			        + " s), but " + seconds + " s was asked for" );
+		}
+		AudioBuffer result = stretch( audio, rate );
 		return exactLength( result, ( int ) Math.round( seconds * audio.getSampleRate() ) );
 	}
 
@@ -158,14 +163,17 @@ public final class Stretch {
 		for ( int i = 0; i < hop; i++ ) {
 			first[ i ] = 1;
 		}
-		float[][]	out			= new float[ channels ][ outFrames + size ];
+		float[][]	out			= new float[ channels ][ outFrames + size + hop ];
 		int			previous	= -1;
 		for ( int k = 0;; k++ ) {
 			int outPos = k * hop;
-			if ( outPos >= outFrames ) {
+			// One window past the end, so the last samples get both halves of the overlap and do not fade out
+			if ( outPos >= outFrames + hop ) {
 				break;
 			}
-			int	nominal	= ( int ) Math.round( k * analysisHop ) + tolerance;
+			// A window never reaches past the end of the sound, so the last samples are the sound and not the zeros after it
+			int	lastStart	= Math.max( 0, tolerance + frames - size );
+			int	nominal		= Math.min( ( int ) Math.round( k * analysisHop ) + tolerance, lastStart );
 			int	chosen;
 			if ( previous < 0 ) {
 				chosen = nominal;
@@ -174,7 +182,8 @@ public final class Stretch {
 				int template = previous + hop;
 				chosen = bestMatch( mono, coarse, decimation, template, nominal, tolerance, hop );
 			}
-			previous = chosen;
+			chosen		= Math.min( chosen, lastStart );
+			previous	= chosen;
 			for ( int ch = 0; ch < channels; ch++ ) {
 				float[] src = in[ ch ];
 				for ( int i = 0; i < size; i++ ) {

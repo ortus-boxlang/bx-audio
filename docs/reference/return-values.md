@@ -100,7 +100,7 @@ A WAV file is described from its header, so a file of any size answers at once. 
 | `momentaryMax` | number | Loudest 400 ms, LUFS. |
 | `shortTermMax` | number | Loudest 3 s, LUFS. |
 
-Silence, or audio shorter than 400 ms, reads `-120`.
+Silence reads `-120`. A clip shorter than 400 ms is measured as one block of its own length, and `shortTermMax` reads `-120` below 3 s.
 
 ### `audioBpm( audio )`
 

@@ -124,7 +124,7 @@ MP3 gets ID3v2.4 tags with chapter frames, FLAC gets Vorbis comments and picture
 Speech does not need stereo or a high bit rate. Mono at 96 or 128 kbps is a small file that sounds the same.
 
 ```js
-final = audioChannels( final, 1 );
+final = audioMaster( audioChannels( final, 1 ), "podcast" );   // mono is about 3 LU quieter, so master again
 audioSave( audio=final, path="episode-042.mp3", bitrate=96 );
 ```
 

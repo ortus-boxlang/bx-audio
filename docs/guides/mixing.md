@@ -48,10 +48,12 @@ mix = audioRender( t );
 `audioDuck` lowers a track while another is loud, which is the mix you would otherwise do by hand when a voice-over comes in.
 
 ```js
+music = audioOsc( "saw", audioFreq( "A2" ), 10 );
+voice = audioSpeak( text="Welcome.", voice="joe" );
 t = audioTimeline( bpm=100 );
 audioAdd( timeline=t, sound=music, at=0, track="music", gainDb=-10 );
 audioAdd( timeline=t, sound=voice, at=t.bar( 1 ), track="voice" );
-audioDuck( t, "music", "voice", -9, -40, 0.01, 0.3 );   // down 9 dB while the voice is above -40 dB
+audioDuck( t, "music", "voice", -9, -40, 10, 300 );   // down 9 dB while the voice is above -40 dB; 10 ms to duck, 300 ms to come back
 mix = audioRender( timeline=t, tail=1 );
 ```
 

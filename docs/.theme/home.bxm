@@ -289,6 +289,9 @@
 				<a class="ax-card ax-reveal" href="#variables.basePath#guides/games/"><div class="ico"><i class="ph-duotone ph-game-controller"></i></div><h3>Game audio</h3><p>A real time mixer with buses, loops and crossfades, varied effects and audio sprites.</p></a>
 				<a class="ax-card ax-reveal" href="#variables.basePath#guides/time-and-pitch/"><div class="ico"><i class="ph-duotone ph-metronome"></i></div><h3>Time and pitch</h3><p>Stretch, pitch shift and fit a clip to an exact length without the chipmunk.</p></a>
 				<a class="ax-card ax-reveal" href="#variables.basePath#guides/analysis/"><div class="ico"><i class="ph-duotone ph-chart-bar"></i></div><h3>Analysis</h3><p>FFT, spectrum, tempo and silence detection, plus true peak.</p></a>
+				<a class="ax-card ax-reveal" href="#variables.basePath#guides/modulation-and-automation/"><div class="ico"><i class="ph-duotone ph-wave-sine"></i></div><h3>Modulation and real rooms</h3><p>LFOs, curves, automation lanes, a sampler that plays your recordings as instruments, and convolution reverb.</p></a>
+				<a class="ax-card ax-reveal" href="#variables.basePath#guides/podcasts/"><div class="ico"><i class="ph-duotone ph-tag"></i></div><h3>Tags, chapters and cover art</h3><p>Read and write ID3, FLAC and WAV tags, chapter marks and artwork without any native library.</p></a>
+				<a class="ax-card ax-reveal" href="#variables.basePath#guides/web-apps/"><div class="ico"><i class="ph-duotone ph-globe-hemisphere-west"></i></div><h3>Web delivery and pictures</h3><p>Serve audio with Range and ETag support, encode to bytes, and draw waveforms and spectrograms as PNG or SVG.</p></a>
 				<a class="ax-card ax-reveal" href="#variables.basePath#reference/cli/"><div class="ico"><i class="ph-duotone ph-terminal-window"></i></div><h3>A real command line</h3><p><code>bx-audio info</code>, <code>master</code>, <code>speak</code> and more. Downloads live in <code>~/.bxaudio</code>.</p></a>
 			</div>
 		</div>
@@ -323,7 +326,7 @@
 <pre id="ax-pg-snippet"></pre>
 					</div>
 				</div>
-				<div class="ax-pg-foot"><i class="ph-duotone ph-info"></i> Want the real module? <a href="#variables.basePath#try-it/">Clone it and run every feature</a>.</div>
+				<div class="ax-pg-foot"><i class="ph-duotone ph-info"></i> <span>Want the real module? <a href="#variables.basePath#try-it/">Clone it and run every feature</a>.</span></div>
 			</div>
 		</div>
 	</section>
@@ -335,14 +338,14 @@
 			<div class="ax-reveal">
 				<span class="eyebrow"><i class="ph-duotone ph-scales"></i> Voices and licenses</span>
 				<h2>Voices with the <span class="grad">paperwork done</span>.</h2>
-				<p>We read the license of every voice in the collection and of the data it was trained on. The ones offered are CC0, Public Domain or Apache-2.0. The rest are listed with the reason they are not.</p>
+				<p>We read the license of every voice in the collection and of the data it was trained on. The ones offered carry an open license that allows commercial use (CC0, Public Domain, Apache-2.0, or CC BY and CC BY-SA with a credit), and <code>audioCredits()</code> prints the credit lines for your about page. The rest are listed with the reason they are not. Today the voices speak US English; Spanish, German, Italian, French and Portuguese are planned.</p>
 				<div class="ax-big"><div><b class="grad">177</b><small>voices reviewed</small></div><div><b class="grad">11</b><small>offered</small></div><div><b>166</b><small>left out, with reasons</small></div></div>
 				<div class="hero-actions"><a class="bxh-btn bxh-btn-ghost" href="#variables.basePath#licenses/">Read the license guide <i class="ph-duotone ph-arrow-right"></i></a></div>
 			</div>
 			<div class="ax-lic ax-reveal"><table>
 				<tr><th>Voice</th><th>License</th><th>Status</th><th></th></tr>
 				<tr><td>en_US joe</td><td>CC0</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-joe-medium.mp3" aria-label="Play en_US joe"><i class="ph-duotone ph-play"></i></button></td></tr>
-				<tr><td>en_US bryce</td><td>CC0</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-bryce-medium.mp3" aria-label="Play en_US bryce"><i class="ph-duotone ph-play"></i></button></td></tr>
+				<tr><td>en_US bryce</td><td>Public Domain</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-bryce-medium.mp3" aria-label="Play en_US bryce"><i class="ph-duotone ph-play"></i></button></td></tr>
 				<tr><td>en_US kristin</td><td>Public Domain</td><td><span class="ax-tag ok">Offered</span></td><td><button type="button" class="ax-vplay" data-src="#variables.basePath#assets/audio/voices/en_US-kristin-medium.mp3" aria-label="Play en_US kristin"><i class="ph-duotone ph-play"></i></button></td></tr>
 				<tr><td>en_GB (dictionary)</td><td>GPL data</td><td><span class="ax-tag no">Not offered</span></td><td></td></tr>
 				<tr><td>Non-commercial set</td><td>CC BY-NC</td><td><span class="ax-tag no">Not offered</span></td><td></td></tr>

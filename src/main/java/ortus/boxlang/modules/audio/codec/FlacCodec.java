@@ -108,8 +108,8 @@ public final class FlacCodec {
 		head.bits( 1, 1 );
 		head.bits( 0, 7 );
 		head.bits( 34, 24 );
-		head.bits( number == 0 ? BLOCK_SIZE : minBlock == maxBlock ? minBlock : BLOCK_SIZE, 16 );
-		head.bits( number == 0 ? BLOCK_SIZE : maxBlock, 16 );
+		head.bits( number == 0 ? BLOCK_SIZE : Math.max( 16, minBlock == maxBlock ? minBlock : BLOCK_SIZE ), 16 );
+		head.bits( number == 0 ? BLOCK_SIZE : Math.max( 16, maxBlock ), 16 );
 		head.bits( minFrame, 24 );
 		head.bits( maxFrame, 24 );
 		head.bits( audio.getSampleRate(), 20 );
@@ -432,7 +432,12 @@ public final class FlacCodec {
 					signals[ ch ] = readSubframe( r, size, bits );
 				}
 				r.align();
-				r.bits( 16 );
+				int		crcAt	= r.bytePosition();
+				long	stored	= r.bits( 16 );
+				if ( crc16( bytes, frameStart, crcAt ) != stored ) {
+					throw new AudioException( AudioException.CORRUPT_AUDIO,
+					    "The FLAC file is damaged: the checksum of the frame at byte " + frameStart + " does not match" );
+				}
 				if ( assignment == 8 ) {
 					for ( int i = 0; i < size; i++ ) {
 						signals[ 1 ][ i ] = signals[ 0 ][ i ] - signals[ 1 ][ i ];
@@ -468,6 +473,9 @@ public final class FlacCodec {
 		} catch ( ArrayIndexOutOfBoundsException | NegativeArraySizeException e ) {
 			throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file is damaged: a frame does not decode" );
 		}
+		if ( !unknownLength && pos < total ) {
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "The FLAC file ends early: " + pos + " of " + total + " frames are there" );
+		}
 		if ( unknownLength ) {
 			out = new float[ channels ][ pos ];
 			int at = 0;
@@ -479,6 +487,20 @@ public final class FlacCodec {
 			}
 		}
 		return new AudioBuffer( out, rate );
+	}
+
+	/**
+	 * The CRC-16 of a FLAC frame, polynomial 0x8005, from its first byte up to the checksum
+	 */
+	private static int crc16( byte[] data, int from, int to ) {
+		int crc = 0;
+		for ( int i = from; i < to; i++ ) {
+			crc ^= ( data[ i ] & 0xFF ) << 8;
+			for ( int b = 0; b < 8; b++ ) {
+				crc = ( crc & 0x8000 ) != 0 ? ( ( crc << 1 ) ^ 0x8005 ) & 0xFFFF : ( crc << 1 ) & 0xFFFF;
+			}
+		}
+		return crc;
 	}
 
 	private static long[] readSubframe( BitReader r, int size, int bps ) {

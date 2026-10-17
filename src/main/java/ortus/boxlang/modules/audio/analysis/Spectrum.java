@@ -43,6 +43,9 @@ public final class Spectrum {
 	 * @param start Where the window starts, in seconds
 	 */
 	public static Bins fft( AudioBuffer audio, int size, double start ) {
+		if ( size > ( 1 << 22 ) ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The FFT size can be at most 4194304 but was " + size );
+		}
 		Fft			fft		= new Fft( size );
 		float[]		mono	= mono( audio );
 		int			offset	= ( int ) Math.round( start * audio.getSampleRate() );

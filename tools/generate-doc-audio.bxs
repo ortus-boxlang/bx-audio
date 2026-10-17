@@ -23,6 +23,11 @@ directoryCreate( temp, true, true );
 
 cli = new bxModules.bxaudio.cli.Cli( root );
 
+// The loudness the clips and the voice samples are brought to (LUFS), and the pace the voice samples are spoken at (words a minute)
+clipLufs = -16;
+voiceLufs = -19;
+voiceWpm = 150;
+
 // Settings that make each clip about 20 to 30 seconds
 clips = [
 	{ id : "pop-drive", args : [ "--bars=12" ] },
@@ -54,6 +59,8 @@ for( clip in clips ){
 	wav = temp & "/" & clip.id & ".wav";
 	cli.run( [ "render", clip.id, "--out=" & wav ].append( clip.args, true ) );
 	audio = audioLoad( wav );
+	// Every clip plays at about the same loudness, with room under the ceiling for the MP3 encoder
+	audio = audioMaster( audio = audio, target = clipLufs, truePeakDb = -1.5 );
 	audioSave( audio, target & "/" & clip.id & ".mp3", 16, 96 );
 	println( clip.id & ": " & numberFormat( audio.getDurationSeconds(), "0.0" ) & " s" );
 }
@@ -63,17 +70,26 @@ if( !only.len() || only.contains( "theme" ) ){
 	overrides = { out : temp & "/sting.wav", sting : true };
 	include "../examples/15-theme/theme.bxs";
 	sting = audioLoad( temp & "/sting.wav" );
+	sting = audioMaster( audio = sting, target = clipLufs, truePeakDb = -1.5 );
 	audioSave( sting, target & "/sting.mp3", 16, 96 );
 	println( "sting: " & numberFormat( sting.getDurationSeconds(), "0.0" ) & " s" );
 }
 
 if( options.keyExists( "voice-samples" ) && options[ "voice-samples" ] != false ){
 	directoryCreate( target & "/voices", true, true );
+	// The same line for every voice, so they can be compared. Each voice is spoken once to see how fast it is, then again at the speed that
+	// gives the same pace, and brought to the same loudness.
+	line = "Welcome to BxAudio. This is one of the open license voices that come with BoxLang. It can read your articles, narrate your videos, and caption your podcasts.";
+	words = line.listToArray( " " ).len();
+	wanted = words * 60 / voiceWpm;
 	for( voice in audioVoices( status = "offered" ) ){
-		line = "Welcome to BxAudio. I am " & voice.name & ", one of the open license voices that come with BoxLang.";
-		sample = audioSpeak( text = line, voice = voice.id, speed = 0.96, pauses = { sentence : 0.5, clause : 0.2 } );
+		pauses = { sentence : 0.4, clause : 0.15 };
+		trial = audioSpeak( text = line, voice = voice.id, speed = 1, pauses = pauses );
+		speed = max( 0.8, min( 1.25, round( trial.getDurationSeconds() / wanted * 100 ) / 100 ) );
+		sample = abs( speed - 1 ) < 0.03 ? trial : audioSpeak( text = line, voice = voice.id, speed = speed, pauses = pauses );
+		sample = audioMaster( audio = sample, target = voiceLufs, truePeakDb = -1.5 );
 		audioSave( sample, target & "/voices/" & voice.id & ".mp3", 16, 64 );
-		println( voice.id & ": " & numberFormat( sample.getDurationSeconds(), "0.0" ) & " s" );
+		println( voice.id & ": " & numberFormat( sample.getDurationSeconds(), "0.0" ) & " s at speed " & speed );
 	}
 }
 directoryDelete( temp, true );

@@ -64,6 +64,11 @@ final class Mp3Decoder {
 			}
 		} catch ( BitstreamException | DecoderException e ) {
 			throw new AudioException( AudioException.IO, "Could not decode the MP3: " + e.getMessage(), e );
+		} catch ( RuntimeException e ) {
+			if ( e instanceof AudioException ) {
+				throw e;
+			}
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "The MP3 is damaged: " + e.getMessage(), e );
 		} finally {
 			try {
 				stream.close();

@@ -20,7 +20,7 @@ octave  = audioPitch( music, -12 );           // an octave lower
 | Function | Range | Does |
 |---|---|---|
 | `audioStretch( audio, rate )` | 0.25 to 4 | Speed factor. `2` is twice as fast and half as long |
-| `audioFitTo( audio, seconds )` | any | Stretch to an exact length |
+| `audioFitTo( audio, seconds )` | a quarter to four times the length (otherwise `bxaudio.invalidArgument`) | Stretch to an exact length |
 | `audioPitch( audio, semitones )` | plus or minus 24 | Shift the pitch, length unchanged |
 
 ## How well does it work

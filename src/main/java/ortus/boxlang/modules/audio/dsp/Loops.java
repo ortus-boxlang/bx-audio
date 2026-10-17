@@ -38,6 +38,11 @@ public final class Loops {
 	 * @return A buffer shorter by the crossfade
 	 */
 	public static AudioBuffer loopify( AudioBuffer audio, double crossfade ) {
+		Dsp.requireFinite( crossfade, "crossfade" );
+		if ( crossfade * audio.getSampleRate() > audio.getFrames() ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The crossfade of " + crossfade + " s is longer than half of the sound (" + audio.getDurationSeconds() + " s)" );
+		}
 		int fade = ( int ) Math.round( crossfade * audio.getSampleRate() );
 		if ( fade <= 0 ) {
 			return audio.copy();

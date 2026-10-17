@@ -58,9 +58,9 @@ audioSpeak( text="Quick, quick.", voice="joe", speed=1.3 );        // faster
 
 ```js
 audioSpeak(
-    text = "First, the setup. Then the twist.\n\nThe end.",
+    text = "First, the setup. Then the twist." & char( 10 ) & char( 10 ) & "The end.",
     voice = "joe",
-    pauses = { sentence: 0.5, clause: 0.2, paragraph: 1.0 }     // seconds; these are the defaults' names
+    pauses = { sentence: 0.5, paragraph: 1.0 }     // seconds; `clause` only applies to audioSpeakCues( split="clause" )
 );
 ```
 

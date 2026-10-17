@@ -93,6 +93,10 @@ public final class FileTags {
 			return new Object[] { format, tags };
 		} catch ( IOException e ) {
 			throw new AudioException( AudioException.IO, "Could not read the tags of [" + file + "]: " + e.getMessage(), e );
+		} catch ( AudioException e ) {
+			throw e;
+		} catch ( RuntimeException e ) {
+			throw new AudioException( AudioException.CORRUPT_AUDIO, "The tags of [" + file + "] are damaged: " + e.getMessage(), e );
 		}
 	}
 
@@ -113,6 +117,10 @@ public final class FileTags {
 				}
 			} catch ( IOException e ) {
 				throw new AudioException( AudioException.IO, "Could not write the tags of [" + file + "]: " + e.getMessage(), e );
+			} catch ( AudioException e ) {
+				throw e;
+			} catch ( RuntimeException e ) {
+				throw new AudioException( AudioException.CORRUPT_AUDIO, "The tags of [" + file + "] are damaged: " + e.getMessage(), e );
 			}
 		} );
 		List<String>	written	= new ArrayList<>();

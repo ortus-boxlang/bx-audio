@@ -33,6 +33,8 @@ jobs:
   #############################################
   build:
     name: Build & Publish Release
+    # Only the release branches publish, so a manual run on a feature branch cannot put a stable version on ForgeBox
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -90,6 +92,9 @@ jobs:
           markdownlint changelog.md --fix
           ./gradlew downloadBoxLang
           ./gradlew build -x test --stacktrace --console=plain
+
+      - name: Run the tests
+        run: ./gradlew test --stacktrace --console=plain
 
       - name: Commit Changelog [unreleased] with latest version
         uses: EndBug/add-and-commit@v11.1.1

@@ -113,14 +113,14 @@ public final class WavTags {
 			String	id		= new String( list, pos, 4, StandardCharsets.ISO_8859_1 );
 			int		size	= le32( list, pos + 4 );
 			pos += 8;
-			if ( size < 0 || pos + size > list.length ) {
+			if ( size < 0 || ( long ) pos + size > list.length ) {
 				break;
 			}
 			int end = pos + size;
 			while ( end > pos && list[ end - 1 ] == 0 ) {
 				end--;
 			}
-			entries.put( id, new String( list, pos, end - pos, StandardCharsets.UTF_8 ) );
+			entries.put( id, text( list, pos, end - pos ) );
 			pos += size + ( size & 1 );
 		}
 		return entries;
@@ -158,7 +158,7 @@ public final class WavTags {
 					String	id		= new String( b, pos, 4, StandardCharsets.ISO_8859_1 );
 					int		size	= le32( b, pos + 4 );
 					pos += 8;
-					if ( size < 0 || pos + size > b.length ) {
+					if ( size < 0 || ( long ) pos + size > b.length ) {
 						break;
 					}
 					if ( id.equals( "labl" ) && size >= 4 ) {
@@ -166,7 +166,7 @@ public final class WavTags {
 						while ( end > pos + 4 && b[ end - 1 ] == 0 ) {
 							end--;
 						}
-						labels.put( le32( b, pos ) & 0xFFFFFFFFL, new String( b, pos + 4, end - pos - 4, StandardCharsets.UTF_8 ) );
+						labels.put( le32( b, pos ) & 0xFFFFFFFFL, text( b, pos + 4, end - pos - 4 ) );
 					}
 					pos += size + ( size & 1 );
 				}
@@ -301,4 +301,15 @@ public final class WavTags {
 		target.write( size, 4 );
 	}
 
+	/**
+	 * WAV text is often Windows-1252 rather than UTF-8, so bytes that are not valid UTF-8 are read that way instead of turning into U+FFFD
+	 */
+	private static String text( byte[] b, int from, int length ) {
+		try {
+			return StandardCharsets.UTF_8.newDecoder().onMalformedInput( java.nio.charset.CodingErrorAction.REPORT )
+			    .onUnmappableCharacter( java.nio.charset.CodingErrorAction.REPORT ).decode( java.nio.ByteBuffer.wrap( b, from, length ) ).toString();
+		} catch ( java.nio.charset.CharacterCodingException e ) {
+			return new String( b, from, length, java.nio.charset.Charset.forName( "windows-1252" ) );
+		}
+	}
 }

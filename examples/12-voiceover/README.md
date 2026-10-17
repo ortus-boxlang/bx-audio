@@ -24,7 +24,7 @@ The first run downloads the speech engine (about 148 MB) and the voice (63 MB or
 
 ## How the mix is built
 
-1. **The voice.** Each line is spoken with `audioSpeak`, cleaned with a high pass at 90 Hz, given a touch of room, and brought to a speaking level of -17 dBFS RMS, but never past -1 dBFS at the peak. Speech has loud peaks and a low average, so levelling by peak would leave it too quiet.
+1. **The voice.** Each line is spoken with `audioSpeak`, cleaned with a high pass at 80 Hz, given a touch of room, and brought to a speaking level of -17 dBFS RMS, but never past -1 dBFS at the peak. Speech has loud peaks and a low average, so levelling by peak would leave it too quiet.
 2. **Where it goes.** The first line comes in after two bars of music. Each next line starts on the first bar line after the one before it ended. The music runs for as long as the voice needs, plus two bars to finish.
 3. **The music.** Am, F, C, G on a detuned saw pad and an arpeggio from the start, and the bass and a light beat from bar two. The music sits 10 dB under the voice's level even when nobody speaks.
 4. **Ducking.** `audioDuck` lowers the music and the beat by `--duck` dB while the voice track is loud, with a fast attack and a gentle release, so the music dips as the voice starts and comes back after it.

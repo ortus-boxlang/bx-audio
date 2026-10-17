@@ -119,6 +119,28 @@ public class ReadmeTest {
 	}
 
 	@Test
+	@DisplayName( "the home page's listen strip has a clip for every example piece, and every clip file exists" )
+	void listenStrip() throws Exception {
+		String					whole	= read( "docs/.theme/assets/audio-home.js" );
+		String					script	= whole.substring( whole.indexOf( "the listen strip" ),
+		    whole.indexOf( ".forEach", whole.indexOf( "the listen strip" ) ) );
+		Matcher					strip	= Pattern.compile( "\\[ \"[^\"]+\", \"([a-z-]+)\", \"[a-z-]+\"" ).matcher( script );
+		java.util.Set<String>	inStrip	= new java.util.TreeSet<>();
+		while ( strip.find() ) {
+			inStrip.add( strip.group( 1 ) );
+		}
+		java.util.Set<String>	pieces	= new java.util.TreeSet<>();
+		Matcher					ids		= Pattern.compile( "\"id\" *: *\"([a-z-]+)\"" ).matcher( read( "examples/explorer/catalog.json" ) );
+		while ( ids.find() ) {
+			pieces.add( ids.group( 1 ) );
+		}
+		assertThat( inStrip ).containsAtLeastElementsIn( pieces );
+		for ( String id : inStrip ) {
+			assertThat( Files.exists( Path.of( "docs", "assets", "audio", id + ".mp3" ) ) ).isTrue();
+		}
+	}
+
+	@Test
 	@DisplayName( "every command of the command line is in the readme's table" )
 	void readmeCommands() throws Exception {
 		String	readme		= read( "readme.md" );

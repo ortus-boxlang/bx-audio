@@ -25,7 +25,7 @@ println( "integrated " & r.integrated & " LUFS, range " & r.range & " LU, true p
 | `samplePeakDb` | Highest sample, dBFS |
 | `momentaryMax` / `shortTermMax` | Loudest 400 ms and loudest 3 s, LUFS |
 
-Silence, or audio shorter than 400 ms, reads -120. This implementation agrees with FFmpeg's `ebur128` filter to within 0.1 LU on rendered music, and with the EBU reference tones (a stereo sine at -23 dBFS reads -23 LUFS).
+Silence reads -120. A clip shorter than 400 ms is measured as one block of its own length, and `shortTermMax` reads -120 below 3 s. This implementation agrees with FFmpeg's `ebur128` filter to within 0.1 LU on rendered music, and with the EBU reference tones (a stereo sine at -23 dBFS reads -23 LUFS).
 
 ## Master to a target
 
@@ -36,7 +36,7 @@ final = audioMaster( audio=mix, target="streaming", truePeakDb=-1 );
 println( audioLoudness( final ).integrated );   // -14
 ```
 
-`audioMaster` sets the gain to reach the target, then a look-ahead limiter holds the peaks under the true-peak ceiling. The limiter lowers the loudness a little, so the gain is corrected and the pass repeated until the target is hit within 0.05 LU.
+`audioMaster` sets the gain to reach the target, then a look-ahead limiter holds the peaks under the true-peak ceiling. The limiter lowers the loudness a little, so the gain is corrected and the pass repeated until the target is hit within 0.05 LU. It stops after four passes. If the ceiling makes the target unreachable (very peaky material or a very loud target), the result is quieter than the target, so check it with `audioLoudness`.
 
 | Target | LUFS | Used for |
 |---|---|---|
@@ -68,7 +68,7 @@ voice = audioLimit( audio=voice, ceilingDb=-1 );
 | Function | Does |
 |---|---|
 | `audioCompress` | Turns loud parts down by `ratio` above `thresholdDb`, with attack, release and a soft knee. `makeupDb="auto"` matches the loudness of the input |
-| `audioLimit` | A look-ahead limiter: no sample ends above `ceilingDb`, and the gain recovers over `release` |
+| `audioLimit` | A look-ahead limiter: no sample ends above `ceilingDb`, and the gain recovers over `releaseMs` |
 | `audioEq` | Parametric bands: `peak`, `lowshelf`, `highshelf`, `lowpass`, `highpass`, `notch` |
 
 ## From the command line

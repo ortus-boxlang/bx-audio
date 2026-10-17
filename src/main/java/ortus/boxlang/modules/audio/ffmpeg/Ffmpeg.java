@@ -232,10 +232,12 @@ public final class Ffmpeg {
 	} );
 
 	static Result run( List<String> command ) {
+		Process process = null;
 		try {
-			Process						process	= new ProcessBuilder( command ).redirectInput( ProcessBuilder.Redirect.from( nullFile() ) ).start();
-			CompletableFuture<byte[]>	out		= CompletableFuture.supplyAsync( () -> drain( process.getInputStream() ), IO );
-			CompletableFuture<byte[]>	err		= CompletableFuture.supplyAsync( () -> drain( process.getErrorStream() ), IO );
+			process = new ProcessBuilder( command ).redirectInput( ProcessBuilder.Redirect.from( nullFile() ) ).start();
+			final Process				started	= process;
+			CompletableFuture<byte[]>	out		= CompletableFuture.supplyAsync( () -> drain( started.getInputStream() ), IO );
+			CompletableFuture<byte[]>	err		= CompletableFuture.supplyAsync( () -> drain( started.getErrorStream() ), IO );
 			if ( !process.waitFor( TIMEOUT_MINUTES, TimeUnit.MINUTES ) ) {
 				process.destroyForcibly();
 				throw new AudioException( AudioException.FFMPEG_FAILED, "FFmpeg took more than " + TIMEOUT_MINUTES + " minutes and was stopped" );
@@ -248,6 +250,11 @@ public final class Ffmpeg {
 			throw new AudioException( AudioException.FFMPEG_FAILED, "FFmpeg was interrupted", e );
 		} catch ( java.util.concurrent.ExecutionException e ) {
 			throw new AudioException( AudioException.IO, "Could not read the output of FFmpeg: " + e.getMessage(), e );
+		} finally {
+			// An interrupted or failed wait must not leave FFmpeg running with its temp files open
+			if ( process != null && process.isAlive() ) {
+				process.destroyForcibly();
+			}
 		}
 	}
 

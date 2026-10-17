@@ -143,7 +143,7 @@ public final class Timeline {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "Gain must be a finite number of decibels and pan between -1 and 1" );
 		}
 		if ( track == null || track.isBlank() ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "A track name cannot be empty" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "A track name cannot be empty" );
 		}
 		if ( atSeconds > MAX_SECONDS ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT,
@@ -218,8 +218,9 @@ public final class Timeline {
 		if ( Double.isNaN( amountDb ) || Double.isInfinite( amountDb ) || amountDb > 0 ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The ducking amount must be zero or a negative number of decibels but was " + amountDb );
 		}
-		if ( Double.isNaN( recoverySeconds ) || Double.isInfinite( recoverySeconds ) || recoverySeconds <= 0 ) {
-			throw new AudioException( AudioException.INVALID_ARGUMENT, "The recovery time must be more than zero seconds but was " + recoverySeconds );
+		if ( Double.isNaN( recoverySeconds ) || Double.isInfinite( recoverySeconds ) || recoverySeconds <= 0 || recoverySeconds > MAX_SECONDS ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "The recovery time must be more than zero and at most 1800 seconds but was " + recoverySeconds );
 		}
 		int[] starts = new int[ timesSeconds.size() ];
 		for ( int i = 0; i < starts.length; i++ ) {
@@ -251,7 +252,7 @@ public final class Timeline {
 		}
 		if ( Double.isNaN( thresholdDb ) || Double.isInfinite( thresholdDb ) || Double.isNaN( attackSeconds ) || attackSeconds < 0
 		    || Double.isNaN( releaseSeconds ) || releaseSeconds < 0 ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "The threshold must be finite and the attack and release times cannot be negative" );
+			throw new AudioException( AudioException.INVALID_ARGUMENT, "The threshold must be finite and the attack and release times cannot be negative" );
 		}
 		if ( !this.tracks.containsKey( trigger ) ) {
 			throw new AudioException( AudioException.FILE_NOT_FOUND, "The trigger track [" + trigger + "] does not exist, add some sound to it first" );
@@ -302,6 +303,14 @@ public final class Timeline {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The rendered audio would pass the " + MAX_SECONDS + " second limit of a timeline" );
 		}
 		float[][] out = new float[ this.channels ][ ( int ) frames ];
+		for ( Map.Entry<String, Track> entry : this.tracks.entrySet() ) {
+			Track t = entry.getValue();
+			if ( t.used == 0 && ( t.gain != 1f || !t.ducks.isEmpty() || !t.automation.isEmpty() ) ) {
+				throw new AudioException( AudioException.INVALID_ARGUMENT,
+				    "The track [" + entry.getKey()
+				        + "] was given a gain, a duck or automation but no sound was ever added to it. Check the track name for a typo." );
+			}
+		}
 		for ( Track t : this.tracks.values() ) {
 			float[]	curve	= duckCurve( t );
 			Curve	volume	= t.automation.get( "gainDb" );

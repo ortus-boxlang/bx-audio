@@ -60,7 +60,7 @@ audioMaster( audio, target="streaming", truePeakDb=-1, glue=false )
 Reduce the dynamic range of audio with a compressor
 
 ```js
-audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, knee=6, makeupDb="auto" )
+audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, kneeDb=6, makeupDb="auto" )
 ```
 
 | Argument | Type | Default | |
@@ -70,7 +70,7 @@ audioCompress( audio, thresholdDb=-18, ratio=4, attackMs=10, releaseMs=100, knee
 | `ratio` | double | `4` | How strongly: 4 means 4 dB over the threshold becomes 1 dB. Defaults to 4. |
 | `attackMs` | double | `10` | Milliseconds to turn down. Defaults to 10. |
 | `releaseMs` | double | `100` | Milliseconds to turn back up. Defaults to 100. |
-| `knee` | double | `6` | Width in dB of the soft knee. 0 is a hard knee. Defaults to 6. |
+| `kneeDb` | double | `6` | Width in dB of the soft knee. 0 is a hard knee. Defaults to 6. |
 | `makeupDb` | any | `"auto"` | Gain added after compression in dB, or "auto" to match the loudness (RMS) of the input. Defaults to auto. |
 
 **Returns** A new audio buffer.

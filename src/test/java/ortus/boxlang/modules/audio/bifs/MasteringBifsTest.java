@@ -71,6 +71,10 @@ public class MasteringBifsTest extends BaseIntegrationTest {
 		assertThat( message( tone + "result = audioEq( t, [ { type: 'peak', gainDb: 3 } ] )" ) ).contains( "needs a freq" );
 		assertThat( message( tone + "result = audioEq( t, [ { type: 'wobble', freq: 100 } ] )" ) ).contains( "Unknown EQ band type" );
 		assertThat( message( tone + "result = audioLimit( t, 3 )" ) ).contains( "ceiling" );
+		// a loud first sample is limited cleanly, not flat-topped at the start
+		String loud = "t = audioGain( audioOsc( 'sine', 1000, 1 ), 0 ); ";
+		assertThat( ( ( Number ) run( loud + "result = audioLimit( t, -6 ).getPeak()" ) ).doubleValue() ).isWithin( 0.01 ).of( Math.pow( 10, -6 / 20.0 ) );
+		assertThat( message( tone + "result = audioFft( t, 1073741824 )" ) ).contains( "at most" );
 	}
 
 	@DisplayName( "stretch, fitTo and pitch change length or pitch as asked" )

@@ -50,7 +50,7 @@ Downloads are available for Linux and macOS on amd64 and arm64 (builds by [marti
 ## Video
 
 ```js
-info = videoInfo( "clip.mp4" );       // seconds, size, video {codec,width,height,fps}, audio {codec,channels,sampleRate}
+info = videoInfo( "clip.mp4" );       // seconds, sizeBytes, video {codec,width,height,fps}, audio {codec,channels,sampleRate}
 sound = audioLoad( "clip.mp4" );      // the first audio stream, as 32 bit float at its own rate
 audioMux( video="clip.mp4", audio=newSound, output="scored.mp4" );
 ```

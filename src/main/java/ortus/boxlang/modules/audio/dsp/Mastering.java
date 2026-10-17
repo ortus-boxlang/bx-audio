@@ -65,6 +65,8 @@ public final class Mastering {
 	 * @param truePeakDb The ceiling for the true peak in dBFS, the highest level the signal reaches between the samples.
 	 */
 	public static AudioBuffer toLoudness( AudioBuffer audio, double target, double truePeakDb ) {
+		Dsp.requireDb( target, "target" );
+		Dsp.requireFinite( truePeakDb, "truePeakDb" );
 		if ( truePeakDb > 0 || truePeakDb < -20 ) {
 			throw new AudioException( AudioException.INVALID_ARGUMENT, "The true peak ceiling must be between -20 and 0 dBFS but was " + truePeakDb );
 		}
