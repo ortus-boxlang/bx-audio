@@ -20,6 +20,7 @@ summary: Task oriented guides, from making a first sound to scoring a video and 
 | [Analysis](analysis.md) | Find the tempo and beats, look at the spectrum, find silence |
 | [Formats and FFmpeg](formats-and-ffmpeg.md) | Read and write WAV, MP3, FLAC, OGG, Opus and AAC, and read the audio of a video |
 | [Storage](storage.md) | See and clear what the module downloaded, and move it |
+| [AI agent tools](ai-tools.md) | Let a BoxLang AI agent trim, mix, master, analyze and speak audio |
 | [The explorer](explorer.md) | Play every example in the browser |
 
 The [function reference](../reference/functions/index.md) and the [command line reference](../reference/cli.md) list every function and command.

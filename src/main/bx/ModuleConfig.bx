@@ -81,7 +81,16 @@ class {
 			// May the module download the speech engine, a voice or FFmpeg when you first use something that needs it
 			autoInstall : true,
 			// Path to FFmpeg (the program, or its folder). Empty finds it in the BX_AUDIO_FFMPEG variable, the bx-audio home, then the PATH.
-			ffmpeg : ""
+			ffmpeg : "",
+			// AI tools offered to the BoxLang AI module (bx-ai) when it is installed
+			ai : {
+				// Register the audio tools in the bx-ai tool registry. Registering only makes them available, an agent still has to name them.
+				enabled : true,
+				// Folders the tools may read from and write to. Empty means the system temp folder and the working directory.
+				allowedPaths : [],
+				// Where results go when the agent names no output path. Empty means a bx-audio-ai folder in the system temp folder.
+				outputDir : ""
+			}
 		};
 
 		/**
@@ -122,13 +131,16 @@ class {
 	 * Called by the ModuleService on module activation
 	 */
 	function onLoad(){
-
+		registerAiTools();
 	}
 
 	/**
 	 * Called by the ModuleService on module deactivation
 	 */
 	function onUnload(){
+		// Take the audio tools out of the bx-ai registry, so a reload does not leave tools that point at an unloaded module
+		unregisterAiTools();
+
 		// Close the mixers that are still open and the speech engine, so a reload starts clean
 		try {
 			createObject( "java", "ortus.boxlang.modules.audio.util.Lifecycle" ).shutdown();
@@ -145,9 +157,57 @@ class {
 	 * that match the approved runtime interception points
 	 */
 
-	 function afterModuleActivations(){
-		// do something
-	 }
+	/**
+	 * bx-ai may be activated after this module, so try again once every module is active. Registering twice is harmless.
+	 */
+	function afterModuleActivations(){
+		registerAiTools();
+	}
+
+	/**
+	 * Offer the audio tools to bx-ai: when the module is installed, its global tool registry (the aiToolRegistry() function) gets every
+	 * @AITool method of the AudioTools class under the module name bxaudio, for example audioTrim@bxaudio.
+	 *
+	 * Without bx-ai, or with the ai.enabled setting off, this does nothing. Safe to call again: tools that are already there are left alone.
+	 *
+	 * @return True when the tools are in the registry
+	 */
+	function registerAiTools(){
+		var aiSettings = moduleRecord.settings.ai ?: {};
+		if ( !( aiSettings.enabled ?: true ) ) {
+			return false;
+		}
+
+		var registry = "";
+		try {
+			registry = aiToolRegistry();
+		} catch ( any e ) {
+			// bx-ai is not installed or not active yet
+			return false;
+		}
+
+		try {
+			if ( !registry.has( "audioInfo@bxaudio" ) ) {
+				registry.scanClass( new bxModules.bxaudio.models.tools.AudioTools( aiSettings ), "bxaudio" );
+			}
+			return true;
+		} catch ( any e ) {
+			// A problem with the optional AI tools must never keep the audio module from loading
+			writeLog( text = "bx-audio could not register its AI tools: #e.message#", type = "error", log = "ai" );
+			return false;
+		}
+	}
+
+	/**
+	 * Take the audio tools out of the bx-ai registry
+	 */
+	function unregisterAiTools(){
+		try {
+			aiToolRegistry().unregisterByModule( "bxaudio" );
+		} catch ( any e ) {
+			// bx-ai is not there, so there is nothing to remove
+		}
+	}
 
 	/**
 	 * Entry point for the command line: `boxlang module:bxaudio <command>`, or `bx-audio <command>` when the module was installed with
