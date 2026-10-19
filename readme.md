@@ -337,6 +337,17 @@ Only voices whose model card states an open license are on offer, each with its 
 
 Three module settings (in `boxlang.json` under `modules.bxaudio.settings`, or in `ModuleConfig`): `home` is where the engine, the voices and FFmpeg are downloaded to, empty for `~/.bxaudio`; `autoInstall` is `true` unless you want the module to refuse to download anything; `ffmpeg` is the path to an FFmpeg you want it to use. The environment variables `BX_AUDIO_HOME` and `BX_AUDIO_FFMPEG` set the same.
 
+### AI agent tools
+
+With the [BoxLang AI module](https://ai.ortusbooks.com) (`bx-ai`) installed, BxAudio registers 26 audio tools in its global tool registry as `audioInfo@bxaudio`, `audioTrim@bxaudio`, `audioMaster@bxaudio` and so on, so an agent can inspect, edit, master and create audio files. Registering only makes them available, an agent uses the ones its `tools` list names:
+
+```js
+agent = aiAgent( name : "sound-editor", tools: [ "audioInfo@bxaudio", "audioTrim@bxaudio", "audioNormalize@bxaudio" ] )
+agent.run( "Cut the first 5 seconds off intro.wav and normalize it" )
+```
+
+The tools work on files, write new files and never overwrite one, and stay inside the folders of the `ai.allowedPaths` setting (the temp folder and the working directory by default). See [AI agent tools](docs/guides/ai-tools.md).
+
 ## Examples
 
 The [examples catalog](examples/) holds complete pieces of music made from code, with no samples or licensing concerns. Start with [Pop Drive](examples/01-pop-drive/), a 55 second pop track that was checked against an original numpy script, then [Lofi](examples/02-lofi/), [House](examples/03-house/), [Ambient](examples/04-ambient/), [Techno](examples/05-techno/), [Synthwave](examples/06-synthwave/), [Cinematic](examples/07-cinematic/), [Chiptune](examples/08-chiptune/), five original 8 bit tracks, [Game sound effects](examples/09-sfx/), ten sounds you can export as a pack, and [Jazz](examples/10-jazz/), [Rock](examples/11-rock/), a [Voice-over](examples/12-voiceover/) with music that ducks under a spoken voice, a complete [Trailer](examples/13-trailer/) soundtrack (music cut to the video, voice-over, captions, mastering, mux) [Game audio](examples/14-game-audio/) (a mixer session, loops, variations, a sprite), [Sampler](examples/16-sampler/) and [The BxAudio theme](examples/15-theme/).

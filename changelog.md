@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- AI agent tools: when the BoxLang AI module (bx-ai) is installed, 26 audio tools are registered in its global tool registry as `<name>@bxaudio`, for example `audioTrim@bxaudio`. They inspect, edit, master and create audio files by path and write new files, never over existing ones. Paths are checked against the folders the new `ai.allowedPaths` setting allows (the temp folder and the working directory by default). Settings `ai.enabled`, `ai.allowedPaths` and `ai.outputDir`. Without bx-ai nothing changes
+
 ## [1.0.0] - 2026-10-17
 
 ### Added
