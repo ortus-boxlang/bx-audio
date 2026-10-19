@@ -1,0 +1,587 @@
+/**
+ * Audio tools for AI agents, offered to the BoxLang AI module (bx-ai) when it is installed.
+ *
+ * Every public method that carries an @AITool annotation is registered in bx-ai's global tool registry under the key name@bxaudio, for
+ * example audioTrim@bxaudio. Registering a tool only makes it available: an agent gets a tool when its tools list names it.
+ *
+ *   aiAgent( name: "editor", tools: [ "audioInfo@bxaudio", "audioTrim@bxaudio", "audioNormalize@bxaudio" ] )
+ *
+ * An agent cannot pass audio buffers, so the tools work on files: each one reads a file by path, writes a NEW file and returns its path with
+ * the length, channels and sample rate. Nothing is ever overwritten. All paths go through the PathGuard, which keeps the agent inside the
+ * allowed folders (the system temp folder and the working directory unless the ai.allowedPaths setting says otherwise).
+ *
+ * The methods are named tool<Name> so they read apart from the audio BIFs they call. The agent sees the name from the annotation.
+ */
+class {
+
+	static {
+		/** The WAV, MP3 and FLAC encoders are built in; other extensions need FFmpeg */
+		PLAIN_FORMATS = [ "wav", "mp3", "flac" ];
+
+		/** The most files a concat or a mix takes, so an agent cannot ask for an unbounded job */
+		MAX_FILES = 64;
+
+		/** The longest silence the tool will create, in seconds */
+		MAX_SILENCE_SECONDS = 3600;
+
+		/** The most beats and voices returned, to keep the reply small */
+		MAX_LIST = 64;
+	}
+
+	/**
+	 * @settings The module's ai settings: allowedPaths (array) and outputDir (string)
+	 */
+	function init( struct settings = {} ){
+		variables.guard = new PathGuard(
+			arguments.settings.allowedPaths ?: [],
+			arguments.settings.outputDir ?: ""
+		);
+		return this;
+	}
+
+	/**
+	 * The path guard, exposed for tests and for the module to report the effective folders
+	 */
+	function getGuard(){
+		return variables.guard;
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// Inspect
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Describe an audio file
+	 *
+	 * @path   Path of the audio file (wav, mp3, flac, or ogg, opus, m4a, aac when FFmpeg is available).
+	 * @levels True to also measure peak and rms. Reads the whole file, so leave it false for large files unless the levels matter.
+	 */
+	@AITool( { name: "audioInfo", description: "Describe an audio file: channels, sample rate, frames and length in seconds, and optionally its peak and rms level. Use this first to learn what a file holds before editing it." } )
+	public struct function toolInfo( required string path, boolean levels = false ){
+		var file   = variables.guard.resolveInput( arguments.path );
+		var result = audioInfo( file, arguments.levels );
+		result.path = file;
+		return result;
+	}
+
+	/**
+	 * Measure loudness
+	 *
+	 * @path Path of the audio file.
+	 */
+	@AITool( { name: "audioLoudness", description: "Measure how loud an audio file is the way streaming services do (EBU R128): integrated loudness in LUFS, loudness range in LU and true peak in dBFS. Use it before and after mastering." } )
+	public struct function toolLoudness( required string path ){
+		return audioLoudness( load( variables.guard.resolveInput( arguments.path ) ) );
+	}
+
+	/**
+	 * Detect the tempo
+	 *
+	 * @path   Path of the audio file.
+	 * @minBpm Lowest tempo to consider.
+	 * @maxBpm Highest tempo to consider.
+	 */
+	@AITool( { name: "audioBpm", description: "Detect the tempo of a piece of music in beats per minute, with a confidence from 0 to 1 and the times of the first beats in seconds. A bpm of 0 means there is no clear pulse." } )
+	public struct function toolBpm( required string path, numeric minBpm = 60, numeric maxBpm = 200 ){
+		var found = audioBpm( load( variables.guard.resolveInput( arguments.path ) ), arguments.minBpm, arguments.maxBpm );
+		var beats = found.beats ?: [];
+		return {
+			bpm        : found.bpm,
+			confidence : found.confidence,
+			beatCount  : beats.len(),
+			firstBeats : beats.len() > static.MAX_LIST ? beats.slice( 1, static.MAX_LIST ) : beats
+		};
+	}
+
+	/**
+	 * Find the silent parts
+	 *
+	 * @path       Path of the audio file.
+	 * @thresholdDb Level below which audio counts as silent, in dB. Quieter is a lower number.
+	 * @minSeconds The shortest silence to report, in seconds.
+	 */
+	@AITool( { name: "audioDetectSilence", description: "Find the silent stretches of an audio file. Returns an array of { start, end, duration } in seconds. Use it to find where to cut a recording." } )
+	public array function toolDetectSilence( required string path, numeric thresholdDb = -50, numeric minSeconds = 0.3 ){
+		return audioDetectSilence( load( variables.guard.resolveInput( arguments.path ) ), arguments.thresholdDb, arguments.minSeconds );
+	}
+
+	/**
+	 * Read the tags of a file
+	 *
+	 * @path Path of the MP3, FLAC or WAV file.
+	 */
+	@AITool( { name: "audioReadTags", description: "Read the tags of an MP3, FLAC or WAV file: title, artist, album, genre, year, track and the like. Read only, the file is not changed." } )
+	public struct function toolReadTags( required string path ){
+		return audioTags( variables.guard.resolveInput( arguments.path ) );
+	}
+
+	/**
+	 * Draw the waveform
+	 *
+	 * @path       Path of the audio file.
+	 * @outputPath Where to write the PNG. Leave empty to let the tool choose.
+	 * @width      Width in pixels.
+	 * @height     Height in pixels.
+	 */
+	@AITool( { name: "audioWaveformImage", description: "Draw the waveform of an audio file as a PNG picture and return the picture's path. Use it to show what a recording looks like." } )
+	public struct function toolWaveform( required string path, string outputPath = "", numeric width = 800, numeric height = 160 ){
+		var file = variables.guard.resolveInput( arguments.path );
+		var out  = pickPicture( file, arguments.outputPath, "waveform" );
+		audioWaveformImage( audio = load( file ), width = arguments.width, height = arguments.height, format = "png", path = out );
+		return { path : out };
+	}
+
+	/**
+	 * Draw the spectrogram
+	 *
+	 * @path       Path of the audio file.
+	 * @outputPath Where to write the PNG. Leave empty to let the tool choose.
+	 * @width      Width in pixels.
+	 * @height     Height in pixels.
+	 */
+	@AITool( { name: "audioSpectrogramImage", description: "Draw the spectrogram (frequency over time) of an audio file as a PNG picture and return the picture's path." } )
+	public struct function toolSpectrogram( required string path, string outputPath = "", numeric width = 800, numeric height = 256 ){
+		var file = variables.guard.resolveInput( arguments.path );
+		var out  = pickPicture( file, arguments.outputPath, "spectrogram" );
+		audioSpectrogramImage( audio = load( file ), width = arguments.width, height = arguments.height, format = "png", path = out );
+		return { path : out };
+	}
+
+	/**
+	 * Describe a media file
+	 *
+	 * @path Path of the audio or video file.
+	 */
+	@AITool( { name: "videoInfo", description: "Describe any audio or video file with FFprobe: length, size, bitrate and the video and audio streams. Needs FFmpeg." } )
+	public struct function toolVideoInfo( required string path ){
+		return videoInfo( variables.guard.resolveInput( arguments.path ) );
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// Edit
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Cut a section out
+	 *
+	 * @path       Path of the audio file.
+	 * @start      Where the section starts, in seconds.
+	 * @end        Where the section ends, in seconds. Leave at -1 to keep everything to the end.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioTrim", description: "Keep only a section of an audio file, from start to end in seconds, and save it as a new file. Returns the new file's path." } )
+	public struct function toolTrim( required string path, numeric start = 0, numeric end = -1, string outputPath = "" ){
+		var file   = variables.guard.resolveInput( arguments.path );
+		var result = arguments.end >= 0
+			? audioTrim( load( file ), arguments.start, arguments.end )
+			: audioTrim( load( file ), arguments.start );
+		return emit( result, file, "trim", arguments.outputPath );
+	}
+
+	/**
+	 * Cut the silence off the ends
+	 *
+	 * @path        Path of the audio file.
+	 * @thresholdDb Level below which audio counts as silent, in dB.
+	 * @pad         Seconds of silence to keep at each end.
+	 * @outputPath  Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioTrimSilence", description: "Cut the silence off the start and the end of an audio file and save a new file. Returns the new file's path." } )
+	public struct function toolTrimSilence( required string path, numeric thresholdDb = -50, numeric pad = 0, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioTrimSilence( load( file ), arguments.thresholdDb, arguments.pad ), file, "trimmed", arguments.outputPath );
+	}
+
+	/**
+	 * Join files end to end
+	 *
+	 * @paths      Paths of the audio files, in the order they should play.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioConcat", description: "Join several audio files end to end, in the order given, and save the result as a new file. Files with different sample rates or channels are matched. Returns the new file's path." } )
+	public struct function toolConcat( required array paths, string outputPath = "" ){
+		var files = resolveMany( arguments.paths );
+		return emit( audioConcat( loadMatched( files ) ), files[ 1 ], "concat", arguments.outputPath );
+	}
+
+	/**
+	 * Play files at the same time
+	 *
+	 * @paths      Paths of the audio files to layer on top of each other.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioMix", description: "Layer several audio files on top of each other so they play at the same time, for example a voice over music, and save the result as a new file. Returns the new file's path." } )
+	public struct function toolMix( required array paths, string outputPath = "" ){
+		var files = resolveMany( arguments.paths );
+		return emit( audioMix( loadMatched( files ) ), files[ 1 ], "mix", arguments.outputPath );
+	}
+
+	/**
+	 * Fade in and out
+	 *
+	 * @path       Path of the audio file.
+	 * @fadeIn     Length of the fade in, in seconds.
+	 * @fadeOut    Length of the fade out, in seconds.
+	 * @curve      The fade shape: linear or smooth (a raised cosine).
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioFade", description: "Fade an audio file in at the start and out at the end and save a new file. Returns the new file's path." } )
+	public struct function toolFade( required string path, numeric fadeIn = 0, numeric fadeOut = 0, string curve = "linear", string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioFade( load( file ), arguments.fadeIn, arguments.fadeOut, arguments.curve ), file, "fade", arguments.outputPath );
+	}
+
+	/**
+	 * Change the speed
+	 *
+	 * @path       Path of the audio file.
+	 * @rate       Speed factor: 2 is twice as fast, 0.5 half as fast. The pitch stays the same.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioStretch", description: "Change the speed of audio without changing its pitch (2 is twice as fast, 0.5 half as fast) and save a new file. Returns the new file's path." } )
+	public struct function toolStretch( required string path, required numeric rate, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioStretch( load( file ), arguments.rate ), file, "stretch", arguments.outputPath );
+	}
+
+	/**
+	 * Change the pitch
+	 *
+	 * @path       Path of the audio file.
+	 * @semitones  How far to move the pitch: 12 is an octave up, -12 an octave down. The length stays the same.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioPitch", description: "Change the pitch of audio by a number of semitones (12 is an octave) without changing its length and save a new file. Returns the new file's path." } )
+	public struct function toolPitch( required string path, required numeric semitones, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioPitch( load( file ), arguments.semitones ), file, "pitch", arguments.outputPath );
+	}
+
+	/**
+	 * Play it backwards
+	 *
+	 * @path       Path of the audio file.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioReverse", description: "Reverse an audio file so it plays backwards and save a new file. Returns the new file's path." } )
+	public struct function toolReverse( required string path, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioReverse( load( file ) ), file, "reverse", arguments.outputPath );
+	}
+
+	/**
+	 * Change the volume
+	 *
+	 * @path       Path of the audio file.
+	 * @gainDb     Change in decibels: 6 is about twice as loud, -6 about half as loud.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioGain", description: "Make audio louder or quieter by a number of decibels and save a new file. Loud results are clipped, so prefer audioNormalize when the aim is a target level. Returns the new file's path." } )
+	public struct function toolGain( required string path, required numeric gainDb, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioGain( load( file ), arguments.gainDb ), file, "gain", arguments.outputPath );
+	}
+
+	/**
+	 * Convert to another format
+	 *
+	 * @path       Path of the audio file.
+	 * @format     The format to write: wav, mp3 or flac.
+	 * @sampleRate A new sample rate in Hz, or 0 to keep the file's own.
+	 * @channels   1 for mono or 2 for stereo, or 0 to keep the file's own.
+	 * @bitrate    For mp3, the bitrate in kbps, or 0 for the default.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose. Its extension wins over format.
+	 */
+	@AITool( { name: "audioConvert", description: "Convert an audio file to wav, mp3 or flac, optionally changing the sample rate and mono or stereo, and save a new file. Returns the new file's path." } )
+	public struct function toolConvert(
+		required string path,
+		string format = "wav",
+		numeric sampleRate = 0,
+		numeric channels = 0,
+		numeric bitrate = 0,
+		string outputPath = ""
+	){
+		var file  = variables.guard.resolveInput( arguments.path );
+		var audio = load( file );
+		if ( arguments.sampleRate > 0 && arguments.sampleRate != audio.getSampleRate() ) {
+			audio = audioResample( audio, arguments.sampleRate );
+		}
+		if ( arguments.channels > 0 && arguments.channels != audio.getChannels() ) {
+			audio = audioChannels( audio, arguments.channels );
+		}
+		return emit( audio, file, "convert", arguments.outputPath, arguments.format, arguments.bitrate );
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// Master
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Normalize the peak level
+	 *
+	 * @path       Path of the audio file.
+	 * @targetDb   The loudest peak to reach, in dB below full scale. -1 is the usual choice.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioNormalize", description: "Scale an audio file so its loudest peak reaches a target level (default -1 dB) and save a new file. Returns the new file's path." } )
+	public struct function toolNormalize( required string path, numeric targetDb = -1, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioNormalize( load( file ), arguments.targetDb ), file, "normalized", arguments.outputPath );
+	}
+
+	/**
+	 * Master for delivery
+	 *
+	 * @path        Path of the audio file.
+	 * @target      A preset or a number in LUFS. Presets: streaming (-14), podcast (-16), game (-16), broadcast (-23), cinema (-24).
+	 * @truePeakDb  The highest peak allowed, in dBFS.
+	 * @glue        True to compress lightly first so a mix sounds more even.
+	 * @outputPath  Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioMaster", description: "Master audio for delivery: reach a loudness target (a preset such as streaming, podcast, broadcast, or a number in LUFS) under a true-peak ceiling, optionally gluing the mix with light compression. Saves a new file and returns its path." } )
+	public struct function toolMaster( required string path, string target = "streaming", numeric truePeakDb = -1, boolean glue = false, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		// A number sent as text means LUFS, anything else is a preset name
+		var goal = isNumeric( arguments.target ) ? val( arguments.target ) : arguments.target;
+		return emit( audioMaster( load( file ), goal, arguments.truePeakDb, arguments.glue ), file, "master", arguments.outputPath );
+	}
+
+	/**
+	 * Shape the tone
+	 *
+	 * @path       Path of the audio file.
+	 * @bands      The equalizer bands: an array of { type, freq, gainDb, q }. type is peak, lowshelf, highshelf, lowpass, highpass or notch. freq is in Hz. gainDb is in dB and is used by peak and the shelves. q is the width and is optional.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioEq", description: "Shape the tone of audio with equalizer bands, for example cut the lows with a highpass or lift the highs with a highshelf, and save a new file. Returns the new file's path." } )
+	public struct function toolEq( required string path, required array bands, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioEq( load( file ), arguments.bands ), file, "eq", arguments.outputPath );
+	}
+
+	/**
+	 * Add reverb
+	 *
+	 * @path       Path of the audio file.
+	 * @room       Room size from 0 to 1.
+	 * @damp       How much the highs die away, from 0 to 1.
+	 * @mix        How much reverb is mixed in, from 0 (none) to 1 (only reverb).
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioReverb", description: "Add reverb to an audio file and save a new file. Returns the new file's path." } )
+	public struct function toolReverb( required string path, numeric room = 0.5, numeric damp = 0.5, numeric mix = 0.3, string outputPath = "" ){
+		var file = variables.guard.resolveInput( arguments.path );
+		return emit( audioReverb( load( file ), arguments.room, arguments.damp, arguments.mix ), file, "reverb", arguments.outputPath );
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// Create
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * List the voices
+	 *
+	 * @language Only voices of this language, such as en_US or en_GB. Leave empty for all.
+	 * @installed True to list only the voices that are already installed.
+	 */
+	@AITool( { name: "audioVoices", description: "List the text-to-speech voices audioSpeak can use: id, language, quality, license and whether the voice is installed. Use an id from this list as the voice of audioSpeak." } )
+	public array function toolVoices( string language = "", boolean installed = false ){
+		var voices = audioVoices( language = arguments.language, installed = arguments.installed );
+		if ( !voices.len() ) {
+			return [];
+		}
+		return voices
+			.slice( 1, min( static.MAX_LIST, voices.len() ) )
+			.map( ( v ) => {
+				return {
+					id        : v.id,
+					name      : v.name,
+					language  : v.language,
+					quality   : v.quality,
+					license   : v.license,
+					commercial: v.commercial,
+					installed : v.installed
+				};
+			} );
+	}
+
+	/**
+	 * Speak text
+	 *
+	 * @text       What to say.
+	 * @voice      The voice id, such as en_US-joe-medium, or its short name such as joe. Get ids from audioVoices.
+	 * @speed      How fast to speak: 1 is the voice's own pace, 1.25 faster, 0.8 slower.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioSpeak", description: "Turn text into speech on this machine with a local Piper voice, no cloud service, and save it as a new audio file. The first use of a voice may download it. Returns the new file's path." } )
+	public struct function toolSpeak( required string text, required string voice, numeric speed = 1, string outputPath = "" ){
+		var spoken = audioSpeak( text = arguments.text, voice = arguments.voice, speed = arguments.speed );
+		return emit( spoken, "", "speak", arguments.outputPath, "wav", 0, "speech" );
+	}
+
+	/**
+	 * Make silence
+	 *
+	 * @seconds    How long, in seconds.
+	 * @channels   1 for mono or 2 for stereo.
+	 * @sampleRate Sample rate in Hz.
+	 * @outputPath Where to write the result. Leave empty to let the tool choose.
+	 */
+	@AITool( { name: "audioSilence", description: "Create an audio file of silence of a given length, for example to pad a recording, and return its path." } )
+	public struct function toolSilence( required numeric seconds, numeric channels = 2, numeric sampleRate = 44100, string outputPath = "" ){
+		if ( arguments.seconds <= 0 || arguments.seconds > static.MAX_SILENCE_SECONDS ) {
+			throw(
+				type    = "AudioToolInvalidArgument",
+				message = "seconds must be more than 0 and at most #static.MAX_SILENCE_SECONDS#"
+			);
+		}
+		return emit( audioSilence( arguments.seconds, arguments.channels, arguments.sampleRate ), "", "silence", arguments.outputPath, "wav", 0, "silence" );
+	}
+
+	/**
+	 * Put new audio on a video
+	 *
+	 * @video        Path of the video file.
+	 * @audio        Path of the audio file to put on it.
+	 * @keepOriginal True to keep the video's own audio quietly underneath.
+	 * @offset       Seconds to delay the new audio.
+	 * @outputPath   Where to write the video. Its extension picks the container: mp4, mov, mkv or webm. Leave empty to let the tool choose an mp4.
+	 */
+	@AITool( { name: "audioMux", description: "Put an audio file on a video, replacing its sound or mixing under it, without re-encoding the picture, and save a new video. Needs FFmpeg. Returns the new video's path." } )
+	public struct function toolMux( required string video, required string audio, boolean keepOriginal = false, numeric offset = 0, string outputPath = "" ){
+		var videoFile = variables.guard.resolveInput( arguments.video );
+		var audioFile = variables.guard.resolveInput( arguments.audio );
+		var out       = len( arguments.outputPath )
+			? variables.guard.resolveOutput( arguments.outputPath, videoFile )
+			: variables.guard.newOutputPath( stem( videoFile ), "mux", "mp4" );
+		var written = audioMux(
+			video        = videoFile,
+			audio        = load( audioFile ),
+			output       = out,
+			keepOriginal = arguments.keepOriginal,
+			offset       = arguments.offset
+		);
+		return { path : written };
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+	// Helpers
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Load a file the guard already approved
+	 */
+	private any function load( required string file ){
+		return audioLoad( arguments.file );
+	}
+
+	/**
+	 * Load several files in the format of the first one. audioConcat and audioMix refuse buffers of different sample rates or channels, and an
+	 * agent cannot be expected to know that, so the others are converted to match.
+	 */
+	private array function loadMatched( required array files ){
+		var buffers = arguments.files.map( ( f ) => load( f ) );
+		var rate    = buffers[ 1 ].getSampleRate();
+		var count   = buffers[ 1 ].getChannels();
+		return buffers.map( ( b ) => {
+			if ( b.getSampleRate() != rate ) {
+				b = audioResample( b, rate );
+			}
+			if ( b.getChannels() != count ) {
+				b = audioChannels( b, count );
+			}
+			return b;
+		} );
+	}
+
+	/**
+	 * Approve every path of a list
+	 */
+	private array function resolveMany( required array paths ){
+		if ( !arguments.paths.len() ) {
+			throw( type = "AudioToolInvalidArgument", message = "paths must name at least one file" );
+		}
+		if ( arguments.paths.len() > static.MAX_FILES ) {
+			throw( type = "AudioToolInvalidArgument", message = "paths takes at most #static.MAX_FILES# files" );
+		}
+		return arguments.paths.map( ( p ) => variables.guard.resolveInput( p ) );
+	}
+
+	/**
+	 * The file name without folder and extension
+	 */
+	private string function stem( required string file ){
+		var name = getFileFromPath( arguments.file );
+		return name.listLen( "." ) > 1 ? name.reReplace( "\.[^.]*$", "" ) : name;
+	}
+
+	/**
+	 * The extension of a path, lower case, without the dot
+	 */
+	private string function extensionOf( required string file ){
+		var name = getFileFromPath( arguments.file );
+		return name.listLen( "." ) > 1 ? lCase( name.listLast( "." ) ) : "";
+	}
+
+	/**
+	 * Where a picture goes: the path the agent gave, or a new path in the output folder
+	 */
+	private string function pickPicture( required string input, required string outputPath, required string suffix ){
+		return len( arguments.outputPath )
+			? variables.guard.resolveOutput( arguments.outputPath, arguments.input )
+			: variables.guard.newOutputPath( stem( arguments.input ), arguments.suffix, "png" );
+	}
+
+	/**
+	 * Save a result buffer and describe the file
+	 *
+	 * @audio      The buffer to write.
+	 * @input      The real path it was made from, empty when it was made from nothing.
+	 * @suffix     What was done to it, used in the file name.
+	 * @outputPath The path the agent asked for, or empty.
+	 * @format     The format to use when the agent gave no path. Empty follows the input file.
+	 * @bitrate    MP3 bitrate in kbps, or 0.
+	 * @stemName   The file name stem when there is no input file.
+	 */
+	private struct function emit(
+		required any audio,
+		required string input,
+		required string suffix,
+		string outputPath = "",
+		string format = "",
+		numeric bitrate = 0,
+		string stemName = ""
+	){
+		var out = "";
+		if ( len( arguments.outputPath ) ) {
+			out = variables.guard.resolveOutput( arguments.outputPath, arguments.input );
+			if ( !len( extensionOf( out ) ) ) {
+				throw(
+					type    = "AudioToolInvalidArgument",
+					message = "outputPath needs an extension such as .wav, .mp3 or .flac"
+				);
+			}
+		} else {
+			var ext = lCase( arguments.format );
+			if ( !len( ext ) ) {
+				ext = len( arguments.input ) ? extensionOf( arguments.input ) : "wav";
+			}
+			if ( !static.PLAIN_FORMATS.contains( ext ) ) {
+				// The agent may name another format, but never one that is not a plain file extension
+				ext = ( reFind( "^[a-z0-9]{2,5}$", ext ) && arguments.format.len() ) ? ext : "wav";
+			}
+			var name = len( arguments.input ) ? stem( arguments.input ) : arguments.stemName;
+			out = variables.guard.newOutputPath( name, arguments.suffix, ext );
+		}
+		var written = arguments.bitrate > 0
+			? audioSave( arguments.audio, out, 16, arguments.bitrate )
+			: audioSave( arguments.audio, out );
+		return {
+			path       : written,
+			seconds    : round( arguments.audio.getDurationSeconds() * 1000 ) / 1000,
+			channels   : arguments.audio.getChannels(),
+			sampleRate : arguments.audio.getSampleRate()
+		};
+	}
+
+}

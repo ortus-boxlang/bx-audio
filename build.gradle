@@ -252,7 +252,24 @@ task zipModuleStructure( type: Zip ) {
 createModuleStructure.finalizedBy( zipModuleStructure )
 shadowJar.finalizedBy( createModuleStructure )
 
+/**
+ * The BoxLang AI module, for the tests that check the audio tools register in its tool registry. It is downloaded once into build/test-modules
+ * and never shipped with this module. The tests skip themselves when it is missing.
+ */
+ext.bxAiVersion = '3.4.0'
+task downloadBxAi( type: Download ) {
+	src "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-ai/${bxAiVersion}/bx-ai-${bxAiVersion}.zip"
+	dest layout.buildDirectory.file( "test-modules/bx-ai-${bxAiVersion}.zip" )
+	overwrite false
+}
+task unzipBxAi( type: Copy ) {
+	dependsOn downloadBxAi
+	from { zipTree( layout.buildDirectory.file( "test-modules/bx-ai-${bxAiVersion}.zip" ) ) }
+	into layout.buildDirectory.dir( 'test-modules/bxai' )
+}
+
 test {
+    dependsOn unzipBxAi
     useJUnitPlatform()
     // Rendering a full arrangement holds a dozen stereo stems at once, more than the 512 MB Gradle default
     maxHeapSize = "2g"

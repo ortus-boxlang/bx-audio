@@ -1,0 +1,154 @@
+/**
+ * Decides which files an AI agent may read and write through the bx-audio tools.
+ *
+ * An agent hands the tools plain path strings, so every path is resolved here before it touches the disk: made absolute, normalized
+ * and, when it exists, resolved through symlinks. A path is allowed when it lies under one of the allowed roots. With no roots
+ * configured the roots are the system temp folder and the current working directory.
+ *
+ * Output files are never written over anything that already exists, and never over the file they were made from.
+ */
+class {
+
+	/** The folders the agent may use, as real absolute paths */
+	property name="roots" type="array";
+
+	/** The folder results go to when the agent does not name an output path */
+	property name="outputDir" type="string";
+
+	/**
+	 * @allowedPaths Folders the tools may read from and write to. Empty means the system temp folder and the working directory.
+	 * @outputDir    Where results go when no output path is given. Empty means a bx-audio-ai folder in the system temp folder.
+	 */
+	function init( array allowedPaths = [], string outputDir = "" ){
+		variables.roots = arguments.allowedPaths
+			.filter( ( p ) => len( trim( p ) ) )
+			.map( ( p ) => real( p ) );
+
+		if ( !variables.roots.len() ) {
+			variables.roots = [ real( getTempDirectory() ), real( expandPath( "." ) ) ];
+		}
+
+		variables.outputDir = len( trim( arguments.outputDir ) )
+			? real( arguments.outputDir )
+			: real( getTempDirectory() ) & "/bx-audio-ai";
+
+		// Results must be readable and writable by the agent, so the output folder is always allowed
+		if ( !isInsideRoots( variables.outputDir ) ) {
+			variables.roots.append( variables.outputDir );
+		}
+		return this;
+	}
+
+	/**
+	 * Check a path the agent wants to read
+	 *
+	 * @path The path from the agent
+	 *
+	 * @return The real absolute path
+	 * @throws AudioToolAccessDenied when the path is outside the allowed folders, AudioToolNotFound when it is not a file
+	 */
+	string function resolveInput( required string path ){
+		var resolved = real( arguments.path );
+		assertInside( resolved, arguments.path );
+		if ( !fileExists( resolved ) ) {
+			throw( type = "AudioToolNotFound", message = "There is no file at [#arguments.path#]" );
+		}
+		return resolved;
+	}
+
+	/**
+	 * Check a path the agent wants to write
+	 *
+	 * @path  The path from the agent
+	 * @input The real path of the file this one is made from, which must never be overwritten. Optional.
+	 *
+	 * @return The real absolute path
+	 * @throws AudioToolAccessDenied when the path is outside the allowed folders, AudioToolExists when something is already there
+	 */
+	string function resolveOutput( required string path, string input = "" ){
+		var resolved = real( arguments.path );
+		assertInside( resolved, arguments.path );
+		if ( fileExists( resolved ) || directoryExists( resolved ) ) {
+			throw(
+				type    = "AudioToolExists",
+				message = "[#arguments.path#] already exists. Choose another output path, files are never overwritten."
+			);
+		}
+		if ( len( arguments.input ) && resolved == arguments.input ) {
+			throw( type = "AudioToolExists", message = "The output path must differ from the input file." );
+		}
+		return resolved;
+	}
+
+	/**
+	 * A fresh output path in the output folder
+	 *
+	 * @stem      What the file is named after, usually the input file name without its extension
+	 * @suffix    What was done to it, such as trim
+	 * @extension The file extension without the dot
+	 */
+	string function newOutputPath( required string stem, required string suffix, required string extension ){
+		if ( !directoryExists( variables.outputDir ) ) {
+			directoryCreate( variables.outputDir, true );
+		}
+		var cleanStem = reReplace( arguments.stem, "[^A-Za-z0-9_-]", "-", "all" );
+		return variables.outputDir & "/" & cleanStem & "-" & arguments.suffix & "-" & left( createUUID(), 8 ) & "." & arguments.extension;
+	}
+
+	/**
+	 * Does a real path lie under one of the allowed roots
+	 */
+	boolean function isInsideRoots( required string resolved ){
+		return variables.roots.some( ( root ) => {
+			return resolved == root || resolved.startsWith( root & "/" );
+		} );
+	}
+
+	/**
+	 * The allowed roots, for reporting
+	 */
+	array function getRoots(){
+		return variables.roots;
+	}
+
+	/**
+	 * The folder results go to by default
+	 */
+	string function getOutputDir(){
+		return variables.outputDir;
+	}
+
+	private void function assertInside( required string resolved, required string original ){
+		if ( !isInsideRoots( arguments.resolved ) ) {
+			throw(
+				type    = "AudioToolAccessDenied",
+				message = "[#arguments.original#] is outside the folders the audio tools may use: #variables.roots.toList( ', ' )#"
+			);
+		}
+	}
+
+	/**
+	 * Make a path absolute with forward slashes, collapse . and .., and follow symlinks for the part that exists, so a link or a ../ cannot
+	 * lead out of an allowed folder. The part that does not exist yet, such as a new output file, is appended after the real parent.
+	 */
+	private string function real( required string path ){
+		var Paths = createObject( "java", "java.nio.file.Paths" );
+		var p     = Paths.get( arguments.path ).toAbsolutePath().normalize();
+		var tail  = [];
+
+		while ( !isNull( p ) && !p.toFile().exists() ) {
+			tail.prepend( p.getFileName().toString() );
+			p = p.getParent();
+		}
+		if ( isNull( p ) ) {
+			return replace( arguments.path, "\", "/", "all" );
+		}
+
+		var resolved = replace( p.toRealPath( [] ).toString(), "\", "/", "all" );
+		for ( var part in tail ) {
+			resolved &= "/" & part;
+		}
+		return resolved;
+	}
+
+}
