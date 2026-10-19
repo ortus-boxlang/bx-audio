@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-19
+
 ### Added
 
 - AI agent tools: when the BoxLang AI module (bx-ai) is installed, 26 audio tools are registered in its global tool registry as `<name>@bxaudio`, for example `audioTrim@bxaudio`. They inspect, edit, master and create audio files by path and write new files, never over existing ones. Paths are checked against the folders the new `ai.allowedPaths` setting allows (the temp folder and the working directory by default). Settings `ai.enabled`, `ai.allowedPaths` and `ai.outputDir`. Without bx-ai nothing changes
@@ -54,5 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `audioSaturate` for peak-normalize plus tanh limiting
 - DSP BIFs `audioGain`, `audioPan`, `audioFade`, `audioNormalize`, `audioTrim`, `audioConcat`, `audioReverse`, `audioChannels` and `audioResample`
 
-[unreleased]: https://github.com/ortus-boxlang/bx-audio/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/ortus-boxlang/bx-audio/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/ortus-boxlang/bx-audio/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/ortus-boxlang/bx-audio/compare/c7122febcca353134c430ad7fb1c48a235dc5bbf...v1.0.0
