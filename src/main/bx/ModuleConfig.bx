@@ -178,13 +178,10 @@ class {
 			return false;
 		}
 
-		var registry = "";
-		try {
-			registry = aiToolRegistry();
-		} catch ( any e ) {
-			// bx-ai is not installed or not active yet
+		if ( !hasAiToolRegistry() ) {
 			return false;
 		}
+		var registry = aiToolRegistry();
 
 		try {
 			if ( !registry.has( "audioInfo@bxaudio" ) ) {
@@ -202,11 +199,17 @@ class {
 	 * Take the audio tools out of the bx-ai registry
 	 */
 	function unregisterAiTools(){
-		try {
+		if ( hasAiToolRegistry() ) {
 			aiToolRegistry().unregisterByModule( "bxaudio" );
-		} catch ( any e ) {
-			// bx-ai is not there, so there is nothing to remove
 		}
+	}
+
+	/**
+	 * Is bx-ai installed and active: it is when its aiToolRegistry() function exists. This asks the runtime's function service directly,
+	 * because getFunctionList() keeps the list from its first call and would not see a module that activates later.
+	 */
+	private boolean function hasAiToolRegistry(){
+		return boxRuntime.getFunctionService().hasGlobalFunction( "aiToolRegistry" );
 	}
 
 	/**
