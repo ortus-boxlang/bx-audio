@@ -15,7 +15,12 @@ In `boxlang.json`, under `modules.bxaudio.settings`:
       "settings": {
         "home": "",
         "autoInstall": true,
-        "ffmpeg": ""
+        "ffmpeg": "",
+        "ai": {
+          "enabled": true,
+          "allowedPaths": [],
+          "outputDir": ""
+        }
       }
     }
   }
@@ -27,6 +32,18 @@ In `boxlang.json`, under `modules.bxaudio.settings`:
 | `home` | `""` | Where the speech engine, the voices and FFmpeg are downloaded to. Empty means `~/.bxaudio` |
 | `autoInstall` | `true` | May the module download the speech engine, a voice or FFmpeg when you first use something that needs it. `false` makes it fail with a message that says what to install |
 | `ffmpeg` | `""` | Path to an FFmpeg you want it to use (the program, or its folder). Empty finds it from the variable, the home or the `PATH` |
+
+## AI tool settings
+
+The `ai` setting configures the tools offered to the BoxLang AI module, see [AI agent tools](../guides/ai-tools.md).
+
+| Setting | Default | Does |
+|---|---|---|
+| `ai.enabled` | `true` | Register the audio tools in the bx-ai tool registry when bx-ai is installed. `false` registers nothing |
+| `ai.allowedPaths` | `[]` | Folders the tools may read from and write to. Empty means the system temp folder and the working directory |
+| `ai.outputDir` | `""` | Where results go when the agent names no output path. Empty means `bx-audio-ai` in the system temp folder. It is always an allowed folder |
+
+Set `allowedPaths` to the folders an agent should work in, for example `[ "/data/recordings" ]`. Once it is set the temp folder and working directory are no longer allowed, add them back if the agent needs them.
 
 ## Environment variables
 

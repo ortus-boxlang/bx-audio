@@ -1,0 +1,506 @@
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>AI agent tools - BxAudio</title>
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="BxAudio">
+	<meta property="og:title" content="AI agent tools">
+
+	
+	
+
+	
+	
+		<link rel="canonical" href="https&#x3a;&#x2f;&#x2f;bxaudio.boxlang.io&#x2f;guides&#x2f;ai-tools&#x2f;index.html">
+	
+
+	
+	
+		<meta name="description" content="Let a BoxLang AI agent trim, mix, master, analyze and speak audio, through the audio tools bx-audio adds to the bx-ai tool registry.">
+		<meta property="og:description" content="Let a BoxLang AI agent trim, mix, master, analyze and speak audio, through the audio tools bx-audio adds to the bx-ai tool registry.">
+	
+
+	
+	
+		<meta property="og:image" content="/assets/og-image.png">
+		<meta name="twitter:card" content="summary_large_image">
+	
+
+	
+	
+		<link rel="icon" href="/assets/favicon.png">
+	
+
+	
+	<script>
+		( function () {
+			var configuredMode = "dark";
+			var stored = localStorage.getItem( "bxsites-theme" );
+			var prefersDark = window.matchMedia( "(prefers-color-scheme: dark)" ).matches;
+			var wantsDark = stored ? stored === "dark" : ( configuredMode === "dark" || ( configuredMode === "auto" && prefersDark ) );
+			if ( wantsDark ) {
+				document.documentElement.setAttribute( "data-theme", "dark" );
+			}
+		} )();
+	</script>
+
+	
+	<link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/vendor/highlight/github.min.css">
+	<link rel="stylesheet" href="/assets/theme/style.5b78cd8a.css">
+
+	
+	
+
+	
+	
+		<style>
+			
+			
+				:root {
+					--bxsites-accent: #0068e6;
+					--bxsites-link: #0068e6;
+					--bxsites-link-hover: color-mix( in srgb, #0068e6 85%, black );
+				}
+			
+			
+			
+				[data-theme="dark"] {
+					--bxsites-accent: #00d4ef;
+					--bxsites-link: #00d4ef;
+					--bxsites-link-hover: color-mix( in srgb, #00d4ef 85%, white );
+				}
+			
+		</style>
+	
+
+	
+	
+		<style>
+			.bxsites-nav-nested {
+				border-inline-start: 2px solid var(--bxsites-accent, var(--bxsites-border));
+				margin-inline-start: 0.2rem;
+				padding-inline-start: 0.85rem;
+			}
+		</style>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+		<script>window.__BXSITES_BASE_PATH__ = "/";</script>
+		<script>window.__BXSITES_SEARCH_NO_RESULTS__ = "No\x20results\x20found.";</script>
+		<script src="/assets/vendor/minisearch/minisearch.js"></script>
+		<script src="/assets/search.f14e08a2.js" defer></script>
+	
+
+	
+	
+
+	
+	
+
+	<script src="/assets/vendor/alpine/cdn.min.js" defer></script>
+</head>
+
+
+<body
+	x-data="{ dark: document.documentElement.getAttribute( 'data-theme' ) === 'dark', navOpen: window.matchMedia( '(min-width: 992px)' ).matches ? ( localStorage.getItem( 'bxsites-nav-open' ) !== null ? localStorage.getItem( 'bxsites-nav-open' ) === 'true' : true ) : false }"
+	x-init="$watch( 'dark', v => { document.documentElement.setAttribute( 'data-theme', v ? 'dark' : 'light' ); localStorage.setItem( 'bxsites-theme', v ? 'dark' : 'light' ) } ); $watch( 'navOpen', v => { if ( window.matchMedia( '(min-width: 992px)' ).matches ) localStorage.setItem( 'bxsites-nav-open', v ) } )">
+	
+	<nav class="navbar navbar-expand-lg brand-navbar">
+		<div class="container-fluid navbar-row">
+			
+			<button
+				class="navbar-toggler"
+				type="button"
+				@click="navOpen = !navOpen"
+				:aria-expanded="navOpen.toString()"
+				aria-controls="bxsites-sidebar"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			
+			<a class="navbar-brand brand-mark" href="/"><img class="brand-logo" src="/assets/bxaudio-icon-full.svg" alt=""><span class="brand-name">BxAudio</span></a>
+
+			
+			<div class="navbar-controls">
+				
+				
+					
+
+	<div class="bxsites-search position-relative">
+		<input
+			type="search"
+			id="bxsites-search-input"
+			class="form-control"
+			placeholder="Search..."
+			aria-label="Search">
+		<kbd class="bxsites-search-kbd" aria-hidden="true">Ctrl K</kbd>
+		<ul id="bxsites-search-results" class="bxsites-search-results list-unstyled"></ul>
+	</div>
+
+
+
+				
+
+				
+				
+
+				
+				
+					<a
+						class="repo-link"
+						href="https://github.com/ortus-boxlang/bx-audio"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Repository"
+						title="Repository">
+						<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg>
+					</a>
+				
+
+				
+				<button
+					type="button"
+					class="theme-toggle"
+					@click="dark = !dark"
+					aria-label="Toggle dark mode">
+					<span x-show="!dark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg></span>
+					<span x-show="dark" x-cloak><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+				</button>
+			</div>
+			
+		</div>
+		
+	</nav>
+
+	
+	<div class="container-fluid">
+		
+		<div class="row" :class="{ 'bxsites-nav-collapsed' : !navOpen }">
+			
+			<aside class="col-lg-3 col-xl-2 sidebar" id="bxsites-sidebar" x-show="navOpen" x-cloak>
+				
+				
+				<ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/index.html"><svg class="bxsites-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M208,96v64H48V96Z" opacity="0.2"/><path d="M56,96v64a8,8,0,0,1-16,0V96a8,8,0,0,1,16,0ZM88,24a8,8,0,0,0-8,8V224a8,8,0,0,0,16,0V32A8,8,0,0,0,88,24Zm40,32a8,8,0,0,0-8,8V192a8,8,0,0,0,16,0V64A8,8,0,0,0,128,56Zm40,32a8,8,0,0,0-8,8v64a8,8,0,0,0,16,0V96A8,8,0,0,0,168,88Zm40-16a8,8,0,0,0-8,8v96a8,8,0,0,0,16,0V80A8,8,0,0,0,208,72Z"/></svg> BxAudio</a></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Start here</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Start here section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/getting-started/index.html">Getting started</a></li><li class="nav-item"><a class="nav-link" href="/try-it/index.html">Try it</a></li><li class="nav-item"><a class="nav-link" href="/examples/index.html">Examples</a></li><li class="nav-item"><a class="nav-link" href="/guides/explorer/index.html">The explorer</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Guides</span><button type="button" class="nav-toggle" aria-expanded="true" aria-label="Toggle Guides section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested"><li class="nav-item"><a class="nav-link" href="/guides/index.html">Guides</a></li><li class="nav-item"><a class="nav-link" href="/guides/synthesis-and-effects/index.html">Synthesis and effects</a></li><li class="nav-item"><a class="nav-link" href="/guides/modulation-and-automation/index.html">Modulation and automation</a></li><li class="nav-item"><a class="nav-link" href="/guides/mixing/index.html">Timeline mixing</a></li><li class="nav-item"><a class="nav-link" href="/guides/trailers-and-video/index.html">Trailers and video</a></li><li class="nav-item"><a class="nav-link" href="/guides/loudness-and-mastering/index.html">Loudness and mastering</a></li><li class="nav-item"><a class="nav-link" href="/guides/time-and-pitch/index.html">Time and pitch</a></li><li class="nav-item"><a class="nav-link" href="/guides/speech-and-subtitles/index.html">Speech and subtitles</a></li><li class="nav-item"><a class="nav-link" href="/guides/games/index.html">Game audio</a></li><li class="nav-item"><a class="nav-link" href="/guides/podcasts/index.html">Podcasts</a></li><li class="nav-item"><a class="nav-link" href="/guides/testing-audio/index.html">Testing audio</a></li><li class="nav-item"><a class="nav-link" href="/guides/web-apps/index.html">Web apps</a></li><li class="nav-item"><a class="nav-link" href="/guides/analysis/index.html">Analysis</a></li><li class="nav-item"><a class="nav-link" href="/guides/formats-and-ffmpeg/index.html">Formats and FFmpeg</a></li><li class="nav-item"><a class="nav-link" href="/guides/storage/index.html">Storage</a></li><li class="nav-item"><a class="nav-link active" href="/guides/ai-tools/index.html">AI agent tools</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Voices and licenses</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Voices and licenses section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/voices/index.html">Voices</a></li><li class="nav-item"><a class="nav-link" href="/licenses/index.html">Licenses</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Reference</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Reference section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/reference/functions/index.html">Functions</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/files-and-editing/index.html">Files and editing</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/synthesis/index.html">Synthesis</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/modulation/index.html">Modulation and automation</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/effects/index.html">Effects</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/timeline/index.html">Timeline mixing</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/loudness-and-dynamics/index.html">Loudness and dynamics</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/time-and-pitch/index.html">Time and pitch</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/analysis/index.html">Analysis</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/ffmpeg-and-video/index.html">FFmpeg and video</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/speech/index.html">Speech and subtitles</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/games/index.html">Game audio</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/web/index.html">Web delivery</a></li><li class="nav-item"><a class="nav-link" href="/reference/functions/storage/index.html">Storage</a></li><li class="nav-item"><a class="nav-link" href="/reference/cli/index.html">Command line</a></li><li class="nav-item"><a class="nav-link" href="/reference/configuration/index.html">Configuration</a></li><li class="nav-item"><a class="nav-link" href="/reference/conventions/index.html">Conventions</a></li><li class="nav-item"><a class="nav-link" href="/reference/return-values/index.html">Return values</a></li><li class="nav-item"><a class="nav-link" href="/reference/errors/index.html">Errors</a></li></ul></li><li class="nav-item nav-item--group"><div class="nav-group-header"><span class="nav-link disabled">Help</span><button type="button" class="nav-toggle" aria-expanded="false" aria-label="Toggle Help section"><span class="nav-toggle__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span></button></div><ul class="nav flex-column nav--nested bxsites-nav-nested" hidden><li class="nav-item"><a class="nav-link" href="/troubleshooting/index.html">Troubleshooting</a></li><li class="nav-item"><a class="nav-link" href="/roadmap/index.html">Roadmap</a></li><li class="nav-item"><a class="nav-link" href="/contribute/index.html">Contribute</a></li></ul></li></ul>
+				<a class="bxsites-powered-by" href="https://bxsites.io" target="_blank" rel="noopener noreferrer">
+					<img class="bxsites-powered-by__logo" src="/assets/bxsites-logo.svg" alt="" aria-hidden="true"> <span>Powered by BxSites</span>
+				</a>
+			</aside>
+
+			
+			<main class="col-lg-9 col-xl-8 content">
+					
+
+	
+	<article class="page-content">
+		
+		
+			<div class="bxsites-page-actions"><details class="bxsites-page-actions__disclosure"><summary class="bxsites-page-actions__button" aria-label="Page actions"><span>Copy</span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg><kbd class="bxsites-page-actions__kbd" aria-hidden="true">C</kbd></summary><div class="bxsites-page-actions__panel"><button type="button" class="bxsites-page-actions__item" data-bxsites-action="copy-markdown" data-bxsites-markdown-url="/guides/ai-tools.md"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Copy page</span><span class="bxsites-page-actions__item-hint">Copy page as Markdown for LLMs</span></span></button><button type="button" class="bxsites-page-actions__item" data-bxsites-action="copy-link" data-bxsites-page-url="https://bxaudio.boxlang.io/guides/ai-tools/index.html"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Copy link</span><span class="bxsites-page-actions__item-hint">Copy a link to this page</span></span></button><a class="bxsites-page-actions__item" href="/guides/ai-tools.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">View as Markdown <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">View this page as plain text</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://chatgpt.com/?q=Read%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fai-tools%2Findex.html%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2c.3 3.6 1 6.2 2.1 7.9C15.2 11.5 17 12.5 20 13c-3 .5-4.8 1.5-5.9 3.1C13 17.8 12.3 20.4 12 24c-.3-3.6-1-6.2-2.1-7.9C8.8 14.5 7 13.5 4 13c3-.5 4.8-1.5 5.9-3.1C11 8.2 11.7 5.6 12 2Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Open in ChatGPT <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Ask ChatGPT about this page</span></span></a><a class="bxsites-page-actions__item" href="https://claude.ai/new?q=Read%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fai-tools%2Findex.html%20so%20I%20can%20ask%20questions%20about%20it." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2c.3 3.6 1 6.2 2.1 7.9C15.2 11.5 17 12.5 20 13c-3 .5-4.8 1.5-5.9 3.1C13 17.8 12.3 20.4 12 24c-.3-3.6-1-6.2-2.1-7.9C8.8 14.5 7 13.5 4 13c3-.5 4.8-1.5 5.9-3.1C11 8.2 11.7 5.6 12 2Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Open in Claude <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Ask Claude about this page</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/ai-tools.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Edit on GitHub <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Edit this page on GitHub</span></span></a><div class="bxsites-page-actions__divider" role="separator"></div><button type="button" class="bxsites-page-actions__item" data-bxsites-action="print"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Export as PDF</span><span class="bxsites-page-actions__item-hint">Download this page as a PDF</span></span></button><div class="bxsites-page-actions__divider" role="separator"></div><a class="bxsites-page-actions__item" href="https://x.com/intent/tweet?url=https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fai-tools%2Findex.html&amp;text=AI%20agent%20tools" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on X <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on X</span></span></a><a class="bxsites-page-actions__item" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fai-tools%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124ZM7.119 20.452H3.554V9h3.565v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on LinkedIn <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on LinkedIn</span></span></a><a class="bxsites-page-actions__item" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fai-tools%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg><span class="bxsites-page-actions__item-text"><span class="bxsites-page-actions__item-title">Share on Facebook <span class="bxsites-page-actions__item-external" aria-hidden="true">&#8599;</span></span><span class="bxsites-page-actions__item-hint">Share this page on Facebook</span></span></a></div></details></div>
+		
+		
+		
+		
+		
+		
+		<h1 class="page-title" id="page-title">
+			<a href="#page-title" id="page-title" class="anchor"></a>
+			
+			AI agent tools
+		</h1>
+		
+		
+			<p class="page-summary">Let a BoxLang AI agent trim, mix, master, analyze and speak audio, through the audio tools bx-audio adds to the bx-ai tool registry.</p>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#registered-is-not-given">Registered is not given</a></li><li class="toc-level-2"><a href="#how-the-tools-work">How the tools work</a></li><li class="toc-level-2"><a href="#what-an-agent-can-touch">What an agent can touch</a></li><li class="toc-level-2"><a href="#the-tools">The tools</a></li><li class="toc-level-3"><a href="#inspect">Inspect</a></li><li class="toc-level-3"><a href="#edit">Edit</a></li><li class="toc-level-3"><a href="#master">Master</a></li><li class="toc-level-3"><a href="#create">Create</a></li><li class="toc-level-2"><a href="#local-speech-next-to-cloud-speech">Local speech next to cloud speech</a></li><li class="toc-level-2"><a href="#example-a-podcast-clean-up">Example&#x3a; a podcast clean up</a></li><li class="toc-level-2"><a href="#turning-it-off">Turning it off</a></li><li class="toc-level-2"><a href="#troubleshooting">Troubleshooting</a></li></ul></details>
+		
+
+		
+		<p>When the <a href="https://ai.ortusbooks.com">BoxLang AI module</a> (<code>bx-ai</code>) is installed, BxAudio offers it 26 audio tools. Any agent can use them to inspect, edit, master and create audio files, with no code from you beyond naming the tools the agent may use.</p>
+<p>You do not install anything extra. Install both modules, and the tools are in the bx-ai registry under the module name <code>bxaudio</code>:</p>
+<pre><code class="language-bash">install-bx-module bx-ai
+install-bx-module bx-audio
+</code></pre>
+<p>Without bx-ai nothing changes: the module loads as before and the tools are simply not offered.</p>
+<h2 id="registered-is-not-given"><a href="#registered-is-not-given" id="registered-is-not-given" name="registered-is-not-given" class="anchor"></a>Registered is not given</h2>
+<p>Registering a tool only makes it available by name. An agent can call a tool only when its <code>tools</code> list names it. An agent with no <code>tools</code>, or one that names none of these, never sees them.</p>
+<!-- Not run: an agent needs a configured AI provider -->
+<pre><code class="language-js">agent = aiAgent(
+    name : &quot;sound-editor&quot;,
+    tools: [ &quot;audioInfo@bxaudio&quot;, &quot;audioTrim@bxaudio&quot;, &quot;audioNormalize@bxaudio&quot; ]
+)
+
+agent.run( &quot;Cut the first 5 seconds off intro.wav and normalize it&quot; )
+</code></pre>
+<p>Pick the tools with the registry, by name:</p>
+<pre><code class="language-js">// Is it there?
+aiToolRegistry().has( &quot;audioTrim@bxaudio&quot; )
+
+// Every audio tool, to hand all of them to an agent
+agent = aiAgent( name : &quot;studio&quot;, tools: aiToolRegistry().getByModule( &quot;bxaudio&quot; ) )
+</code></pre>
+<p>Give an agent only what its job needs. A transcription helper has no use for <code>audioMux</code>.</p>
+<h2 id="how-the-tools-work"><a href="#how-the-tools-work" id="how-the-tools-work" name="how-the-tools-work" class="anchor"></a>How the tools work</h2>
+<p>An agent cannot pass an audio buffer, so every tool works on files:</p>
+<ul>
+<li>It reads a file by <strong>path</strong>.</li>
+<li>It writes a <strong>new</strong> file and returns <code>{ path, seconds, channels, sampleRate }</code>.</li>
+<li>With no <code>outputPath</code> it chooses one in the output folder, named after the input, what was done and a short id, such as <code>intro-trim-3fa9c01b.wav</code>.</li>
+<li>The result keeps the input's format when it is WAV, MP3 or FLAC, and is WAV otherwise.</li>
+<li>Tools that inspect (<code>audioInfo</code>, <code>audioLoudness</code>, <code>audioBpm</code>, <code>audioDetectSilence</code>, <code>audioReadTags</code>, <code>videoInfo</code>) return what they found as a struct or an array.</li>
+</ul>
+<p>Chain tools by passing each result's <code>path</code> to the next. An agent does this by itself.</p>
+<h2 id="what-an-agent-can-touch"><a href="#what-an-agent-can-touch" id="what-an-agent-can-touch" name="what-an-agent-can-touch" class="anchor"></a>What an agent can touch</h2>
+<p>Paths from an agent are untrusted, so every path is checked before it touches the disk:</p>
+<ul>
+<li>It is made absolute and cleaned of <code>.</code> and <code>..</code>, and symlinks are followed, so a link or <code>../</code> cannot lead out of an allowed folder.</li>
+<li>It must lie under an allowed folder. With nothing configured these are the system temp folder and the working directory of the process.</li>
+<li>A new file is never written over an existing file, nor over its own input. The tool fails and says to choose another path, and the agent can.</li>
+<li><code>audioReadTags</code> only reads. No tool changes a file in place.</li>
+<li>Lists are capped: 64 files for <code>audioConcat</code> and <code>audioMix</code>, 3600 seconds for <code>audioSilence</code>.</li>
+</ul>
+<p>To widen or narrow the folders, set <code>ai.allowedPaths</code>, see <a href="/reference/configuration/index.html#ai-tool-settings">Configuration</a>.</p>
+<h2 id="the-tools"><a href="#the-tools" id="the-tools" name="the-tools" class="anchor"></a>The tools</h2>
+<h3 id="inspect"><a href="#inspect" id="inspect" name="inspect" class="anchor"></a>Inspect</h3>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Tool</th><th>Arguments</th><th>Returns</th></tr>
+</thead>
+<tbody>
+<tr><td><code>audioInfo</code></td><td><code>path</code>, <code>levels</code></td><td>channels, sample rate, frames, seconds, and peak and rms with <code>levels</code></td></tr>
+<tr><td><code>audioLoudness</code></td><td><code>path</code></td><td>integrated LUFS, loudness range, true peak</td></tr>
+<tr><td><code>audioBpm</code></td><td><code>path</code>, <code>minBpm</code>, <code>maxBpm</code></td><td><code>bpm</code>, <code>confidence</code>, <code>beatCount</code> and the first beats</td></tr>
+<tr><td><code>audioDetectSilence</code></td><td><code>path</code>, <code>thresholdDb</code>, <code>minSeconds</code></td><td>an array of <code>{ start, end, duration }</code></td></tr>
+<tr><td><code>audioReadTags</code></td><td><code>path</code></td><td>title, artist, album and the other tags</td></tr>
+<tr><td><code>audioWaveformImage</code></td><td><code>path</code>, <code>outputPath</code>, <code>width</code>, <code>height</code></td><td>the path of a PNG</td></tr>
+<tr><td><code>audioSpectrogramImage</code></td><td><code>path</code>, <code>outputPath</code>, <code>width</code>, <code>height</code></td><td>the path of a PNG</td></tr>
+<tr><td><code>videoInfo</code></td><td><code>path</code></td><td>length, size and the streams of any media file. Needs FFmpeg</td></tr>
+</tbody>
+</table></div>
+<h3 id="edit"><a href="#edit" id="edit" name="edit" class="anchor"></a>Edit</h3>
+<div class="bxsites-table-wrap" x-data="{ q: '' }"><input type="search" class="bxsites-table-filter" x-model="q" placeholder="Filter table..." aria-label="Filter table"><table class="table">
+<thead>
+<tr><th>Tool</th><th>Arguments</th></tr>
+</thead>
+<tbody>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioTrim</code></td><td><code>path</code>, <code>start</code>, <code>end</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioTrimSilence</code></td><td><code>path</code>, <code>thresholdDb</code>, <code>pad</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioConcat</code></td><td><code>paths</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioMix</code></td><td><code>paths</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioFade</code></td><td><code>path</code>, <code>fadeIn</code>, <code>fadeOut</code>, <code>curve</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioStretch</code></td><td><code>path</code>, <code>rate</code>, <code>outputPath</code> (speed, same pitch)</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioPitch</code></td><td><code>path</code>, <code>semitones</code>, <code>outputPath</code> (pitch, same length)</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioReverse</code></td><td><code>path</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioGain</code></td><td><code>path</code>, <code>gainDb</code>, <code>outputPath</code></td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>audioConvert</code></td><td><code>path</code>, <code>format</code>, <code>sampleRate</code>, <code>channels</code>, <code>bitrate</code>, <code>outputPath</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="master"><a href="#master" id="master" name="master" class="anchor"></a>Master</h3>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Tool</th><th>Arguments</th></tr>
+</thead>
+<tbody>
+<tr><td><code>audioNormalize</code></td><td><code>path</code>, <code>targetDb</code>, <code>outputPath</code></td></tr>
+<tr><td><code>audioMaster</code></td><td><code>path</code>, <code>target</code> (a preset or LUFS), <code>truePeakDb</code>, <code>glue</code>, <code>outputPath</code></td></tr>
+<tr><td><code>audioEq</code></td><td><code>path</code>, <code>bands</code>, <code>outputPath</code></td></tr>
+<tr><td><code>audioReverb</code></td><td><code>path</code>, <code>room</code>, <code>damp</code>, <code>mix</code>, <code>outputPath</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="create"><a href="#create" id="create" name="create" class="anchor"></a>Create</h3>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Tool</th><th>Arguments</th></tr>
+</thead>
+<tbody>
+<tr><td><code>audioVoices</code></td><td><code>language</code>, <code>installed</code>. Lists the voices <code>audioSpeak</code> can use</td></tr>
+<tr><td><code>audioSpeak</code></td><td><code>text</code>, <code>voice</code>, <code>speed</code>, <code>outputPath</code>. Text to speech on this machine, no cloud service</td></tr>
+<tr><td><code>audioSilence</code></td><td><code>seconds</code>, <code>channels</code>, <code>sampleRate</code>, <code>outputPath</code></td></tr>
+<tr><td><code>audioMux</code></td><td><code>video</code>, <code>audio</code>, <code>keepOriginal</code>, <code>offset</code>, <code>outputPath</code>. Needs FFmpeg</td></tr>
+</tbody>
+</table></div>
+<p>Each tool has the same name as the function it wraps, so the <a href="/reference/functions/index.html">function reference</a> explains its arguments in depth.</p>
+<h2 id="local-speech-next-to-cloud-speech"><a href="#local-speech-next-to-cloud-speech" id="local-speech-next-to-cloud-speech" name="local-speech-next-to-cloud-speech" class="anchor"></a>Local speech next to cloud speech</h2>
+<p>bx-ai has its own <code>speak@bxai</code>, which calls a cloud provider. <code>audioSpeak@bxaudio</code> runs a <a href="/guides/speech-and-subtitles/index.html">Piper</a> voice on your machine, offline once the voice is downloaded, and costs nothing per call. Name the one you want in the agent's <code>tools</code>, or both and let the model choose from their descriptions.</p>
+<p>The first <code>audioSpeak</code> of a voice may download the engine and the voice, unless <code>autoInstall</code> is <code>false</code>, see <a href="/guides/storage/index.html">Storage</a>.</p>
+<h2 id="example-a-podcast-clean-up"><a href="#example-a-podcast-clean-up" id="example-a-podcast-clean-up" name="example-a-podcast-clean-up" class="anchor"></a>Example: a podcast clean up</h2>
+<pre><code class="language-js">agent = aiAgent(
+    name        : &quot;podcast-editor&quot;,
+    instructions: &quot;You edit podcast recordings. Work on copies, report levels before and after.&quot;,
+    tools       : [
+        &quot;audioInfo@bxaudio&quot;, &quot;audioLoudness@bxaudio&quot;, &quot;audioTrimSilence@bxaudio&quot;,
+        &quot;audioEq@bxaudio&quot;, &quot;audioMaster@bxaudio&quot;
+    ]
+)
+
+agent.run( &quot;Take episode-12.wav, remove the silence at both ends, cut the rumble below 80 Hz and master it for podcast delivery. Tell me the loudness before and after.&quot; )
+</code></pre>
+<p>A run like this calls <code>audioLoudness</code>, <code>audioTrimSilence</code>, <code>audioEq</code> with a <code>highpass</code> band at 80 Hz, <code>audioMaster</code> with <code>podcast</code>, and <code>audioLoudness</code> again.</p>
+<h2 id="turning-it-off"><a href="#turning-it-off" id="turning-it-off" name="turning-it-off" class="anchor"></a>Turning it off</h2>
+<p>Set <code>ai.enabled</code> to <code>false</code> and the tools are never registered. See <a href="/reference/configuration/index.html#ai-tool-settings">Configuration</a>. Unloading the module removes them from the registry.</p>
+<h2 id="troubleshooting"><a href="#troubleshooting" id="troubleshooting" name="troubleshooting" class="anchor"></a>Troubleshooting</h2>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>You see</th><th>Cause</th></tr>
+</thead>
+<tbody>
+<tr><td><code>RegistryItemNotFoundException</code> for <code>audioTrim@bxaudio</code></td><td>bx-ai or bx-audio is not loaded, or <code>ai.enabled</code> is <code>false</code>. Check <code>aiToolRegistry().has( &quot;audioTrim@bxaudio&quot; )</code></td></tr>
+<tr><td><code>AudioToolAccessDenied</code></td><td>The path is outside the allowed folders. Move the file, or add its folder to <code>ai.allowedPaths</code></td></tr>
+<tr><td><code>AudioToolExists</code></td><td>The output path is taken. Leave <code>outputPath</code> empty, or choose a new one</td></tr>
+<tr><td><code>AudioToolNotFound</code></td><td>There is no file at the input path</td></tr>
+<tr><td><code>AudioToolInvalidArgument</code></td><td>An empty list, too many files, a silence that is too long, or an output path with no extension</td></tr>
+</tbody>
+</table></div>
+
+	
+
+	
+	
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/ai-tools.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/ai-tools.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 19, 2026, 1&#x3a;22&#x3a;10 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20AI%20agent%20tools&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fai-tools%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+	
+</article>
+
+
+
+
+
+
+	<nav class="page-nav d-flex justify-content-between" aria-label="Page navigation">
+		
+		
+			<a class="page-nav__card page-nav__card--prev" href="/guides/storage/index.html">
+				<span class="page-nav__icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+				<span class="page-nav__text">
+					<span class="page-nav__label">Previous</span>
+					<span class="page-nav__title">Storage</span>
+				</span>
+			</a>
+		
+		
+		
+		
+		
+			<a class="page-nav__card page-nav__card--next" href="/voices/index.html">
+				<span class="page-nav__text">
+					<span class="page-nav__label">Next</span>
+					<span class="page-nav__title">Voices</span>
+				</span>
+				<span class="page-nav__icon"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+			</a>
+		
+	</nav>
+
+
+
+
+
+
+			</main>
+
+			
+			
+				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#registered-is-not-given">Registered is not given</a></li><li class="toc-level-2"><a href="#how-the-tools-work">How the tools work</a></li><li class="toc-level-2"><a href="#what-an-agent-can-touch">What an agent can touch</a></li><li class="toc-level-2"><a href="#the-tools">The tools</a></li><li class="toc-level-3"><a href="#inspect">Inspect</a></li><li class="toc-level-3"><a href="#edit">Edit</a></li><li class="toc-level-3"><a href="#master">Master</a></li><li class="toc-level-3"><a href="#create">Create</a></li><li class="toc-level-2"><a href="#local-speech-next-to-cloud-speech">Local speech next to cloud speech</a></li><li class="toc-level-2"><a href="#example-a-podcast-clean-up">Example&#x3a; a podcast clean up</a></li><li class="toc-level-2"><a href="#turning-it-off">Turning it off</a></li><li class="toc-level-2"><a href="#troubleshooting">Troubleshooting</a></li></ul></nav>
+				</aside>
+			
+		</div>
+		
+	</div>
+	
+
+	
+	
+		<footer class="bxsites-footer">
+			<div class="container-fluid bxsites-footer__inner">
+				
+				<div class="bxsites-footer__copy">&copy; 2026 BxAudio</div>
+				
+				
+					<div class="bxsites-footer__social"><a class="social-link" href="https://github.com/ortus-boxlang/bx-audio" target="_blank" rel="noopener noreferrer" aria-label="BoxLang Audio on GitHub" title="BoxLang Audio on GitHub"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg></a><a class="social-link" href="https://github.com/ortus-boxlang" target="_blank" rel="noopener noreferrer" aria-label="BoxLang on GitHub" title="BoxLang on GitHub"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.089-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23A11.5 11.5 0 0 1 12 5.803c1.02.005 2.045.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.118 3.176.77.84 1.235 1.91 1.235 3.22 0 4.61-2.807 5.625-5.48 5.92.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12"/></svg></a><a class="social-link" href="https://x.com/TryBoxLang" target="_blank" rel="noopener noreferrer" aria-label="X &#x28;Twitter&#x29;" title="X &#x28;Twitter&#x29;"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a><a class="social-link" href="https://www.youtube.com/@OrtusSolutions" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M23.498 6.186a3.02 3.02 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.02 3.02 0 0 0 .502 6.186 31.7 31.7 0 0 0 0 12a31.7 31.7 0 0 0 .502 5.814 3.02 3.02 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.02 3.02 0 0 0 2.122-2.136A31.7 31.7 0 0 0 24 12a31.7 31.7 0 0 0-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z"/></svg></a><a class="social-link" href="https://www.linkedin.com/company/tryboxlang" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124ZM7.119 20.452H3.554V9h3.565v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg></a><a class="social-link" href="https://bsky.app/profile/boxlang.bsky.social" target="_blank" rel="noopener noreferrer" aria-label="Bluesky" title="Bluesky"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.203-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/></svg></a><a class="social-link" href="https://www.ortussolutions.com/community/slack" target="_blank" rel="noopener noreferrer" aria-label="Slack Community" title="Slack Community"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52ZM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313ZM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834ZM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312ZM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834ZM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312ZM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52ZM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313Z"/></svg></a></div>
+				
+				
+				<div class="bxsites-footer__credit">Built with <a href="https://bxsites.io" target="_blank" rel="noopener noreferrer">BxSites</a></div>
+			</div>
+		</footer>
+	
+
+	
+	<script src="/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+	<script src="/assets/vendor/highlight/highlight.min.js"></script>
+	<script src="/assets/highlight-boxlang.c59b5de4.js"></script>
+	<script>hljs.highlightAll();</script>
+	<script src="/assets/code-lines.66ad0c90.js"></script>
+	<script src="/assets/copy-code.a5acc8cc.js" defer></script>
+	<script src="/assets/admonition-collapse.df9b134e.js" defer></script>
+	<script src="/assets/nav-toggle.6bc5dbe8.js" defer></script>
+	<script src="/assets/toc-collapse.cb73e778.js" defer></script>
+	<script src="/assets/tabs.24dffad6.js" defer></script>
+	<script src="/assets/conditional-content-init.9ef1e0f9.js" defer></script>
+	<script src="/assets/course-progress.3813411a.js" defer></script>
+	<script src="/assets/prompt-init.774781de.js" defer></script>
+	<script src="/assets/contact-form-init.7f7be308.js" defer></script>
+
+	
+	
+		<script src="/assets/page-actions-init.9092e0f1.js" defer></script>
+	
+
+	
+	
+		<script src="/assets/vendor/mermaid/mermaid.min.js"></script>
+		<script src="/assets/mermaid-init.b2f3ed5c.js"></script>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+		<script src="/assets/image-gallery-init.63219523.js" defer></script>
+	
+
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+</body>
+</html>
+

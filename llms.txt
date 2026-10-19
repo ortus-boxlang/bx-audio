@@ -48,3 +48,4 @@
 - [Storage](https://bxaudio.boxlang.io/reference/functions/storage.md) ([HTML](https://bxaudio.boxlang.io/reference/functions/storage/index.html))
 - [Testing audio](https://bxaudio.boxlang.io/guides/testing-audio.md) ([HTML](https://bxaudio.boxlang.io/guides/testing-audio/index.html))
 - [Web apps](https://bxaudio.boxlang.io/guides/web-apps.md) ([HTML](https://bxaudio.boxlang.io/guides/web-apps/index.html))
+- [AI agent tools](https://bxaudio.boxlang.io/guides/ai-tools.md) ([HTML](https://bxaudio.boxlang.io/guides/ai-tools/index.html))
