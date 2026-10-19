@@ -14,17 +14,19 @@
  */
 class {
 
-	/** The WAV, MP3 and FLAC encoders are built in; other extensions need FFmpeg */
-	variables.PLAIN_FORMATS = [ "wav", "mp3", "flac" ];
+	static {
+		/** The WAV, MP3 and FLAC encoders are built in; other extensions need FFmpeg */
+		PLAIN_FORMATS = [ "wav", "mp3", "flac" ];
 
-	/** The most files a concat or a mix takes, so an agent cannot ask for an unbounded job */
-	variables.MAX_FILES = 64;
+		/** The most files a concat or a mix takes, so an agent cannot ask for an unbounded job */
+		MAX_FILES = 64;
 
-	/** The longest silence the tool will create, in seconds */
-	variables.MAX_SILENCE_SECONDS = 3600;
+		/** The longest silence the tool will create, in seconds */
+		MAX_SILENCE_SECONDS = 3600;
 
-	/** The most beats and voices returned, to keep the reply small */
-	variables.MAX_LIST = 64;
+		/** The most beats and voices returned, to keep the reply small */
+		MAX_LIST = 64;
+	}
 
 	/**
 	 * @settings The module's ai settings: allowedPaths (array) and outputDir (string)
@@ -87,7 +89,7 @@ class {
 			bpm        : found.bpm,
 			confidence : found.confidence,
 			beatCount  : beats.len(),
-			firstBeats : beats.len() > variables.MAX_LIST ? beats.slice( 1, variables.MAX_LIST ) : beats
+			firstBeats : beats.len() > static.MAX_LIST ? beats.slice( 1, static.MAX_LIST ) : beats
 		};
 	}
 
@@ -389,7 +391,7 @@ class {
 			return [];
 		}
 		return voices
-			.slice( 1, min( variables.MAX_LIST, voices.len() ) )
+			.slice( 1, min( static.MAX_LIST, voices.len() ) )
 			.map( ( v ) => {
 				return {
 					id        : v.id,
@@ -427,10 +429,10 @@ class {
 	 */
 	@AITool( { name: "audioSilence", description: "Create an audio file of silence of a given length, for example to pad a recording, and return its path." } )
 	public struct function toolSilence( required numeric seconds, numeric channels = 2, numeric sampleRate = 44100, string outputPath = "" ){
-		if ( arguments.seconds <= 0 || arguments.seconds > variables.MAX_SILENCE_SECONDS ) {
+		if ( arguments.seconds <= 0 || arguments.seconds > static.MAX_SILENCE_SECONDS ) {
 			throw(
 				type    = "AudioToolInvalidArgument",
-				message = "seconds must be more than 0 and at most #variables.MAX_SILENCE_SECONDS#"
+				message = "seconds must be more than 0 and at most #static.MAX_SILENCE_SECONDS#"
 			);
 		}
 		return emit( audioSilence( arguments.seconds, arguments.channels, arguments.sampleRate ), "", "silence", arguments.outputPath, "wav", 0, "silence" );
@@ -499,8 +501,8 @@ class {
 		if ( !arguments.paths.len() ) {
 			throw( type = "AudioToolInvalidArgument", message = "paths must name at least one file" );
 		}
-		if ( arguments.paths.len() > variables.MAX_FILES ) {
-			throw( type = "AudioToolInvalidArgument", message = "paths takes at most #variables.MAX_FILES# files" );
+		if ( arguments.paths.len() > static.MAX_FILES ) {
+			throw( type = "AudioToolInvalidArgument", message = "paths takes at most #static.MAX_FILES# files" );
 		}
 		return arguments.paths.map( ( p ) => variables.guard.resolveInput( p ) );
 	}
@@ -564,7 +566,7 @@ class {
 			if ( !len( ext ) ) {
 				ext = len( arguments.input ) ? extensionOf( arguments.input ) : "wav";
 			}
-			if ( !variables.PLAIN_FORMATS.contains( ext ) ) {
+			if ( !static.PLAIN_FORMATS.contains( ext ) ) {
 				// The agent may name another format, but never one that is not a plain file extension
 				ext = ( reFind( "^[a-z0-9]{2,5}$", ext ) && arguments.format.len() ) ? ext : "wav";
 			}
