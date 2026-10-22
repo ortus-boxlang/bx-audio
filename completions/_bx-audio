@@ -73,9 +73,9 @@ _bx-audio() {
         licenses)
             _message 'no arguments' ;;
         install)
-            _arguments '*:install:(bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine)' ;;
+            _arguments '*:install:(alba aru en_GB-cori-high en_GB-cori-medium northern_english_male southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine)' ;;
         remove)
-            _arguments '*:remove:(bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine)' ;;
+            _arguments '*:remove:(alba aru en_GB-cori-high en_GB-cori-medium northern_english_male southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine)' ;;
         where)
             _message 'no arguments' ;;
         clean)
