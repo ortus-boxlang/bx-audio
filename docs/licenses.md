@@ -35,7 +35,7 @@ A voice is left out, with the reason, when its card:
 - says only "See URL" or "See LICENSE file", so the license is not clear, or
 - says nothing.
 
-Other voices are left out for technical reasons: their language has no pronunciation engine yet, they have several speakers, or they are British English, which needs a dictionary licensed GPL 3. The [voices page](voices.md) lists every voice of the collection with its status and reason, and `bx-audio voices --excluded` prints the same.
+Other voices are left out for technical reasons: their language has no pronunciation engine yet, or they have several speakers. The [voices page](voices.md) lists every voice of the collection with its status and reason, and `bx-audio voices --excluded` prints the same.
 
 ## FFmpeg
 
@@ -72,4 +72,4 @@ These come with the speech engine, which is downloaded on first use, checked aga
 | Gson 2.13.2 | Reading the voice configuration | Apache 2.0 |
 | SLF4J API and NOP 2.0.17 | Logging, silenced | MIT |
 
-The Voices `en_uk` dictionary is not used because it is licensed GPL 3.
+The Voices `en_uk` dictionary (British English pronunciation) is licensed GPL 3. It is not bundled: it is downloaded with the engine the first time a British English voice speaks, and only British English voices use it. If your use cannot accept a GPL 3 download, use the `en_US` voices.

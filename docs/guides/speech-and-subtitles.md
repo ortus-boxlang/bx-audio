@@ -118,6 +118,6 @@ Voices with non-commercial, copyleft, custom or unclear licenses are not offered
 
 ## Limits
 
-- US English only for now. British English (`en_GB`) voices need a GPL 3 pronunciation dictionary and other languages need a phonemizer the engine does not have yet. See [Voices](../voices.md).
+- US and British English only for now. The British English (`en_GB`) voices use a GPL 3 pronunciation dictionary, downloaded the first time one speaks, and other languages need a phonemizer the engine does not have yet. See [Voices](../voices.md).
 - Only single speaker voices are offered.
 - There are no word level timings, so captions follow sentences or clauses, not each word.

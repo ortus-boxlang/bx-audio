@@ -225,10 +225,10 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( voices ).contains( "en_US-joe-medium" );
 		assertThat( voices ).contains( "CC0-1.0" );
 		assertThat( voices ).contains( "open license" );
-		// no share-alike voice is offered at the moment, so its note is not shown
-		assertThat( voices ).doesNotContain( "share what you make" );
+		assertThat( voices ).contains( "en_GB-cori-high" );
 		assertThat( run( "voices", "--lang=en_US" ) ).contains( "en_US-joe-medium" );
-		assertThat( run( "voices", "--lang=en_GB" ) ).contains( "No voices match" );
+		assertThat( run( "voices", "--lang=en_GB" ) ).contains( "en_GB-alba-medium" );
+		assertThat( run( "voices", "--lang=de_DE" ) ).contains( "No voices match" );
 		assertThat( run( "voices", "--installed" ) ).contains( "No voices match" );
 	}
 

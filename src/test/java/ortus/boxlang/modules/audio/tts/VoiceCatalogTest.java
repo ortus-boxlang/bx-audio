@@ -66,10 +66,11 @@ public class VoiceCatalogTest {
 		assertThat( ids.stream().anyMatch( id -> id.contains( "hfc_" ) ) ).isFalse();
 	}
 
-	@DisplayName( "Only US English voices are offered, because the British dictionary of the engine is licensed GPL 3" )
+	@DisplayName( "US and British English voices are offered, the other languages have no phonemizer yet" )
 	@Test
-	void testOnlyUsEnglish() {
-		assertThat( VoiceCatalog.load().all().stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_US" );
+	void testEnglishVoices() {
+		assertThat( VoiceCatalog.load().all().stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_GB", "en_US" );
+		assertThat( VoiceCatalog.load().find( "en_GB-alba-medium" ).language() ).isEqualTo( "en_GB" );
 	}
 
 	@DisplayName( "A voice is found by its id or by its short name, and a name that fits several voices is refused" )
@@ -88,7 +89,7 @@ public class VoiceCatalogTest {
 		VoiceCatalog catalog = VoiceCatalog.load();
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_US-ryan-high" ) ).getMessage() ).contains( "Non-commercial" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "lessac" ) ).getMessage() ).contains( "not offered" );
-		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_GB-alba-medium" ) ).getMessage() ).contains( "GPL 3" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_GB-alan-medium" ) ).getMessage() ).contains( "not offered" );
 	}
 
 	@DisplayName( "Every voice of the collection is either offered or excluded with a reason, and none is both" )
@@ -98,7 +99,7 @@ public class VoiceCatalogTest {
 		assertThat( catalog.excluded().size() ).isGreaterThan( 100 );
 		assertThat( catalog.excluded().stream().allMatch( v -> !v.reason().isBlank() && !v.reasonKind().isBlank() ) ).isTrue();
 		assertThat( catalog.excluded().stream().map( VoiceCatalog.ExcludedVoice::reasonKind ).distinct().toList() )
-		    .containsAtLeast( "license", "dictionary", "speakers", "language" );
+		    .containsAtLeast( "license", "speakers", "language" );
 		var offered = catalog.all().stream().map( VoiceInfo::id ).toList();
 		assertThat( catalog.excluded().stream().anyMatch( v -> offered.contains( v.id() ) ) ).isFalse();
 	}

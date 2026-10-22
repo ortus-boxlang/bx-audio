@@ -1,5 +1,5 @@
 {
-  "supportedLanguages" : [ "en_US" ],
+  "supportedLanguages" : [ "en_US", "en_GB" ],
   "source" : "https://huggingface.co/rhasspy/piper-voices/resolve/main/",
   "excluded" : [ {
     "reason" : "The model card only says 'See URL', so the license is not clear",
@@ -338,54 +338,6 @@
     "licenseText" : "See URL",
     "name" : "alan"
   }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "attribution",
-    "language" : "en_GB",
-    "source" : "https://datashare.ed.ac.uk/handle/10283/3270",
-    "id" : "en_GB-alba-medium",
-    "quality" : "medium",
-    "license" : "CC-BY-4.0",
-    "size" : 63206182,
-    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
-    "name" : "alba"
-  }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "attribution",
-    "language" : "en_GB",
-    "source" : "https://www.liverpool.ac.uk/architecture/research/acoustics-research-unit/speech-corpus/",
-    "id" : "en_GB-aru-medium",
-    "quality" : "medium",
-    "license" : "CC-BY-4.0",
-    "size" : 76759145,
-    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
-    "name" : "aru"
-  }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "permissive",
-    "language" : "en_GB",
-    "source" : "https://librivox.org",
-    "id" : "en_GB-cori-high",
-    "quality" : "high",
-    "license" : "Public-Domain",
-    "size" : 114224315,
-    "licenseText" : "public domain",
-    "name" : "cori"
-  }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "permissive",
-    "language" : "en_GB",
-    "source" : "https://librivox.org",
-    "id" : "en_GB-cori-medium",
-    "quality" : "medium",
-    "license" : "Public-Domain",
-    "size" : 63536345,
-    "licenseText" : "public domain",
-    "name" : "cori"
-  }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
     "usage" : "unclear",
@@ -398,18 +350,6 @@
     "licenseText" : "See URL",
     "name" : "jenny_dioco"
   }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "sharealike",
-    "language" : "en_GB",
-    "source" : "http://www.openslr.org/83/",
-    "id" : "en_GB-northern_english_male-medium",
-    "quality" : "medium",
-    "license" : "CC-BY-SA-4.0",
-    "size" : 63206141,
-    "licenseText" : "CC-BY-SA 4.0 International",
-    "name" : "northern_english_male"
-  }, {
     "reason" : "Non-commercial license",
     "reasonKind" : "license",
     "usage" : "noncommercial",
@@ -421,30 +361,6 @@
     "size" : 76742787,
     "licenseText" : "http://creativecommons.org/licenses/by-nc-sa/4.0/",
     "name" : "semaine"
-  }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "sharealike",
-    "language" : "en_GB",
-    "source" : "http://www.openslr.org/83/",
-    "id" : "en_GB-southern_english_female-low",
-    "quality" : "low",
-    "license" : "CC-BY-SA-4.0",
-    "size" : 63108715,
-    "licenseText" : "CC-BY-SA 4.0 International",
-    "name" : "southern_english_female"
-  }, {
-    "reason" : "Needs the British English dictionary of the Voices engine, which is licensed GPL 3",
-    "reasonKind" : "dictionary",
-    "usage" : "attribution",
-    "language" : "en_GB",
-    "source" : "https://datashare.ed.ac.uk/handle/10283/3443",
-    "id" : "en_GB-vctk-medium",
-    "quality" : "medium",
-    "license" : "CC-BY-4.0",
-    "size" : 76959390,
-    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
-    "name" : "vctk"
   }, {
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
@@ -1995,6 +1911,146 @@
     "name" : "xiao_ya"
   } ],
   "voices" : [ {
+    "id" : "en_GB-alba-medium",
+    "name" : "alba",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "CC-BY-4.0",
+    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
+    "usage" : "attribution",
+    "shareAlike" : false,
+    "source" : "https://datashare.ed.ac.uk/handle/10283/3270",
+    "model" : {
+      "path" : "en/en_GB/alba/medium/en_GB-alba-medium.onnx",
+      "size" : 63201294,
+      "md5" : "c07f313752bb3aba8061041666251654"
+    },
+    "config" : {
+      "path" : "en/en_GB/alba/medium/en_GB-alba-medium.onnx.json",
+      "size" : 4888,
+      "md5" : "dbb6f2ede31082710665221417906e13"
+    }
+  }, {
+    "id" : "en_GB-aru-medium",
+    "name" : "aru",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "CC-BY-4.0",
+    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
+    "usage" : "attribution",
+    "shareAlike" : false,
+    "source" : "https://www.liverpool.ac.uk/architecture/research/acoustics-research-unit/speech-corpus/",
+    "model" : {
+      "path" : "en/en_GB/aru/medium/en_GB-aru-medium.onnx",
+      "size" : 76754097,
+      "md5" : "7862d75539b8ef867e7c04e772d323ea"
+    },
+    "config" : {
+      "path" : "en/en_GB/aru/medium/en_GB-aru-medium.onnx.json",
+      "size" : 5048,
+      "md5" : "903a8ec4cdfea0123a004ab4a87e547c"
+    }
+  }, {
+    "id" : "en_GB-cori-high",
+    "name" : "cori",
+    "language" : "en_GB",
+    "quality" : "high",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "usage" : "permissive",
+    "shareAlike" : false,
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_GB/cori/high/en_GB-cori-high.onnx",
+      "size" : 114219352,
+      "md5" : "3474a80133d9a03e6870d2ac42c18806"
+    },
+    "config" : {
+      "path" : "en/en_GB/cori/high/en_GB-cori-high.onnx.json",
+      "size" : 4963,
+      "md5" : "0f7d42e77a99193006aa34a34442f5e0"
+    }
+  }, {
+    "id" : "en_GB-cori-medium",
+    "name" : "cori",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "Public-Domain",
+    "licenseText" : "public domain",
+    "usage" : "permissive",
+    "shareAlike" : false,
+    "source" : "https://librivox.org",
+    "model" : {
+      "path" : "en/en_GB/cori/medium/en_GB-cori-medium.onnx",
+      "size" : 63531379,
+      "md5" : "f143307611eccea9d976235d0895f57c"
+    },
+    "config" : {
+      "path" : "en/en_GB/cori/medium/en_GB-cori-medium.onnx.json",
+      "size" : 4966,
+      "md5" : "12b1dc45d8919f3475cf296d5f16a4c6"
+    }
+  }, {
+    "id" : "en_GB-northern_english_male-medium",
+    "name" : "northern_english_male",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "CC-BY-SA-4.0",
+    "licenseText" : "CC-BY-SA 4.0 International",
+    "usage" : "sharealike",
+    "shareAlike" : true,
+    "source" : "http://www.openslr.org/83/",
+    "model" : {
+      "path" : "en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx",
+      "size" : 63201294,
+      "md5" : "4c9a9735bfb76ad67c8b31b23d6840a0"
+    },
+    "config" : {
+      "path" : "en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx.json",
+      "size" : 4847,
+      "md5" : "0ce3f61a9604616ed475c921fdeedb1a"
+    }
+  }, {
+    "id" : "en_GB-southern_english_female-low",
+    "name" : "southern_english_female",
+    "language" : "en_GB",
+    "quality" : "low",
+    "license" : "CC-BY-SA-4.0",
+    "licenseText" : "CC-BY-SA 4.0 International",
+    "usage" : "sharealike",
+    "shareAlike" : true,
+    "source" : "http://www.openslr.org/83/",
+    "model" : {
+      "path" : "en/en_GB/southern_english_female/low/en_GB-southern_english_female-low.onnx",
+      "size" : 63104526,
+      "md5" : "596c7ed4d8488cf64e027765dce2dad1"
+    },
+    "config" : {
+      "path" : "en/en_GB/southern_english_female/low/en_GB-southern_english_female-low.onnx.json",
+      "size" : 4189,
+      "md5" : "7548456e9f2bc4c16bf818be26618ea1"
+    }
+  }, {
+    "id" : "en_GB-vctk-medium",
+    "name" : "vctk",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "CC-BY-4.0",
+    "licenseText" : "https://creativecommons.org/licenses/by/4.0/",
+    "usage" : "attribution",
+    "shareAlike" : false,
+    "source" : "https://datashare.ed.ac.uk/handle/10283/3443",
+    "model" : {
+      "path" : "en/en_GB/vctk/medium/en_GB-vctk-medium.onnx",
+      "size" : 76952753,
+      "md5" : "573025290fdc68812543b7438ace0c29"
+    },
+    "config" : {
+      "path" : "en/en_GB/vctk/medium/en_GB-vctk-medium.onnx.json",
+      "size" : 6637,
+      "md5" : "68e82dee4c9a723e804f9fc0b14f1802"
+    }
+  }, {
     "usage" : "permissive",
     "language" : "en_US",
     "source" : "",

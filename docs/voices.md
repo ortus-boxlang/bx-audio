@@ -29,17 +29,24 @@ Only voices whose model card states an open license are listed: CC0, public doma
 
 | Voice | Language | Quality | License | Usage | Download | Training data | Listen |
 |---|---|---|---|---|---|---|---|
-| `en_US-bryce-medium` | en_US | medium | Public-Domain | permissive | 64 MB | not stated | <audio controls preload="none" src="assets/audio/voices/en_US-bryce-medium.mp3"></audio> |
-| `en_US-joe-medium` | en_US | medium | CC0-1.0 | permissive | 63 MB | [source](https://github.com/OHF-Voice/voice-datasets) | <audio controls preload="none" src="assets/audio/voices/en_US-joe-medium.mp3"></audio> |
-| `en_US-john-medium` | en_US | medium | Public-Domain | permissive | 64 MB | [source](https://librivox.org) | <audio controls preload="none" src="assets/audio/voices/en_US-john-medium.mp3"></audio> |
-| `en_US-kathleen-low` | en_US | low | CC0-1.0 | permissive | 63 MB | [source](https://github.com/rhasspy/dataset-voice-kathleen) | <audio controls preload="none" src="assets/audio/voices/en_US-kathleen-low.mp3"></audio> |
-| `en_US-kristin-medium` | en_US | medium | Public-Domain | permissive | 64 MB | [source](https://librivox.org) | <audio controls preload="none" src="assets/audio/voices/en_US-kristin-medium.mp3"></audio> |
-| `en_US-ljspeech-high` | en_US | high | Public-Domain | permissive | 114 MB | [source](https://keithito.com/LJ-Speech-Dataset/) | <audio controls preload="none" src="assets/audio/voices/en_US-ljspeech-high.mp3"></audio> |
-| `en_US-ljspeech-medium` | en_US | medium | Public-Domain | permissive | 64 MB | [source](https://keithito.com/LJ-Speech-Dataset/) | <audio controls preload="none" src="assets/audio/voices/en_US-ljspeech-medium.mp3"></audio> |
-| `en_US-mike-medium` | en_US | medium | CC0-1.0 | permissive | 63 MB | [source](https://github.com/OHF-Voice/voice-datasets) | <audio controls preload="none" src="assets/audio/voices/en_US-mike-medium.mp3"></audio> |
-| `en_US-norman-medium` | en_US | medium | Public-Domain | permissive | 64 MB | [source](https://librivox.org) | <audio controls preload="none" src="assets/audio/voices/en_US-norman-medium.mp3"></audio> |
-| `en_US-reza_ibrahim-medium` | en_US | medium | CC0-1.0 | permissive | 64 MB | [source](https://huggingface.co/datasets/mah92/Hedayatfar-Persian-Quran-Audio-Dataset) | <audio controls preload="none" src="assets/audio/voices/en_US-reza_ibrahim-medium.mp3"></audio> |
-| `en_US-sam-medium` | en_US | medium | Apache-2.0 | permissive | 63 MB | [source](https://github.com/Sam-Accenture-Non-Binary-Voice/non-binary-voice-files) | <audio controls preload="none" src="assets/audio/voices/en_US-sam-medium.mp3"></audio> |
+| `en_GB-alba-medium` | en_GB | medium | CC-BY-4.0 | attribution | 60 MB | [source](https://datashare.ed.ac.uk/handle/10283/3270) |  |
+| `en_GB-aru-medium` | en_GB | medium | CC-BY-4.0 | attribution | 73 MB | [source](https://www.liverpool.ac.uk/architecture/research/acoustics-research-unit/speech-corpus/) |  |
+| `en_GB-cori-high` | en_GB | high | Public-Domain | permissive | 109 MB | [source](https://librivox.org) |  |
+| `en_GB-cori-medium` | en_GB | medium | Public-Domain | permissive | 61 MB | [source](https://librivox.org) |  |
+| `en_GB-northern_english_male-medium` | en_GB | medium | CC-BY-SA-4.0 | sharealike | 60 MB | [source](http://www.openslr.org/83/) |  |
+| `en_GB-southern_english_female-low` | en_GB | low | CC-BY-SA-4.0 | sharealike | 60 MB | [source](http://www.openslr.org/83/) |  |
+| `en_GB-vctk-medium` | en_GB | medium | CC-BY-4.0 | attribution | 73 MB | [source](https://datashare.ed.ac.uk/handle/10283/3443) |  |
+| `en_US-bryce-medium` | en_US | medium | Public-Domain | permissive | 61 MB | not stated | <audio controls preload="none" src="../assets/audio/voices/en_US-bryce-medium.mp3"></audio> |
+| `en_US-joe-medium` | en_US | medium | CC0-1.0 | permissive | 60 MB | [source](https://github.com/OHF-Voice/voice-datasets) | <audio controls preload="none" src="../assets/audio/voices/en_US-joe-medium.mp3"></audio> |
+| `en_US-john-medium` | en_US | medium | Public-Domain | permissive | 61 MB | [source](https://librivox.org) | <audio controls preload="none" src="../assets/audio/voices/en_US-john-medium.mp3"></audio> |
+| `en_US-kathleen-low` | en_US | low | CC0-1.0 | permissive | 60 MB | [source](https://github.com/rhasspy/dataset-voice-kathleen) | <audio controls preload="none" src="../assets/audio/voices/en_US-kathleen-low.mp3"></audio> |
+| `en_US-kristin-medium` | en_US | medium | Public-Domain | permissive | 61 MB | [source](https://librivox.org) | <audio controls preload="none" src="../assets/audio/voices/en_US-kristin-medium.mp3"></audio> |
+| `en_US-ljspeech-high` | en_US | high | Public-Domain | permissive | 109 MB | [source](https://keithito.com/LJ-Speech-Dataset/) | <audio controls preload="none" src="../assets/audio/voices/en_US-ljspeech-high.mp3"></audio> |
+| `en_US-ljspeech-medium` | en_US | medium | Public-Domain | permissive | 61 MB | [source](https://keithito.com/LJ-Speech-Dataset/) | <audio controls preload="none" src="../assets/audio/voices/en_US-ljspeech-medium.mp3"></audio> |
+| `en_US-mike-medium` | en_US | medium | CC0-1.0 | permissive | 60 MB | [source](https://github.com/OHF-Voice/voice-datasets) | <audio controls preload="none" src="../assets/audio/voices/en_US-mike-medium.mp3"></audio> |
+| `en_US-norman-medium` | en_US | medium | Public-Domain | permissive | 61 MB | [source](https://librivox.org) | <audio controls preload="none" src="../assets/audio/voices/en_US-norman-medium.mp3"></audio> |
+| `en_US-reza_ibrahim-medium` | en_US | medium | CC0-1.0 | permissive | 61 MB | [source](https://huggingface.co/datasets/mah92/Hedayatfar-Persian-Quran-Audio-Dataset) | <audio controls preload="none" src="../assets/audio/voices/en_US-reza_ibrahim-medium.mp3"></audio> |
+| `en_US-sam-medium` | en_US | medium | Apache-2.0 | permissive | 60 MB | [source](https://github.com/Sam-Accenture-Non-Binary-Voice/non-binary-voice-files) | <audio controls preload="none" src="../assets/audio/voices/en_US-sam-medium.mp3"></audio> |
 
 Use a voice by its full id, or by its short name when only one voice has that name (`joe`, but not `ljspeech`, which comes in two qualities).
 
@@ -64,7 +71,6 @@ Every voice of the collection that is not offered, and why. `bx-audio voices --e
 | Why | Voices |
 |---|---|
 | License is not open or not clear | 70 |
-| Needs the GPL 3 British dictionary | 7 |
 | Several speakers | 2 |
 | Language not supported yet | 87 |
 
@@ -107,15 +113,8 @@ The voices left out for their license, by what the license is:
 | `el_GR-rapunzelina-medium` | el_GR | CC0 | permissive | Not supported yet: the Voices engine has no phonemizer for Greek |
 | `en_GB-alan-low` | en_GB | See URL | unclear | The model card only says 'See URL', so the license is not clear |
 | `en_GB-alan-medium` | en_GB | See URL | unclear | The model card only says 'See URL', so the license is not clear |
-| `en_GB-alba-medium` | en_GB | https://creativecommons.org/licenses/by/4.0/ | attribution | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
-| `en_GB-aru-medium` | en_GB | https://creativecommons.org/licenses/by/4.0/ | attribution | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
-| `en_GB-cori-high` | en_GB | public domain | permissive | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
-| `en_GB-cori-medium` | en_GB | public domain | permissive | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
 | `en_GB-jenny_dioco-medium` | en_GB | See URL | unclear | The model card only says 'See URL', so the license is not clear |
-| `en_GB-northern_english_male-medium` | en_GB | CC-BY-SA 4.0 International | sharealike | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
 | `en_GB-semaine-medium` | en_GB | http://creativecommons.org/licenses/by-nc-sa/4.0/ | noncommercial | Non-commercial license |
-| `en_GB-southern_english_female-low` | en_GB | CC-BY-SA 4.0 International | sharealike | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
-| `en_GB-vctk-medium` | en_GB | https://creativecommons.org/licenses/by/4.0/ | attribution | Needs the British English dictionary of the Voices engine, which is licensed GPL 3 |
 | `en_US-amy-low` | en_US | See URL | unclear | The model card only says 'See URL', so the license is not clear |
 | `en_US-amy-medium` | en_US | See URL | unclear | The model card only says 'See URL', so the license is not clear |
 | `en_US-arctic-medium` | en_US | See LICENSE file | unclear | The model card only says 'See LICENSE file', so the license is not clear |
@@ -246,7 +245,7 @@ The voices left out for their license, by what the license is:
 | `zh_CN-huayan-x_low` | zh_CN | Unknown | unclear | Not an open license we accept: Unknown |
 | `zh_CN-xiao_ya-medium` | zh_CN | Non-commercial use (see https://www.data-baker.com/data/index/TNtts/) | noncommercial | Non-commercial license |
 
-British English voices (`en_GB`) need the `en_uk` dictionary of the Voices engine, which is licensed GPL 3, so they are not offered. Other languages need a phonemizer the engine does not have yet.
+British English voices (`en_GB`) use the `en_uk` pronunciation dictionary of the Voices engine, which is licensed GPL 3. The module does not bundle it, it is downloaded with the engine the first time you speak. Other languages need a phonemizer the engine does not have yet.
 
 ## Updating this list
 

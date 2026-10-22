@@ -10,9 +10,9 @@
  *   boxlang tools/update-voices.bxs [--languages=en_US,en_GB]   (default: every language)
  */
 
-// The languages the Voices engine can phonemize. en_GB needs the en_uk dictionary, which is licensed GPL 3, so it is not offered.
-supported = [ "en_US" ];
-gplDictionary = [ "en_GB" ];
+// The languages the Voices engine can phonemize. en_GB uses the en_uk dictionary, which is licensed GPL 3: the module does not bundle it, the
+// engine installer downloads it on first use, like the MP3 libraries.
+supported = [ "en_US", "en_GB" ];
 languages = ( cliGetArgs().options.languages ?: "" ).listToArray();
 base = "https://huggingface.co/rhasspy/piper-voices/resolve/main/";
 
@@ -101,9 +101,6 @@ for( key in all.keyArray().sort( "text" ) ){
 	if( !license.len() ){
 		kind = "license";
 		reason = reasonFor( licenseText );
-	} else if( gplDictionary.contains( voice.language.code ) ){
-		kind = "dictionary";
-		reason = "Needs the British English dictionary of the Voices engine, which is licensed GPL 3";
 	} else if( !supported.contains( voice.language.code ) ){
 		kind = "language";
 		reason = "Not supported yet: the Voices engine has no phonemizer for " & voice.language.name_english;
@@ -194,7 +191,7 @@ doc.append( "| Voice | Language | Quality | License | Usage | Download | Trainin
 doc.append( "|---|---|---|---|---|---|---|---|" );
 for( v in kept ){
 	// A sample line spoken by the voice, made by tools/generate-doc-audio.bxs --voice-samples
-	sample = fileExists( expandPath( "../docs/assets/audio/voices/" & v.id & ".mp3" ) ) ? "<audio controls preload=""none"" src=""assets/audio/voices/" & v.id & ".mp3""></audio>" : "";
+	sample = fileExists( expandPath( "../docs/assets/audio/voices/" & v.id & ".mp3" ) ) ? "<audio controls preload=""none"" src=""../assets/audio/voices/" & v.id & ".mp3""></audio>" : "";
 	doc.append( "| `" & v.id & "` | " & v.language & " | " & v.quality & " | " & v.license & " | " & v.usage & " | " & mb( v.model.size + v.config.size ) & " | " & ( v.source.len() ? "[source](" & v.source & ")" : "not stated" ) & " | " & sample & " |" );
 }
 doc.append( "" );
@@ -220,9 +217,9 @@ doc.append( "Every voice of the collection that is not offered, and why. `bx-aud
 doc.append( "" );
 doc.append( "| Why | Voices |" );
 doc.append( "|---|---|" );
-for( kindName in [ "license", "dictionary", "speakers", "language" ] ){
+for( kindName in [ "license", "speakers", "language" ] ){
 	count = excluded.filter( ( e ) => e.reasonKind == kindName ).len();
-	label = { license : "License is not open or not clear", dictionary : "Needs the GPL 3 British dictionary", speakers : "Several speakers", language : "Language not supported yet" }[ kindName ];
+	label = { license : "License is not open or not clear", speakers : "Several speakers", language : "Language not supported yet" }[ kindName ];
 	doc.append( "| " & label & " | " & count & " |" );
 }
 doc.append( "" );
@@ -247,7 +244,7 @@ for( e in excluded ){
 	doc.append( "| `" & e.id & "` | " & e.language & " | " & ( e.licenseText.len() ? e.licenseText.replace( "|", "/", "all" ) : "none" ) & " | " & e.usage & " | " & e.reason.replace( "|", "/", "all" ) & " |" );
 }
 doc.append( "" );
-doc.append( "British English voices (`en_GB`) need the `en_uk` dictionary of the Voices engine, which is licensed GPL 3, so they are not offered. Other languages need a phonemizer the engine does not have yet." );
+doc.append( "British English voices (`en_GB`) use the `en_uk` pronunciation dictionary of the Voices engine, which is licensed GPL 3. The module does not bundle it, it is downloaded with the engine the first time you speak. Other languages need a phonemizer the engine does not have yet." );
 doc.append( "" );
 doc.append( "#### Updating this list" );
 doc.append( "" );

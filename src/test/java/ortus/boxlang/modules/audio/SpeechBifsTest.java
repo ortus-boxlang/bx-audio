@@ -58,7 +58,7 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( joe.get( Key.of( "license" ) ) ).isEqualTo( "CC0-1.0" );
 		assertThat( joe.get( Key.of( "installed" ) ) ).isEqualTo( false );
 		assertThat( ( ( Number ) joe.get( Key.of( "sizeMB" ) ) ).doubleValue() ).isWithin( 1.0 ).of( 63.2 );
-		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 0 );
+		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 7 );
 		assertThat( run( "result = audioVoices( language='en_US' ).every( ( v ) => v.language == 'en_US' )" ) ).isEqualTo( true );
 		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
 	}
@@ -221,8 +221,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( joe.get( Key.of( "credit" ) ) ).isEqualTo( "" );
 		IStruct sam = ( IStruct ) ( ( Array ) run( "result = audioVoices().filter( ( v ) => v.name == 'sam' )" ) ).get( 0 );
 		assertThat( ( String ) sam.get( Key.of( "credit" ) ) ).contains( "Apache License 2.0" );
-		assertThat( ( ( Array ) run( "result = audioVoices( usage='permissive' )" ) ).size() ).isEqualTo( VoiceCatalog.load().all().size() );
-		assertThat( ( ( Array ) run( "result = audioVoices( usage='attribution,sharealike' )" ) ).size() ).isEqualTo( 0 );
+		assertThat( ( ( Array ) run( "result = audioVoices( usage='permissive' )" ) ).size() )
+		    .isEqualTo( ( int ) VoiceCatalog.load().all().stream().filter( v -> v.usage().equals( "permissive" ) ).count() );
+		assertThat( ( ( Array ) run( "result = audioVoices( usage='attribution,sharealike' )" ) ).size() ).isEqualTo( 5 );
 		Array copyleft = ( Array ) run( "result = audioVoices( status='excluded', usage='copyleft' )" );
 		assertThat( copyleft.size() ).isEqualTo( 2 );
 		IStruct tom = ( IStruct ) run( "result = audioVoices( status='excluded', usage='copyleft' ).filter( ( v ) => v.name == 'tom' ).first()" );
