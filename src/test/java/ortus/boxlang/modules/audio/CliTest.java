@@ -225,8 +225,9 @@ public class CliTest extends BaseIntegrationTest {
 		String voices = run( "voices" );
 		assertThat( voices ).contains( "en_US-joe-medium" );
 		assertThat( voices ).contains( "CC0-1.0" );
-		assertThat( voices ).contains( "open license" );
+		assertThat( voices ).contains( "model card" );
 		assertThat( voices ).contains( "en_GB-cori-high" );
+		assertThat( voices ).contains( "CHECK LICENSE" );
 		assertThat( run( "voices", "--lang=en_US" ) ).contains( "en_US-joe-medium" );
 		assertThat( run( "voices", "--lang=en_GB" ) ).contains( "en_GB-alba-medium" );
 		assertThat( run( "voices", "--lang=de_DE" ) ).contains( "No voices match" );

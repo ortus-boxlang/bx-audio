@@ -13,6 +13,9 @@
 // The languages the Voices engine can phonemize. en_GB uses the en_uk dictionary, which is licensed GPL 3: the module does not bundle it, the
 // engine installer downloads it on first use, like the MP3 libraries.
 supported = [ "en_US", "en_GB" ];
+// Voices offered although their license is unclear or non-commercial. They carry a warning, and their usage class keeps them out of any
+// list filtered to the commercial classes.
+warned = [ "en_GB-alan-low", "en_GB-alan-medium", "en_GB-jenny_dioco-medium", "en_GB-semaine-medium" ];
 languages = ( cliGetArgs().options.languages ?: "" ).listToArray();
 base = "https://huggingface.co/rhasspy/piper-voices/resolve/main/";
 
@@ -98,7 +101,9 @@ for( key in all.keyArray().sort( "text" ) ){
 	license = normalizeLicense( licenseText );
 	kind = "";
 	reason = "";
-	if( !license.len() ){
+	if( !license.len() && warned.contains( key ) ){
+		// kept with a warning, see above
+	} else if( !license.len() ){
 		kind = "license";
 		reason = reasonFor( licenseText );
 	} else if( !supported.contains( voice.language.code ) ){
@@ -183,7 +188,7 @@ doc.append( "```" );
 doc.append( "" );
 doc.append( "#### Licenses" );
 doc.append( "" );
-doc.append( "Only voices whose model card states an open license are listed: CC0, public domain, CC BY, CC BY-SA, Apache 2.0 or the Unlicense. The license column is the identifier we map the card's wording to, and the card itself stays the authority, so read it when it matters (the link in the last column leads to the training data). Voices whose card says non-commercial, names a custom license, says only ""See URL"", or says nothing are not listed. The usage column says what the license means for a product you sell, see [Using voices in a product you sell](##using-voices-in-a-product-you-sell)." );
+doc.append( "Voices whose model card states an open license are listed: CC0, public domain, CC BY, CC BY-SA, Apache 2.0 or the Unlicense. A few voices are listed with a **check license** warning because their card is unclear or non-commercial; they speak, but you decide whether they fit your use. The license column is the identifier we map the card's wording to, and the card itself stays the authority, so read it when it matters (the link in the last column leads to the training data). Other voices whose card says non-commercial, names a custom license, says only ""See URL"", or says nothing are not listed. The usage column says what the license means for a product you sell, see [Using voices in a product you sell](##using-voices-in-a-product-you-sell)." );
 doc.append( "" );
 doc.append( "#### Available voices" );
 doc.append( "" );
@@ -192,14 +197,14 @@ doc.append( "|---|---|---|---|---|---|---|---|" );
 for( v in kept ){
 	// A sample line spoken by the voice, made by tools/generate-doc-audio.bxs --voice-samples
 	sample = fileExists( expandPath( "../docs/assets/audio/voices/" & v.id & ".mp3" ) ) ? "<audio controls preload=""none"" src=""../assets/audio/voices/" & v.id & ".mp3""></audio>" : "";
-	doc.append( "| `" & v.id & "` | " & v.language & " | " & v.quality & " | " & v.license & " | " & v.usage & " | " & mb( v.model.size + v.config.size ) & " | " & ( v.source.len() ? "[source](" & v.source & ")" : "not stated" ) & " | " & sample & " |" );
+	doc.append( "| `" & v.id & "` | " & v.language & " | " & v.quality & " | " & ( v.license.len() ? v.license : "check license" ) & " | " & v.usage & " | " & mb( v.model.size + v.config.size ) & " | " & ( v.source.len() ? "[source](" & v.source & ")" : "not stated" ) & " | " & sample & " |" );
 }
 doc.append( "" );
 doc.append( "Use a voice by its full id, or by its short name when only one voice has that name (`joe`, but not `ljspeech`, which comes in two qualities)." );
 doc.append( "" );
 doc.append( "#### Using voices in a product you sell" );
 doc.append( "" );
-doc.append( "Every offered license allows commercial use, so you can sell a service that speaks with these voices as long as you do what the license asks. Each voice has a `usage`:" );
+doc.append( "Every offered license allows commercial use, except the voices marked **check license**, which are non-commercial or unclear and should stay out of a product you sell. Each voice has a `usage`:" );
 doc.append( "" );
 doc.append( "| Usage | Licenses | What you do |" );
 doc.append( "|---|---|---|" );

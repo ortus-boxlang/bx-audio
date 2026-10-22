@@ -60,6 +60,19 @@ public record VoiceInfo(
 	}
 
 	/**
+	 * @return What to check before using the voice in a product you sell, or an empty string when its license allows it
+	 */
+	public String warning() {
+		if ( commercial() ) {
+			return "";
+		}
+		String card = this.licenseText.isBlank() ? "its model card" : "its license [" + this.licenseText + "]";
+		return Usage.NONCOMMERCIAL.equals( this.usage )
+		    ? "The voice [" + this.id + "] is for non-commercial use only (" + card + "). Do not use it in a product you sell."
+		    : "The license of the voice [" + this.id + "] is not clear (" + card + "). Check it before you use the voice in a product you sell.";
+	}
+
+	/**
 	 * @return The bytes to download for this voice
 	 */
 	public long downloadSize() {

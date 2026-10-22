@@ -317,54 +317,6 @@
     "reason" : "The model card only says 'See URL', so the license is not clear",
     "reasonKind" : "license",
     "usage" : "unclear",
-    "language" : "en_GB",
-    "source" : "https://github.com/MycroftAI/mimic3-voices/blob/master/voices/en_UK/apope_low",
-    "id" : "en_GB-alan-low",
-    "quality" : "low",
-    "license" : "",
-    "size" : 63108696,
-    "licenseText" : "See URL",
-    "name" : "alan"
-  }, {
-    "reason" : "The model card only says 'See URL', so the license is not clear",
-    "reasonKind" : "license",
-    "usage" : "unclear",
-    "language" : "en_GB",
-    "source" : "https://github.com/MycroftAI/mimic3-voices/blob/master/voices/en_UK/apope_low",
-    "id" : "en_GB-alan-medium",
-    "quality" : "medium",
-    "license" : "",
-    "size" : 63206182,
-    "licenseText" : "See URL",
-    "name" : "alan"
-  }, {
-    "reason" : "The model card only says 'See URL', so the license is not clear",
-    "reasonKind" : "license",
-    "usage" : "unclear",
-    "language" : "en_GB",
-    "source" : "https://github.com/dioco-group/jenny-tts-dataset",
-    "id" : "en_GB-jenny_dioco-medium",
-    "quality" : "medium",
-    "license" : "",
-    "size" : 63206189,
-    "licenseText" : "See URL",
-    "name" : "jenny_dioco"
-  }, {
-    "reason" : "Non-commercial license",
-    "reasonKind" : "license",
-    "usage" : "noncommercial",
-    "language" : "en_GB",
-    "source" : "https://github.com/marytts/dfki-semaine-data",
-    "id" : "en_GB-semaine-medium",
-    "quality" : "medium",
-    "license" : "",
-    "size" : 76742787,
-    "licenseText" : "http://creativecommons.org/licenses/by-nc-sa/4.0/",
-    "name" : "semaine"
-  }, {
-    "reason" : "The model card only says 'See URL', so the license is not clear",
-    "reasonKind" : "license",
-    "usage" : "unclear",
     "language" : "en_US",
     "source" : "https://github.com/MycroftAI/mimic3-voices",
     "id" : "en_US-amy-low",
@@ -1911,6 +1863,46 @@
     "name" : "xiao_ya"
   } ],
   "voices" : [ {
+    "id" : "en_GB-alan-low",
+    "name" : "alan",
+    "language" : "en_GB",
+    "quality" : "low",
+    "license" : "",
+    "licenseText" : "See URL",
+    "usage" : "unclear",
+    "shareAlike" : false,
+    "source" : "https://github.com/MycroftAI/mimic3-voices/blob/master/voices/en_UK/apope_low",
+    "model" : {
+      "path" : "en/en_GB/alan/low/en_GB-alan-low.onnx",
+      "size" : 63104526,
+      "md5" : "2acae8c79395ab109a7572f0afa61fff"
+    },
+    "config" : {
+      "path" : "en/en_GB/alan/low/en_GB-alan-low.onnx.json",
+      "size" : 4170,
+      "md5" : "4c0fa2c6763bf49b343cbb4f655a147b"
+    }
+  }, {
+    "id" : "en_GB-alan-medium",
+    "name" : "alan",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "",
+    "licenseText" : "See URL",
+    "usage" : "unclear",
+    "shareAlike" : false,
+    "source" : "https://github.com/MycroftAI/mimic3-voices/blob/master/voices/en_UK/apope_low",
+    "model" : {
+      "path" : "en/en_GB/alan/medium/en_GB-alan-medium.onnx",
+      "size" : 63201294,
+      "md5" : "8f6b35eeb8ef6269021c6cb6d2414c9b"
+    },
+    "config" : {
+      "path" : "en/en_GB/alan/medium/en_GB-alan-medium.onnx.json",
+      "size" : 4888,
+      "md5" : "b11d9afd0a8f5372c42a52fbd6e021d4"
+    }
+  }, {
     "id" : "en_GB-alba-medium",
     "name" : "alba",
     "language" : "en_GB",
@@ -1991,6 +1983,26 @@
       "md5" : "12b1dc45d8919f3475cf296d5f16a4c6"
     }
   }, {
+    "id" : "en_GB-jenny_dioco-medium",
+    "name" : "jenny_dioco",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "",
+    "licenseText" : "See URL",
+    "usage" : "unclear",
+    "shareAlike" : false,
+    "source" : "https://github.com/dioco-group/jenny-tts-dataset",
+    "model" : {
+      "path" : "en/en_GB/jenny_dioco/medium/en_GB-jenny_dioco-medium.onnx",
+      "size" : 63201294,
+      "md5" : "d08f2f7edf0c858275a7eca74ff2a9e4"
+    },
+    "config" : {
+      "path" : "en/en_GB/jenny_dioco/medium/en_GB-jenny_dioco-medium.onnx.json",
+      "size" : 4895,
+      "md5" : "e999a9c0aa535fb42e43b04cebcd65d2"
+    }
+  }, {
     "id" : "en_GB-northern_english_male-medium",
     "name" : "northern_english_male",
     "language" : "en_GB",
@@ -2009,6 +2021,26 @@
       "path" : "en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx.json",
       "size" : 4847,
       "md5" : "0ce3f61a9604616ed475c921fdeedb1a"
+    }
+  }, {
+    "id" : "en_GB-semaine-medium",
+    "name" : "semaine",
+    "language" : "en_GB",
+    "quality" : "medium",
+    "license" : "",
+    "licenseText" : "http://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "usage" : "noncommercial",
+    "shareAlike" : false,
+    "source" : "https://github.com/marytts/dfki-semaine-data",
+    "model" : {
+      "path" : "en/en_GB/semaine/medium/en_GB-semaine-medium.onnx",
+      "size" : 76737711,
+      "md5" : "3634c3b388165d3b698ea07ba3cac7d2"
+    },
+    "config" : {
+      "path" : "en/en_GB/semaine/medium/en_GB-semaine-medium.onnx.json",
+      "size" : 5076,
+      "md5" : "c30f92604f6ce3f378e7211440f13c8f"
     }
   }, {
     "id" : "en_GB-southern_english_female-low",

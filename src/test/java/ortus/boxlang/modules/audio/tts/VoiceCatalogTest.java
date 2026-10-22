@@ -31,9 +31,14 @@ public class VoiceCatalogTest {
 	/**
 	 * The only licenses the catalog may contain: open ones. Anything else, such as non-commercial terms, must stay out.
 	 */
-	private static final Set<String> OPEN = Set.of( "CC0-1.0", "Public-Domain", "CC-BY-4.0", "CC-BY-3.0", "CC-BY-SA-4.0", "Apache-2.0", "Unlicense" );
+	private static final Set<String>	OPEN	= Set.of( "CC0-1.0", "Public-Domain", "CC-BY-4.0", "CC-BY-3.0", "CC-BY-SA-4.0", "Apache-2.0", "Unlicense" );
 
-	@DisplayName( "Every voice in the catalog has an open license and complete, plausible file information" )
+	/**
+	 * Voices offered although their license is non-commercial or unclear. They carry a warning, and the commercial usage filters leave them out.
+	 */
+	private static final Set<String>	WARNED	= Set.of( "en_GB-alan-low", "en_GB-alan-medium", "en_GB-jenny_dioco-medium", "en_GB-semaine-medium" );
+
+	@DisplayName( "Every voice has an open license, or a warning, and complete, plausible file information" )
 	@Test
 	void testEveryVoiceIsOpen() {
 		VoiceCatalog	catalog	= VoiceCatalog.load();
@@ -41,9 +46,17 @@ public class VoiceCatalogTest {
 		assertThat( catalog.all().size() ).isAtLeast( 10 );
 		assertThat( catalog.getBaseUrl() ).startsWith( "https://" );
 		for ( VoiceInfo voice : catalog.all() ) {
-			assertThat( OPEN ).contains( voice.license() );
-			assertThat( voice.licenseText().toLowerCase() ).doesNotContain( "-nc" );
-			assertThat( voice.licenseText().toLowerCase() ).doesNotContain( "non-commercial" );
+			if ( voice.commercial() ) {
+				assertThat( OPEN ).contains( voice.license() );
+				assertThat( voice.licenseText().toLowerCase() ).doesNotContain( "-nc" );
+				assertThat( voice.licenseText().toLowerCase() ).doesNotContain( "non-commercial" );
+				assertThat( voice.warning() ).isEmpty();
+			} else {
+				// the voices offered with a warning: no open license, and a usage class that says why
+				assertThat( WARNED ).contains( voice.id() );
+				assertThat( voice.license() ).isEmpty();
+				assertThat( voice.warning() ).contains( voice.id() );
+			}
 			assertThat( voice.shareAlike() ).isEqualTo( voice.license().contains( "-SA-" ) );
 			assertThat( ids.add( voice.id() ) ).isTrue();
 			assertThat( voice.id() ).isEqualTo( voice.language() + "-" + voice.name() + "-" + voice.quality() );
@@ -55,7 +68,7 @@ public class VoiceCatalogTest {
 		}
 	}
 
-	@DisplayName( "Voices with restrictive or unclear licenses are not offered" )
+	@DisplayName( "Voices with restrictive or unclear licenses are not offered, except the few that carry a warning" )
 	@Test
 	void testRestrictedVoicesAreLeftOut() {
 		List<String> ids = VoiceCatalog.load().all().stream().map( VoiceInfo::id ).toList();
@@ -89,7 +102,7 @@ public class VoiceCatalogTest {
 		VoiceCatalog catalog = VoiceCatalog.load();
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_US-ryan-high" ) ).getMessage() ).contains( "Non-commercial" );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "lessac" ) ).getMessage() ).contains( "not offered" );
-		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_GB-alan-medium" ) ).getMessage() ).contains( "not offered" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_US-hfc_female-medium" ) ).getMessage() ).contains( "not offered" );
 	}
 
 	@DisplayName( "Every voice of the collection is either offered or excluded with a reason, and none is both" )
@@ -110,7 +123,11 @@ public class VoiceCatalogTest {
 		VoiceCatalog catalog = VoiceCatalog.load();
 		for ( VoiceInfo voice : catalog.all() ) {
 			assertThat( Usage.ALL ).contains( voice.usage() );
-			assertThat( voice.commercial() ).isTrue();
+			assertThat( voice.commercial() ).isEqualTo( !WARNED.contains( voice.id() ) );
+			if ( WARNED.contains( voice.id() ) ) {
+				assertThat( List.of( Usage.NONCOMMERCIAL, Usage.UNCLEAR ) ).contains( voice.usage() );
+				continue;
+			}
 			String expected = switch ( voice.license() ) {
 				case "CC0-1.0", "Public-Domain", "Unlicense", "Apache-2.0" -> Usage.PERMISSIVE;
 				case "CC-BY-4.0", "CC-BY-3.0" -> Usage.ATTRIBUTION;

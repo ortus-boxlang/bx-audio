@@ -58,7 +58,11 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( joe.get( Key.of( "license" ) ) ).isEqualTo( "CC0-1.0" );
 		assertThat( joe.get( Key.of( "installed" ) ) ).isEqualTo( false );
 		assertThat( ( ( Number ) joe.get( Key.of( "sizeMB" ) ) ).doubleValue() ).isWithin( 1.0 ).of( 63.2 );
-		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 7 );
+		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 11 );
+		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB', usage='permissive,attribution,sharealike' )" ) ).size() ).isEqualTo( 7 );
+		IStruct semaine = ( IStruct ) ( ( Array ) run( "result = audioVoices().filter( ( v ) => v.name == 'semaine' )" ) ).get( 0 );
+		assertThat( semaine.get( Key.of( "commercial" ) ) ).isEqualTo( false );
+		assertThat( ( String ) semaine.get( Key.of( "warning" ) ) ).contains( "non-commercial" );
 		assertThat( run( "result = audioVoices( language='en_US' ).every( ( v ) => v.language == 'en_US' )" ) ).isEqualTo( true );
 		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
 	}
@@ -89,8 +93,8 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( apache.get( Key.of( "attribution" ) ) ).isEqualTo( true );
 		assertThat( apache.get( Key.of( "commercial" ) ) ).isEqualTo( true );
 		assertThat( ( ( Number ) apache.get( Key.of( "voices" ) ) ).intValue() ).isEqualTo( 1 );
-		// every offered voice has a license we describe
-		assertThat( run( "ids = audioLicenses().map( ( l ) => l.id ); result = audioVoices().every( ( v ) => ids.contains( v.license ) )" ) )
+		// every offered voice has a license we describe, except the ones offered with a warning
+		assertThat( run( "ids = audioLicenses().map( ( l ) => l.id ); result = audioVoices().every( ( v ) => ids.contains( v.license ) || v.warning.len() )" ) )
 		    .isEqualTo( true );
 	}
 

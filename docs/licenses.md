@@ -12,7 +12,7 @@ BoxLang Audio is licensed [Apache 2.0](https://www.apache.org/licenses/LICENSE-2
 
 ## Voices
 
-Each voice is a trained model with its own license, taken from the model card the author published. The module offers only voices whose card states an open license, and it shows you that license next to the voice. Run `bx-audio licenses` for this table, and `bx-audio voices <name>` for one voice.
+Each voice is a trained model with its own license, taken from the model card the author published. The module offers voices whose card states an open license, plus a few marked **check license** whose card is unclear or non-commercial: those speak and log a warning, and their `usage` keeps them out of any list filtered to the commercial classes. It shows you the license next to the voice. Run `bx-audio licenses` for this table, and `bx-audio voices <name>` for one voice.
 
 | License | Commercial use | Credit | Share alike | What it asks |
 |---|---|---|---|---|
