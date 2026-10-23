@@ -248,7 +248,7 @@
 <h2 id="the-module"><a href="#the-module" id="the-module" name="the-module" class="anchor"></a>The module</h2>
 <p>BoxLang Audio is licensed <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>. The examples are original compositions released with the module: you can use what they make.</p>
 <h2 id="voices"><a href="#voices" id="voices" name="voices" class="anchor"></a>Voices</h2>
-<p>Each voice is a trained model with its own license, taken from the model card the author published. The module offers only voices whose card states an open license, and it shows you that license next to the voice. Run <code>bx-audio licenses</code> for this table, and <code>bx-audio voices &lt;name&gt;</code> for one voice.</p>
+<p>Each voice is a trained model with its own license, taken from the model card the author published. The module offers voices whose card states an open license, plus a few marked <strong>check license</strong> whose card is unclear or non-commercial: those speak and log a warning, and their <code>usage</code> keeps them out of any list filtered to the commercial classes. It shows you the license next to the voice. Run <code>bx-audio licenses</code> for this table, and <code>bx-audio voices &lt;name&gt;</code> for one voice.</p>
 <div class="bxsites-table-wrap"><table class="table">
 <thead>
 <tr><th>License</th><th>Commercial use</th><th>Credit</th><th>Share alike</th><th>What it asks</th></tr>
@@ -272,7 +272,7 @@
 <li>says only &quot;See URL&quot; or &quot;See LICENSE file&quot;, so the license is not clear, or</li>
 <li>says nothing.</li>
 </ul>
-<p>Other voices are left out for technical reasons: their language has no pronunciation engine yet, they have several speakers, or they are British English, which needs a dictionary licensed GPL 3. The <a href="/voices/index.html">voices page</a> lists every voice of the collection with its status and reason, and <code>bx-audio voices --excluded</code> prints the same.</p>
+<p>Other voices are left out for technical reasons: their language has no pronunciation engine yet, or they have several speakers. The <a href="/voices/index.html">voices page</a> lists every voice of the collection with its status and reason, and <code>bx-audio voices --excluded</code> prints the same.</p>
 <h2 id="ffmpeg"><a href="#ffmpeg" id="ffmpeg" name="ffmpeg" class="anchor"></a>FFmpeg</h2>
 <p>FFmpeg is used only for OGG, Opus, AAC, reading video and putting sound on a video, and it is never part of this module. The module starts it as a separate program: yours, if you have one, or a build it downloads from its provider into <code>~/.bxaudio/ffmpeg</code>, after checking its size and SHA-256.</p>
 <div class="bxsites-table-wrap"><table class="table">
@@ -312,13 +312,13 @@
 <tr><td>SLF4J API and NOP 2.0.17</td><td>Logging, silenced</td><td>MIT</td></tr>
 </tbody>
 </table></div>
-<p>The Voices <code>en_uk</code> dictionary is not used because it is licensed GPL 3.</p>
+<p>The Voices <code>en_uk</code> dictionary (British English pronunciation) is licensed GPL 3. It is not bundled: it is downloaded with the engine the first time a British English voice speaks, and only British English voices use it. If your use cannot accept a GPL 3 download, use the <code>en_US</code> voices.</p>
 
 	
 
 	
 	
-		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/licenses.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/licenses.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 19, 2026, 1&#x3a;22&#x3a;10 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Licenses&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Flicenses%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/licenses.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/licenses.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 23, 2026, 7&#x3a;40&#x3a;41 AM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Licenses&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Flicenses%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
 	
 </article>
 
