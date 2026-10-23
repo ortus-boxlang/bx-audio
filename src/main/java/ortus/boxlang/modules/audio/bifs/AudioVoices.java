@@ -98,7 +98,8 @@ public class AudioVoices extends BIF {
 			result.add( Struct.ofNonConcurrent( "id", voice.id(), "name", voice.name(), "language", voice.language(), "quality", voice.quality(),
 			    "license", voice.license(), "licenseText", voice.licenseText(), "usage", voice.usage(), "commercial", voice.commercial(), "credit",
 			    Credits.line( voice ), "shareAlike", voice.shareAlike(), "source", voice.source(),
-			    "sizeMB", Speech.megabytes( voice.downloadSize() ), "installed", isInstalled, "status", state, "reasonKind", "", "reason", "" ) );
+			    "sizeMB", Speech.megabytes( voice.downloadSize() ), "installed", isInstalled, "status", state, "reasonKind", "", "reason", "",
+			    "warning", voice.warning() ) );
 		}
 		if ( wanted.equals( "excluded" ) || wanted.equals( "all" ) ) {
 			for ( VoiceCatalog.ExcludedVoice voice : catalog.excluded() ) {
@@ -109,7 +110,7 @@ public class AudioVoices extends BIF {
 				    "license", voice.license(), "licenseText", voice.licenseText(), "usage", voice.usage(), "commercial", Usage.commercial( voice.usage() ),
 				    "credit", "", "shareAlike", voice.license().contains( "-SA-" ), "source",
 				    voice.source(), "sizeMB", Speech.megabytes( voice.size() ), "installed", false, "status", "excluded", "reasonKind",
-				    voice.reasonKind(), "reason", voice.reason() ) );
+				    voice.reasonKind(), "reason", voice.reason(), "warning", "" ) );
 			}
 		}
 		return result;

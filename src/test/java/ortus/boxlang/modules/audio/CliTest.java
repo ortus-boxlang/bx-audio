@@ -100,7 +100,8 @@ public class CliTest extends BaseIntegrationTest {
 		assertThat( list ).contains( "USAGE" );
 		assertThat( list ).contains( "en_US-joe-medium" );
 		assertThat( list ).contains( "permissive" );
-		assertThat( run( "voices", "--usage=attribution" ) ).contains( "No voices match." );
+		assertThat( run( "voices", "--usage=attribution" ) ).contains( "en_GB-alba-medium" );
+		assertThat( run( "voices", "--usage=attribution" ) ).doesNotContain( "en_US-joe-medium" );
 		String copyleft = run( "voices", "--excluded", "--usage=copyleft" );
 		assertThat( copyleft ).contains( "fr_FR-tom-medium" );
 		assertThat( copyleft ).contains( "hy_AM-gor-medium" );
@@ -224,11 +225,12 @@ public class CliTest extends BaseIntegrationTest {
 		String voices = run( "voices" );
 		assertThat( voices ).contains( "en_US-joe-medium" );
 		assertThat( voices ).contains( "CC0-1.0" );
-		assertThat( voices ).contains( "open license" );
-		// no share-alike voice is offered at the moment, so its note is not shown
-		assertThat( voices ).doesNotContain( "share what you make" );
+		assertThat( voices ).contains( "model card" );
+		assertThat( voices ).contains( "en_GB-cori-high" );
+		assertThat( voices ).contains( "CHECK LICENSE" );
 		assertThat( run( "voices", "--lang=en_US" ) ).contains( "en_US-joe-medium" );
-		assertThat( run( "voices", "--lang=en_GB" ) ).contains( "No voices match" );
+		assertThat( run( "voices", "--lang=en_GB" ) ).contains( "en_GB-alba-medium" );
+		assertThat( run( "voices", "--lang=de_DE" ) ).contains( "No voices match" );
 		assertThat( run( "voices", "--installed" ) ).contains( "No voices match" );
 	}
 
@@ -240,7 +242,6 @@ public class CliTest extends BaseIntegrationTest {
 		String excluded = run( "voices", "--excluded" );
 		assertThat( excluded ).contains( "en_US-ryan-high" );
 		assertThat( excluded ).contains( "Non-commercial" );
-		assertThat( excluded ).contains( "GPL 3" );
 		assertThat( excluded ).doesNotContain( "en_US-joe-medium" );
 		assertThat( run( "voices", "--all" ) ).contains( "en_US-joe-medium" );
 		assertThat( run( "voices", "--all" ) ).contains( "en_US-ryan-high" );

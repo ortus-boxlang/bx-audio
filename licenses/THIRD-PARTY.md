@@ -34,7 +34,7 @@ module (`engine.json`), and loaded in a class loader of its own. The licenses be
 | Gson 2.13.2 | Reading the voice configuration | Apache 2 |
 | SLF4J API and NOP 2.0.17 | Logging, silenced | MIT |
 
-The Voices `en_uk` dictionary is **not** used: it is licensed GPL 3. That is why British English voices are not offered.
+The Voices `en_uk` dictionary (British English pronunciation) is licensed GPL 3. The module does not bundle it: like the other engine jars it is downloaded the first time a British English voice speaks, and it is loaded only for those voices.
 
 Each voice has its own license, taken from its model card. [voices.md](../docs/voices.md) lists the voices on offer, their licenses, and the ones that
 were left out because their license is restrictive or unclear. Voices are downloaded from the

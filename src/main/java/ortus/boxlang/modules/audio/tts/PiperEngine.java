@@ -130,12 +130,14 @@ public final class PiperEngine {
 	}
 
 	private Object chorusFor( String language, Path voicesDir ) throws ReflectiveOperationException {
-		if ( !language.equals( "en_US" ) ) {
-			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Only US English voices are supported so far, not [" + language + "]" );
+		if ( !language.equals( "en_US" ) && !language.equals( "en_GB" ) ) {
+			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Only US and British English voices are supported so far, not [" + language + "]" );
 		}
 		Object chorus = this.choruses.get( language );
 		if ( chorus == null ) {
-			Object dictionary = callStatic( "org.pitest.voices.us.EnUsDictionary", "en_us" );
+			Object dictionary = language.equals( "en_GB" )
+			    ? callStatic( "org.pitest.voices.uk.EnUkDictionary", "en_uk" )
+			    : callStatic( "org.pitest.voices.us.EnUsDictionary", "en_us" );
 			// Our own words, such as BoxLang, as phonemes so they are said as one word
 			dictionary = PronunciationDictionary.extend( this.loader, dictionary );
 			Object config = callStatic( "org.pitest.voices.ChorusConfig", "chorusConfig", dictionary );

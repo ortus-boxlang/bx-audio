@@ -438,10 +438,13 @@ class {
 			return;
 		}
 		out( pad( "VOICE", 34 ) & pad( "LICENSE", 15 ) & pad( "USAGE", 15 ) & pad( "SIZE", 9 ) & "STATUS" );
-		voices.each( ( v ) => out( pad( v.id, 34 ) & pad( v.license.len() ? v.license : "-", 15 ) & pad( v.usage, 15 ) & pad( numberFormat( v.sizeMB, "0.0" ) & " MB", 9 ) & ( v.status == "excluded" ? "not offered: " & v.reason : v.status ) ) );
+		voices.each( ( v ) => out( pad( v.id, 34 ) & pad( v.license.len() ? v.license : "-", 15 ) & pad( v.usage, 15 ) & pad( numberFormat( v.sizeMB, "0.0" ) & " MB", 9 ) & ( v.status == "excluded" ? "not offered: " & v.reason : v.status & ( v.warning.len() ? "  CHECK LICENSE" : "" ) ) ) );
 		out( "" );
 		if( status != "excluded" ){
-			out( "Only voices whose model card states an open license are offered, and the license is the one the card gives. Check it fits your use." );
+			out( "Voices are offered with the license the model card gives. Check it fits your use." );
+			if( voices.some( ( v ) => v.warning.len() ) ){
+				out( "CHECK LICENSE marks voices whose license is non-commercial or unclear. They speak, but do not use them in a product you sell without checking." );
+			}
 			if( voices.some( ( v ) => v.shareAlike ) ){
 				out( "CC-BY-SA voices ask that you share adapted material made from them under the same terms. Whether speech made by a model counts is not settled." );
 			}

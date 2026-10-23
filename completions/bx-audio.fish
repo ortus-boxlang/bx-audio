@@ -82,8 +82,8 @@ complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l excluded
 complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l all
 complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l license -r
 complete -c bx-audio -n '__fish_seen_subcommand_from voices' -l usage -r
-complete -c bx-audio -n '__fish_seen_subcommand_from install' -a 'bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine'
-complete -c bx-audio -n '__fish_seen_subcommand_from remove' -a 'bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine'
+complete -c bx-audio -n '__fish_seen_subcommand_from install' -a 'en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine'
+complete -c bx-audio -n '__fish_seen_subcommand_from remove' -a 'en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine'
 complete -c bx-audio -n '__fish_seen_subcommand_from clean' -l yes
 complete -c bx-audio -n '__fish_seen_subcommand_from clean' -a 'engine voices ffmpeg cache all'
 complete -c bx-audio -n '__fish_seen_subcommand_from play' -l volume -r
