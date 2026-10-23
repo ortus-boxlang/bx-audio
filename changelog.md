@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+* The landing page's ecosystem section now lists MatchBox, places BoxLang+ right after BoxLang, says ColdBox is an HMVC framework and describes CommandBox as the CLI and Package Manager for BoxLang.
+
 ## [1.2.0] - 2026-10-23
 
 ## [1.1.0] - 2026-10-19
