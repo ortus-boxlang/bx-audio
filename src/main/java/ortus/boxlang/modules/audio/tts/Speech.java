@@ -63,6 +63,21 @@ public final class Speech {
 		return new EngineInstaller( TtsHome.engine( home() ) );
 	}
 
+	private static final java.util.Set<String> WARNED = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+	/**
+	 * Say once per JVM that a voice has a license to check
+	 */
+	private static void warn( VoiceInfo voice ) {
+		if ( !voice.commercial() && WARNED.add( voice.id() ) ) {
+			try {
+				ortus.boxlang.runtime.logging.LoggingService.getInstance().RUNTIME_LOGGER.warn( voice.warning() );
+			} catch ( Throwable e ) {
+				System.err.println( "Warning: " + voice.warning() );
+			}
+		}
+	}
+
 	/**
 	 * An engine and a voice that are installed and ready to speak
 	 */
@@ -94,6 +109,7 @@ public final class Speech {
 		VoiceInfo		voice	= catalog().find( voiceName );
 		VoiceStore		store	= store();
 		EngineInstaller	engine	= engine();
+		warn( voice );
 		if ( !engine.isInstalled() ) {
 			if ( !allowInstall ) {
 				throw new AudioException( AudioException.ENGINE_NOT_INSTALLED,

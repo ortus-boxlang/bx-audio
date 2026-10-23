@@ -50,6 +50,14 @@
 			"size": 817977
 		},
 		{
+			"group": "org.pitest.voices",
+			"artifact": "en_uk",
+			"version": "0.0.9",
+			"url": "https://repo1.maven.org/maven2/org/pitest/voices/en_uk/0.0.9/en_uk-0.0.9.jar",
+			"sha1": "675529ce35408b89c01e8f2c872d5f599a2835e0",
+			"size": 959698
+		},
+		{
 			"group": "com.microsoft.onnxruntime",
 			"artifact": "onnxruntime",
 			"version": "1.22.0",

@@ -74,6 +74,21 @@ public class CreditsTest {
 		assertThat( Credits.text( List.of( joe ) ) ).isEqualTo( "No credit is required for joe (CC0-1.0).\n" );
 	}
 
+	@DisplayName( "A voice with a non-commercial or unclear license is warned about, not listed as needing no credit" )
+	@Test
+	void warnings() {
+		VoiceInfo	semaine	= voice( "semaine", "", Usage.NONCOMMERCIAL, false, "" );
+		VoiceInfo	alan	= voice( "alan", "", Usage.UNCLEAR, false, "" );
+		VoiceInfo	joe		= voice( "joe", "CC0-1.0", Usage.PERMISSIVE, false, "" );
+		assertThat( semaine.warning() ).contains( "non-commercial" );
+		assertThat( alan.warning() ).contains( "not clear" );
+		assertThat( joe.warning() ).isEmpty();
+		String text = Credits.text( List.of( joe, semaine, alan ) );
+		assertThat( text ).contains( "No credit is required for joe (CC0-1.0)." );
+		assertThat( text ).contains( "Warning: " );
+		assertThat( text ).doesNotContain( "No credit is required for semaine" );
+	}
+
 	@DisplayName( "Only the permissive, attribution and sharealike classes are commercial" )
 	@Test
 	void commercialClasses() {

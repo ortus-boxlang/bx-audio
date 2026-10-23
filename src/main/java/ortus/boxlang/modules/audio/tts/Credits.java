@@ -67,9 +67,12 @@ public final class Credits {
 	public static String text( List<VoiceInfo> voices ) {
 		List<String>	lines	= new ArrayList<>();
 		List<String>	free	= new ArrayList<>();
+		List<String>	warned	= new ArrayList<>();
 		for ( VoiceInfo voice : voices ) {
 			String line = line( voice );
-			if ( line.isEmpty() ) {
+			if ( !voice.commercial() ) {
+				warned.add( voice.warning() );
+			} else if ( line.isEmpty() ) {
 				free.add( voice.name() + " (" + voice.license() + ")" );
 			} else if ( !lines.contains( "- " + line ) ) {
 				lines.add( "- " + line );
@@ -84,6 +87,12 @@ public final class Credits {
 				out.append( '\n' );
 			}
 			out.append( "No credit is required for " ).append( String.join( ", ", free ) ).append( "." ).append( '\n' );
+		}
+		for ( String warning : warned ) {
+			if ( out.length() > 0 ) {
+				out.append( '\n' );
+			}
+			out.append( "Warning: " ).append( warning ).append( '\n' );
 		}
 		return out.toString();
 	}

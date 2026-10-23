@@ -42,9 +42,9 @@ _bx_audio_complete() {
         licenses)
             COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         install)
-            COMPREPLY=($(compgen -W "bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine" -- "$current_word")) ;;
+            COMPREPLY=($(compgen -W "en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine" -- "$current_word")) ;;
         remove)
-            COMPREPLY=($(compgen -W "bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine" -- "$current_word")) ;;
+            COMPREPLY=($(compgen -W "en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine" -- "$current_word")) ;;
         where)
             COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         clean)
