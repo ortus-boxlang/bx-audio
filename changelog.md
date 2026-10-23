@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-23
+
 ## [1.1.0] - 2026-10-19
 
 ### Added
@@ -56,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `audioSaturate` for peak-normalize plus tanh limiting
 - DSP BIFs `audioGain`, `audioPan`, `audioFade`, `audioNormalize`, `audioTrim`, `audioConcat`, `audioReverse`, `audioChannels` and `audioResample`
 
-[unreleased]: https://github.com/ortus-boxlang/bx-audio/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/ortus-boxlang/bx-audio/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/ortus-boxlang/bx-audio/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ortus-boxlang/bx-audio/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/ortus-boxlang/bx-audio/compare/c7122febcca353134c430ad7fb1c48a235dc5bbf...v1.0.0
