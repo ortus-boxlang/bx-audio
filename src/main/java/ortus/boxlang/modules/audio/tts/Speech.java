@@ -81,7 +81,7 @@ public final class Speech {
 	/**
 	 * An engine and a voice that are installed and ready to speak
 	 */
-	public record Ready( VoiceInfo voice, VoiceStore store, PiperEngine engine ) {
+	public record Ready( VoiceInfo voice, VoiceStore store, SpeechEngine engine ) {
 
 		public AudioBuffer say( String text, double speed ) {
 			return say( text, speed, null );
@@ -128,7 +128,9 @@ public final class Speech {
 			Progress p = progress == null ? null : ( done, total ) -> progress.update( voice.id(), done, total );
 			store.install( voice, p );
 		}
-		return new Ready( voice, store, PiperEngine.get( engine ) );
+		PiperEngine		piper	= PiperEngine.get( engine );
+		SpeechEngine	speech	= VoiceInfo.KOKORO.equals( voice.engine() ) ? KokoroEngine.get( piper, store.getVoicesDir() ) : piper;
+		return new Ready( voice, store, speech );
 	}
 
 	/**

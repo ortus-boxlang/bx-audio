@@ -59,13 +59,42 @@ public class VoiceCatalogTest {
 			}
 			assertThat( voice.shareAlike() ).isEqualTo( voice.license().contains( "-SA-" ) );
 			assertThat( ids.add( voice.id() ) ).isTrue();
+			assertThat( voice.model().size() ).isGreaterThan( 10_000_000L );
+			if ( VoiceInfo.KOKORO.equals( voice.engine() ) ) {
+				continue;
+			}
 			assertThat( voice.id() ).isEqualTo( voice.language() + "-" + voice.name() + "-" + voice.quality() );
 			assertThat( voice.model().path() ).endsWith( voice.id() + ".onnx" );
 			assertThat( voice.config().path() ).endsWith( voice.id() + ".onnx.json" );
-			assertThat( voice.model().size() ).isGreaterThan( 10_000_000L );
-			assertThat( voice.model().md5() ).matches( "[0-9a-f]{32}" );
-			assertThat( voice.config().md5() ).matches( "[0-9a-f]{32}" );
+			assertThat( voice.model().digest() ).matches( "[0-9a-f]{32}" );
+			assertThat( voice.config().digest() ).matches( "[0-9a-f]{32}" );
 		}
+	}
+
+	@DisplayName( "The Kokoro voices share one model and one voices pack, both checked by SHA-256, and are open licensed" )
+	@Test
+	void testKokoroVoices() {
+		VoiceCatalog	catalog	= VoiceCatalog.load();
+		List<VoiceInfo>	kokoro	= catalog.all().stream().filter( v -> VoiceInfo.KOKORO.equals( v.engine() ) ).toList();
+		assertThat( kokoro ).hasSize( 28 );
+		assertThat( kokoro.stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_US", "en_GB" );
+		for ( VoiceInfo voice : kokoro ) {
+			assertThat( voice.model() ).isEqualTo( kokoro.get( 0 ).model() );
+			assertThat( voice.config() ).isEqualTo( kokoro.get( 0 ).config() );
+			assertThat( voice.license() ).isEqualTo( "Apache-2.0" );
+			assertThat( voice.commercial() ).isTrue();
+			assertThat( voice.id() ).matches( "[ab][fm]_[a-z]+" );
+		}
+		VoiceInfo heart = catalog.find( "af_heart" );
+		assertThat( heart.name() ).isEqualTo( "heart" );
+		assertThat( catalog.find( "heart" ) ).isEqualTo( heart );
+		assertThat( heart.model().algorithm() ).isEqualTo( "SHA-256" );
+		assertThat( heart.model().digest() ).matches( "[0-9a-f]{64}" );
+		assertThat( heart.config().digest() ).matches( "[0-9a-f]{64}" );
+		assertThat( heart.model().url( catalog.getBaseUrl() ) ).startsWith( "https://github.com/thewh1teagle/kokoro-onnx/releases/download/" );
+		// the voices of the other languages are listed as not supported yet, not as unknown
+		assertThat( catalog.excluded().stream().filter( v -> VoiceInfo.KOKORO.equals( v.engine() ) ).count() ).isEqualTo( 26 );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "jf_nezumi" ) ).getMessage() ).contains( "Japanese" );
 	}
 
 	@DisplayName( "Voices with restrictive or unclear licenses are not offered, except the few that carry a warning" )

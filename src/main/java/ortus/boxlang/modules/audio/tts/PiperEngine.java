@@ -21,6 +21,7 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ortus.boxlang.modules.audio.types.AudioBuffer;
@@ -36,7 +37,7 @@ import ortus.boxlang.modules.audio.util.AudioException;
  * ONNX Runtime loads a native library, and a JVM can load one only through a single class loader, so the engines are created once per JVM
  * and shared.
  */
-public final class PiperEngine {
+public final class PiperEngine implements SpeechEngine {
 
 	private static PiperEngine			instance;
 
@@ -45,6 +46,14 @@ public final class PiperEngine {
 	 * One Chorus per language, since a Chorus owns the phonemizer of one language
 	 */
 	private final Map<String, Object>	choruses	= new HashMap<>();
+	/**
+	 * The ChorusConfig each Chorus was made from, which holds what a phonemizer needs besides the Chorus
+	 */
+	private final Map<String, Object>	configs		= new HashMap<>();
+	/**
+	 * One phonemizer per language, for the voices that bring their own model and only need the text turned into phonemes
+	 */
+	private final Map<String, Object>	phonemizers	= new HashMap<>();
 
 	private static PiperEngine create( URL[] urls ) {
 		ClassLoader loader = PiperEngine.class.getClassLoader();
@@ -79,6 +88,8 @@ public final class PiperEngine {
 				}
 			}
 			instance.choruses.clear();
+			instance.configs.clear();
+			instance.phonemizers.clear();
 			instance = null;
 		}
 	}
@@ -109,6 +120,7 @@ public final class PiperEngine {
 	 *
 	 * @param speed 1 is the voice's own pace, 2 twice as fast, 0.5 half as fast
 	 */
+	@Override
 	public synchronized AudioBuffer speak( VoiceInfo voice, VoiceStore store, String text, double speed ) {
 		try {
 			Object	chorus		= chorusFor( voice.language(), store.getVoicesDir() );
@@ -124,6 +136,59 @@ public final class PiperEngine {
 		} catch ( InvocationTargetException e ) {
 			Throwable cause = e.getCause() == null ? e : e.getCause();
 			throw new AudioException( AudioException.SPEECH_FAILED, "The voice [" + voice.id() + "] could not speak that: " + cause, cause );
+		} catch ( ReflectiveOperationException e ) {
+			throw new AudioException( AudioException.SPEECH_FAILED, "The text to speech engine could not be started: " + e, e );
+		}
+	}
+
+	/**
+	 * The class loader that has the engine's jars, ONNX Runtime among them, for the engines that load their own models
+	 */
+	ClassLoader loader() {
+		return this.loader;
+	}
+
+	/**
+	 * Turn a text into phonemes with the dictionary of a language, the way a Piper voice does before it speaks, but without a voice.
+	 * Kokoro speaks the phonemes itself.
+	 *
+	 * @param language  {@code en_US} or {@code en_GB}
+	 * @param voicesDir Where the voices are, which the engine uses as its working folder
+	 * @param text      What to say, one sentence or a few
+	 *
+	 * @return The phonemes, spaces and punctuation as the phonemizer returns them
+	 */
+	@SuppressWarnings( "unchecked" )
+	public synchronized List<String> phonemize( String language, Path voicesDir, String text ) {
+		try {
+			Object phonemizer = this.phonemizers.get( language );
+			if ( phonemizer == null ) {
+				Object	chorus	= chorusFor( language, voicesDir );
+				Object	config	= this.configs.get( language );
+				// The Chorus makes its grapheme to phoneme model on demand and keeps it private
+				Method	g2p		= chorus.getClass().getDeclaredMethod( "g2p" );
+				g2p.setAccessible( true );
+				Object			model		= g2p.invoke( chorus );
+				Class<?>		type		= this.loader.loadClass( "org.pitest.voices.g2p.core.PiperPhonemizer" );
+				Constructor<?>	constructor	= null;
+				for ( Constructor<?> candidate : type.getConstructors() ) {
+					if ( candidate.getParameterCount() == 3 ) {
+						constructor = candidate;
+					}
+				}
+				if ( constructor == null ) {
+					throw new NoSuchMethodException( type.getName() + " constructor with 3 arguments" );
+				}
+				phonemizer = constructor.newInstance( model, call( config, "expansions" ), call( config, "trace" ) );
+				this.phonemizers.put( language, phonemizer );
+			}
+			Class<?>	languageType	= this.loader.loadClass( "org.pitest.voices.Language" );
+			@SuppressWarnings( { "unchecked", "rawtypes" } )
+			Object		value			= Enum.valueOf( ( Class<Enum> ) languageType, language );
+			return ( List<String> ) call( phonemizer, "phonemize", value, text );
+		} catch ( InvocationTargetException e ) {
+			Throwable cause = e.getCause() == null ? e : e.getCause();
+			throw new AudioException( AudioException.SPEECH_FAILED, "The text could not be turned into phonemes: " + cause, cause );
 		} catch ( ReflectiveOperationException e ) {
 			throw new AudioException( AudioException.SPEECH_FAILED, "The text to speech engine could not be started: " + e, e );
 		}
@@ -146,6 +211,7 @@ public final class PiperEngine {
 			Constructor<?>	constructor	= chorusClass.getConstructor( this.loader.loadClass( "org.pitest.voices.ChorusConfig" ) );
 			chorus = constructor.newInstance( config );
 			this.choruses.put( language, chorus );
+			this.configs.put( language, config );
 		}
 		return chorus;
 	}

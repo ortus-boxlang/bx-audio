@@ -58,9 +58,10 @@ public final class VoiceCatalog {
 	 * @param reasonKind  {@code license}, {@code dictionary}, {@code speakers} or {@code language}
 	 * @param reason      Why it is not offered, in a sentence
 	 * @param size        The bytes its files would take
+	 * @param engine      Which engine would speak it, {@code piper} or {@code kokoro}
 	 */
 	public record ExcludedVoice( String id, String name, String language, String quality, String license, String licenseText, String usage,
-	    String source, String reasonKind, String reason, long size ) {
+	    String source, String reasonKind, String reason, long size, String engine ) {
 	}
 
 	/**
@@ -71,10 +72,45 @@ public final class VoiceCatalog {
 			if ( in == null ) {
 				throw new AudioException( AudioException.INTERNAL, "The voice catalog (voices.json) is missing from the module" );
 			}
-			return parse( in );
+			VoiceCatalog piper = parse( in );
+			try ( InputStream kokoro = VoiceCatalog.class.getClassLoader().getResourceAsStream( "kokoro.json" ) ) {
+				if ( kokoro == null ) {
+					throw new AudioException( AudioException.INTERNAL, "The Kokoro voice catalog (kokoro.json) is missing from the module" );
+				}
+				return piper.withKokoro( kokoro );
+			}
 		} catch ( IOException e ) {
 			throw new AudioException( AudioException.IO, "Could not read the voice catalog: " + e.getMessage(), e );
 		}
+	}
+
+	/**
+	 * This catalog with the Kokoro voices added, from {@code kokoro.json}. Every Kokoro voice shares one model and one voices pack, so the file
+	 * holds those once and a short entry for each voice.
+	 *
+	 * @param in The Kokoro catalog as JSON
+	 */
+	@SuppressWarnings( "unchecked" )
+	public VoiceCatalog withKokoro( InputStream in ) throws IOException {
+		Map<String, Object>	root		= JSON.std.mapFrom( in );
+		VoiceFile			model		= file( ( Map<String, Object> ) root.get( "model" ) );
+		VoiceFile			pack		= file( ( Map<String, Object> ) root.get( "pack" ) );
+		List<VoiceInfo>		voices		= new ArrayList<>( this.voices );
+		List<ExcludedVoice>	excluded	= new ArrayList<>( this.excluded );
+		for ( Object entry : ( List<Object> ) root.get( "voices" ) ) {
+			Map<String, Object> v = ( Map<String, Object> ) entry;
+			voices.add( new VoiceInfo( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ),
+			    ( String ) root.get( "quality" ), ( String ) root.get( "license" ), ( String ) root.get( "licenseText" ), ( String ) root.get( "usage" ), false,
+			    ( String ) root.get( "source" ), model, pack, VoiceInfo.KOKORO ) );
+		}
+		for ( Object entry : ( List<Object> ) root.getOrDefault( "excluded", List.of() ) ) {
+			Map<String, Object> v = ( Map<String, Object> ) entry;
+			excluded
+			    .add( new ExcludedVoice( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ), ( String ) v.get( "quality" ),
+			        ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ), ( String ) v.get( "usage" ), ( String ) v.get( "source" ),
+			        ( String ) v.get( "reasonKind" ), ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue(), VoiceInfo.KOKORO ) );
+		}
+		return new VoiceCatalog( this.baseUrl, List.copyOf( voices ), List.copyOf( excluded ) );
 	}
 
 	/**
@@ -105,13 +141,15 @@ public final class VoiceCatalog {
 			excluded.add( new ExcludedVoice( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ),
 			    ( String ) v.get( "quality" ), ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ),
 			    ( String ) v.getOrDefault( "usage", Usage.UNCLEAR ), ( String ) v.get( "source" ), ( String ) v.get( "reasonKind" ),
-			    ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue() ) );
+			    ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue(), VoiceInfo.PIPER ) );
 		}
 		return new VoiceCatalog( ( String ) root.get( "source" ), List.copyOf( voices ), List.copyOf( excluded ) );
 	}
 
 	private static VoiceFile file( Map<String, Object> node ) {
-		return new VoiceFile( ( String ) node.get( "path" ), ( ( Number ) node.get( "size" ) ).longValue(), ( String ) node.get( "md5" ) );
+		long size = ( ( Number ) node.get( "size" ) ).longValue();
+		return node.containsKey( "sha256" ) ? new VoiceFile( ( String ) node.get( "path" ), size, ( String ) node.get( "sha256" ), "SHA-256" )
+		    : new VoiceFile( ( String ) node.get( "path" ), size, ( String ) node.get( "md5" ) );
 	}
 
 	/**

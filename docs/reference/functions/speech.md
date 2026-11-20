@@ -10,7 +10,7 @@ Text to speech with open license voices, captions timed to the voice, and the vo
 
 ## audioSpeak
 
-Turn text into speech with an installed Piper voice, installing the engine and the voice on first use
+Turn text into speech with an installed Piper or Kokoro voice, installing the engine and the voice on first use
 
 ```js
 audioSpeak( text, voice, autoInstall, onProgress, speed=1, pauses, pronunciations )

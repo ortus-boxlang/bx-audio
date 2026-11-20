@@ -306,7 +306,7 @@ Playing to the speakers needs a sound card and the JVM's `java.desktop` module. 
 
 ### Text to speech
 
-`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into `~/.bxaudio`, shared by every BoxLang install. `bx-audio where` shows what is stored and `bx-audio clean` frees it.
+`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) or a [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) voice (28 of them, such as `af_heart`), on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into `~/.bxaudio`, shared by every BoxLang install. `bx-audio where` shows what is stored and `bx-audio clean` frees it.
 
 | Function | Purpose |
 |---|---|
@@ -420,7 +420,7 @@ Paths are relative to the folder you run the command in. Run `bx-audio help <com
 
 ## Licensing
 
-The module is Apache 2.0. Text to speech downloads the Voices engine (Apache 2 and MIT) and the voices you choose, each with its own license, see [docs/voices.md](docs/voices.md). FLAC is encoded and decoded by code in this module. FFmpeg, when used, is a separate program found on your computer or downloaded from its provider (macOS and Linux builds by martin-riedl.de, Windows builds by gyan.dev), started as a process and never bundled; its builds carry their own licenses, see https://ffmpeg.org/legal.html. MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
+The module is Apache 2.0. Text to speech downloads the Voices engine (Apache 2 and MIT) and the voices you choose, each with its own license (Kokoro is Apache 2), see [docs/voices.md](docs/voices.md). FLAC is encoded and decoded by code in this module. FFmpeg, when used, is a separate program found on your computer or downloaded from its provider (macOS and Linux builds by martin-riedl.de, Windows builds by gyan.dev), started as a process and never bundled; its builds carry their own licenses, see https://ffmpeg.org/legal.html. MP3 uses JLayer and jump3r (both LGPL), shipped as separate, replaceable jars in the module's `libs/` folder and never bundled into the module jar. Without them WAV still works and MP3 calls raise a clear error. MP3 encoding needs the `java.desktop` module in the JVM. Details and license texts: `licenses/THIRD-PARTY.md`.
 
 ## Documentation
 

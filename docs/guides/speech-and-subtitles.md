@@ -4,7 +4,7 @@ order: 7
 summary: Speak text with open license voices that download on first use, control the pace and pauses, and write captions timed to the words.
 ---
 
-`audioSpeak` turns text into audio with a [Piper](https://github.com/rhasspy/piper) voice, on the JVM, with no API key and no cloud service. The engine (about 148 MB) and the voice (63 MB or more) are not in the module. The first call downloads them, checks every file against a checksum, and keeps them in `~/.bxaudio`, shared by every BoxLang install. After that it works offline.
+`audioSpeak` turns text into audio with a [Piper](https://github.com/rhasspy/piper) or a [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) voice, on the JVM, with no API key and no cloud service. The engine (about 148 MB) and the voice (63 MB or more) are not in the module. The first call downloads them, checks every file against a checksum, and keeps them in `~/.bxaudio`, shared by every BoxLang install. After that it works offline.
 
 ```js
 voice = audioSpeak( text="Meet BoxLang. Fast, friendly and made for the JVM.", voice="joe" );
@@ -34,10 +34,35 @@ audioLicenses();                                   // the licenses and what they
 
 Each voice has a `status` of `installed`, `downloadable` or `excluded`.
 
+## Kokoro voices
+
+Kokoro is the second kind of voice, next to Piper: one model of 82 million parameters and 28 English voices, at 24 000 Hz. It sounds more natural than the Piper voices, and costs more: the model is 325 MB and the voices pack 28 MB, shared by all 28 voices, and a sentence takes longer on a CPU.
+
+```js
+voice = audioSpeak( text="Meet BoxLang. Fast, friendly and made for the JVM.", voice="af_heart" );   // or the short name, heart
+audioSave( voice, "hello.mp3" );
+```
+
+| Prefix | Voices |
+|---|---|
+| `af_` American, female | `alloy`, `aoede`, `bella`, `heart`, `jessica`, `kore`, `nicole`, `nova`, `river`, `sarah`, `sky` |
+| `am_` American, male | `adam`, `echo`, `eric`, `fenrir`, `liam`, `michael`, `onyx`, `puck`, `santa` |
+| `bf_` British, female | `alice`, `emma`, `isabella`, `lily` |
+| `bm_` British, male | `daniel`, `fable`, `george`, `lewis` |
+
+- **Installing.** The first call downloads the engine if it is missing, then the model and the voices pack, and checks both against a SHA-256. `bx-audio install af_heart` does it ahead of time. The voices share the files, so `audioVoiceRemove( "af_heart" )` removes the model and the pack for every Kokoro voice.
+- **Only Kokoro v1.0.** The files come from the [kokoro-onnx release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0). The model is Apache 2.0, so `audioCredits()` gives the notice to keep.
+- **Other languages.** Kokoro also has Spanish, French, Hindi, Italian, Japanese, Portuguese and Mandarin voices. They need a phonemizer the engine does not have, so they are listed as not offered, with the reason, like the other languages.
+- **What `audioVoices()` says.** Each voice has an `engine`, `piper` or `kokoro`.
+- **How it speaks.** The text becomes phonemes with the same dictionary as the Piper voices. Kokoro was trained on [espeak-ng](https://github.com/espeak-ng/espeak-ng) phonemes, which the engine does not have, so they are rewritten first: a table of function words learned from espeak-ng, and for American English a few vowel rules. Then the model speaks each sentence, silence is trimmed from both ends and sentences are joined with a quarter of a second of pause. `speed`, `pauses` and `pronunciations` work as for Piper.
+- **How close it is to Kokoro with espeak-ng.** On 120 sentences of these docs the audio is the same length (0.997 times, 89 of 100 sentences within 5 percent). A speech recognizer (Whisper `base.en`) gets 7.3 percent of the words wrong on the American voice `af_heart`, against 5.7 percent for Kokoro with espeak-ng, and 8.0 against 5.7 percent on the British voice `bf_emma`. A rare or technical word may be said differently: respell it with `pronunciations`.
+- **Level.** A few voices peak at or just above full scale on some lines. Run the speech through `audioNormalize` or `audioMaster` before you mix it.
+
 ## Download ahead of time
 
 ```bash
 bx-audio install engine joe
+bx-audio install af_heart             # a Kokoro voice: the model and the voices pack
 ```
 
 ```js
@@ -119,5 +144,5 @@ Voices with non-commercial, copyleft, custom or unclear licenses are not offered
 ## Limits
 
 - US and British English only for now. The British English (`en_GB`) voices use a GPL 3 pronunciation dictionary, downloaded the first time one speaks, and other languages need a phonemizer the engine does not have yet. See [Voices](../voices.md).
-- Only single speaker voices are offered.
+- Only single speaker Piper voices are offered. Kokoro speaks English only here, and its pronunciation is close to, not the same as, Kokoro with espeak-ng (see above).
 - There are no word level timings, so captions follow sentences or clauses, not each word.

@@ -15,6 +15,7 @@
 package ortus.boxlang.modules.audio.util;
 
 import ortus.boxlang.modules.audio.realtime.Mixer;
+import ortus.boxlang.modules.audio.tts.KokoroEngine;
 import ortus.boxlang.modules.audio.tts.PiperEngine;
 
 /**
@@ -28,6 +29,7 @@ public final class Lifecycle {
 
 	public static void shutdown() {
 		Mixer.closeAll();
+		KokoroEngine.shutdown();
 		PiperEngine.shutdown();
 	}
 

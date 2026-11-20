@@ -31,7 +31,7 @@ import ortus.boxlang.runtime.types.Argument;
 import ortus.boxlang.modules.audio.types.AudioBuffer;
 import ortus.boxlang.modules.audio.tts.EngineInstaller;
 
-@BoxBIF( description = "Turn text into speech with an installed Piper voice, installing the engine and the voice on first use" )
+@BoxBIF( description = "Turn text into speech with an installed Piper or Kokoro voice, installing the engine and the voice on first use" )
 public class AudioSpeak extends BIF {
 
 	/**
@@ -51,7 +51,7 @@ public class AudioSpeak extends BIF {
 	}
 
 	/**
-	 * Turn text into speech with an installed Piper voice, installing the engine and the voice on first use
+	 * Turn text into speech with an installed Piper or Kokoro voice, installing the engine and the voice on first use
 	 *
 	 * @param context   The context in which the BIF is being invoked.
 	 * @param arguments Argument scope for the BIF.
