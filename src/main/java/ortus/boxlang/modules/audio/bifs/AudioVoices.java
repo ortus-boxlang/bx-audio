@@ -38,6 +38,7 @@ public class AudioVoices extends BIF {
 	private static final Key	status	= Key.of( "status" );
 	private static final Key	license	= Key.of( "license" );
 	private static final Key	usage	= Key.of( "usage" );
+	private static final Key	engine	= Key.of( "engine" );
 
 	/**
 	 * Constructor
@@ -49,7 +50,8 @@ public class AudioVoices extends BIF {
 		    new Argument( false, "boolean", KeyDictionary.installed, false ),
 		    new Argument( false, "string", status, "offered" ),
 		    new Argument( false, "string", license, "" ),
-		    new Argument( false, "string", usage, "" )
+		    new Argument( false, "string", usage, "" ),
+		    new Argument( false, "string", engine, "" )
 		};
 	}
 
@@ -72,6 +74,8 @@ public class AudioVoices extends BIF {
 	 *                 custom or unclear. For example "permissive,attribution" gives the voices you can use in a product you sell without any condition
 	 *                 beyond credit.
 	 *
+	 * @argument.engine Only voices of this engine: piper or kokoro. Empty for all.
+	 *
 	 * @return An array of structs with id, name, language, quality, license, licenseText, usage (what the license means for a product you sell),
 	 *         commercial (true for permissive, attribution and sharealike), credit (the text to publish, empty when the license asks for none),
 	 *         shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).
@@ -81,6 +85,7 @@ public class AudioVoices extends BIF {
 		String			wanted		= arguments.getAsBoolean( KeyDictionary.installed ) ? "installed" : arguments.getAsString( status ).trim().toLowerCase();
 		String			licenseId	= arguments.getAsString( license );
 		List<String>	usages		= usageFilter( arguments.getAsString( usage ) );
+		String			engineId	= engineFilter( arguments.getAsString( engine ) );
 		if ( !List.of( "offered", "installed", "downloadable", "excluded", "all" ).contains( wanted ) ) {
 			throw new AudioException( AudioException.DOWNLOAD_FAILED,
 			    "Unknown status [" + wanted + "]. Use offered, installed, downloadable, excluded or all." );
@@ -91,7 +96,7 @@ public class AudioVoices extends BIF {
 		for ( VoiceInfo voice : catalog.all() ) {
 			boolean	isInstalled	= store.isInstalled( voice );
 			String	state		= isInstalled ? "installed" : "downloadable";
-			if ( !matches( wanted, state ) || !matchesFilters( voice.language(), voice.license(), language, licenseId )
+			if ( !matches( wanted, state ) || !matchesFilters( voice.language(), voice.license(), voice.engine(), language, licenseId, engineId )
 			    || !matchesUsage( voice.usage(), usages ) ) {
 				continue;
 			}
@@ -103,7 +108,8 @@ public class AudioVoices extends BIF {
 		}
 		if ( wanted.equals( "excluded" ) || wanted.equals( "all" ) ) {
 			for ( VoiceCatalog.ExcludedVoice voice : catalog.excluded() ) {
-				if ( !matchesFilters( voice.language(), voice.license(), language, licenseId ) || !matchesUsage( voice.usage(), usages ) ) {
+				if ( !matchesFilters( voice.language(), voice.license(), voice.engine(), language, licenseId, engineId )
+				    || !matchesUsage( voice.usage(), usages ) ) {
 					continue;
 				}
 				result.add( Struct.ofNonConcurrent( "id", voice.id(), "name", voice.name(), "language", voice.language(), "quality", voice.quality(),
@@ -117,6 +123,14 @@ public class AudioVoices extends BIF {
 		return result;
 	}
 
+	/**
+	 * Whether a voice in this state is wanted by the status argument
+	 *
+	 * @param wanted The status asked for: offered, installed, downloadable, excluded or all
+	 * @param state  The state of the voice: installed or downloadable
+	 *
+	 * @return True when the voice is listed
+	 */
 	private static boolean matches( String wanted, String state ) {
 		return switch ( wanted ) {
 			case "offered", "all" -> true;
@@ -125,13 +139,51 @@ public class AudioVoices extends BIF {
 		};
 	}
 
-	private static boolean matchesFilters( String voiceLanguage, String voiceLicense, String language, String licenseId ) {
+	/**
+	 * Whether a voice passes the language, license and engine filters. An empty filter lets every voice through.
+	 *
+	 * @param voiceLanguage The language of the voice
+	 * @param voiceLicense  The license identifier of the voice
+	 * @param voiceEngine   The engine of the voice
+	 * @param language      The language asked for, or empty
+	 * @param licenseId     The license asked for, or empty
+	 * @param engineId      The engine asked for, or empty
+	 *
+	 * @return True when the voice is wanted
+	 */
+	private static boolean matchesFilters( String voiceLanguage, String voiceLicense, String voiceEngine, String language, String licenseId,
+	    String engineId ) {
 		return ( language.isEmpty() || voiceLanguage.equalsIgnoreCase( language ) )
-		    && ( licenseId.isEmpty() || voiceLicense.equalsIgnoreCase( licenseId ) );
+		    && ( licenseId.isEmpty() || voiceLicense.equalsIgnoreCase( licenseId ) )
+		    && ( engineId.isEmpty() || voiceEngine.equals( engineId ) );
+	}
+
+	/**
+	 * The engine asked for, checked, or empty for every engine
+	 *
+	 * @param text The engine argument, such as {@code kokoro}
+	 *
+	 * @return The engine in lower case, or empty
+	 *
+	 * @throws AudioException when the engine is not one of {@link VoiceCatalog#ENGINES}
+	 */
+	private static String engineFilter( String text ) {
+		String name = text.trim().toLowerCase();
+		if ( !name.isEmpty() && !VoiceCatalog.ENGINES.contains( name ) ) {
+			throw new AudioException( AudioException.INVALID_ARGUMENT,
+			    "Unknown engine [" + name + "]. Use one of: " + String.join( ", ", VoiceCatalog.ENGINES ) );
+		}
+		return name;
 	}
 
 	/**
 	 * The classes asked for, checked, or none for every class
+	 *
+	 * @param text The usage argument, a list such as {@code permissive,attribution}
+	 *
+	 * @return The classes, in lower case
+	 *
+	 * @throws AudioException when a class is not one of {@link Usage#ALL}
 	 */
 	private static List<String> usageFilter( String text ) {
 		List<String> classes = new java.util.ArrayList<>();
@@ -149,6 +201,14 @@ public class AudioVoices extends BIF {
 		return classes;
 	}
 
+	/**
+	 * Whether a voice passes the usage filter
+	 *
+	 * @param voiceUsage The usage class of the voice
+	 * @param usages     The classes asked for, or none for every class
+	 *
+	 * @return True when the voice is wanted
+	 */
 	private static boolean matchesUsage( String voiceUsage, List<String> usages ) {
 		return usages.isEmpty() || usages.contains( voiceUsage );
 	}

@@ -34,28 +34,56 @@ import ortus.boxlang.modules.audio.util.AudioException;
  * stress mark on every function word, writes the schwa as {@code ʌ}, says {@code ɒ} where American English says {@code ɑː}, and leaves out
  * length marks. Fed straight in, the audio was 6.6 percent longer than the reference and sounded more different from it than a 5 percent speed
  * change does; with the rules below it is 1 percent longer and as close as a 5 percent speed change is. The measurements are in
- * {@code docs/guides/kokoro.md}.
+ * the Kokoro section of {@code docs/guides/speech-and-subtitles.md}.
  * <p>
  * The rules are, for American English, a table of function words learned from the reference (see {@code tools/kokoro/derive-words.py}) and a few
  * vowel rules; for British English only the table, whose phonemes already agree with espeak-ng's {@code en-gb} for the most part.
  */
 public final class KokoroPhonemes {
 
+	/**
+	 * The punctuation the phonemizer keeps, which Kokoro has tokens for
+	 */
 	private static final String			PUNCTUATION	= ",.;:!?()\"“”—…";
+	/**
+	 * The stress marks: primary and secondary
+	 */
 	private static final String			STRESS		= "ˈˌ";
+	/**
+	 * The vowel symbols the Voices phonemizer writes, which the flap rule looks for before a {@code t}
+	 */
 	private static final String			VOWELS		= "aeiouɑɐɒæɔəɛɚɜɪʊʌᵻ";
 
+	/**
+	 * The table of this JVM, read once
+	 */
 	private static KokoroPhonemes		instance;
 
+	/**
+	 * The token of each phoneme symbol, by code point
+	 */
 	private final Map<Integer, Integer>	vocab;
+
+	/**
+	 * What is known of each language, by name such as {@code en_US}
+	 */
 	private final Map<String, Language>	languages;
 
 	/**
 	 * What is known of a language: its function words, and the espeak-ng spelling of those it spells differently
+	 *
+	 * @param function The function words, which the table names without stress marks
+	 * @param words    The espeak-ng spelling of each word that is spelled differently, by word
 	 */
 	private record Language( Set<String> function, Map<String, String> words ) {
 	}
 
+	/**
+	 * Use {@link #get()}
+	 *
+	 * @param vocab     The token of each phoneme symbol, by code point
+	 * @param languages What is known of each language
+	 */
 	private KokoroPhonemes( Map<Integer, Integer> vocab, Map<String, Language> languages ) {
 		this.vocab		= vocab;
 		this.languages	= languages;
@@ -63,6 +91,8 @@ public final class KokoroPhonemes {
 
 	/**
 	 * @return The table bundled with the module, read once
+	 *
+	 * @throws AudioException when the table is missing or cannot be read
 	 */
 	public static synchronized KokoroPhonemes get() {
 		if ( instance == null ) {
@@ -80,6 +110,12 @@ public final class KokoroPhonemes {
 
 	/**
 	 * Read a table from JSON
+	 *
+	 * @param in The JSON, with a {@code vocab} and an {@code en_US} and {@code en_GB} part
+	 *
+	 * @return The table
+	 *
+	 * @throws IOException when the JSON cannot be read
 	 */
 	@SuppressWarnings( "unchecked" )
 	public static KokoroPhonemes parse( InputStream in ) throws IOException {
@@ -105,6 +141,10 @@ public final class KokoroPhonemes {
 
 	/**
 	 * Keep what Kokoro has a token for
+	 *
+	 * @param phonemes Any phoneme string
+	 *
+	 * @return The same string without the symbols the model has no token for
 	 */
 	public String known( String phonemes ) {
 		StringBuilder out = new StringBuilder();
@@ -114,6 +154,10 @@ public final class KokoroPhonemes {
 
 	/**
 	 * The tokens of a phoneme string, leaving out what the model has no token for
+	 *
+	 * @param phonemes Any phoneme string
+	 *
+	 * @return One token per symbol the model knows, in order
 	 */
 	public long[] tokens( String phonemes ) {
 		return phonemes.codePoints().filter( this.vocab::containsKey ).mapToLong( c -> this.vocab.get( c ) ).toArray();
@@ -126,6 +170,8 @@ public final class KokoroPhonemes {
 	 * @param phonemes The items the phonemizer returned: phonemes, spaces and punctuation
 	 *
 	 * @return The phonemes as one string, words separated by single spaces, with only what Kokoro has a token for
+	 *
+	 * @throws AudioException when the language is not US or British English
 	 */
 	public String map( String language, List<String> phonemes ) {
 		Language known = this.languages.get( language );
@@ -160,6 +206,10 @@ public final class KokoroPhonemes {
 
 	/**
 	 * A word without its stress marks and punctuation, which is how the function word table names it
+	 *
+	 * @param word A word as the phonemizer says it
+	 *
+	 * @return The word with only its phonemes
 	 */
 	private static String strip( String word ) {
 		StringBuilder out = new StringBuilder();
@@ -172,16 +222,36 @@ public final class KokoroPhonemes {
 		return out.toString();
 	}
 
+	/**
+	 * Whether a stress mark comes right before a symbol
+	 *
+	 * @param word The word
+	 * @param at   The position of the symbol
+	 *
+	 * @return True when the symbol is the start of a stressed syllable
+	 */
 	private static boolean stressed( String word, int at ) {
 		return at > 0 && STRESS.indexOf( word.charAt( at - 1 ) ) >= 0;
 	}
 
+	/**
+	 * The symbol that follows another
+	 *
+	 * @param word The word
+	 * @param at   The position of the symbol
+	 *
+	 * @return The next symbol, or 0 at the end of the word
+	 */
 	private static char after( String word, int at ) {
 		return at + 1 < word.length() ? word.charAt( at + 1 ) : 0;
 	}
 
 	/**
 	 * The American English vowel rules: where the Voices dictionary says a vowel one way and espeak-ng another
+	 *
+	 * @param word A word as the phonemizer says it, with its stress marks
+	 *
+	 * @return The word as espeak-ng says it
 	 */
 	private static String vowels( String word ) {
 		StringBuilder	out	= new StringBuilder();

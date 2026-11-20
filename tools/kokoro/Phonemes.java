@@ -20,6 +20,13 @@ import org.pitest.voices.g2p.core.PiperPhonemizer;
  */
 public class Phonemes {
 
+	/**
+	 * Print the phonemes of each line of a file, items joined with a bar
+	 *
+	 * @param args The language, a work folder, and the file with one sentence per line
+	 *
+	 * @throws Exception when the engine cannot be started or the file cannot be read
+	 */
 	public static void main( String[] args ) throws Exception {
 		boolean									british		= args[ 0 ].equals( "en_GB" );
 		org.pitest.voices.g2p.core.Dictionary	dictionary	= british ? org.pitest.voices.uk.EnUkDictionary.en_uk()

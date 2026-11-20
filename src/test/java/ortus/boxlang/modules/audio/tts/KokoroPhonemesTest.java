@@ -35,6 +35,9 @@ public class KokoroPhonemesTest {
 
 	private final KokoroPhonemes phonemes = KokoroPhonemes.get();
 
+	/**
+	 * Only what Kokoro has a token for is kept, and each phoneme is one token
+	 */
 	@DisplayName( "Only what Kokoro has a token for is kept, and each phoneme is one token" )
 	@Test
 	void testTokens() {
@@ -45,6 +48,9 @@ public class KokoroPhonemesTest {
 		assertThat( KokoroPhonemes.maxTokens() ).isEqualTo( 510 );
 	}
 
+	/**
+	 * A function word loses its stress and takes the spelling espeak-ng gives it
+	 */
 	@DisplayName( "A function word loses its stress and takes the spelling espeak-ng gives it" )
 	@Test
 	void testFunctionWords() {
@@ -54,6 +60,9 @@ public class KokoroPhonemesTest {
 		assertThat( this.phonemes.map( "en_US", List.of( "kˈæt", ",", " ", "ðʌ", ".", "" ) ) ).isEqualTo( "kˈæt, ðə." );
 	}
 
+	/**
+	 * American vowels: the British vowel of lot becomes ɑː, an unstressed ʌ a schwa, and a t between vowels a flap
+	 */
 	@DisplayName( "American vowels: the British vowel of lot becomes ɑː, an unstressed ʌ a schwa, and a t between vowels a flap" )
 	@Test
 	void testAmericanVowels() {
@@ -63,6 +72,9 @@ public class KokoroPhonemesTest {
 		assertThat( this.phonemes.map( "en_US", List.of( "ɹˈaɪtɪŋ" ) ) ).isEqualTo( "ɹˈaɪɾɪŋ" );
 	}
 
+	/**
+	 * British English keeps its own vowels, only the function words are put right
+	 */
 	@DisplayName( "British English keeps its own vowels, only the function words are put right" )
 	@Test
 	void testBritish() {
@@ -70,6 +82,9 @@ public class KokoroPhonemesTest {
 		assertThat( this.phonemes.map( "en_GB", List.of( "ðə", " ", "mˈɒdʌl" ) ).startsWith( "ðə " ) ).isTrue();
 	}
 
+	/**
+	 * A language the dictionary does not have is refused
+	 */
 	@DisplayName( "A language the dictionary does not have is refused" )
 	@Test
 	void testUnknownLanguage() {

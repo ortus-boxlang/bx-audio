@@ -39,9 +39,16 @@ import ortus.boxlang.modules.audio.util.AudioException;
  */
 public final class PiperEngine implements SpeechEngine {
 
+	/**
+	 * The engine of this JVM, created on first use and cleared by {@link #shutdown()}
+	 */
 	private static PiperEngine			instance;
 
+	/**
+	 * The class loader that has the engine's jars
+	 */
 	private final ClassLoader			loader;
+
 	/**
 	 * One Chorus per language, since a Chorus owns the phonemizer of one language
 	 */
@@ -55,6 +62,13 @@ public final class PiperEngine implements SpeechEngine {
 	 */
 	private final Map<String, Object>	phonemizers	= new HashMap<>();
 
+	/**
+	 * Add the engine's jars to the module's class loader, or to a loader of their own when this is not running as a module
+	 *
+	 * @param urls The jars of the engine
+	 *
+	 * @return A new engine that drives them
+	 */
 	private static PiperEngine create( URL[] urls ) {
 		ClassLoader loader = PiperEngine.class.getClassLoader();
 		if ( loader instanceof DynamicClassLoader module ) {
@@ -66,13 +80,15 @@ public final class PiperEngine implements SpeechEngine {
 		return new PiperEngine( loader );
 	}
 
+	/**
+	 * Use {@link #get(EngineInstaller)}
+	 *
+	 * @param loader The class loader that has the engine's jars
+	 */
 	private PiperEngine( ClassLoader loader ) {
 		this.loader = loader;
 	}
 
-	/**
-	 * The engine of this JVM, created on the first call from the jars of the installer
-	 */
 	/**
 	 * Close the engine, if one was started, so it can be started again. Called when the module unloads.
 	 */
@@ -94,6 +110,13 @@ public final class PiperEngine implements SpeechEngine {
 		}
 	}
 
+	/**
+	 * The engine of this JVM, created on the first call from the jars of the installer
+	 *
+	 * @param installer Where the engine's jars are, downloaded on first use
+	 *
+	 * @return The engine
+	 */
 	public static synchronized PiperEngine get( EngineInstaller installer ) {
 		if ( instance == null ) {
 			URL[] urls = installer.classpath();
@@ -118,7 +141,14 @@ public final class PiperEngine implements SpeechEngine {
 	/**
 	 * Speak a text at a speed
 	 *
+	 * @param voice The voice, which must be installed in the store
+	 * @param store Where the voices are
+	 * @param text  What to say
 	 * @param speed 1 is the voice's own pace, 2 twice as fast, 0.5 half as fast
+	 *
+	 * @return Mono audio at the voice's sample rate
+	 *
+	 * @throws AudioException when the voice cannot speak the text, or the engine cannot be started
 	 */
 	@Override
 	public synchronized AudioBuffer speak( VoiceInfo voice, VoiceStore store, String text, double speed ) {
@@ -143,6 +173,8 @@ public final class PiperEngine implements SpeechEngine {
 
 	/**
 	 * The class loader that has the engine's jars, ONNX Runtime among them, for the engines that load their own models
+	 *
+	 * @return The class loader
 	 */
 	ClassLoader loader() {
 		return this.loader;
@@ -157,6 +189,8 @@ public final class PiperEngine implements SpeechEngine {
 	 * @param text      What to say, one sentence or a few
 	 *
 	 * @return The phonemes, spaces and punctuation as the phonemizer returns them
+	 *
+	 * @throws AudioException when the language is not supported, or the engine cannot be started
 	 */
 	@SuppressWarnings( "unchecked" )
 	public synchronized List<String> phonemize( String language, Path voicesDir, String text ) {
@@ -194,6 +228,17 @@ public final class PiperEngine implements SpeechEngine {
 		}
 	}
 
+	/**
+	 * The Chorus of a language, made on first use. A Chorus owns the phonemizer and the dictionary of one language.
+	 *
+	 * @param language  {@code en_US} or {@code en_GB}
+	 * @param voicesDir Where the voices are, which the Chorus uses as its base folder
+	 *
+	 * @return The Chorus
+	 *
+	 * @throws ReflectiveOperationException when the engine's classes cannot be driven
+	 * @throws AudioException               when the language is not US or British English
+	 */
 	private Object chorusFor( String language, Path voicesDir ) throws ReflectiveOperationException {
 		if ( !language.equals( "en_US" ) && !language.equals( "en_GB" ) ) {
 			throw new AudioException( AudioException.UNSUPPORTED_FORMAT, "Only US and British English voices are supported so far, not [" + language + "]" );
@@ -218,6 +263,12 @@ public final class PiperEngine implements SpeechEngine {
 
 	/**
 	 * A FileModel: the Voices library finds the voice at {@code <base>/<location>/<name>.onnx}, which is how VoiceStore lays it out
+	 *
+	 * @param voice The installed voice
+	 *
+	 * @return The model, which the Voices library turns into a voice
+	 *
+	 * @throws ReflectiveOperationException when the engine's classes cannot be driven
 	 */
 	private Object model( VoiceInfo voice ) throws ReflectiveOperationException {
 		Class<?>		fetcherType		= this.loader.loadClass( "org.pitest.voices.download.ModelFetcher" );
@@ -236,6 +287,14 @@ public final class PiperEngine implements SpeechEngine {
 	/**
 	 * Call an instance method by name and argument count. Voices types are not visible to this module, so the parameter types cannot be
 	 * named.
+	 *
+	 * @param target The object to call
+	 * @param method The name of the method
+	 * @param args   The arguments, which pick the method by their count and types
+	 *
+	 * @return What the method returns
+	 *
+	 * @throws ReflectiveOperationException when no method fits, or it fails
 	 */
 	private Object call( Object target, String method, Object... args ) throws ReflectiveOperationException {
 		return invoke( target.getClass(), target, method, args );
@@ -243,11 +302,31 @@ public final class PiperEngine implements SpeechEngine {
 
 	/**
 	 * Call a static method of a class from the engine's class loader
+	 *
+	 * @param className The class, by full name
+	 * @param method    The name of the method
+	 * @param args      The arguments, which pick the method by their count and types
+	 *
+	 * @return What the method returns
+	 *
+	 * @throws ReflectiveOperationException when the class is not found, no method fits, or it fails
 	 */
 	private Object callStatic( String className, String method, Object... args ) throws ReflectiveOperationException {
 		return invoke( this.loader.loadClass( className ), null, method, args );
 	}
 
+	/**
+	 * Call the public method of a type with that name, argument count and compatible argument types
+	 *
+	 * @param type   The type that has the method
+	 * @param target The object to call, or null for a static method
+	 * @param name   The name of the method
+	 * @param args   The arguments
+	 *
+	 * @return What the method returns
+	 *
+	 * @throws ReflectiveOperationException when no method fits, or it fails
+	 */
 	private static Object invoke( Class<?> type, Object target, String name, Object[] args ) throws ReflectiveOperationException {
 		for ( Method method : type.getMethods() ) {
 			if ( method.getName().equals( name ) && method.getParameterCount() == args.length && fits( method.getParameterTypes(), args ) ) {
@@ -257,6 +336,14 @@ public final class PiperEngine implements SpeechEngine {
 		throw new NoSuchMethodException( type.getName() + "." + name + " with " + args.length + " arguments" );
 	}
 
+	/**
+	 * Whether the arguments can be passed to a method with these parameter types
+	 *
+	 * @param types The parameter types of the method
+	 * @param args  The arguments
+	 *
+	 * @return True when every argument is an instance of its parameter type
+	 */
 	private static boolean fits( Class<?>[] types, Object[] args ) {
 		for ( int i = 0; i < types.length; i++ ) {
 			if ( !types[ i ].isInstance( args[ i ] ) ) {

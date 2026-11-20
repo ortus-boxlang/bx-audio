@@ -11,7 +11,7 @@ voice = audioSpeak( text="Meet BoxLang. Fast, friendly and made for the JVM.", v
 audioSave( voice, "hello.mp3" );
 ```
 
-`voice` is a full id such as `en_US-joe-medium` or a short name such as `joe`, when only one voice has that name. The result is a mono buffer at the voice's own sample rate, normally 22 050 Hz.
+`voice` is a full id such as `en_US-joe-medium` or a short name such as `joe`, when only one voice has that name. Put the engine and a colon before a name to look only at that engine's voices: `kokoro:heart`, `piper:joe`. A name that fits several voices is refused, and the error lists the `engine:id` forms to use. The result is a mono buffer at the voice's own sample rate, normally 22 050 Hz.
 
 ## Choose a voice
 

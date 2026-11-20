@@ -55,6 +55,18 @@ public record VoiceInfo(
 
 	/**
 	 * A Piper voice
+	 *
+	 * @param id          The voice key
+	 * @param name        The short name
+	 * @param language    The language and region
+	 * @param quality     {@code low}, {@code medium} or {@code high}
+	 * @param license     The license as an identifier
+	 * @param licenseText The license as the model card states it
+	 * @param usage       What the license means for a product you sell, see {@link Usage}
+	 * @param shareAlike  Whether the license asks that adapted material carries the same terms
+	 * @param source      Where the training data came from, may be empty
+	 * @param model       The model file
+	 * @param config      The configuration file
 	 */
 	public VoiceInfo( String id, String name, String language, String quality, String license, String licenseText, String usage, boolean shareAlike,
 	    String source, VoiceFile model, VoiceFile config ) {
@@ -73,12 +85,20 @@ public record VoiceInfo(
 
 		/**
 		 * A file with an MD5 digest, as the Piper catalog has
+		 *
+		 * @param path The path below the catalog's base URL, or a whole URL
+		 * @param size The size in bytes
+		 * @param md5  The MD5 digest in hex
 		 */
 		public VoiceFile( String path, long size, String md5 ) {
 			this( path, size, md5, "MD5" );
 		}
 
 		/**
+		 * The URL to download the file from
+		 *
+		 * @param baseUrl The URL the catalog's paths are relative to
+		 *
 		 * @return The whole URL when the path is one, otherwise the path below the base URL
 		 */
 		public String url( String baseUrl ) {

@@ -35,11 +35,19 @@ import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
 
 public class KokoroVoicesTest {
 
+	/**
+	 * A scratch folder, removed after each test
+	 */
 	@TempDir
 	Path dir;
 
 	/**
 	 * A NumPy file of float32 values, the way {@code numpy.save} writes a version 1 file: the header is padded so the data starts on a multiple of 64
+	 *
+	 * @param rows   How many rows the array has
+	 * @param values The values, {@link KokoroVoices#WIDTH} per row
+	 *
+	 * @return The bytes of the file
 	 */
 	private static byte[] npy( int rows, float[] values ) {
 		String	header	= "{'descr': '<f4', 'fortran_order': False, 'shape': (" + rows + ", 1, 256), }";
@@ -55,6 +63,13 @@ public class KokoroVoicesTest {
 		return out.array();
 	}
 
+	/**
+	 * Values that count up, so each row can be told from the others
+	 *
+	 * @param rows How many rows
+	 *
+	 * @return {@code rows} rows of {@link KokoroVoices#WIDTH} values, each the number of its position
+	 */
 	private static float[] counting( int rows ) {
 		float[] values = new float[ rows * KokoroVoices.WIDTH ];
 		for ( int i = 0; i < values.length; i++ ) {
@@ -63,6 +78,9 @@ public class KokoroVoicesTest {
 		return values;
 	}
 
+	/**
+	 * A voice is read from the pack, and a text of n tokens gets row n - 1
+	 */
 	@DisplayName( "A voice is read from the pack, and a text of n tokens gets row n - 1" )
 	@Test
 	void testRead() throws IOException {
@@ -83,6 +101,9 @@ public class KokoroVoicesTest {
 		assertThat( assertThrows( BoxRuntimeException.class, () -> KokoroVoices.read( pack, "af_missing" ) ).getMessage() ).contains( "af_missing" );
 	}
 
+	/**
+	 * A file that is not float32 in C order, or not a NumPy file, is refused
+	 */
 	@DisplayName( "A file that is not float32 in C order, or not a NumPy file, is refused" )
 	@Test
 	void testRefused() {

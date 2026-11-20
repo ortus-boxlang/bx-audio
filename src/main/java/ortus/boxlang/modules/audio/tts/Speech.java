@@ -27,9 +27,19 @@ import ortus.boxlang.modules.audio.util.AudioException;
  */
 public final class Speech {
 
+	/**
+	 * Nothing to create: the methods are static
+	 */
 	private Speech() {
 	}
 
+	/**
+	 * A setting of the module
+	 *
+	 * @param name The setting, such as {@code home}
+	 *
+	 * @return Its value, or null when it is not set
+	 */
 	private static Object setting( String name ) {
 		return ModuleSettings.get( name );
 	}
@@ -51,22 +61,36 @@ public final class Speech {
 		return ! ( configured instanceof Boolean flag ) || flag;
 	}
 
+	/**
+	 * @return The voice catalog
+	 */
 	public static VoiceCatalog catalog() {
 		return VoiceCatalog.load();
 	}
 
+	/**
+	 * @return Where the voices are stored, under the module's home
+	 */
 	public static VoiceStore store() {
 		return new VoiceStore( TtsHome.voices( home() ), catalog().getBaseUrl() );
 	}
 
+	/**
+	 * @return The installer of the speech engine, which keeps its jars under the module's home
+	 */
 	public static EngineInstaller engine() {
 		return new EngineInstaller( TtsHome.engine( home() ) );
 	}
 
+	/**
+	 * The voices whose license warning was already given
+	 */
 	private static final java.util.Set<String> WARNED = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Say once per JVM that a voice has a license to check
+	 *
+	 * @param voice The voice about to speak
 	 */
 	private static void warn( VoiceInfo voice ) {
 		if ( !voice.commercial() && WARNED.add( voice.id() ) ) {
@@ -80,15 +104,35 @@ public final class Speech {
 
 	/**
 	 * An engine and a voice that are installed and ready to speak
+	 *
+	 * @param voice  The voice
+	 * @param store  Where the voices are
+	 * @param engine The engine that speaks it: Piper or Kokoro
 	 */
 	public record Ready( VoiceInfo voice, VoiceStore store, SpeechEngine engine ) {
 
+		/**
+		 * Say a text
+		 *
+		 * @param text  What to say
+		 * @param speed 1 is normal, between 0.25 and 4
+		 *
+		 * @return Mono audio at the voice's sample rate
+		 */
 		public AudioBuffer say( String text, double speed ) {
 			return say( text, speed, null );
 		}
 
 		/**
+		 * Say a text with the caller's own pronunciations
+		 *
+		 * @param text           What to say
+		 * @param speed          1 is normal, between 0.25 and 4
 		 * @param pronunciations Caller supplied respellings, word to spoken form, see {@link Pronunciation}. May be null.
+		 *
+		 * @return Mono audio at the voice's sample rate
+		 *
+		 * @throws AudioException when the speed is out of range
 		 */
 		public AudioBuffer say( String text, double speed, Map<String, String> pronunciations ) {
 			if ( speed < 0.25 || speed > 4 ) {
@@ -104,6 +148,10 @@ public final class Speech {
 	 * @param voiceName    A voice id or short name from the catalog
 	 * @param allowInstall May the engine and the voice be downloaded now
 	 * @param progress     Told how far the downloads have got, may be null
+	 *
+	 * @return The voice with the engine that speaks it
+	 *
+	 * @throws AudioException when something is missing and downloads are not allowed
 	 */
 	public static Ready prepare( String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress ) {
 		VoiceInfo		voice	= catalog().find( voiceName );
@@ -149,6 +197,14 @@ public final class Speech {
 
 	/**
 	 * Speak a text at a speed, see {@link #speak(String, String, boolean, EngineInstaller.NamedProgress)}
+	 *
+	 * @param text         What to say
+	 * @param voiceName    A voice id or short name from the catalog
+	 * @param allowInstall May the engine and the voice be downloaded now
+	 * @param progress     Told how far the downloads have got, may be null
+	 * @param speed        1 is normal, between 0.25 and 4
+	 *
+	 * @return Mono audio at the voice's sample rate
 	 */
 	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed ) {
 		return speak( text, voiceName, allowInstall, progress, speed, null );
@@ -156,6 +212,15 @@ public final class Speech {
 
 	/**
 	 * Speak a text at a speed with the caller's own pronunciations, see {@link Pronunciation}
+	 *
+	 * @param text           What to say
+	 * @param voiceName      A voice id or short name from the catalog
+	 * @param allowInstall   May the engine and the voice be downloaded now
+	 * @param progress       Told how far the downloads have got, may be null
+	 * @param speed          1 is normal, between 0.25 and 4
+	 * @param pronunciations Respellings, word to spoken form. May be null.
+	 *
+	 * @return Mono audio at the voice's sample rate
 	 */
 	public static AudioBuffer speak( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Map<String, String> pronunciations ) {
@@ -165,6 +230,17 @@ public final class Speech {
 
 	/**
 	 * Speak a text piece by piece, with chosen pauses, and report when each caption line is spoken
+	 *
+	 * @param text         What to say
+	 * @param voiceName    A voice id or short name from the catalog
+	 * @param allowInstall May the engine and the voice be downloaded now
+	 * @param progress     Told how far the downloads have got, may be null
+	 * @param speed        1 is normal, between 0.25 and 4
+	 * @param pauses       The pauses between sentences and paragraphs
+	 * @param clauses      True to break caption lines at clauses
+	 * @param maxChars     The longest caption line
+	 *
+	 * @return The audio and the caption cues
 	 */
 	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Narration.Pauses pauses, boolean clauses, int maxChars ) {
@@ -173,6 +249,18 @@ public final class Speech {
 
 	/**
 	 * Speak a text piece by piece with the caller's own pronunciations. The captions keep the original words.
+	 *
+	 * @param text           What to say
+	 * @param voiceName      A voice id or short name from the catalog
+	 * @param allowInstall   May the engine and the voice be downloaded now
+	 * @param progress       Told how far the downloads have got, may be null
+	 * @param speed          1 is normal, between 0.25 and 4
+	 * @param pauses         The pauses between sentences and paragraphs
+	 * @param clauses        True to break caption lines at clauses
+	 * @param maxChars       The longest caption line
+	 * @param pronunciations Respellings, word to spoken form. May be null.
+	 *
+	 * @return The audio and the caption cues
 	 */
 	public static Narration.Result narrate( String text, String voiceName, boolean allowInstall, EngineInstaller.NamedProgress progress, double speed,
 	    Narration.Pauses pauses, boolean clauses, int maxChars, Map<String, String> pronunciations ) {
@@ -183,6 +271,11 @@ public final class Speech {
 
 	/**
 	 * Checked before anything is downloaded: the speed is in range and the text holds something the English voices can say
+	 *
+	 * @param text  What to say
+	 * @param speed 1 is normal, between 0.25 and 4
+	 *
+	 * @throws AudioException when the text is empty or has nothing sayable, or the speed is out of range
 	 */
 	private static void checkSayable( String text, double speed ) {
 		if ( text == null || text.isBlank() ) {
@@ -200,6 +293,10 @@ public final class Speech {
 	}
 
 	/**
+	 * Bytes as megabytes
+	 *
+	 * @param bytes A size in bytes
+	 *
 	 * @return Megabytes, rounded to one decimal
 	 */
 	public static double megabytes( long bytes ) {

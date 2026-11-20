@@ -36,7 +36,7 @@ _bx_audio_complete() {
         speak)
             COMPREPLY=($(compgen -W "--voice= --out= --file= --speed= --captions= --no-install --offset= --max-chars= --by-clause --sentence-pause= --clause-pause= --paragraph-pause=" -- "$current_word")) ;;
         voices)
-            COMPREPLY=($(compgen -W "--lang= --installed --downloadable --excluded --all --license= --usage=" -- "$current_word")) ;;
+            COMPREPLY=($(compgen -W "--lang= --installed --downloadable --excluded --all --license= --usage= --engine= --engine=piper --engine=kokoro" -- "$current_word")) ;;
         credits)
             COMPREPLY=($(compgen -W "" -- "$current_word")) ;;
         licenses)

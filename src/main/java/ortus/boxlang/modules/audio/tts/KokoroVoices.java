@@ -38,8 +38,14 @@ public final class KokoroVoices {
 	 */
 	public static final int			WIDTH	= 256;
 
+	/**
+	 * The shape in the header of an {@code .npy} file, such as {@code (510, 1, 256)}
+	 */
 	private static final Pattern	SHAPE	= Pattern.compile( "'shape':\\s*\\(([^)]*)\\)" );
 
+	/**
+	 * Nothing to create: the methods are static
+	 */
 	private KokoroVoices() {
 	}
 
@@ -53,6 +59,10 @@ public final class KokoroVoices {
 
 		/**
 		 * The style for a text of that many tokens: row {@code n - 1}, or the last row when the text is longer than the table
+		 *
+		 * @param tokens How many tokens the text has, without the padding
+		 *
+		 * @return A copy of that row, {@link #WIDTH} values
 		 */
 		public float[] forTokens( int tokens ) {
 			int		row		= Math.max( 1, Math.min( tokens, this.rows ) ) - 1;
@@ -67,6 +77,10 @@ public final class KokoroVoices {
 	 *
 	 * @param pack  The {@code voices-v1.0.bin} file
 	 * @param voice The voice id, for example {@code af_heart}
+	 *
+	 * @return The styles of the voice
+	 *
+	 * @throws AudioException when the pack has no such voice, is not a NumPy pack, or cannot be read
 	 */
 	public static Styles read( Path pack, String voice ) {
 		try ( ZipFile zip = new ZipFile( pack.toFile() ) ) {
@@ -84,6 +98,13 @@ public final class KokoroVoices {
 
 	/**
 	 * Read a NumPy {@code .npy} file of little endian float32 values, version 1 or 2
+	 *
+	 * @param bytes The whole file
+	 * @param name  The voice, for the error message
+	 *
+	 * @return The styles, with the rows counted from the shape
+	 *
+	 * @throws AudioException when the file is not a float32 array in C order, or does not hold whole rows of {@link #WIDTH} values
 	 */
 	public static Styles parseNpy( byte[] bytes, String name ) {
 		if ( bytes.length < 12 || ( bytes[ 0 ] & 0xff ) != 0x93 || bytes[ 1 ] != 'N' || bytes[ 2 ] != 'U' ) {

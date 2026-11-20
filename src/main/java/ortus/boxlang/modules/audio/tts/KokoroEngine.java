@@ -52,14 +52,42 @@ public final class KokoroEngine implements SpeechEngine {
 	 */
 	private static final double						SENTENCE_PAUSE	= 0.25;
 
+	/**
+	 * The engine of this JVM, created on first use and cleared by {@link #shutdown()}
+	 */
 	private static KokoroEngine						instance;
 
+	/**
+	 * The Voices engine, which provides ONNX Runtime and the phonemizer
+	 */
 	private final PiperEngine						piper;
+
+	/**
+	 * Where the voices are stored, which the phonemizer needs for its dictionaries
+	 */
 	private final Path								voicesDir;
+
+	/**
+	 * The ONNX sessions opened so far, by model path. The model is large, so it is loaded once.
+	 */
 	private final Map<String, Object>				sessions		= new HashMap<>();
+
+	/**
+	 * The ONNX Runtime environment, created on the first run
+	 */
 	private Object									environment;
+
+	/**
+	 * The styles of the voices read so far, by voice id
+	 */
 	private final Map<String, KokoroVoices.Styles>	styles			= new HashMap<>();
 
+	/**
+	 * Use {@link #get(PiperEngine, Path)}
+	 *
+	 * @param piper     The Voices engine, which provides ONNX Runtime and the phonemizer
+	 * @param voicesDir Where the voices are
+	 */
 	private KokoroEngine( PiperEngine piper, Path voicesDir ) {
 		this.piper		= piper;
 		this.voicesDir	= voicesDir;
@@ -70,6 +98,8 @@ public final class KokoroEngine implements SpeechEngine {
 	 *
 	 * @param piper     The Voices engine, which provides ONNX Runtime and the phonemizer
 	 * @param voicesDir Where the voices are
+	 *
+	 * @return The engine, created on first use, and created again when the Voices engine has changed
 	 */
 	public static synchronized KokoroEngine get( PiperEngine piper, Path voicesDir ) {
 		if ( instance == null || instance.piper != piper ) {
@@ -98,6 +128,19 @@ public final class KokoroEngine implements SpeechEngine {
 		}
 	}
 
+	/**
+	 * Speak a text with a Kokoro voice. The text is split into sentences, each is phonemized, mapped to the phonemes Kokoro was trained on, run
+	 * through the model, trimmed, and the sentences are joined with a short pause.
+	 *
+	 * @param voice The Kokoro voice
+	 * @param store Where its model and voices pack are
+	 * @param text  What to say
+	 * @param speed 1 is normal, above 1 is faster
+	 *
+	 * @return The speech, mono at {@link #SAMPLE_RATE}
+	 *
+	 * @throws AudioException when the voice has nothing it can say in the text, or the model fails
+	 */
 	@Override
 	public synchronized AudioBuffer speak( VoiceInfo voice, VoiceStore store, String text, double speed ) {
 		try {
@@ -128,6 +171,10 @@ public final class KokoroEngine implements SpeechEngine {
 
 	/**
 	 * A text as sentences, so that each is spoken with its own phrasing and none is longer than the model takes
+	 *
+	 * @param text Any text, with or without line breaks
+	 *
+	 * @return The sentences, in order, none blank
 	 */
 	static List<String> sentences( String text ) {
 		List<String> result = new ArrayList<>();
@@ -143,6 +190,10 @@ public final class KokoroEngine implements SpeechEngine {
 
 	/**
 	 * Phonemes as pieces of at most the model's limit, cut at a space, or at the limit when a word is longer than that
+	 *
+	 * @param phonemes The mapped phonemes of one sentence
+	 *
+	 * @return The pieces, in order, none longer than the model takes
 	 */
 	static List<String> chunks( String phonemes ) {
 		List<String>	result	= new ArrayList<>();
@@ -162,6 +213,15 @@ public final class KokoroEngine implements SpeechEngine {
 
 	/**
 	 * Run the model: tokens, style and speed in, audio out
+	 *
+	 * @param model  The model file
+	 * @param tokens The tokens of one piece of speech, without the padding
+	 * @param style  The style of the voice for that many tokens
+	 * @param speed  1 is normal, above 1 is faster
+	 *
+	 * @return The audio samples at {@link #SAMPLE_RATE}
+	 *
+	 * @throws ReflectiveOperationException when ONNX Runtime cannot be driven, or the model fails
 	 */
 	private float[] run( Path model, long[] tokens, float[] style, float speed ) throws ReflectiveOperationException {
 		ClassLoader	loader		= this.piper.loader();
@@ -217,6 +277,10 @@ public final class KokoroEngine implements SpeechEngine {
 	/**
 	 * Cut the silence from both ends, the way librosa's {@code trim} does with its defaults: frames of 2048 samples every 512, and everything
 	 * quieter than 60 dB below the loudest frame is silence.
+	 *
+	 * @param audio The samples of one piece of speech
+	 *
+	 * @return The samples between the first and the last frame that is not silence, or the audio unchanged when it is all silent
 	 */
 	static float[] trim( float[] audio ) {
 		int			frame	= 2048;
@@ -258,6 +322,13 @@ public final class KokoroEngine implements SpeechEngine {
 		return java.util.Arrays.copyOfRange( audio, start, Math.max( start, end ) );
 	}
 
+	/**
+	 * Join pieces of speech with a pause between each two
+	 *
+	 * @param pieces The speech of each sentence, in order
+	 *
+	 * @return One array of samples, with {@link #SENTENCE_PAUSE} seconds of silence between the pieces
+	 */
 	private static float[] join( List<float[]> pieces ) {
 		int	pause	= ( int ) Math.round( SENTENCE_PAUSE * SAMPLE_RATE );
 		int	total	= 0;

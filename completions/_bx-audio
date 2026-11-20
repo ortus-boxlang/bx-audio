@@ -67,7 +67,7 @@ _bx-audio() {
         speak)
             _arguments '--voice=[voice]:voice:' '--out=[out]:out:' '--file=[file]:file:' '--speed=[speed]:speed:' '--captions=[captions]:captions:' '--no-install' '--offset=[offset]:offset:' '--max-chars=[max-chars]:max-chars:' '--by-clause' '--sentence-pause=[sentence-pause]:sentence-pause:' '--clause-pause=[clause-pause]:clause-pause:' '--paragraph-pause=[paragraph-pause]:paragraph-pause:' ;;
         voices)
-            _arguments '--lang=[lang]:lang:' '--installed' '--downloadable' '--excluded' '--all' '--license=[license]:license:' '--usage=[usage]:usage:' ;;
+            _arguments '--lang=[lang]:lang:' '--installed' '--downloadable' '--excluded' '--all' '--license=[license]:license:' '--usage=[usage]:usage:' '--engine=[engine]:engine:(piper kokoro)' ;;
         credits)
             _message 'no arguments' ;;
         licenses)

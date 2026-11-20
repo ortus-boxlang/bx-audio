@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Test;
 
 public class KokoroEngineTest {
 
+	/**
+	 * A text is spoken sentence by sentence, lines apart
+	 */
 	@DisplayName( "A text is spoken sentence by sentence, lines apart" )
 	@Test
 	void testSentences() {
@@ -32,6 +35,9 @@ public class KokoroEngineTest {
 		assertThat( KokoroEngine.sentences( "Version 2.5 is out." ) ).containsExactly( "Version 2.5 is out." );
 	}
 
+	/**
+	 * Phonemes longer than the model takes are cut at a space, and the pieces together are the whole
+	 */
 	@DisplayName( "Phonemes longer than the model takes are cut at a space, and the pieces together are the whole" )
 	@Test
 	void testChunks() {
@@ -49,6 +55,9 @@ public class KokoroEngineTest {
 		assertThat( KokoroEngine.chunks( "x".repeat( 1200 ) ).size() ).isAtLeast( 3 );
 	}
 
+	/**
+	 * Silence is cut from both ends of a sentence, and a sound with no silence is left whole
+	 */
 	@DisplayName( "Silence is cut from both ends of a sentence, and a sound with no silence is left whole" )
 	@Test
 	void testTrim() {

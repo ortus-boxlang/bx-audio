@@ -24,9 +24,15 @@ import ortus.boxlang.modules.audio.tts.PiperEngine;
  */
 public final class Lifecycle {
 
+	/**
+	 * Nothing to create: the methods are static
+	 */
 	private Lifecycle() {
 	}
 
+	/**
+	 * Close the mixers and the speech engines. Called when the module unloads.
+	 */
 	public static void shutdown() {
 		Mixer.closeAll();
 		KokoroEngine.shutdown();

@@ -72,7 +72,7 @@ audioSubtitles( cues, format="srt", path="", offset=0 )
 List the voices of the collection, with their licenses and what you can do with each
 
 ```js
-audioVoices( language="", installed=false, status="offered", license="", usage="" )
+audioVoices( language="", installed=false, status="offered", license="", usage="", engine="" )
 ```
 
 | Argument | Type | Default | |
@@ -82,6 +82,7 @@ audioVoices( language="", installed=false, status="offered", license="", usage="
 | `status` | string | `"offered"` | offered (default: voices you can use), installed, downloadable (offered, not installed yet), excluded (not offered, with the reason) or all. |
 | `license` | string | `""` | Only voices with this license identifier, for example CC0-1.0 or Apache-2.0. |
 | `usage` | string | `""` | Only voices of these usage classes, as a list: permissive, attribution, sharealike (the commercial ones), noncommercial, copyleft, custom or unclear. For example "permissive,attribution" gives the voices you can use in a product you sell without any condition beyond credit. |
+| `engine` | string | `""` | Only voices of this engine: piper or kokoro. Empty for all. |
 
 **Returns** An array of structs with id, name, language, quality, license, licenseText, usage (what the license means for a product you sell), commercial (true for permissive, attribution and sharealike), credit (the text to publish, empty when the license asks for none), shareAlike, source, sizeMB, installed, status (installed, downloadable or excluded), reasonKind and reason (empty unless excluded).
 

@@ -94,7 +94,11 @@ public class AudioSpeak extends BIF {
 	}
 
 	/**
-	 * @return The caller's respellings from the pronunciations argument, or null when there are none
+	 * The caller's own respellings
+	 *
+	 * @param arguments The arguments of the BIF
+	 *
+	 * @return The respellings from the pronunciations argument, word to spoken form, or null when there are none
 	 */
 	static Map<String, String> pronunciations( ArgumentsScope arguments ) {
 		if ( arguments.get( Key.of( "pronunciations" ) ) instanceof IStruct given && !given.isEmpty() ) {
@@ -105,6 +109,14 @@ public class AudioSpeak extends BIF {
 		return null;
 	}
 
+	/**
+	 * A progress callback that calls the BoxLang function of the {@code onProgress} argument, at most five times a second
+	 *
+	 * @param context   The context of the BIF
+	 * @param arguments The arguments of the BIF
+	 *
+	 * @return The callback, or null when there is no {@code onProgress} function
+	 */
 	static EngineInstaller.NamedProgress progress( IBoxContext context, ArgumentsScope arguments ) {
 		Object callback = arguments.get( KeyDictionary.onProgress );
 		if ( callback == null ) {

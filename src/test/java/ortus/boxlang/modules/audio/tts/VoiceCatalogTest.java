@@ -38,6 +38,9 @@ public class VoiceCatalogTest {
 	 */
 	private static final Set<String>	WARNED	= Set.of( "en_GB-alan-low", "en_GB-alan-medium", "en_GB-jenny_dioco-medium", "en_GB-semaine-medium" );
 
+	/**
+	 * Every voice has an open license, or a warning, and complete, plausible file information
+	 */
 	@DisplayName( "Every voice has an open license, or a warning, and complete, plausible file information" )
 	@Test
 	void testEveryVoiceIsOpen() {
@@ -71,6 +74,9 @@ public class VoiceCatalogTest {
 		}
 	}
 
+	/**
+	 * The Kokoro voices share one model and one voices pack, both checked by SHA-256, and are open licensed
+	 */
 	@DisplayName( "The Kokoro voices share one model and one voices pack, both checked by SHA-256, and are open licensed" )
 	@Test
 	void testKokoroVoices() {
@@ -97,6 +103,9 @@ public class VoiceCatalogTest {
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "jf_nezumi" ) ).getMessage() ).contains( "Japanese" );
 	}
 
+	/**
+	 * Voices with restrictive or unclear licenses are not offered, except the few that carry a warning
+	 */
 	@DisplayName( "Voices with restrictive or unclear licenses are not offered, except the few that carry a warning" )
 	@Test
 	void testRestrictedVoicesAreLeftOut() {
@@ -108,6 +117,9 @@ public class VoiceCatalogTest {
 		assertThat( ids.stream().anyMatch( id -> id.contains( "hfc_" ) ) ).isFalse();
 	}
 
+	/**
+	 * US and British English voices are offered, the other languages have no phonemizer yet
+	 */
 	@DisplayName( "US and British English voices are offered, the other languages have no phonemizer yet" )
 	@Test
 	void testEnglishVoices() {
@@ -115,6 +127,9 @@ public class VoiceCatalogTest {
 		assertThat( VoiceCatalog.load().find( "en_GB-alba-medium" ).language() ).isEqualTo( "en_GB" );
 	}
 
+	/**
+	 * A voice is found by its id or by its short name, and a name that fits several voices is refused
+	 */
 	@DisplayName( "A voice is found by its id or by its short name, and a name that fits several voices is refused" )
 	@Test
 	void testFind() {
@@ -125,6 +140,31 @@ public class VoiceCatalogTest {
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "nonexistent" ) ).getMessage() ).contains( "Unknown voice [nonexistent]" );
 	}
 
+	/**
+	 * An engine prefix looks only at the voices of that engine, and an unknown engine is refused
+	 */
+	@DisplayName( "An engine prefix looks only at the voices of that engine, and an unknown engine is refused" )
+	@Test
+	void testFindWithEngine() {
+		VoiceCatalog catalog = VoiceCatalog.load();
+		assertThat( catalog.find( "kokoro:heart" ).id() ).isEqualTo( "af_heart" );
+		assertThat( catalog.find( "KOKORO:af_heart" ).id() ).isEqualTo( "af_heart" );
+		assertThat( catalog.find( "piper:joe" ).id() ).isEqualTo( "en_US-joe-medium" );
+		assertThat( catalog.find( "piper:en_US-joe-medium" ).engine() ).isEqualTo( VoiceInfo.PIPER );
+		// a name of another engine is not found through the wrong prefix
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "piper:heart" ) ).getMessage() ).contains( "Unknown voice" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "kokoro:joe" ) ).getMessage() ).contains( "Unknown voice" );
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "festival:joe" ) ).getMessage() ).contains( "Unknown engine [festival]" );
+		// a name that fits several voices says which engine and id to use
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "piper:ljspeech" ) ).getMessage() )
+		    .contains( "piper:en_US-ljspeech-high" );
+		// a voice that is not offered is still explained through its engine
+		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "kokoro:jf_nezumi" ) ).getMessage() ).contains( "Japanese" );
+	}
+
+	/**
+	 * A voice that is not offered is refused with the reason, not as unknown
+	 */
 	@DisplayName( "A voice that is not offered is refused with the reason, not as unknown" )
 	@Test
 	void testFindExplainsExcluded() {
@@ -134,6 +174,9 @@ public class VoiceCatalogTest {
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "en_US-hfc_female-medium" ) ).getMessage() ).contains( "not offered" );
 	}
 
+	/**
+	 * Every voice of the collection is either offered or excluded with a reason, and none is both
+	 */
 	@DisplayName( "Every voice of the collection is either offered or excluded with a reason, and none is both" )
 	@Test
 	void testExcludedList() {
@@ -146,6 +189,9 @@ public class VoiceCatalogTest {
 		assertThat( catalog.excluded().stream().anyMatch( v -> offered.contains( v.id() ) ) ).isFalse();
 	}
 
+	/**
+	 * Every voice, offered or not, has a usage class that agrees with its license
+	 */
 	@DisplayName( "Every voice, offered or not, has a usage class that agrees with its license" )
 	@Test
 	void testUsageClasses() {

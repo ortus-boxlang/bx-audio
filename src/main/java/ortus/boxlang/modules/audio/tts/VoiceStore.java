@@ -48,7 +48,11 @@ public final class VoiceStore {
 	}
 
 	/**
-	 * @return The model file of a voice, whether or not it is installed
+	 * The model file of a voice, whether or not it is installed
+	 *
+	 * @param voice The voice
+	 *
+	 * @return The file: the voice's own, or the one model every Kokoro voice shares
 	 */
 	public Path modelFile( VoiceInfo voice ) {
 		if ( VoiceInfo.KOKORO.equals( voice.engine() ) ) {
@@ -58,7 +62,11 @@ public final class VoiceStore {
 	}
 
 	/**
-	 * @return The configuration file of a voice, whether or not it is installed
+	 * The configuration file of a voice, whether or not it is installed
+	 *
+	 * @param voice The voice
+	 *
+	 * @return The file: the voice's own, or for a Kokoro voice the voices pack that every Kokoro voice shares
 	 */
 	public Path configFile( VoiceInfo voice ) {
 		if ( VoiceInfo.KOKORO.equals( voice.engine() ) ) {
@@ -70,6 +78,10 @@ public final class VoiceStore {
 	/**
 	 * The name of a file below the Kokoro folder: the last part of its URL. Every Kokoro voice shares the model and the voices pack, so they
 	 * are installed once.
+	 *
+	 * @param file A file of a voice
+	 *
+	 * @return The file name
 	 */
 	private static String fileName( VoiceInfo.VoiceFile file ) {
 		return file.path().substring( file.path().lastIndexOf( '/' ) + 1 );
@@ -78,6 +90,10 @@ public final class VoiceStore {
 	/**
 	 * A voice is installed when both files are there at the size the catalog says. Files are only moved into place after their digest
 	 * was checked, so the size is enough here and keeps this check fast.
+	 *
+	 * @param voice The voice
+	 *
+	 * @return True when both files are there at the size the catalog says
 	 */
 	public boolean isInstalled( VoiceInfo voice ) {
 		try {
@@ -91,8 +107,9 @@ public final class VoiceStore {
 	}
 
 	/**
-	 * Download a voice
+	 * Download a voice, checking each file against its digest
 	 *
+	 * @param voice    The voice
 	 * @param progress Told about progress of the large model file, may be null
 	 */
 	public void install( VoiceInfo voice, Progress progress ) {
@@ -103,7 +120,9 @@ public final class VoiceStore {
 	}
 
 	/**
-	 * Delete a voice from disk
+	 * Delete a voice from disk. For a Kokoro voice that deletes the shared model and voices pack, so every Kokoro voice goes.
+	 *
+	 * @param voice The voice
 	 *
 	 * @return True if there was something to delete
 	 */
