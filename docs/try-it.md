@@ -124,7 +124,9 @@ Text to speech with an open license voice. The first run downloads the speech en
 
 ```bash
 bx-audio voices                                           # the voices you can use
+bx-audio voices --engine=kokoro                           # only the Kokoro voices
 bx-audio speak "Hello from BxAudio." --voice=en_US-joe-medium --out=hello.mp3 --captions=hello.srt
+bx-audio speak "Hello from BxAudio." --voice=kokoro:af_heart --out=heart.mp3   # a Kokoro voice, named with its engine
 ```
 
 ### 8. Score a video

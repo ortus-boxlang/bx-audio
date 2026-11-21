@@ -24,7 +24,7 @@ Each voice is a trained model with its own license, taken from the model card th
 | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | yes | yes | no | Credit the author and link the license |
 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | yes | yes | yes | Credit the author, and share what you make from it under the same license |
 
-At the moment the offered voices are CC0, public domain and Apache 2.0, so none of them requires credit or sharing. Check the card of the voice you use whenever it matters: the license applies to the voice, and the question of what it means for the audio the voice produces is the license's to answer, not this page's.
+At the moment the offered voices are CC0, public domain and Apache 2.0, so none of them requires credit or sharing. The 28 Kokoro voices, which share one model, are all Apache 2.0: keep the license notice if you ship the model. Check the card of the voice you use whenever it matters: the license applies to the voice, and the question of what it means for the audio the voice produces is the license's to answer, not this page's.
 
 ### What is never offered
 

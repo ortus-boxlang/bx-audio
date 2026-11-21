@@ -10,7 +10,7 @@ summary: What is done and what is next.
 2. Timeline mixing with a beat grid, ducking, pumping and offline rendering
 3. Synthesis (oscillators, envelopes, noise, drums, filters) and effects (delay, reverb, chorus, saturation)
 4. A catalog of sixteen example scripts, original music, measured and tested
-5. Text to speech with open license voices, speed, pauses, timed captions and SRT and WebVTT subtitles
+5. Text to speech with open license Piper and Kokoro voices, speed, pauses, timed captions and SRT and WebVTT subtitles
 6. Analysis: waveform, loudness (EBU R128), tempo and beats, spectrum, silence
 7. Mastering: loudness targets with a true-peak limiter, compressor, limiter, EQ
 8. Time stretch, fit to length and pitch shift
@@ -28,7 +28,7 @@ summary: What is done and what is next.
 
 ## Next
 
-- More languages for speech, and multi-speaker voices
+- More languages for speech, and multi-speaker voices. Kokoro already has voices in seven more languages, which wait for a phonemizer of each
 - MIDI file rendering (the JDK's software synthesizer cannot be driven offline from outside the JDK, so this needs a synthesizer of our own or a library)
 - A pitch shift that keeps the character of a voice
 - A cache of what was spoken, so the same line is not synthesized twice
