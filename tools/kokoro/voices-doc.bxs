@@ -1,0 +1,43 @@
+/**
+ * The Kokoro part of the docs page docs/voices.md, as lines. Included by tools/update-voices.bxs, which writes the page, and kept here so the page
+ * can be checked on its own: `boxlang tools/kokoro/voices-doc.bxs` prints it.
+ *
+ * The voices are in src/main/resources/kokoro.json, written by hand since Kokoro has one release of 54 voices and not a collection to read.
+ */
+function kokoroVoiceDocs( required string file ){
+	var kokoro = jsonDeserialize( fileRead( arguments.file ) );
+	var lines = [];
+	lines.append( "#### Kokoro voices" );
+	lines.append( "" );
+	lines.append( "[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) is a second kind of voice. One model of 82 million parameters speaks all of them at 24 000 Hz, so they share one download of " & numberFormat( kokoro.model.size / 1000000, "0" ) & " MB for the model and " & numberFormat( kokoro.pack.size / 1000000, "0" ) & " MB for the voices pack, each checked against a SHA-256. The model and the voices are licensed " & kokoro.licenseText & ". Use a voice by its id, or by its short name: `audioSpeak( text=""Hello"", voice=""af_heart"" )` or `voice=""heart""`." );
+	lines.append( "" );
+	lines.append( "| Voice | Short name | Language | License | Usage |" );
+	lines.append( "|---|---|---|---|---|" );
+	for( var v in kokoro.voices ){
+		lines.append( "| `" & v.id & "` | `" & v.name & "` | " & v.language & " | " & kokoro.license & " | " & kokoro.usage & " |" );
+	}
+	lines.append( "" );
+	lines.append( "The first letter of the id is the accent (`a` American, `b` British) and the second the voice (`f` female, `m` male). Removing one Kokoro voice with `audioVoiceRemove` removes the model and the pack, so all of them are gone together." );
+	lines.append( "" );
+	lines.append( "Kokoro has " & kokoro.excluded.len() & " more voices, in Spanish, French, Hindi, Italian, Japanese, Portuguese and Mandarin. They are not offered, because the Voices engine has no phonemizer for those languages yet:" );
+	lines.append( "" );
+	lines.append( "| Language | Voices |" );
+	lines.append( "|---|---|" );
+	var languages = {};
+	for( var e in kokoro.excluded ){
+		if( !languages.keyExists( e.reason ) ){
+			languages[ e.reason ] = { language : e.language, ids : [] };
+		}
+		languages[ e.reason ].ids.append( "`" & e.id & "`" );
+	}
+	for( var reason in languages ){
+		lines.append( "| " & reason.replace( "Not supported yet: the Voices engine has no phonemizer for ", "" ) & " (" & languages[ reason ].language & ") | " & languages[ reason ].ids.toList( ", " ) & " |" );
+	}
+	lines.append( "" );
+	return lines;
+}
+
+// Run on its own, it prints the section
+if( !isDefined( "doc" ) ){
+	println( kokoroVoiceDocs( expandPath( "../../src/main/resources/kokoro.json" ) ).toList( char( 10 ) ) );
+}

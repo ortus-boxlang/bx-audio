@@ -70,7 +70,7 @@ All 83 functions of the module. Audio is passed around as an audio buffer: every
 | [`audioSave`](files-and-editing.md) | Files and editing | Writes an audio buffer to a file, replacing any existing file. |
 | [`audioSilence`](files-and-editing.md) | Files and editing | Creates an audio buffer filled with silence. |
 | [`audioSpeakCues`](speech.md) | Speech and subtitles | Speak a text piece by piece and return the audio with the time each caption line is spoken |
-| [`audioSpeak`](speech.md) | Speech and subtitles | Turn text into speech with an installed Piper voice, installing the engine and the voice on first use |
+| [`audioSpeak`](speech.md) | Speech and subtitles | Turn text into speech with an installed Piper or Kokoro voice, installing the engine and the voice on first use |
 | [`audioSpectrogramImage`](analysis.md) | Analysis | Draws which frequencies are in a sound and when: time runs across, frequency up (low at the bottom, on a log scale like hearing) and loudness is the color. |
 | [`audioSpectrogram`](analysis.md) | Analysis | Get the band levels of audio over time, for drawing or analysis |
 | [`audioSpectrum`](analysis.md) | Analysis | Get the level of audio in log spaced frequency bands, in dB |

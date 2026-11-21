@@ -1,0 +1,500 @@
+{
+	"engine": "kokoro",
+	"license": "Apache-2.0",
+	"licenseText": "Apache License 2.0",
+	"usage": "permissive",
+	"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+	"quality": "high",
+	"model": {
+		"path": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx",
+		"size": 325532387,
+		"sha256": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5"
+	},
+	"pack": {
+		"path": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin",
+		"size": 28214398,
+		"sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+	},
+	"voices": [
+		{
+			"id": "af_alloy",
+			"name": "alloy",
+			"language": "en_US"
+		},
+		{
+			"id": "af_aoede",
+			"name": "aoede",
+			"language": "en_US"
+		},
+		{
+			"id": "af_bella",
+			"name": "bella",
+			"language": "en_US"
+		},
+		{
+			"id": "af_heart",
+			"name": "heart",
+			"language": "en_US"
+		},
+		{
+			"id": "af_jessica",
+			"name": "jessica",
+			"language": "en_US"
+		},
+		{
+			"id": "af_kore",
+			"name": "kore",
+			"language": "en_US"
+		},
+		{
+			"id": "af_nicole",
+			"name": "nicole",
+			"language": "en_US"
+		},
+		{
+			"id": "af_nova",
+			"name": "nova",
+			"language": "en_US"
+		},
+		{
+			"id": "af_river",
+			"name": "river",
+			"language": "en_US"
+		},
+		{
+			"id": "af_sarah",
+			"name": "sarah",
+			"language": "en_US"
+		},
+		{
+			"id": "af_sky",
+			"name": "sky",
+			"language": "en_US"
+		},
+		{
+			"id": "am_adam",
+			"name": "adam",
+			"language": "en_US"
+		},
+		{
+			"id": "am_echo",
+			"name": "echo",
+			"language": "en_US"
+		},
+		{
+			"id": "am_eric",
+			"name": "eric",
+			"language": "en_US"
+		},
+		{
+			"id": "am_fenrir",
+			"name": "fenrir",
+			"language": "en_US"
+		},
+		{
+			"id": "am_liam",
+			"name": "liam",
+			"language": "en_US"
+		},
+		{
+			"id": "am_michael",
+			"name": "michael",
+			"language": "en_US"
+		},
+		{
+			"id": "am_onyx",
+			"name": "onyx",
+			"language": "en_US"
+		},
+		{
+			"id": "am_puck",
+			"name": "puck",
+			"language": "en_US"
+		},
+		{
+			"id": "am_santa",
+			"name": "santa",
+			"language": "en_US"
+		},
+		{
+			"id": "bf_alice",
+			"name": "alice",
+			"language": "en_GB"
+		},
+		{
+			"id": "bf_emma",
+			"name": "emma",
+			"language": "en_GB"
+		},
+		{
+			"id": "bf_isabella",
+			"name": "isabella",
+			"language": "en_GB"
+		},
+		{
+			"id": "bf_lily",
+			"name": "lily",
+			"language": "en_GB"
+		},
+		{
+			"id": "bm_daniel",
+			"name": "daniel",
+			"language": "en_GB"
+		},
+		{
+			"id": "bm_fable",
+			"name": "fable",
+			"language": "en_GB"
+		},
+		{
+			"id": "bm_george",
+			"name": "george",
+			"language": "en_GB"
+		},
+		{
+			"id": "bm_lewis",
+			"name": "lewis",
+			"language": "en_GB"
+		}
+	],
+	"excluded": [
+		{
+			"id": "ef_dora",
+			"name": "dora",
+			"language": "es",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Spanish",
+			"size": 28214398
+		},
+		{
+			"id": "em_alex",
+			"name": "alex",
+			"language": "es",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Spanish",
+			"size": 28214398
+		},
+		{
+			"id": "em_santa",
+			"name": "santa",
+			"language": "es",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Spanish",
+			"size": 28214398
+		},
+		{
+			"id": "ff_siwis",
+			"name": "siwis",
+			"language": "fr_FR",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for French",
+			"size": 28214398
+		},
+		{
+			"id": "hf_alpha",
+			"name": "alpha",
+			"language": "hi_IN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Hindi",
+			"size": 28214398
+		},
+		{
+			"id": "hf_beta",
+			"name": "beta",
+			"language": "hi_IN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Hindi",
+			"size": 28214398
+		},
+		{
+			"id": "hm_omega",
+			"name": "omega",
+			"language": "hi_IN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Hindi",
+			"size": 28214398
+		},
+		{
+			"id": "hm_psi",
+			"name": "psi",
+			"language": "hi_IN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Hindi",
+			"size": 28214398
+		},
+		{
+			"id": "if_sara",
+			"name": "sara",
+			"language": "it_IT",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Italian",
+			"size": 28214398
+		},
+		{
+			"id": "im_nicola",
+			"name": "nicola",
+			"language": "it_IT",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Italian",
+			"size": 28214398
+		},
+		{
+			"id": "jf_alpha",
+			"name": "alpha",
+			"language": "ja_JP",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Japanese",
+			"size": 28214398
+		},
+		{
+			"id": "jf_gongitsune",
+			"name": "gongitsune",
+			"language": "ja_JP",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Japanese",
+			"size": 28214398
+		},
+		{
+			"id": "jf_nezumi",
+			"name": "nezumi",
+			"language": "ja_JP",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Japanese",
+			"size": 28214398
+		},
+		{
+			"id": "jf_tebukuro",
+			"name": "tebukuro",
+			"language": "ja_JP",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Japanese",
+			"size": 28214398
+		},
+		{
+			"id": "jm_kumo",
+			"name": "kumo",
+			"language": "ja_JP",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Japanese",
+			"size": 28214398
+		},
+		{
+			"id": "pf_dora",
+			"name": "dora",
+			"language": "pt_BR",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Brazilian Portuguese",
+			"size": 28214398
+		},
+		{
+			"id": "pm_alex",
+			"name": "alex",
+			"language": "pt_BR",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Brazilian Portuguese",
+			"size": 28214398
+		},
+		{
+			"id": "pm_santa",
+			"name": "santa",
+			"language": "pt_BR",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Brazilian Portuguese",
+			"size": 28214398
+		},
+		{
+			"id": "zf_xiaobei",
+			"name": "xiaobei",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zf_xiaoni",
+			"name": "xiaoni",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zf_xiaoxiao",
+			"name": "xiaoxiao",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zf_xiaoyi",
+			"name": "xiaoyi",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zm_yunjian",
+			"name": "yunjian",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zm_yunxi",
+			"name": "yunxi",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zm_yunxia",
+			"name": "yunxia",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		},
+		{
+			"id": "zm_yunyang",
+			"name": "yunyang",
+			"language": "zh_CN",
+			"quality": "high",
+			"license": "Apache-2.0",
+			"licenseText": "Apache License 2.0",
+			"usage": "permissive",
+			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
+			"reasonKind": "language",
+			"reason": "Not supported yet: the Voices engine has no phonemizer for Mandarin Chinese",
+			"size": 28214398
+		}
+	]
+}

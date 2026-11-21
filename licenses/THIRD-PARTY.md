@@ -40,6 +40,22 @@ Each voice has its own license, taken from its model card. [voices.md](../docs/v
 were left out because their license is restrictive or unclear. Voices are downloaded from the
 [rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices) collection on Hugging Face.
 
+### Kokoro voices (downloaded on first use)
+
+The Kokoro voices run on the same ONNX Runtime. Two files are downloaded the first time a Kokoro voice speaks, from the
+[kokoro-onnx release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0), each checked against a SHA-256 that is pinned in the
+module (`kokoro.json`).
+
+| File | Used for | License as declared by the project |
+|---|---|---|
+| `kokoro-v1.0.onnx` (325 MB), the model of [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) | Turning phonemes into speech | Apache 2 |
+| `voices-v1.0.bin` (28 MB), the voice styles of Kokoro-82M | The 54 voices of Kokoro, of which 28 English ones are offered | Apache 2 |
+
+The vocabulary of the model and the function word table of `kokoro-phonemes.json` were derived with the
+[kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) tokenizer (MIT) and [espeak-ng](https://github.com/espeak-ng/espeak-ng) (GPL 3), which were run
+only to read their output while preparing that file, see `tools/kokoro/derive-words.py`. Neither is part of the module or downloaded by it, and the file holds no
+code or text of either, only a list of phoneme strings per word.
+
 ## Note on MP3
 
 MP3 decoding and encoding need the `java.desktop` module of the JDK (the encoder describes its input with `javax.sound.sampled`).

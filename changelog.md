@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* Kokoro voices: 28 English voices (American and British, women and men) of the Kokoro v1.0 model, `af_heart` among them, spoken by `audioSpeak` and `audioSpeakCues` and listed by `audioVoices()` with `engine: "kokoro"`. They share one 325 MB model and one 28 MB voices pack, each checked by SHA-256, downloaded on first use. The text becomes phonemes with the Voices dictionary and is rewritten into the spelling Kokoro was trained on, see [the speech guide](docs/guides/speech-and-subtitles.md). The voices of the other Kokoro languages are listed as not offered. `VoiceInfo` has an `engine`, and `VoiceFile` a digest `algorithm`
+* A voice can be named with its engine, `kokoro:heart` or `piper:joe`, to look only at that engine's voices. `audioVoices( engine="kokoro" )` and `bx-audio voices --engine=kokoro` list the voices of one engine. A name that fits several voices lists the `engine:id` forms to use
+
 ### Changed
 
 * The landing page's ecosystem section now lists MatchBox, places BoxLang+ right after BoxLang, says ColdBox is an HMVC framework and describes CommandBox as the CLI and Package Manager for BoxLang.
