@@ -26,8 +26,8 @@
 
 	
 	
-		<meta name="description" content="Every voice of the Piper collection&#x3a; which can be used, which cannot, and why.">
-		<meta property="og:description" content="Every voice of the Piper collection&#x3a; which can be used, which cannot, and why.">
+		<meta name="description" content="Every voice, Piper and Kokoro&#x3a; which can be used, which cannot, and why.">
+		<meta property="og:description" content="Every voice, Piper and Kokoro&#x3a; which can be used, which cannot, and why.">
 	
 
 	
@@ -230,7 +230,7 @@
 		</h1>
 		
 		
-			<p class="page-summary">Every voice of the Piper collection&#x3a; which can be used, which cannot, and why.</p>
+			<p class="page-summary">Every voice, Piper and Kokoro&#x3a; which can be used, which cannot, and why.</p>
 		
 		
 		
@@ -240,7 +240,7 @@
 		
 		
 		
-			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#licenses">Licenses</a></li><li class="toc-level-2"><a href="#available-voices">Available voices</a></li><li class="toc-level-2"><a href="#using-voices-in-a-product-you-sell">Using voices in a product you sell</a></li><li class="toc-level-2"><a href="#not-offered">Not offered</a></li><li class="toc-level-2"><a href="#updating-this-list">Updating this list</a></li></ul></details>
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#licenses">Licenses</a></li><li class="toc-level-2"><a href="#available-voices">Available voices</a></li><li class="toc-level-2"><a href="#kokoro-voices">Kokoro voices</a></li><li class="toc-level-2"><a href="#using-voices-in-a-product-you-sell">Using voices in a product you sell</a></li><li class="toc-level-2"><a href="#not-offered">Not offered</a></li><li class="toc-level-2"><a href="#updating-this-list">Updating this list</a></li></ul></details>
 		
 
 		
@@ -288,6 +288,59 @@ audioSave( audio, &quot;hello.mp3&quot; );
 </tbody>
 </table></div>
 <p>Use a voice by its full id, or by its short name when only one voice has that name (<code>joe</code>, but not <code>ljspeech</code>, which comes in two qualities).</p>
+<h2 id="kokoro-voices"><a href="#kokoro-voices" id="kokoro-voices" name="kokoro-voices" class="anchor"></a>Kokoro voices</h2>
+<p><a href="https://huggingface.co/hexgrad/Kokoro-82M">Kokoro</a> is a second kind of voice. One model of 82 million parameters speaks all of them at 24 000 Hz, so they share one download of 326 MB for the model and 28 MB for the voices pack, each checked against a SHA-256. The model and the voices are licensed Apache License 2.0. Use a voice by its id, or by its short name: <code>audioSpeak( text=&quot;Hello&quot;, voice=&quot;af_heart&quot; )</code> or <code>voice=&quot;heart&quot;</code>.</p>
+<div class="bxsites-table-wrap" x-data="{ q: '' }"><input type="search" class="bxsites-table-filter" x-model="q" placeholder="Filter table..." aria-label="Filter table"><table class="table">
+<thead>
+<tr><th>Voice</th><th>Short name</th><th>Language</th><th>License</th><th>Usage</th></tr>
+</thead>
+<tbody>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_alloy</code></td><td><code>alloy</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_aoede</code></td><td><code>aoede</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_bella</code></td><td><code>bella</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_heart</code></td><td><code>heart</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_jessica</code></td><td><code>jessica</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_kore</code></td><td><code>kore</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_nicole</code></td><td><code>nicole</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_nova</code></td><td><code>nova</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_river</code></td><td><code>river</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_sarah</code></td><td><code>sarah</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>af_sky</code></td><td><code>sky</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_adam</code></td><td><code>adam</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_echo</code></td><td><code>echo</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_eric</code></td><td><code>eric</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_fenrir</code></td><td><code>fenrir</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_liam</code></td><td><code>liam</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_michael</code></td><td><code>michael</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_onyx</code></td><td><code>onyx</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_puck</code></td><td><code>puck</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>am_santa</code></td><td><code>santa</code></td><td>en_US</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bf_alice</code></td><td><code>alice</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bf_emma</code></td><td><code>emma</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bf_isabella</code></td><td><code>isabella</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bf_lily</code></td><td><code>lily</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bm_daniel</code></td><td><code>daniel</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bm_fable</code></td><td><code>fable</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bm_george</code></td><td><code>george</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+<tr x-show="!q || $el.textContent.toLowerCase().includes( q.toLowerCase() )"><td><code>bm_lewis</code></td><td><code>lewis</code></td><td>en_GB</td><td>Apache-2.0</td><td>permissive</td></tr>
+</tbody>
+</table></div>
+<p>The first letter of the id is the accent (<code>a</code> American, <code>b</code> British) and the second the voice (<code>f</code> female, <code>m</code> male). Removing one Kokoro voice with <code>audioVoiceRemove</code> removes the model and the pack, so all of them are gone together.</p>
+<p>Kokoro has 26 more voices, in Spanish, French, Hindi, Italian, Japanese, Portuguese and Mandarin. They are not offered, because the Voices engine has no phonemizer for those languages yet:</p>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Language</th><th>Voices</th></tr>
+</thead>
+<tbody>
+<tr><td>French (fr_FR)</td><td><code>ff_siwis</code></td></tr>
+<tr><td>Mandarin Chinese (zh_CN)</td><td><code>zf_xiaobei</code>, <code>zf_xiaoni</code>, <code>zf_xiaoxiao</code>, <code>zf_xiaoyi</code>, <code>zm_yunjian</code>, <code>zm_yunxi</code>, <code>zm_yunxia</code>, <code>zm_yunyang</code></td></tr>
+<tr><td>Japanese (ja_JP)</td><td><code>jf_alpha</code>, <code>jf_gongitsune</code>, <code>jf_nezumi</code>, <code>jf_tebukuro</code>, <code>jm_kumo</code></td></tr>
+<tr><td>Spanish (es)</td><td><code>ef_dora</code>, <code>em_alex</code>, <code>em_santa</code></td></tr>
+<tr><td>Brazilian Portuguese (pt_BR)</td><td><code>pf_dora</code>, <code>pm_alex</code>, <code>pm_santa</code></td></tr>
+<tr><td>Italian (it_IT)</td><td><code>if_sara</code>, <code>im_nicola</code></td></tr>
+<tr><td>Hindi (hi_IN)</td><td><code>hf_alpha</code>, <code>hf_beta</code>, <code>hm_omega</code>, <code>hm_psi</code></td></tr>
+</tbody>
+</table></div>
 <h2 id="using-voices-in-a-product-you-sell"><a href="#using-voices-in-a-product-you-sell" id="using-voices-in-a-product-you-sell" name="using-voices-in-a-product-you-sell" class="anchor"></a>Using voices in a product you sell</h2>
 <p>Every offered license allows commercial use, except the voices marked <strong>check license</strong>, which are non-commercial or unclear and should stay out of a product you sell. Each voice has a <code>usage</code>:</p>
 <div class="bxsites-table-wrap"><table class="table">
@@ -496,7 +549,7 @@ audioSave( audio, &quot;hello.mp3&quot; );
 
 	
 	
-		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/voices.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/voices.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 23, 2026, 3&#x3a;55&#x3a;47 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Voices&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/voices.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/voices.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Nov 21, 2026, 12&#x3a;19&#x3a;27 AM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Voices&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fvoices%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
 	
 </article>
 
@@ -540,7 +593,7 @@ audioSave( audio, &quot;hello.mp3&quot; );
 			
 			
 				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
-					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#licenses">Licenses</a></li><li class="toc-level-2"><a href="#available-voices">Available voices</a></li><li class="toc-level-2"><a href="#using-voices-in-a-product-you-sell">Using voices in a product you sell</a></li><li class="toc-level-2"><a href="#not-offered">Not offered</a></li><li class="toc-level-2"><a href="#updating-this-list">Updating this list</a></li></ul></nav>
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#licenses">Licenses</a></li><li class="toc-level-2"><a href="#available-voices">Available voices</a></li><li class="toc-level-2"><a href="#kokoro-voices">Kokoro voices</a></li><li class="toc-level-2"><a href="#using-voices-in-a-product-you-sell">Using voices in a product you sell</a></li><li class="toc-level-2"><a href="#not-offered">Not offered</a></li><li class="toc-level-2"><a href="#updating-this-list">Updating this list</a></li></ul></nav>
 				</aside>
 			
 		</div>

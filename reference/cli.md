@@ -159,7 +159,7 @@ Giving captions, a pause or --by-clause speaks the text piece by piece. Without 
 List voices with their licenses, what is installed, and why some are not offered.
 
 ```bash
-bx-audio voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID] [--usage=CLASSES]
+bx-audio voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID] [--usage=CLASSES] [--engine=piper|kokoro]
 ```
 
 ```text
@@ -171,6 +171,7 @@ Without options it lists the voices you can use. Each row says whether it is ins
   --all           Offered and excluded together
   --lang=en_US    One language (--lang=all is the default)
   --license=ID    One license, for example CC0-1.0 or Apache-2.0
+  --engine=NAME   One engine: piper or kokoro. A voice can be named with it too: kokoro:heart
   --usage=LIST    Only these classes of license: permissive, attribution, sharealike (the commercial ones),
                   noncommercial, copyleft, custom, unclear. For example --usage=permissive,attribution
 

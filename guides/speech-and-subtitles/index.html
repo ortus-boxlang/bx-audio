@@ -240,15 +240,15 @@
 		
 		
 		
-			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#choose-a-voice">Choose a voice</a></li><li class="toc-level-2"><a href="#download-ahead-of-time">Download ahead of time</a></li><li class="toc-level-2"><a href="#pace-and-pauses">Pace and pauses</a></li><li class="toc-level-2"><a href="#captions-timed-to-the-voice">Captions timed to the voice</a></li><li class="toc-level-2"><a href="#licenses-and-credits">Licenses and credits</a></li><li class="toc-level-2"><a href="#limits">Limits</a></li></ul></details>
+			<details class="bxsites-toc-mobile toc-mobile d-xl-none"><summary class="toc-mobile__summary"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</summary><ul class="list-unstyled"><li class="toc-level-2"><a href="#choose-a-voice">Choose a voice</a></li><li class="toc-level-2"><a href="#kokoro-voices">Kokoro voices</a></li><li class="toc-level-2"><a href="#download-ahead-of-time">Download ahead of time</a></li><li class="toc-level-2"><a href="#pace-and-pauses">Pace and pauses</a></li><li class="toc-level-2"><a href="#captions-timed-to-the-voice">Captions timed to the voice</a></li><li class="toc-level-2"><a href="#licenses-and-credits">Licenses and credits</a></li><li class="toc-level-2"><a href="#limits">Limits</a></li></ul></details>
 		
 
 		
-		<p><code>audioSpeak</code> turns text into audio with a <a href="https://github.com/rhasspy/piper">Piper</a> voice, on the JVM, with no API key and no cloud service. The engine (about 148 MB) and the voice (63 MB or more) are not in the module. The first call downloads them, checks every file against a checksum, and keeps them in <code>~/.bxaudio</code>, shared by every BoxLang install. After that it works offline.</p>
+		<p><code>audioSpeak</code> turns text into audio with a <a href="https://github.com/rhasspy/piper">Piper</a> or a <a href="https://huggingface.co/hexgrad/Kokoro-82M">Kokoro</a> voice, on the JVM, with no API key and no cloud service. The engine (about 148 MB) and the voice (63 MB or more) are not in the module. The first call downloads them, checks every file against a checksum, and keeps them in <code>~/.bxaudio</code>, shared by every BoxLang install. After that it works offline.</p>
 <pre><code class="language-js">voice = audioSpeak( text=&quot;Meet BoxLang. Fast, friendly and made for the JVM.&quot;, voice=&quot;joe&quot; );
 audioSave( voice, &quot;hello.mp3&quot; );
 </code></pre>
-<p><code>voice</code> is a full id such as <code>en_US-joe-medium</code> or a short name such as <code>joe</code>, when only one voice has that name. The result is a mono buffer at the voice's own sample rate, normally 22 050 Hz.</p>
+<p><code>voice</code> is a full id such as <code>en_US-joe-medium</code> or a short name such as <code>joe</code>, when only one voice has that name. Put the engine and a colon before a name to look only at that engine's voices: <code>kokoro:heart</code>, <code>piper:joe</code>. A name that fits several voices is refused, and the error lists the <code>engine:id</code> forms to use. The result is a mono buffer at the voice's own sample rate, normally 22 050 Hz.</p>
 <h2 id="choose-a-voice"><a href="#choose-a-voice" id="choose-a-voice" name="choose-a-voice" class="anchor"></a>Choose a voice</h2>
 <pre><code class="language-bash">bx-audio voices                       # the voices you can use, and whether they are installed
 bx-audio voices joe                   # one voice in detail: license, what it asks of you, size, training data
@@ -263,8 +263,34 @@ audioVoices( license=&quot;CC0-1.0&quot; );
 audioLicenses();                                   // the licenses and what they ask
 </code></pre>
 <p>Each voice has a <code>status</code> of <code>installed</code>, <code>downloadable</code> or <code>excluded</code>.</p>
+<h2 id="kokoro-voices"><a href="#kokoro-voices" id="kokoro-voices" name="kokoro-voices" class="anchor"></a>Kokoro voices</h2>
+<p>Kokoro is the second kind of voice, next to Piper: one model of 82 million parameters and 28 English voices, at 24 000 Hz. It sounds more natural than the Piper voices, and costs more: the model is 325 MB and the voices pack 28 MB, shared by all 28 voices, and a sentence takes longer on a CPU.</p>
+<pre><code class="language-js">voice = audioSpeak( text=&quot;Meet BoxLang. Fast, friendly and made for the JVM.&quot;, voice=&quot;af_heart&quot; );   // or the short name, heart
+audioSave( voice, &quot;hello.mp3&quot; );
+</code></pre>
+<div class="bxsites-table-wrap"><table class="table">
+<thead>
+<tr><th>Prefix</th><th>Voices</th></tr>
+</thead>
+<tbody>
+<tr><td><code>af_</code> American, female</td><td><code>alloy</code>, <code>aoede</code>, <code>bella</code>, <code>heart</code>, <code>jessica</code>, <code>kore</code>, <code>nicole</code>, <code>nova</code>, <code>river</code>, <code>sarah</code>, <code>sky</code></td></tr>
+<tr><td><code>am_</code> American, male</td><td><code>adam</code>, <code>echo</code>, <code>eric</code>, <code>fenrir</code>, <code>liam</code>, <code>michael</code>, <code>onyx</code>, <code>puck</code>, <code>santa</code></td></tr>
+<tr><td><code>bf_</code> British, female</td><td><code>alice</code>, <code>emma</code>, <code>isabella</code>, <code>lily</code></td></tr>
+<tr><td><code>bm_</code> British, male</td><td><code>daniel</code>, <code>fable</code>, <code>george</code>, <code>lewis</code></td></tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Installing.</strong> The first call downloads the engine if it is missing, then the model and the voices pack, and checks both against a SHA-256. <code>bx-audio install af_heart</code> does it ahead of time. The voices share the files, so <code>audioVoiceRemove( &quot;af_heart&quot; )</code> removes the model and the pack for every Kokoro voice.</li>
+<li><strong>Only Kokoro v1.0.</strong> The files come from the <a href="https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0">kokoro-onnx release</a>. The model is Apache 2.0, so <code>audioCredits()</code> gives the notice to keep.</li>
+<li><strong>Other languages.</strong> Kokoro also has Spanish, French, Hindi, Italian, Japanese, Portuguese and Mandarin voices. They need a phonemizer the engine does not have, so they are listed as not offered, with the reason, like the other languages.</li>
+<li><strong>What <code>audioVoices()</code> says.</strong> Each voice has an <code>engine</code>, <code>piper</code> or <code>kokoro</code>.</li>
+<li><strong>How it speaks.</strong> The text becomes phonemes with the same dictionary as the Piper voices. Kokoro was trained on <a href="https://github.com/espeak-ng/espeak-ng">espeak-ng</a> phonemes, which the engine does not have, so they are rewritten first: a table of function words learned from espeak-ng, and for American English a few vowel rules. Then the model speaks each sentence, silence is trimmed from both ends and sentences are joined with a quarter of a second of pause. <code>speed</code>, <code>pauses</code> and <code>pronunciations</code> work as for Piper.</li>
+<li><strong>How close it is to Kokoro with espeak-ng.</strong> On 120 sentences of these docs the audio is the same length (0.997 times, 89 of 100 sentences within 5 percent). A speech recognizer (Whisper <code>base.en</code>) gets 7.3 percent of the words wrong on the American voice <code>af_heart</code>, against 5.7 percent for Kokoro with espeak-ng, and 8.0 against 5.7 percent on the British voice <code>bf_emma</code>. A rare or technical word may be said differently: respell it with <code>pronunciations</code>.</li>
+<li><strong>Level.</strong> A few voices peak at or just above full scale on some lines. Run the speech through <code>audioNormalize</code> or <code>audioMaster</code> before you mix it.</li>
+</ul>
 <h2 id="download-ahead-of-time"><a href="#download-ahead-of-time" id="download-ahead-of-time" name="download-ahead-of-time" class="anchor"></a>Download ahead of time</h2>
 <pre><code class="language-bash">bx-audio install engine joe
+bx-audio install af_heart             # a Kokoro voice: the model and the voices pack
 </code></pre>
 <pre><code class="language-js">audioVoiceInstall( &quot;engine&quot;, ( name, done, total ) =&gt; println( name &amp; &quot; &quot; &amp; int( done * 100 / total ) &amp; &quot;%&quot; ) );
 audioVoiceInstall( &quot;joe&quot; );
@@ -321,7 +347,7 @@ println( audioCredits( [ &quot;joe&quot;, &quot;sam&quot; ] ) );
 <h2 id="limits"><a href="#limits" id="limits" name="limits" class="anchor"></a>Limits</h2>
 <ul>
 <li>US and British English only for now. The British English (<code>en_GB</code>) voices use a GPL 3 pronunciation dictionary, downloaded the first time one speaks, and other languages need a phonemizer the engine does not have yet. See <a href="/voices/index.html">Voices</a>.</li>
-<li>Only single speaker voices are offered.</li>
+<li>Only single speaker Piper voices are offered. Kokoro speaks English only here, and its pronunciation is close to, not the same as, Kokoro with espeak-ng (see above).</li>
 <li>There are no word level timings, so captions follow sentences or clauses, not each word.</li>
 </ul>
 
@@ -329,7 +355,7 @@ println( audioCredits( [ &quot;joe&quot;, &quot;sam&quot; ] ) );
 
 	
 	
-		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/speech-and-subtitles.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/speech-and-subtitles.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Oct 23, 2026, 3&#x3a;55&#x3a;47 PM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Speech%20and%20subtitles&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fspeech-and-subtitles%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
+		<div class="page-meta"><a href="https://github.com/ortus-boxlang/bx-audio/edit/development/docs/guides/speech-and-subtitles.md" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg> Edit this page</a><a href="/guides/speech-and-subtitles.md" download><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 15v-3l1.5 2 1.5-2v3"/><path d="M14.5 12v4M13 15.5l1.5 1.5 1.5-1.5"/></svg> Download Markdown</a><span class="page-meta__item"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Last updated Nov 21, 2026, 12&#x3a;19&#x3a;27 AM</span><a href="https://github.com/ortus-boxlang/bx-audio/issues/new?title=Issue%20with%3A%20Speech%20and%20subtitles&amp;body=Found%20on%3A%20https%3A%2F%2Fbxaudio.boxlang.io%2Fguides%2Fspeech-and-subtitles%2Findex.html" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Report an issue</a></div>
 	
 </article>
 
@@ -373,7 +399,7 @@ println( audioCredits( [ &quot;joe&quot;, &quot;sam&quot; ] ) );
 			
 			
 				<aside class="col-xl-2 toc-sidebar d-none d-xl-block">
-					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#choose-a-voice">Choose a voice</a></li><li class="toc-level-2"><a href="#download-ahead-of-time">Download ahead of time</a></li><li class="toc-level-2"><a href="#pace-and-pauses">Pace and pauses</a></li><li class="toc-level-2"><a href="#captions-timed-to-the-voice">Captions timed to the voice</a></li><li class="toc-level-2"><a href="#licenses-and-credits">Licenses and credits</a></li><li class="toc-level-2"><a href="#limits">Limits</a></li></ul></nav>
+					<nav class="toc bxsites-toc mb-4" aria-label="On this page"><div class="toc-title bxsites-toc__title"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M6 8h6"/><path d="M6 14h9"/><path d="M6 20h4"/></svg> On this page</div><ul class="list-unstyled"><li class="toc-level-2"><a href="#choose-a-voice">Choose a voice</a></li><li class="toc-level-2"><a href="#kokoro-voices">Kokoro voices</a></li><li class="toc-level-2"><a href="#download-ahead-of-time">Download ahead of time</a></li><li class="toc-level-2"><a href="#pace-and-pauses">Pace and pauses</a></li><li class="toc-level-2"><a href="#captions-timed-to-the-voice">Captions timed to the voice</a></li><li class="toc-level-2"><a href="#licenses-and-credits">Licenses and credits</a></li><li class="toc-level-2"><a href="#limits">Limits</a></li></ul></nav>
 				</aside>
 			
 		</div>
