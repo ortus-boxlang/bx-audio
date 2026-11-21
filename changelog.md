@@ -9,14 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-21
+
+## [1.2.0] - 2026-10-23
+
+## [1.1.0] - 2026-10-19
+
 ### Added
 
-* Kokoro voices: 28 English voices (American and British, women and men) of the Kokoro v1.0 model, `af_heart` among them, spoken by `audioSpeak` and `audioSpeakCues` and listed by `audioVoices()` with `engine: "kokoro"`. They share one 325 MB model and one 28 MB voices pack, each checked by SHA-256, downloaded on first use. The text becomes phonemes with the Voices dictionary and is rewritten into the spelling Kokoro was trained on, see [the speech guide](docs/guides/speech-and-subtitles.md). The voices of the other Kokoro languages are listed as not offered. `VoiceInfo` has an `engine`, and `VoiceFile` a digest `algorithm`
-* A voice can be named with its engine, `kokoro:heart` or `piper:joe`, to look only at that engine's voices. `audioVoices( engine="kokoro" )` and `bx-audio voices --engine=kokoro` list the voices of one engine. A name that fits several voices lists the `engine:id` forms to use
+- Kokoro voices: 28 English voices (American and British, women and men) of the Kokoro v1.0 model, `af_heart` among them, spoken by `audioSpeak` and `audioSpeakCues` and listed by `audioVoices()` with `engine: "kokoro"`. They share one 325 MB model and one 28 MB voices pack, each checked by SHA-256, downloaded on first use. The text becomes phonemes with the Voices dictionary and is rewritten into the spelling Kokoro was trained on, see [the speech guide](docs/guides/speech-and-subtitles.md). The voices of the other Kokoro languages are listed as not offered. `VoiceInfo` has an `engine`, and `VoiceFile` a digest `algorithm`
+- A voice can be named with its engine, `kokoro:heart` or `piper:joe`, to look only at that engine's voices. `audioVoices( engine="kokoro" )` and `bx-audio voices --engine=kokoro` list the voices of one engine. A name that fits several voices lists the `engine:id` forms to use
 
 ### Changed
 
-* The landing page's ecosystem section now lists MatchBox, places BoxLang+ right after BoxLang, says ColdBox is an HMVC framework and describes CommandBox as the CLI and Package Manager for BoxLang.
+- The landing page's ecosystem section now lists MatchBox, places BoxLang+ right after BoxLang, says ColdBox is an HMVC framework and describes CommandBox as the CLI and Package Manager for BoxLang.
 
 ## [1.2.0] - 2026-10-23
 
@@ -67,7 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `audioSaturate` for peak-normalize plus tanh limiting
 - DSP BIFs `audioGain`, `audioPan`, `audioFade`, `audioNormalize`, `audioTrim`, `audioConcat`, `audioReverse`, `audioChannels` and `audioResample`
 
-[unreleased]: https://github.com/ortus-boxlang/bx-audio/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/ortus-boxlang/bx-audio/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/ortus-boxlang/bx-audio/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/ortus-boxlang/bx-audio/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ortus-boxlang/bx-audio/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/ortus-boxlang/bx-audio/compare/c7122febcca353134c430ad7fb1c48a235dc5bbf...v1.0.0
