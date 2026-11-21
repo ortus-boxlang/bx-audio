@@ -8,7 +8,7 @@ layout: home
 ogImage: assets/og-image.png
 ---
 
-Make sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix with ducking, add effects, master to a loudness target, speak text with open license voices, score a video, and play sound in a game. It all runs on the JVM, in BoxLang, with no Python and nothing native to install.
+Make sound from code. Synthesize instruments and drums, arrange them on a beat grid, mix with ducking, add effects, master to a loudness target, speak text with open license voices (Piper, and Kokoro's `af_heart` and 27 more), score a video, and play sound in a game. It all runs on the JVM, in BoxLang, with no Python and nothing native to install.
 
 ```js
 t = audioTimeline( bpm=128 );
@@ -39,13 +39,13 @@ Cut music to the exact length of a picture, add a voice-over with captions, mast
 Measure loudness the EBU R128 way and deliver to streaming, podcast or broadcast targets.
 :::
 ::: card title="Speak and subtitle" icon="phosphor-duotone:microphone" href="guides/speech-and-subtitles.md"
-Open license voices that download on first use, with speed, pauses and captions timed to the words.
+Piper and Kokoro voices, with open licenses, that download on first use, with speed, pauses and captions timed to the words.
 :::
 ::: card title="Game audio" icon="phosphor-duotone:game-controller" href="guides/games.md"
 A real time mixer with buses, loops and crossfades, varied effects and audio sprites.
 :::
 ::: card title="Voices and licenses" icon="phosphor-duotone:scales" href="voices.md"
-Every voice of the collection: which can be used, which cannot, and why.
+Every Piper and Kokoro voice: which can be used, which cannot, and why.
 :::
 ::: card title="Reference" icon="phosphor-duotone:books" href="reference/functions/index.md"
 All 83 functions with their arguments, and every command of the `bx-audio` command line.
@@ -61,7 +61,7 @@ All 83 functions with their arguments, and every command of the `bx-audio` comma
 | Effects | Delay with ping pong, Freeverb reverb, chorus, saturation |
 | Mastering | EBU R128 loudness, a mastering chain, compressor, limiter, EQ |
 | Time and pitch | Time stretch, fit to an exact length, pitch shift |
-| Speech | Text to speech with open license voices, speed, pauses, captions |
+| Speech | Text to speech with Piper and Kokoro voices, speed, pauses, captions |
 | Video | Read any video, subtitles, chapter markers, put sound on a picture |
 | Games | Real time mixer, seamless loops, effect variations, audio sprites |
 | Analysis | Tempo and beats, spectrum, silence |

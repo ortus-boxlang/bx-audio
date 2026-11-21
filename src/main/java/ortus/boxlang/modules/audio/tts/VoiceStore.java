@@ -48,22 +48,52 @@ public final class VoiceStore {
 	}
 
 	/**
-	 * @return The model file of a voice, whether or not it is installed
+	 * The model file of a voice, whether or not it is installed
+	 *
+	 * @param voice The voice
+	 *
+	 * @return The file: the voice's own, or the one model every Kokoro voice shares
 	 */
 	public Path modelFile( VoiceInfo voice ) {
+		if ( VoiceInfo.KOKORO.equals( voice.engine() ) ) {
+			return this.voicesDir.resolve( VoiceInfo.KOKORO ).resolve( fileName( voice.model() ) );
+		}
 		return this.voicesDir.resolve( voice.id() ).resolve( voice.id() + ".onnx" );
 	}
 
 	/**
-	 * @return The configuration file of a voice, whether or not it is installed
+	 * The configuration file of a voice, whether or not it is installed
+	 *
+	 * @param voice The voice
+	 *
+	 * @return The file: the voice's own, or for a Kokoro voice the voices pack that every Kokoro voice shares
 	 */
 	public Path configFile( VoiceInfo voice ) {
+		if ( VoiceInfo.KOKORO.equals( voice.engine() ) ) {
+			return this.voicesDir.resolve( VoiceInfo.KOKORO ).resolve( fileName( voice.config() ) );
+		}
 		return this.voicesDir.resolve( voice.id() ).resolve( voice.id() + ".onnx.json" );
+	}
+
+	/**
+	 * The name of a file below the Kokoro folder: the last part of its URL. Every Kokoro voice shares the model and the voices pack, so they
+	 * are installed once.
+	 *
+	 * @param file A file of a voice
+	 *
+	 * @return The file name
+	 */
+	private static String fileName( VoiceInfo.VoiceFile file ) {
+		return file.path().substring( file.path().lastIndexOf( '/' ) + 1 );
 	}
 
 	/**
 	 * A voice is installed when both files are there at the size the catalog says. Files are only moved into place after their digest
 	 * was checked, so the size is enough here and keeps this check fast.
+	 *
+	 * @param voice The voice
+	 *
+	 * @return True when both files are there at the size the catalog says
 	 */
 	public boolean isInstalled( VoiceInfo voice ) {
 		try {
@@ -77,22 +107,28 @@ public final class VoiceStore {
 	}
 
 	/**
-	 * Download a voice
+	 * Download a voice, checking each file against its digest
 	 *
+	 * @param voice    The voice
 	 * @param progress Told about progress of the large model file, may be null
 	 */
 	public void install( VoiceInfo voice, Progress progress ) {
-		Downloader.download( this.baseUrl + voice.config().path(), configFile( voice ), voice.config().size(), "MD5", voice.config().md5(), null );
-		Downloader.download( this.baseUrl + voice.model().path(), modelFile( voice ), voice.model().size(), "MD5", voice.model().md5(), progress );
+		VoiceInfo.VoiceFile	config	= voice.config();
+		VoiceInfo.VoiceFile	model	= voice.model();
+		Downloader.download( config.url( this.baseUrl ), configFile( voice ), config.size(), config.algorithm(), config.digest(), null );
+		Downloader.download( model.url( this.baseUrl ), modelFile( voice ), model.size(), model.algorithm(), model.digest(), progress );
 	}
 
 	/**
-	 * Delete a voice from disk
+	 * Delete a voice from disk. For a Kokoro voice that deletes the shared model and voices pack, so every Kokoro voice goes.
+	 *
+	 * @param voice The voice
 	 *
 	 * @return True if there was something to delete
 	 */
 	public boolean remove( VoiceInfo voice ) {
-		Path dir = this.voicesDir.resolve( voice.id() );
+		// the Kokoro voices share one folder, so removing one removes them all
+		Path dir = this.voicesDir.resolve( VoiceInfo.KOKORO.equals( voice.engine() ) ? VoiceInfo.KOKORO : voice.id() );
 		if ( !Files.isDirectory( dir ) ) {
 			return false;
 		}

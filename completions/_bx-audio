@@ -67,15 +67,15 @@ _bx-audio() {
         speak)
             _arguments '--voice=[voice]:voice:' '--out=[out]:out:' '--file=[file]:file:' '--speed=[speed]:speed:' '--captions=[captions]:captions:' '--no-install' '--offset=[offset]:offset:' '--max-chars=[max-chars]:max-chars:' '--by-clause' '--sentence-pause=[sentence-pause]:sentence-pause:' '--clause-pause=[clause-pause]:clause-pause:' '--paragraph-pause=[paragraph-pause]:paragraph-pause:' ;;
         voices)
-            _arguments '--lang=[lang]:lang:' '--installed' '--downloadable' '--excluded' '--all' '--license=[license]:license:' '--usage=[usage]:usage:' ;;
+            _arguments '--lang=[lang]:lang:' '--installed' '--downloadable' '--excluded' '--all' '--license=[license]:license:' '--usage=[usage]:usage:' '--engine=[engine]:engine:(piper kokoro)' ;;
         credits)
             _message 'no arguments' ;;
         licenses)
             _message 'no arguments' ;;
         install)
-            _arguments '*:install:(en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine)' ;;
+            _arguments '*:install:(en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam alloy aoede bella heart jessica kore nicole nova river sarah sky adam echo eric fenrir liam michael onyx puck santa alice emma isabella lily daniel fable george lewis engine)' ;;
         remove)
-            _arguments '*:remove:(en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam engine)' ;;
+            _arguments '*:remove:(en_GB-alan-low en_GB-alan-medium alba aru en_GB-cori-high en_GB-cori-medium jenny_dioco northern_english_male semaine southern_english_female vctk bryce joe john kathleen kristin en_US-ljspeech-high en_US-ljspeech-medium mike norman reza_ibrahim sam alloy aoede bella heart jessica kore nicole nova river sarah sky adam echo eric fenrir liam michael onyx puck santa alice emma isabella lily daniel fable george lewis engine)' ;;
         where)
             _message 'no arguments' ;;
         clean)

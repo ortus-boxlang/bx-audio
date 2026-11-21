@@ -48,7 +48,7 @@ class {
 					"",
 					"Giving captions, a pause or --by-clause speaks the text piece by piece. Without them the voice phrases the whole text itself."
 				] },
-			{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID] [--usage=CLASSES]", help : "List voices with their licenses, what is installed, and why some are not offered",
+			{ name : "voices", usage : "voices [voice] [--lang=en_US] [--installed|--downloadable|--excluded|--all] [--license=ID] [--usage=CLASSES] [--engine=piper|kokoro]", help : "List voices with their licenses, what is installed, and why some are not offered",
 				details : [
 					"Without options it lists the voices you can use. Each row says whether it is installed or still to download.",
 					"  <voice>         Full details of one voice: license, what the license asks, size, training data, where it is stored",
@@ -58,6 +58,7 @@ class {
 					"  --all           Offered and excluded together",
 					"  --lang=en_US    One language (--lang=all is the default)",
 					"  --license=ID    One license, for example CC0-1.0 or Apache-2.0",
+					"  --engine=NAME   One engine: piper or kokoro. A voice can be named with it too: kokoro:heart",
 					"  --usage=LIST    Only these classes of license: permissive, attribution, sharealike (the commercial ones),",
 					"                  noncommercial, copyleft, custom, unclear. For example --usage=permissive,attribution",
 					"",
@@ -432,7 +433,7 @@ class {
 		}
 		var status = flag( "all" ) ? "all" : flag( "excluded" ) ? "excluded" : flag( "installed" ) ? "installed" : flag( "downloadable" ) ? "downloadable" : "offered";
 		var language = ( options.lang ?: "all" ) == "all" ? "" : options.lang;
-		var voices = audioVoices( language = language, status = status, license = options.license ?: "", usage = options.usage ?: "" );
+		var voices = audioVoices( language = language, status = status, license = options.license ?: "", usage = options.usage ?: "", engine = options.engine ?: "" );
 		if( !voices.len() ){
 			out( "No voices match." );
 			return;
@@ -463,12 +464,18 @@ class {
 
 	private function voiceDetail( required string name ){
 		var all = audioVoices( status = "all" );
-		var found = all.filter( ( v ) => v.id.lcase() == name.lcase() );
+		// kokoro:heart looks only at the voices of one engine
+		var engine = name.find( ":" ) ? name.listFirst( ":" ).trim().lcase() : "";
+		var wanted = name.find( ":" ) ? name.listRest( ":" ).trim().lcase() : name.lcase();
+		if( engine.len() ){
+			all = all.filter( ( v ) => v.engine == engine );
+		}
+		var found = all.filter( ( v ) => v.id.lcase() == wanted );
 		if( !found.len() ){
-			found = all.filter( ( v ) => v.name.lcase() == name.lcase() );
+			found = all.filter( ( v ) => v.name.lcase() == wanted );
 		}
 		if( found.len() > 1 ){
-			throw( type = "bxaudio.cli", message = "More than one voice is called [#name#], use the full id: " & found.map( ( v ) => v.id ).toList( ", " ) );
+			throw( type = "bxaudio.cli", message = "More than one voice is called [#name#], use the engine and the full id: " & found.map( ( v ) => v.engine & ":" & v.id ).toList( ", " ) );
 		}
 		if( !found.len() ){
 			throw( type = "bxaudio.cli", message = "Unknown voice [#name#]. Run `bx-audio voices --all` to see every voice." );

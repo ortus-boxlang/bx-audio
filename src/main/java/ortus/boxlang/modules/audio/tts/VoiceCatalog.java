@@ -34,10 +34,33 @@ import ortus.boxlang.modules.audio.util.AudioException;
  */
 public final class VoiceCatalog {
 
+	/**
+	 * The engines a voice can belong to, which a voice name can be prefixed with: {@code piper:joe}
+	 */
+	public static final List<String>	ENGINES	= List.of( VoiceInfo.PIPER, VoiceInfo.KOKORO );
+
+	/**
+	 * The URL the file paths of the Piper voices are relative to
+	 */
 	private final String				baseUrl;
+
+	/**
+	 * The voices that are offered
+	 */
 	private final List<VoiceInfo>		voices;
+
+	/**
+	 * The voices that are not offered, with the reason
+	 */
 	private final List<ExcludedVoice>	excluded;
 
+	/**
+	 * Use {@link #load()}
+	 *
+	 * @param baseUrl  The URL the file paths of the Piper voices are relative to
+	 * @param voices   The voices that are offered
+	 * @param excluded The voices that are not offered
+	 */
 	private VoiceCatalog( String baseUrl, List<VoiceInfo> voices, List<ExcludedVoice> excluded ) {
 		this.baseUrl	= baseUrl;
 		this.voices		= voices;
@@ -58,27 +81,77 @@ public final class VoiceCatalog {
 	 * @param reasonKind  {@code license}, {@code dictionary}, {@code speakers} or {@code language}
 	 * @param reason      Why it is not offered, in a sentence
 	 * @param size        The bytes its files would take
+	 * @param engine      Which engine would speak it, {@code piper} or {@code kokoro}
 	 */
 	public record ExcludedVoice( String id, String name, String language, String quality, String license, String licenseText, String usage,
-	    String source, String reasonKind, String reason, long size ) {
+	    String source, String reasonKind, String reason, long size, String engine ) {
 	}
 
 	/**
-	 * Read the catalog bundled with the module
+	 * Read the catalog bundled with the module: the Piper voices and the Kokoro voices
+	 *
+	 * @return The catalog
+	 *
+	 * @throws AudioException when a catalog file is missing from the module or cannot be read
 	 */
 	public static VoiceCatalog load() {
 		try ( InputStream in = VoiceCatalog.class.getClassLoader().getResourceAsStream( "voices.json" ) ) {
 			if ( in == null ) {
 				throw new AudioException( AudioException.INTERNAL, "The voice catalog (voices.json) is missing from the module" );
 			}
-			return parse( in );
+			VoiceCatalog piper = parse( in );
+			try ( InputStream kokoro = VoiceCatalog.class.getClassLoader().getResourceAsStream( "kokoro.json" ) ) {
+				if ( kokoro == null ) {
+					throw new AudioException( AudioException.INTERNAL, "The Kokoro voice catalog (kokoro.json) is missing from the module" );
+				}
+				return piper.withKokoro( kokoro );
+			}
 		} catch ( IOException e ) {
 			throw new AudioException( AudioException.IO, "Could not read the voice catalog: " + e.getMessage(), e );
 		}
 	}
 
 	/**
-	 * Read a catalog from JSON
+	 * This catalog with the Kokoro voices added, from {@code kokoro.json}. Every Kokoro voice shares one model and one voices pack, so the file
+	 * holds those once and a short entry for each voice.
+	 *
+	 * @param in The Kokoro catalog as JSON
+	 *
+	 * @return A new catalog with the Piper voices and the Kokoro voices
+	 *
+	 * @throws IOException when the JSON cannot be read
+	 */
+	@SuppressWarnings( "unchecked" )
+	public VoiceCatalog withKokoro( InputStream in ) throws IOException {
+		Map<String, Object>	root		= JSON.std.mapFrom( in );
+		VoiceFile			model		= file( ( Map<String, Object> ) root.get( "model" ) );
+		VoiceFile			pack		= file( ( Map<String, Object> ) root.get( "pack" ) );
+		List<VoiceInfo>		voices		= new ArrayList<>( this.voices );
+		List<ExcludedVoice>	excluded	= new ArrayList<>( this.excluded );
+		for ( Object entry : ( List<Object> ) root.get( "voices" ) ) {
+			Map<String, Object> v = ( Map<String, Object> ) entry;
+			voices.add( new VoiceInfo( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ),
+			    ( String ) root.get( "quality" ), ( String ) root.get( "license" ), ( String ) root.get( "licenseText" ), ( String ) root.get( "usage" ), false,
+			    ( String ) root.get( "source" ), model, pack, VoiceInfo.KOKORO ) );
+		}
+		for ( Object entry : ( List<Object> ) root.getOrDefault( "excluded", List.of() ) ) {
+			Map<String, Object> v = ( Map<String, Object> ) entry;
+			excluded
+			    .add( new ExcludedVoice( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ), ( String ) v.get( "quality" ),
+			        ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ), ( String ) v.get( "usage" ), ( String ) v.get( "source" ),
+			        ( String ) v.get( "reasonKind" ), ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue(), VoiceInfo.KOKORO ) );
+		}
+		return new VoiceCatalog( this.baseUrl, List.copyOf( voices ), List.copyOf( excluded ) );
+	}
+
+	/**
+	 * Read a catalog of Piper voices from JSON
+	 *
+	 * @param in The catalog as JSON, as written by {@code tools/update-voices.bxs}
+	 *
+	 * @return The catalog
+	 *
+	 * @throws IOException when the JSON cannot be read
 	 */
 	@SuppressWarnings( "unchecked" )
 	public static VoiceCatalog parse( InputStream in ) throws IOException {
@@ -105,13 +178,22 @@ public final class VoiceCatalog {
 			excluded.add( new ExcludedVoice( ( String ) v.get( "id" ), ( String ) v.get( "name" ), ( String ) v.get( "language" ),
 			    ( String ) v.get( "quality" ), ( String ) v.get( "license" ), ( String ) v.get( "licenseText" ),
 			    ( String ) v.getOrDefault( "usage", Usage.UNCLEAR ), ( String ) v.get( "source" ), ( String ) v.get( "reasonKind" ),
-			    ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue() ) );
+			    ( String ) v.get( "reason" ), ( ( Number ) v.get( "size" ) ).longValue(), VoiceInfo.PIPER ) );
 		}
 		return new VoiceCatalog( ( String ) root.get( "source" ), List.copyOf( voices ), List.copyOf( excluded ) );
 	}
 
+	/**
+	 * A file of a voice from its entry in a catalog file. A {@code sha256} is checked as SHA-256, otherwise the {@code md5} is used.
+	 *
+	 * @param node The entry, with its path, size and digest
+	 *
+	 * @return The file
+	 */
 	private static VoiceFile file( Map<String, Object> node ) {
-		return new VoiceFile( ( String ) node.get( "path" ), ( ( Number ) node.get( "size" ) ).longValue(), ( String ) node.get( "md5" ) );
+		long size = ( ( Number ) node.get( "size" ) ).longValue();
+		return node.containsKey( "sha256" ) ? new VoiceFile( ( String ) node.get( "path" ), size, ( String ) node.get( "sha256" ), "SHA-256" )
+		    : new VoiceFile( ( String ) node.get( "path" ), size, ( String ) node.get( "md5" ) );
 	}
 
 	/**
@@ -136,41 +218,56 @@ public final class VoiceCatalog {
 	}
 
 	/**
-	 * Find a voice by its full id, or by its short name when only one voice has that name
+	 * Find a voice by its full id, or by its short name when only one voice has that name. A name can start with the engine and a colon, such as
+	 * {@code kokoro:heart} or {@code piper:joe}, to look only at the voices of that engine.
 	 *
-	 * @param idOrName For example {@code en_US-joe-medium} or {@code joe}
+	 * @param idOrName For example {@code en_US-joe-medium}, {@code joe}, {@code af_heart} or {@code kokoro:heart}
 	 *
-	 * @throws BoxRuntimeException when there is no such voice, or the name matches several
+	 * @return The voice
+	 *
+	 * @throws BoxRuntimeException when there is no such voice, the engine is unknown, or the name matches several voices
 	 */
 	public VoiceInfo find( String idOrName ) {
-		String wanted = idOrName == null ? "" : idOrName.trim();
-		for ( VoiceInfo voice : this.voices ) {
-			if ( voice.id().equalsIgnoreCase( wanted ) ) {
+		String	wanted	= idOrName == null ? "" : idOrName.trim();
+		String	engine	= "";
+		int		colon	= wanted.indexOf( ':' );
+		if ( colon >= 0 ) {
+			engine	= wanted.substring( 0, colon ).trim().toLowerCase();
+			wanted	= wanted.substring( colon + 1 ).trim();
+			if ( !ENGINES.contains( engine ) ) {
+				throw new AudioException( AudioException.VOICE_NOT_FOUND,
+				    "Unknown engine [" + engine + "]. Use one of: " + String.join( ", ", ENGINES ) + ", as in " + ENGINES.get( 0 ) + ":name." );
+			}
+		}
+		final String	only	= engine;
+		final String	name	= wanted;
+		List<VoiceInfo>	pool	= this.voices.stream().filter( v -> only.isEmpty() || v.engine().equals( only ) ).toList();
+		for ( VoiceInfo voice : pool ) {
+			if ( voice.id().equalsIgnoreCase( name ) ) {
 				return voice;
 			}
 		}
-		List<VoiceInfo> byName = this.voices.stream().filter( v -> v.name().equalsIgnoreCase( wanted ) ).toList();
+		List<VoiceInfo> byName = pool.stream().filter( v -> v.name().equalsIgnoreCase( name ) ).toList();
 		if ( byName.size() == 1 ) {
 			return byName.get( 0 );
 		}
 		if ( byName.size() > 1 ) {
-			throw new AudioException( AudioException.VOICE_NOT_FOUND, "More than one voice is called [" + wanted + "], use the full id: "
-			    + byName.stream().map( VoiceInfo::id ).collect( Collectors.joining( ", " ) ) );
+			throw new AudioException( AudioException.VOICE_NOT_FOUND, "More than one voice is called [" + name + "], use the engine and the full id: "
+			    + byName.stream().map( v -> v.engine() + ":" + v.id() ).collect( Collectors.joining( ", " ) ) );
 		}
-		List<ExcludedVoice> skipped = this.excluded.stream().filter( v -> v.id().equalsIgnoreCase( wanted ) ).toList();
+		List<ExcludedVoice>	pooled	= this.excluded.stream().filter( v -> only.isEmpty() || v.engine().equals( only ) ).toList();
+		List<ExcludedVoice>	skipped	= pooled.stream().filter( v -> v.id().equalsIgnoreCase( name ) ).toList();
 		if ( skipped.isEmpty() ) {
-			skipped = this.excluded.stream().filter( v -> v.name().equalsIgnoreCase( wanted ) ).toList();
+			skipped = pooled.stream().filter( v -> v.name().equalsIgnoreCase( name ) ).toList();
 		}
 		if ( !skipped.isEmpty() ) {
 			ExcludedVoice voice = skipped.get( 0 );
-			{
-				throw new AudioException( AudioException.VOICE_NOT_FOUND,
-				    "The voice [" + ( skipped.size() > 1 ? wanted : voice.id() ) + "] is not offered: " + voice.reason()
-				        + ". Run `bx-audio voices --excluded` to see every voice that is not offered and why." );
-			}
+			throw new AudioException( AudioException.VOICE_NOT_FOUND,
+			    "The voice [" + ( skipped.size() > 1 ? name : voice.id() ) + "] is not offered: " + voice.reason()
+			        + ". Run `bx-audio voices --excluded` to see every voice that is not offered and why." );
 		}
 		throw new AudioException( AudioException.VOICE_NOT_FOUND,
-		    "Unknown voice [" + wanted + "]. Run audioVoices() or `bx-audio voices` to see the voices you can install." );
+		    "Unknown voice [" + idOrName + "]. Run audioVoices() or `bx-audio voices` to see the voices you can install." );
 	}
 
 }

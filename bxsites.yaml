@@ -1,5 +1,5 @@
 name: "BxAudio"
-description: "Make, mix, master and speak audio from BoxLang. Synthesis, loudness, time stretch, text to speech with captions, FFmpeg for video and a real time mixer for games, all on the JVM."
+description: "Make, mix, master and speak audio from BoxLang. Synthesis, loudness, time stretch, text to speech with Piper and Kokoro voices and captions, FFmpeg for video and a real time mixer for games, all on the JVM."
 baseURL: "https://bxaudio.boxlang.io/"
 source: docs
 ogImage: "assets/og-image.png"

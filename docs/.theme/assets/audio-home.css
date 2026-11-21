@@ -222,6 +222,11 @@ pre.ax-code { margin: 0; padding: 18px 20px; background: var(--code-bg); color: 
 .ax-eco a { position: relative; overflow: hidden; border: 1px solid var(--border); background: var(--surface); border-radius: 14px; padding: 18px; display: block; color: var(--text); text-decoration: none; transition: border-color .15s, transform .15s, opacity .7s, transform .7s; }
 .ax-eco a:hover { border-color: rgba(0, 212, 239, .5); }
 .ax-eco .ic { width: 48px; height: 48px; margin-bottom: 12px; }
+/* three columns, ten cards: let the last one fill the row instead of sitting alone */
+@media (min-width: 961px) {
+	.ax-eco a:last-child:nth-child(3n + 1) { grid-column: 1 / -1; display: grid; grid-template-columns: 48px 1fr; column-gap: 16px; align-items: center; }
+	.ax-eco a:last-child:nth-child(3n + 1) .ic { grid-row: 1 / span 2; margin-bottom: 0; }
+}
 .ax-eco .ic img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform .3s cubic-bezier(.2, .7, .2, 1); filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .25)); }
 .ax-eco a:hover .ic img { transform: translateY(-3px) scale(1.12) rotate(-4deg); }
 .ax-eco .ic.ph { background: var(--grad-diag); border-radius: 12px; display: grid; place-items: center; color: #001019; font-size: 1.6rem; }

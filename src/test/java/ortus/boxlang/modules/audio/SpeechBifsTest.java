@@ -38,15 +38,32 @@ import ortus.boxlang.runtime.types.exceptions.BoxRuntimeException;
  */
 public class SpeechBifsTest extends BaseIntegrationTest {
 
+	/**
+	 * Run BoxLang source
+	 *
+	 * @param source Source that sets {@code result}
+	 *
+	 * @return The value of {@code result}
+	 */
 	private Object run( String source ) {
 		runtime.executeSource( source, context );
 		return variables.get( Key.of( "result" ) );
 	}
 
+	/**
+	 * The message of the error some source throws
+	 *
+	 * @param source Source that throws a BoxLang error
+	 *
+	 * @return The error message
+	 */
 	private String message( String source ) {
 		return assertThrows( BoxRuntimeException.class, () -> run( source ) ).getMessage();
 	}
 
+	/**
+	 * audioVoices lists the catalog with licenses, filters by language and shows what is installed
+	 */
 	@DisplayName( "audioVoices lists the catalog with licenses, filters by language and shows what is installed" )
 	@Test
 	void testVoices( @TempDir Path home ) {
@@ -58,8 +75,8 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( joe.get( Key.of( "license" ) ) ).isEqualTo( "CC0-1.0" );
 		assertThat( joe.get( Key.of( "installed" ) ) ).isEqualTo( false );
 		assertThat( ( ( Number ) joe.get( Key.of( "sizeMB" ) ) ).doubleValue() ).isWithin( 1.0 ).of( 63.2 );
-		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 11 );
-		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB', usage='permissive,attribution,sharealike' )" ) ).size() ).isEqualTo( 7 );
+		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB' )" ) ).size() ).isEqualTo( 19 );
+		assertThat( ( ( Array ) run( "result = audioVoices( language='en_GB', usage='permissive,attribution,sharealike' )" ) ).size() ).isEqualTo( 15 );
 		IStruct semaine = ( IStruct ) ( ( Array ) run( "result = audioVoices().filter( ( v ) => v.name == 'semaine' )" ) ).get( 0 );
 		assertThat( semaine.get( Key.of( "commercial" ) ) ).isEqualTo( false );
 		assertThat( ( String ) semaine.get( Key.of( "warning" ) ) ).contains( "non-commercial" );
@@ -67,6 +84,25 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
 	}
 
+	/**
+	 * audioVoices filters by engine, for offered and excluded voices, and refuses an unknown engine
+	 */
+	@DisplayName( "audioVoices filters by engine, for offered and excluded voices, and refuses an unknown engine" )
+	@Test
+	void testAudioVoicesEngine() {
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro' )" ) ).size() ).isEqualTo( 28 );
+		assertThat( run( "result = audioVoices( engine='KOKORO' ).every( ( v ) => v.engine == 'kokoro' )" ) ).isEqualTo( true );
+		assertThat( run( "result = audioVoices( engine='piper' ).every( ( v ) => v.engine == 'piper' )" ) ).isEqualTo( true );
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', status='excluded' )" ) ).size() ).isEqualTo( 26 );
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', language='en_GB' )" ) ).size() ).isEqualTo( 8 );
+		int all = ( ( Array ) run( "result = audioVoices()" ) ).size();
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='piper' )" ) ).size() + 28 ).isEqualTo( all );
+		assertThat( message( "audioVoices( engine='festival' )" ) ).contains( "Unknown engine [festival]" );
+	}
+
+	/**
+	 * audioVoices filters by status and license, and says why a voice is not offered
+	 */
 	@DisplayName( "audioVoices filters by status and license, and says why a voice is not offered" )
 	@Test
 	void testVoiceStatuses( @TempDir Path home ) {
@@ -80,10 +116,13 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		IStruct ryan = ( IStruct ) ( ( Array ) run( "result = audioVoices( status='excluded' ).filter( ( v ) => v.id == 'en_US-ryan-high' )" ) ).get( 0 );
 		assertThat( ryan.get( Key.of( "status" ) ) ).isEqualTo( "excluded" );
 		assertThat( ryan.get( Key.of( "reason" ) ).toString() ).contains( "Non-commercial" );
-		assertThat( ( ( Array ) run( "result = audioVoices( license='Apache-2.0' )" ) ).size() ).isEqualTo( 1 );
+		assertThat( ( ( Array ) run( "result = audioVoices( license='Apache-2.0' )" ) ).size() ).isEqualTo( 29 );
 		assertThat( message( "result = audioVoices( status='bogus' )" ) ).contains( "Unknown status [bogus]" );
 	}
 
+	/**
+	 * audioLicenses describes each license and counts the offered voices that use it
+	 */
 	@DisplayName( "audioLicenses describes each license and counts the offered voices that use it" )
 	@Test
 	void testLicenses() {
@@ -92,12 +131,15 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		IStruct apache = ( IStruct ) run( "result = audioLicenses().filter( ( l ) => l.id == 'Apache-2.0' ).first()" );
 		assertThat( apache.get( Key.of( "attribution" ) ) ).isEqualTo( true );
 		assertThat( apache.get( Key.of( "commercial" ) ) ).isEqualTo( true );
-		assertThat( ( ( Number ) apache.get( Key.of( "voices" ) ) ).intValue() ).isEqualTo( 1 );
+		assertThat( ( ( Number ) apache.get( Key.of( "voices" ) ) ).intValue() ).isEqualTo( 29 );
 		// every offered voice has a license we describe, except the ones offered with a warning
 		assertThat( run( "ids = audioLicenses().map( ( l ) => l.id ); result = audioVoices().every( ( v ) => ids.contains( v.license ) || v.warning.len() )" ) )
 		    .isEqualTo( true );
 	}
 
+	/**
+	 * audioSubtitles formats cues and writes the file, and audioSpeakCues explains what is missing
+	 */
 	@DisplayName( "audioSubtitles formats cues and writes the file, and audioSpeakCues explains what is missing" )
 	@Test
 	void testSubtitlesAndCues( @TempDir Path home ) throws Exception {
@@ -115,6 +157,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		    .containsMatch( "bx-audio install engine|speed must be" );
 	}
 
+	/**
+	 * audioSpeechStatus says where everything lives and that nothing is installed yet
+	 */
 	@DisplayName( "audioSpeechStatus says where everything lives and that nothing is installed yet" )
 	@Test
 	void testStatus( @TempDir Path home ) {
@@ -126,6 +171,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) status.get( Key.of( "voices" ) ) ).size() ).isEqualTo( 0 );
 	}
 
+	/**
+	 * audioSpeak explains what is missing and how to install it when downloads are not allowed
+	 */
 	@DisplayName( "audioSpeak explains what is missing and how to install it when downloads are not allowed" )
 	@Test
 	void testSpeakWithoutInstall( @TempDir Path home ) {
@@ -139,6 +187,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( message( "audioSpeak( text='Hello', voice='lessac', autoInstall=false )" ) ).contains( "The voice [lessac] is not offered" );
 	}
 
+	/**
+	 * A setting can turn automatic downloads off for every call
+	 */
 	@DisplayName( "A setting can turn automatic downloads off for every call" )
 	@Test
 	void testAutoInstallSetting( @TempDir Path home ) {
@@ -151,6 +202,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		}
 	}
 
+	/**
+	 * audioVoiceInstall and audioVoiceRemove reject voices that are not in the catalog, and removing what is not installed says so
+	 */
 	@DisplayName( "audioVoiceInstall and audioVoiceRemove reject voices that are not in the catalog, and removing what is not installed says so" )
 	@Test
 	void testInstallRemoveErrors( @TempDir Path home ) {
@@ -161,6 +215,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( run( "result = audioVoiceRemove( 'engine' )" ) ).isEqualTo( false );
 	}
 
+	/**
+	 * A voice on disk at the size the catalog says shows as installed, and audioVoiceRemove deletes it
+	 */
 	@DisplayName( "A voice on disk at the size the catalog says shows as installed, and audioVoiceRemove deletes it" )
 	@Test
 	void testInstalledVoice( @TempDir Path home ) throws Exception {
@@ -184,6 +241,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) run( "result = audioVoices( installed=true )" ) ).size() ).isEqualTo( 0 );
 	}
 
+	/**
+	 * Online: the engine and a voice are downloaded, and speech comes out
+	 */
 	@DisplayName( "Online: the engine and a voice are downloaded, and speech comes out" )
 	@EnabledIfEnvironmentVariable( named = "BX_AUDIO_ONLINE_TESTS", matches = "1" )
 	@Test
@@ -215,6 +275,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) variables.get( Key.of( "events" ) ) ).size() ).isEqualTo( 0 );
 	}
 
+	/**
+	 * audioVoices says what each license means for a product you sell, and filters by it
+	 */
 	@DisplayName( "audioVoices says what each license means for a product you sell, and filters by it" )
 	@Test
 	void testVoiceUsage( @TempDir Path home ) {
@@ -239,6 +302,9 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( message( "result = audioVoices( usage='free' )" ) ).contains( "Unknown usage [free]" );
 	}
 
+	/**
+	 * audioCredits writes the credit text for one voice, a list or an array, and refuses voices that cannot be used
+	 */
 	@DisplayName( "audioCredits writes the credit text for one voice, a list or an array, and refuses voices that cannot be used" )
 	@Test
 	void testCredits( @TempDir Path home ) {
