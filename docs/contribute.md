@@ -25,7 +25,7 @@ Some files are written by scripts, so they cannot drift from the code. Change th
 | `docs/reference/functions/*.md` | `boxlang tools/generate-docs.bxs` | The BIF classes and their Javadoc |
 | `docs/reference/cli.md` | `boxlang tools/generate-docs.bxs` | The command list in `Cli.bx` |
 | `docs/examples/index.md` | `boxlang tools/generate-docs.bxs` | `examples/explorer/catalog.json` |
-| `docs/voices.md`, `src/main/resources/voices.json` | `boxlang tools/update-voices.bxs` | The Piper voices and their model cards |
+| `docs/voices.md`, `src/main/resources/voices.json` | `boxlang tools/update-voices.bxs` | The Piper voices and their model cards, and the Kokoro voices from `src/main/resources/kokoro.json` |
 | `docs/assets/audio/*.mp3` | `boxlang tools/generate-doc-audio.bxs` | The examples |
 | `docs/assets/images/mod-*`, `docs/assets/audio/mod-*` | `boxlang tools/generate-doc-modulation.bxs` | The modulation guide examples |
 | `docs/assets/images/convolve-*`, `docs/assets/audio/convolve.mp3` | `boxlang tools/generate-doc-convolve.bxs` | The convolution section of the synthesis guide |

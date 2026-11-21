@@ -66,7 +66,7 @@ The [examples page](examples/index.md) has a player for every piece.
 bx-audio speak "Hello from BoxLang." --voice=joe --out=hello.mp3
 ```
 
-The first time, this downloads the speech engine (about 148 MB) and the voice (63 MB), checks them against checksums and keeps them in `~/.bxaudio`. After that it works offline. See [Speech and subtitles](guides/speech-and-subtitles.md) and the list of [voices](voices.md).
+The first time, this downloads the speech engine (about 148 MB) and the voice (63 MB), checks them against checksums and keeps them in `~/.bxaudio`. After that it works offline. For the Kokoro voices, such as `--voice=af_heart`, the download is the engine plus 325 MB for the model and 28 MB for the voices, shared by all of them. See [Speech and subtitles](guides/speech-and-subtitles.md) and the list of [voices](voices.md).
 
 ## What next
 
