@@ -108,7 +108,7 @@ To widen or narrow the folders, set `ai.allowedPaths`, see [Configuration](../re
 
 | Tool | Arguments |
 |---|---|
-| `audioVoices` | `language`, `installed`. Lists the voices `audioSpeak` can use |
+| `audioVoices` | `language`, `installed`. Lists the voices `audioSpeak` can use, Piper and Kokoro |
 | `audioSpeak` | `text`, `voice`, `speed`, `outputPath`. Text to speech on this machine, no cloud service |
 | `audioSilence` | `seconds`, `channels`, `sampleRate`, `outputPath` |
 | `audioMux` | `video`, `audio`, `keepOriginal`, `offset`, `outputPath`. Needs FFmpeg |
@@ -117,7 +117,7 @@ Each tool has the same name as the function it wraps, so the [function reference
 
 ## Local speech next to cloud speech
 
-bx-ai has its own `speak@bxai`, which calls a cloud provider. `audioSpeak@bxaudio` runs a [Piper](speech-and-subtitles.md) voice on your machine, offline once the voice is downloaded, and costs nothing per call. Name the one you want in the agent's `tools`, or both and let the model choose from their descriptions.
+bx-ai has its own `speak@bxai`, which calls a cloud provider. `audioSpeak@bxaudio` runs a [Piper or Kokoro](speech-and-subtitles.md) voice on your machine, offline once the voice is downloaded, and costs nothing per call. Name the one you want in the agent's `tools`, or both and let the model choose from their descriptions.
 
 The first `audioSpeak` of a voice may download the engine and the voice, unless `autoInstall` is `false`, see [Storage](storage.md).
 
