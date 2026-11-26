@@ -148,7 +148,8 @@ public final class Speech {
 			if ( speed < 0.25 || speed > 4 ) {
 				throw new AudioException( AudioException.INVALID_ARGUMENT, "The speed must be between 0.25 and 4 but was " + speed );
 			}
-			String spoken = this.voice.language().startsWith( "es" ) ? Pronunciation.applyCustom( text, pronunciations ) : Pronunciation.apply( text, pronunciations );
+			String spoken = this.voice.language().startsWith( "es" ) ? Pronunciation.applyCustom( text, pronunciations )
+			    : Pronunciation.apply( text, pronunciations );
 			return this.engine.speak( this.voice, this.store, spoken, speed );
 		}
 	}

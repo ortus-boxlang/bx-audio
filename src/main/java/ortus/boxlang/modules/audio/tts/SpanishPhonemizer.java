@@ -32,16 +32,21 @@ import java.util.Set;
  */
 public final class SpanishPhonemizer {
 
-	private static final String		VOWELS			= "aeiouáéíóúü";
-	private static final String		STRONG			= "aeoáéó";
-	private static final Set<String>	UNSTRESSED		= Set.of( "el", "la", "los", "las", "de", "del", "en", "con", "mi", "mis", "su", "sus", "tu", "tus", "que", "lo",
-	    "se", "si", "a", "al", "me", "te", "le", "les", "nos", "y", "e", "o", "u", "ni", "por", "sin", "como", "cuando", "pero", "mas", "para", "sobre", "entre", "desde",
+	private static final String			VOWELS		= "aeiouáéíóúü";
+	private static final String			STRONG		= "aeoáéó";
+	private static final Set<String>	UNSTRESSED	= Set.of( "el", "la", "los", "las", "de", "del", "en", "con", "mi", "mis", "su", "sus", "tu", "tus", "que",
+	    "lo",
+	    "se", "si", "a", "al", "me", "te", "le", "les", "nos", "y", "e", "o", "u", "ni", "por", "sin", "como", "cuando", "pero", "mas", "para", "sobre",
+	    "entre", "desde",
 	    "mientras", "aunque", "hasta", "porque", "sino", "ante", "según" );
-	private static final String[]	UNITS			= { "cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece",
-	    "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco",
+	private static final String[]		UNITS		= { "cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once",
+	    "doce", "trece",
+	    "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro",
+	    "veinticinco",
 	    "veintiséis", "veintisiete", "veintiocho", "veintinueve" };
-	private static final String[]	TENS			= { "", "", "", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa" };
-	private static final String[]	HUNDREDS		= { "", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos",
+	private static final String[]		TENS		= { "", "", "", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa" };
+	private static final String[]		HUNDREDS	= { "", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos",
+	    "ochocientos",
 	    "novecientos" };
 
 	private SpanishPhonemizer() {
@@ -83,7 +88,7 @@ public final class SpanishPhonemizer {
 		if ( text.isEmpty() ) {
 			return;
 		}
-		List<String>	words		= new ArrayList<>();
+		List<String> words = new ArrayList<>();
 		for ( String raw : text.split( "\\s+" ) ) {
 			String word = raw.toLowerCase( Locale.ROOT ).replaceAll( "[^a-záéíóúüñ'’-]", "" ).replace( "'", "" ).replace( "’", "" );
 			for ( String part : word.split( "-" ) ) {
@@ -165,19 +170,20 @@ public final class SpanishPhonemizer {
 		int			n		= w.length();
 		while ( i < n ) {
 			char c = w.charAt( i );
-			if ( !vowel( c ) || silentU( w, i ) || ( c == 'u' && i > 0 && ( w.charAt( i - 1 ) == 'q' || w.charAt( i - 1 ) == 'g' ) && i + 1 < n && "eiéí".indexOf( w.charAt( i + 1 ) ) >= 0 ) ) {
+			if ( !vowel( c ) || silentU( w, i ) || ( c == 'u' && i > 0 && ( w.charAt( i - 1 ) == 'q' || w.charAt( i - 1 ) == 'g' ) && i + 1 < n
+			    && "eiéí".indexOf( w.charAt( i + 1 ) ) >= 0 ) ) {
 				i++;
 				continue;
 			}
-			int start = i;
-			int end = i;
+			int	start	= i;
+			int	end		= i;
 			while ( end + 1 < n && vowel( w.charAt( end + 1 ) ) ) {
 				end++;
 			}
 			// a final y after a vowel is a glide of the last nucleus of the cluster
-			boolean finalY = end + 1 == n - 1 && w.charAt( end + 1 ) == 'y';
+			boolean	finalY	= end + 1 == n - 1 && w.charAt( end + 1 ) == 'y';
 			// split the cluster into nuclei: strong + strong and an accented weak vowel are hiatus
-			int k = start;
+			int		k		= start;
 			while ( k <= end ) {
 				int	nucleus	= k;
 				int	last	= k;
@@ -192,17 +198,19 @@ public final class SpanishPhonemizer {
 					// a weak vowel: it joins a strong one that follows, or a weak one
 					if ( k + 1 <= end && ( strong( w.charAt( k + 1 ) ) ) && !accented( w.charAt( k ) ) ) {
 						int m = k + 1;
-						nucleus = m;
-						last = m;
+						nucleus	= m;
+						last	= m;
 						while ( last + 1 <= end && ( w.charAt( last + 1 ) == 'i' || w.charAt( last + 1 ) == 'u' || w.charAt( last + 1 ) == 'y' ) ) {
 							last++;
 						}
-					} else if ( k + 1 <= end && !accented( w.charAt( k ) ) && ( w.charAt( k + 1 ) == 'i' || w.charAt( k + 1 ) == 'u' ) && !accented( w.charAt( k + 1 ) ) ) {
-						nucleus = k + 1;
-						last = k + 1;
-					} else if ( k + 1 <= end && !accented( w.charAt( k ) ) && accented( w.charAt( k + 1 ) ) && ( w.charAt( k + 1 ) == 'í' || w.charAt( k + 1 ) == 'ú' ) ) {
-						nucleus = k + 1;
-						last = k + 1;
+					} else if ( k + 1 <= end && !accented( w.charAt( k ) ) && ( w.charAt( k + 1 ) == 'i' || w.charAt( k + 1 ) == 'u' )
+					    && !accented( w.charAt( k + 1 ) ) ) {
+						nucleus	= k + 1;
+						last	= k + 1;
+					} else if ( k + 1 <= end && !accented( w.charAt( k ) ) && accented( w.charAt( k + 1 ) )
+					    && ( w.charAt( k + 1 ) == 'í' || w.charAt( k + 1 ) == 'ú' ) ) {
+						nucleus	= k + 1;
+						last	= k + 1;
 					}
 				}
 				if ( finalY && last + 1 > end ) {
@@ -220,7 +228,8 @@ public final class SpanishPhonemizer {
 	 * A {@code u} that is not said: after {@code q}, and after {@code g} before {@code e} or {@code i}
 	 */
 	private static boolean silentU( String w, int i ) {
-		return w.charAt( i ) == 'u' && i > 0 && i + 1 < w.length() && ( w.charAt( i - 1 ) == 'q' || w.charAt( i - 1 ) == 'g' ) && "eiéí".indexOf( w.charAt( i + 1 ) ) >= 0;
+		return w.charAt( i ) == 'u' && i > 0 && i + 1 < w.length() && ( w.charAt( i - 1 ) == 'q' || w.charAt( i - 1 ) == 'g' )
+		    && "eiéí".indexOf( w.charAt( i + 1 ) ) >= 0;
 	}
 
 	/**
@@ -236,22 +245,22 @@ public final class SpanishPhonemizer {
 			return "i";
 		}
 		if ( w.length() > 7 && w.endsWith( "mente" ) ) {
-			String	base	= word( w.substring( 0, w.length() - 5 ), previous, "m", latinAmerican, false );
+			String base = word( w.substring( 0, w.length() - 5 ), previous, "m", latinAmerican, false );
 			return base + "mˈente";
 		}
-		List<int[]>	nuclei		= nuclei( w );
-		int			stressed	= stressedNucleus( w, nuclei );
-		boolean		stressMark	= !UNSTRESSED.contains( w );
-		StringBuilder	out		= new StringBuilder();
-		char			before	= previous;
-		int				n		= w.length();
+		List<int[]>		nuclei		= nuclei( w );
+		int				stressed	= stressedNucleus( w, nuclei );
+		boolean			stressMark	= !UNSTRESSED.contains( w );
+		StringBuilder	out			= new StringBuilder();
+		char			before		= previous;
+		int				n			= w.length();
 		// a final n becomes m before a stressed word that starts with b, v, p or f: un vaso, con permiso, examen fue
-		boolean nasalToM = !next.isEmpty() && "bvpf".indexOf( next.charAt( 0 ) ) >= 0 && !UNSTRESSED.contains( next );
+		boolean			nasalToM	= !next.isEmpty() && "bvpf".indexOf( next.charAt( 0 ) ) >= 0 && !UNSTRESSED.contains( next );
 		for ( int i = 0; i < n; i++ ) {
-			char	c		= w.charAt( i );
-			char	after	= i + 1 < n ? w.charAt( i + 1 ) : ( next.isEmpty() ? ' ' : next.charAt( 0 ) );
-			String	piece	= null;
-			int		nucleusIndex = nucleusAt( nuclei, i );
+			char	c				= w.charAt( i );
+			char	after			= i + 1 < n ? w.charAt( i + 1 ) : ( next.isEmpty() ? ' ' : next.charAt( 0 ) );
+			String	piece			= null;
+			int		nucleusIndex	= nucleusAt( nuclei, i );
 			if ( vowel( c ) || ( c == 'y' && ( i == n - 1 && n > 1 && vowel( w.charAt( i - 1 ) ) ) ) ) {
 				if ( silentU( w, i ) ) {
 					continue;
@@ -270,7 +279,8 @@ public final class SpanishPhonemizer {
 				if ( c == 'r' && i + 1 < n && w.charAt( i + 1 ) == 'r' ) {
 					i++;
 				} else if ( ( c == 'c' && i + 1 < n && w.charAt( i + 1 ) == 'h' ) || ( c == 'l' && i + 1 < n && w.charAt( i + 1 ) == 'l' )
-				    || ( c == 'q' && i + 1 < n && w.charAt( i + 1 ) == 'u' ) || ( c == 'g' && i + 1 < n && w.charAt( i + 1 ) == 'u' && i + 2 < n && "eiéí".indexOf( w.charAt( i + 2 ) ) >= 0 ) ) {
+				    || ( c == 'q' && i + 1 < n && w.charAt( i + 1 ) == 'u' )
+				    || ( c == 'g' && i + 1 < n && w.charAt( i + 1 ) == 'u' && i + 2 < n && "eiéí".indexOf( w.charAt( i + 2 ) ) >= 0 ) ) {
 					i++;
 				} else if ( c == 'c' && i + 1 < n && w.charAt( i + 1 ) == 'c' && i + 2 < n && "eiéí".indexOf( w.charAt( i + 2 ) ) >= 0 ) {
 					i++;
@@ -337,13 +347,13 @@ public final class SpanishPhonemizer {
 			}
 			return p == 'i' ? "ɪ" : "ʊ";
 		}
-		String	mark	= "";
+		String mark = "";
 		if ( k == stressed && stressMark ) {
 			mark = "ˈ";
 		} else if ( secondary( w, k, stressed, stressMark, nuclei.size() ) ) {
 			mark = "ˌ";
 		}
-		String	sound	= String.valueOf( p );
+		String sound = String.valueOf( p );
 		if ( p == 'e' && k == stressed && stressMark && nucleus[ 1 ] == nucleus[ 2 ] && openE( w, nucleus[ 1 ] ) ) {
 			sound = "ɛ";
 		}
@@ -369,11 +379,11 @@ public final class SpanishPhonemizer {
 	}
 
 	private static String consonant( String w, int i, char before, char after, boolean latinAmerican, boolean atEnd, boolean nasalToM ) {
-		char	c			= w.charAt( i );
+		char	c				= w.charAt( i );
 		boolean	afterVowelish	= "aeiouɪʊjwɛ".indexOf( before ) >= 0;
-		boolean	softCluster	= before == 'l' || before == 'ɾ' || before == 'r' || before == 's' || before == 'θ' || before == 'x' || before == 'f';
+		boolean	softCluster		= before == 'l' || before == 'ɾ' || before == 'r' || before == 's' || before == 'θ' || before == 'x' || before == 'f';
 		boolean	startOrNasal	= before == ' ' || before == 'm' || before == 'n' || before == 'ŋ';
-		boolean	frontNext	= after == 'e' || after == 'i' || after == 'é' || after == 'í';
+		boolean	frontNext		= after == 'e' || after == 'i' || after == 'é' || after == 'í';
 		switch ( c ) {
 			case 'b' :
 			case 'v' :
@@ -394,7 +404,7 @@ public final class SpanishPhonemizer {
 			case 'f' :
 				return "f";
 			case 'g' :
-				if ( frontNext && !( i + 1 < w.length() && w.charAt( i + 1 ) == 'u' ) ) {
+				if ( frontNext && ! ( i + 1 < w.length() && w.charAt( i + 1 ) == 'u' ) ) {
 					return "x";
 				}
 				return before == ' ' || before == 'n' || before == 'ŋ' ? "ɡ" : "ɣ";
@@ -412,7 +422,7 @@ public final class SpanishPhonemizer {
 			case 'm' :
 				return "m";
 			case 'n' : {
-				boolean	within	= i + 1 < w.length();
+				boolean within = i + 1 < w.length();
 				if ( within && ( after == 'f' || after == 'b' || after == 'v' || after == 'p' ) ) {
 					return "m";
 				}
@@ -470,10 +480,11 @@ public final class SpanishPhonemizer {
 				}
 				String whole = text.substring( i, j );
 				// 1.250 and 1,250,000 group thousands: a point or comma followed by exactly three digits more
-				while ( j + 3 < n + 0 && ( text.charAt( j ) == '.' || text.charAt( j ) == ',' ) && j + 4 <= n && text.substring( j + 1, j + 4 ).chars().allMatch( Character::isDigit )
+				while ( j + 3 < n + 0 && ( text.charAt( j ) == '.' || text.charAt( j ) == ',' ) && j + 4 <= n
+				    && text.substring( j + 1, j + 4 ).chars().allMatch( Character::isDigit )
 				    && ( j + 4 == n || !Character.isDigit( text.charAt( j + 4 ) ) ) && text.charAt( j ) == '.' ) {
-					whole += text.substring( j + 1, j + 4 );
-					j += 4;
+					whole	+= text.substring( j + 1, j + 4 );
+					j		+= 4;
 				}
 				String frac = "";
 				if ( j + 1 < n && ( text.charAt( j ) == ',' || text.charAt( j ) == '.' ) && Character.isDigit( text.charAt( j + 1 ) ) ) {
@@ -481,8 +492,8 @@ public final class SpanishPhonemizer {
 					while ( m < n && Character.isDigit( text.charAt( m ) ) ) {
 						m++;
 					}
-					frac = text.substring( j + 1, m );
-					j = m;
+					frac	= text.substring( j + 1, m );
+					j		= m;
 				}
 				out.append( ' ' ).append( words( whole ) );
 				if ( !frac.isEmpty() ) {

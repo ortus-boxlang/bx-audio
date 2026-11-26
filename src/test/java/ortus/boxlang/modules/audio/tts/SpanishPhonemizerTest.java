@@ -20,7 +20,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * The expected phonemes are what espeak-ng 1.51's {@code es} voice (and {@code es-419} for the Latin American ones) says, which is what Kokoro was trained on.
+ * The expected phonemes are what espeak-ng 1.51's {@code es} voice (and {@code es-419} for the Latin American ones) says, which is what Kokoro was
+ * trained on.
  */
 public class SpanishPhonemizerTest {
 
