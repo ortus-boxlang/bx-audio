@@ -90,7 +90,7 @@ Use a voice by its full id, or by its short name when only one voice has that na
 | `bm_lewis` | `lewis` | en_GB | Apache-2.0 | permissive |
 | `ef_dora` | `dora` | es_ES | Apache-2.0 | permissive |
 | `em_alex` | `alex` | es_ES | Apache-2.0 | permissive |
-| `em_santa` | `santa` | es_ES | Apache-2.0 | permissive |
+| `em_santa` | `santa_es` | es_ES | Apache-2.0 | permissive |
 
 The first letter of the id is the accent or language (`a` American, `b` British, `e` Spanish) and the second the voice (`f` female, `m` male). Removing one Kokoro voice with `audioVoiceRemove` removes the model and the pack, so all of them are gone together.
 

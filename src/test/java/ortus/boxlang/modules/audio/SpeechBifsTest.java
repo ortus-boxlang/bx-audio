@@ -93,7 +93,7 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro' )" ) ).size() ).isEqualTo( 31 );
 		assertThat( run( "result = audioVoices( engine='KOKORO' ).every( ( v ) => v.engine == 'kokoro' )" ) ).isEqualTo( true );
 		assertThat( run( "result = audioVoices( engine='piper' ).every( ( v ) => v.engine == 'piper' )" ) ).isEqualTo( true );
-		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', status='excluded' )" ) ).size() ).isEqualTo( 26 );
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', status='excluded' )" ) ).size() ).isEqualTo( 23 );
 		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', language='en_GB' )" ) ).size() ).isEqualTo( 8 );
 		int all = ( ( Array ) run( "result = audioVoices()" ) ).size();
 		assertThat( ( ( Array ) run( "result = audioVoices( engine='piper' )" ) ).size() + 31 ).isEqualTo( all );
@@ -116,7 +116,7 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		IStruct ryan = ( IStruct ) ( ( Array ) run( "result = audioVoices( status='excluded' ).filter( ( v ) => v.id == 'en_US-ryan-high' )" ) ).get( 0 );
 		assertThat( ryan.get( Key.of( "status" ) ) ).isEqualTo( "excluded" );
 		assertThat( ryan.get( Key.of( "reason" ) ).toString() ).contains( "Non-commercial" );
-		assertThat( ( ( Array ) run( "result = audioVoices( license='Apache-2.0' )" ) ).size() ).isEqualTo( 29 );
+		assertThat( ( ( Array ) run( "result = audioVoices( license='Apache-2.0' )" ) ).size() ).isEqualTo( 32 );
 		assertThat( message( "result = audioVoices( status='bogus' )" ) ).contains( "Unknown status [bogus]" );
 	}
 
@@ -131,7 +131,7 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 		IStruct apache = ( IStruct ) run( "result = audioLicenses().filter( ( l ) => l.id == 'Apache-2.0' ).first()" );
 		assertThat( apache.get( Key.of( "attribution" ) ) ).isEqualTo( true );
 		assertThat( apache.get( Key.of( "commercial" ) ) ).isEqualTo( true );
-		assertThat( ( ( Number ) apache.get( Key.of( "voices" ) ) ).intValue() ).isEqualTo( 29 );
+		assertThat( ( ( Number ) apache.get( Key.of( "voices" ) ) ).intValue() ).isEqualTo( 32 );
 		// every offered voice has a license we describe, except the ones offered with a warning
 		assertThat( run( "ids = audioLicenses().map( ( l ) => l.id ); result = audioVoices().every( ( v ) => ids.contains( v.license ) || v.warning.len() )" ) )
 		    .isEqualTo( true );

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Spanish: the Kokoro voices `ef_dora`, `em_alex` and `em_santa` are offered. The module says Spanish with its own rules (`SpanishPhonemizer`, no espeak-ng and no dictionary): the letters, the stress, diphthongs, the soft b, d and g, n before a labial or velar, numbers and `%` said in words, and the phonemes follow espeak-ng's Spanish voice, on which Kokoro was trained (about 99 percent of the words of 130 test sentences match). The accent is Castilian (`z` and `ce, ci` as th) by default; the `accent` module setting or the `BX_AUDIO_ACCENT` variable set to `latam` says them as `s`. The built in English respellings (BoxLang and the names of its family, letter names) are not applied to Spanish voices, your own `pronunciations` still are
+- Spanish: the Kokoro voices `ef_dora`, `em_alex` and `em_santa` are offered (`em_santa` is `santa_es` by its short name, since `santa` is the English `am_santa`). The module says Spanish with its own rules (`SpanishPhonemizer`, no espeak-ng and no dictionary): the letters, the stress, diphthongs, the soft b, d and g, n before a labial or velar, numbers and `%` said in words, and the phonemes follow espeak-ng's Spanish voice, on which Kokoro was trained (about 99 percent of the words of 130 test sentences match). The accent is Castilian (`z` and `ce, ci` as th) by default; the `accent` module setting or the `BX_AUDIO_ACCENT` variable set to `latam` says them as `s`. The built in English respellings (BoxLang and the names of its family, letter names) are not applied to Spanish voices, your own `pronunciations` still are
 
 ## [1.3.0] - 2026-11-21
 

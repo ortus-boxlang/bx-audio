@@ -89,7 +89,7 @@ public class VoiceCatalogTest {
 			assertThat( voice.config() ).isEqualTo( kokoro.get( 0 ).config() );
 			assertThat( voice.license() ).isEqualTo( "Apache-2.0" );
 			assertThat( voice.commercial() ).isTrue();
-			assertThat( voice.id() ).matches( "[ab][fm]_[a-z]+" );
+			assertThat( voice.id() ).matches( "[abe][fm]_[a-z]+" );
 		}
 		VoiceInfo heart = catalog.find( "af_heart" );
 		assertThat( heart.name() ).isEqualTo( "heart" );
