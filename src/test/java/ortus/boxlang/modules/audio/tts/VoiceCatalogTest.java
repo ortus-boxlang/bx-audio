@@ -82,14 +82,14 @@ public class VoiceCatalogTest {
 	void testKokoroVoices() {
 		VoiceCatalog	catalog	= VoiceCatalog.load();
 		List<VoiceInfo>	kokoro	= catalog.all().stream().filter( v -> VoiceInfo.KOKORO.equals( v.engine() ) ).toList();
-		assertThat( kokoro ).hasSize( 28 );
-		assertThat( kokoro.stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_US", "en_GB" );
+		assertThat( kokoro ).hasSize( 31 );
+		assertThat( kokoro.stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_US", "en_GB", "es_ES" );
 		for ( VoiceInfo voice : kokoro ) {
 			assertThat( voice.model() ).isEqualTo( kokoro.get( 0 ).model() );
 			assertThat( voice.config() ).isEqualTo( kokoro.get( 0 ).config() );
 			assertThat( voice.license() ).isEqualTo( "Apache-2.0" );
 			assertThat( voice.commercial() ).isTrue();
-			assertThat( voice.id() ).matches( "[ab][fm]_[a-z]+" );
+			assertThat( voice.id() ).matches( "[abe][fm]_[a-z]+" );
 		}
 		VoiceInfo heart = catalog.find( "af_heart" );
 		assertThat( heart.name() ).isEqualTo( "heart" );
@@ -99,7 +99,7 @@ public class VoiceCatalogTest {
 		assertThat( heart.config().digest() ).matches( "[0-9a-f]{64}" );
 		assertThat( heart.model().url( catalog.getBaseUrl() ) ).startsWith( "https://github.com/thewh1teagle/kokoro-onnx/releases/download/" );
 		// the voices of the other languages are listed as not supported yet, not as unknown
-		assertThat( catalog.excluded().stream().filter( v -> VoiceInfo.KOKORO.equals( v.engine() ) ).count() ).isEqualTo( 26 );
+		assertThat( catalog.excluded().stream().filter( v -> VoiceInfo.KOKORO.equals( v.engine() ) ).count() ).isEqualTo( 23 );
 		assertThat( assertThrows( BoxRuntimeException.class, () -> catalog.find( "jf_nezumi" ) ).getMessage() ).contains( "Japanese" );
 	}
 
@@ -118,12 +118,12 @@ public class VoiceCatalogTest {
 	}
 
 	/**
-	 * US and British English voices are offered, the other languages have no phonemizer yet
+	 * US and British English voices are offered, and Spanish ones from Kokoro; the other languages have no phonemizer yet
 	 */
-	@DisplayName( "US and British English voices are offered, the other languages have no phonemizer yet" )
+	@DisplayName( "US and British English voices are offered, and Spanish ones from Kokoro; the other languages have no phonemizer yet" )
 	@Test
 	void testEnglishVoices() {
-		assertThat( VoiceCatalog.load().all().stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_GB", "en_US" );
+		assertThat( VoiceCatalog.load().all().stream().map( VoiceInfo::language ).distinct().toList() ).containsExactly( "en_GB", "en_US", "es_ES" );
 		assertThat( VoiceCatalog.load().find( "en_GB-alba-medium" ).language() ).isEqualTo( "en_GB" );
 	}
 

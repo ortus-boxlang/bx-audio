@@ -79,6 +79,22 @@ public final class Pronunciation {
 	}
 
 	/**
+	 * @return The text with only the caller's own respellings, for a language the built in rules (English letter names, the BoxLang family) do not suit
+	 *
+	 * @param text   What is about to be spoken
+	 * @param custom Caller supplied replacements, word to spoken form. May be null.
+	 */
+	public static String applyCustom( String text, Map<String, String> custom ) {
+		String result = text;
+		if ( custom != null ) {
+			for ( Map.Entry<String, String> rule : custom.entrySet() ) {
+				result = replaceWord( result, rule.getKey(), rule.getValue() );
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Replace a whole word: it must not be part of a longer word, so MP3 is found in "an MP3 file" but the rule for BoxLang does not touch
 	 * "BoxLanguage".
 	 */

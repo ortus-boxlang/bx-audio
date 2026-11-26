@@ -148,7 +148,10 @@ public final class KokoroEngine implements SpeechEngine {
 			KokoroVoices.Styles	styles		= this.styles.computeIfAbsent( voice.id(), id -> KokoroVoices.read( store.configFile( voice ), id ) );
 			List<float[]>		pieces		= new ArrayList<>();
 			for ( String sentence : sentences( text ) ) {
-				String mapped = phonemes.map( voice.language(), this.piper.phonemize( voice.language(), this.voicesDir, sentence ) );
+				// Spanish has its own rules in this module, English goes through the Voices phonemizer
+				String mapped = voice.language().startsWith( "es" )
+				    ? phonemes.known( SpanishPhonemizer.phonemize( sentence, Speech.latinAmericanAccent() ) )
+				    : phonemes.map( voice.language(), this.piper.phonemize( voice.language(), this.voicesDir, sentence ) );
 				for ( String chunk : chunks( mapped ) ) {
 					long[] tokens = phonemes.tokens( chunk );
 					if ( tokens.length == 0 ) {
