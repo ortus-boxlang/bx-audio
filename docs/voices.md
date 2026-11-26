@@ -88,17 +88,19 @@ Use a voice by its full id, or by its short name when only one voice has that na
 | `bm_fable` | `fable` | en_GB | Apache-2.0 | permissive |
 | `bm_george` | `george` | en_GB | Apache-2.0 | permissive |
 | `bm_lewis` | `lewis` | en_GB | Apache-2.0 | permissive |
+| `ef_dora` | `dora` | es_ES | Apache-2.0 | permissive |
+| `em_alex` | `alex` | es_ES | Apache-2.0 | permissive |
+| `em_santa` | `santa` | es_ES | Apache-2.0 | permissive |
 
-The first letter of the id is the accent (`a` American, `b` British) and the second the voice (`f` female, `m` male). Removing one Kokoro voice with `audioVoiceRemove` removes the model and the pack, so all of them are gone together.
+The first letter of the id is the accent or language (`a` American, `b` British, `e` Spanish) and the second the voice (`f` female, `m` male). Removing one Kokoro voice with `audioVoiceRemove` removes the model and the pack, so all of them are gone together.
 
-Kokoro has 26 more voices, in Spanish, French, Hindi, Italian, Japanese, Portuguese and Mandarin. They are not offered, because the Voices engine has no phonemizer for those languages yet:
+Kokoro has 23 more voices, in French, Hindi, Italian, Japanese, Portuguese and Mandarin. They are not offered, because the Voices engine has no phonemizer for those languages yet:
 
 | Language | Voices |
 |---|---|
 | French (fr_FR) | `ff_siwis` |
 | Mandarin Chinese (zh_CN) | `zf_xiaobei`, `zf_xiaoni`, `zf_xiaoxiao`, `zf_xiaoyi`, `zm_yunjian`, `zm_yunxi`, `zm_yunxia`, `zm_yunyang` |
 | Japanese (ja_JP) | `jf_alpha`, `jf_gongitsune`, `jf_nezumi`, `jf_tebukuro`, `jm_kumo` |
-| Spanish (es) | `ef_dora`, `em_alex`, `em_santa` |
 | Brazilian Portuguese (pt_BR) | `pf_dora`, `pm_alex`, `pm_santa` |
 | Italian (it_IT) | `if_sara`, `im_nicola` |
 | Hindi (hi_IN) | `hf_alpha`, `hf_beta`, `hm_omega`, `hm_psi` |

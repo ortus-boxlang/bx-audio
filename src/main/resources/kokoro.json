@@ -155,48 +155,24 @@
 			"id": "bm_lewis",
 			"name": "lewis",
 			"language": "en_GB"
-		}
-	],
-	"excluded": [
+		},
 		{
 			"id": "ef_dora",
 			"name": "dora",
-			"language": "es",
-			"quality": "high",
-			"license": "Apache-2.0",
-			"licenseText": "Apache License 2.0",
-			"usage": "permissive",
-			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
-			"reasonKind": "language",
-			"reason": "Not supported yet: the Voices engine has no phonemizer for Spanish",
-			"size": 28214398
+			"language": "es_ES"
 		},
 		{
 			"id": "em_alex",
 			"name": "alex",
-			"language": "es",
-			"quality": "high",
-			"license": "Apache-2.0",
-			"licenseText": "Apache License 2.0",
-			"usage": "permissive",
-			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
-			"reasonKind": "language",
-			"reason": "Not supported yet: the Voices engine has no phonemizer for Spanish",
-			"size": 28214398
+			"language": "es_ES"
 		},
 		{
 			"id": "em_santa",
 			"name": "santa",
-			"language": "es",
-			"quality": "high",
-			"license": "Apache-2.0",
-			"licenseText": "Apache License 2.0",
-			"usage": "permissive",
-			"source": "https://huggingface.co/hexgrad/Kokoro-82M",
-			"reasonKind": "language",
-			"reason": "Not supported yet: the Voices engine has no phonemizer for Spanish",
-			"size": 28214398
-		},
+			"language": "es_ES"
+		}
+	],
+	"excluded": [
 		{
 			"id": "ff_siwis",
 			"name": "siwis",

@@ -90,13 +90,13 @@ public class SpeechBifsTest extends BaseIntegrationTest {
 	@DisplayName( "audioVoices filters by engine, for offered and excluded voices, and refuses an unknown engine" )
 	@Test
 	void testAudioVoicesEngine() {
-		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro' )" ) ).size() ).isEqualTo( 28 );
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro' )" ) ).size() ).isEqualTo( 31 );
 		assertThat( run( "result = audioVoices( engine='KOKORO' ).every( ( v ) => v.engine == 'kokoro' )" ) ).isEqualTo( true );
 		assertThat( run( "result = audioVoices( engine='piper' ).every( ( v ) => v.engine == 'piper' )" ) ).isEqualTo( true );
 		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', status='excluded' )" ) ).size() ).isEqualTo( 26 );
 		assertThat( ( ( Array ) run( "result = audioVoices( engine='kokoro', language='en_GB' )" ) ).size() ).isEqualTo( 8 );
 		int all = ( ( Array ) run( "result = audioVoices()" ) ).size();
-		assertThat( ( ( Array ) run( "result = audioVoices( engine='piper' )" ) ).size() + 28 ).isEqualTo( all );
+		assertThat( ( ( Array ) run( "result = audioVoices( engine='piper' )" ) ).size() + 31 ).isEqualTo( all );
 		assertThat( message( "audioVoices( engine='festival' )" ) ).contains( "Unknown engine [festival]" );
 	}
 

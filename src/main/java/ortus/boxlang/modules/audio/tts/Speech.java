@@ -62,6 +62,16 @@ public final class Speech {
 	}
 
 	/**
+	 * @return True when Spanish is said the Latin American way ({@code z} and {@code ce, ci} as {@code s}): the module's {@code accent} setting, else the
+	 *         {@code BX_AUDIO_ACCENT} environment variable, whose value starts with {@code lat} or is {@code es_MX}. Castilian otherwise.
+	 */
+	public static boolean latinAmericanAccent() {
+		Object	configured	= setting( "accent" );
+		String	value		= configured instanceof String text && !text.isBlank() ? text : System.getenv( "BX_AUDIO_ACCENT" );
+		return value != null && ( value.toLowerCase( java.util.Locale.ROOT ).startsWith( "lat" ) || value.equalsIgnoreCase( "es_MX" ) );
+	}
+
+	/**
 	 * @return The voice catalog
 	 */
 	public static VoiceCatalog catalog() {
@@ -138,7 +148,8 @@ public final class Speech {
 			if ( speed < 0.25 || speed > 4 ) {
 				throw new AudioException( AudioException.INVALID_ARGUMENT, "The speed must be between 0.25 and 4 but was " + speed );
 			}
-			return this.engine.speak( this.voice, this.store, Pronunciation.apply( text, pronunciations ), speed );
+			String spoken = this.voice.language().startsWith( "es" ) ? Pronunciation.applyCustom( text, pronunciations ) : Pronunciation.apply( text, pronunciations );
+			return this.engine.speak( this.voice, this.store, spoken, speed );
 		}
 	}
 

@@ -80,6 +80,8 @@ class {
 			home : "",
 			// May the module download the speech engine, a voice or FFmpeg when you first use something that needs it
 			autoInstall : true,
+			// How Spanish is said: "castilian" (z and ce, ci as th, the default) or "latam" (as s). Empty reads the BX_AUDIO_ACCENT variable.
+			accent : "",
 			// Path to FFmpeg (the program, or its folder). Empty finds it in the BX_AUDIO_FFMPEG variable, the bx-audio home, then the PATH.
 			ffmpeg : "",
 			// AI tools offered to the BoxLang AI module (bx-ai) when it is installed

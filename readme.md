@@ -306,7 +306,7 @@ Playing to the speakers needs a sound card and the JVM's `java.desktop` module. 
 
 ### Text to speech
 
-`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) or a [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) voice (28 of them, such as `af_heart`), on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into `~/.bxaudio`, shared by every BoxLang install. `bx-audio where` shows what is stored and `bx-audio clean` frees it.
+`audioSpeak` turns text into a mono audio buffer with a [Piper](https://github.com/rhasspy/piper) or a [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) voice (31 of them, such as `af_heart`; English, and Spanish with `ef_dora`, `em_alex` and `em_santa`), on the JVM and offline once the voices are downloaded. The engine and the voices are not in the module, they are far too big. The first call downloads them, with every file checked against a checksum, into `~/.bxaudio`, shared by every BoxLang install. `bx-audio where` shows what is stored and `bx-audio clean` frees it.
 
 | Function | Purpose |
 |---|---|
